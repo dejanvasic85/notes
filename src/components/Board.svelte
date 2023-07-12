@@ -1,14 +1,18 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
 	import Button from './Button.svelte';
+
+	const dispatch = createEventDispatcher();
 
 	function handleClick(e: MouseEvent) {
 		console.log('here we go', e);
+		dispatch('createNote', e);
 	}
 </script>
 
-<div class="flex p-8 gap-8">
+<div class="flex p-8 gap-8 flex-wrap">
 	<slot />
-	<div class="absolute bottom-20 right-20">
+	<div class="absolute bottom-4 right-4">
 		<Button on:click={handleClick}>
 			<svg
 				viewBox="0 0 16 16"
