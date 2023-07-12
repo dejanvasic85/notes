@@ -1,9 +1,16 @@
 <script>
-	import Board from '../Board.svelte';
-	import Card from '../../Card.svelte';
+	import Board from '../../components/Board.svelte';
+	import Note from '../../components/Note.svelte';
+
+	const notes = [
+		{
+			text: `hello world`
+		}
+	];
 </script>
 
 <Board>
-	<Card text="hello world" />
-	<Card text="Ana's sticky note" />
+	{#each notes as note}
+		<Note text={note.text} />
+	{/each}
 </Board>
