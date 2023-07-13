@@ -1,16 +1,11 @@
-<script>
+<script lang="ts">
 	import Board from '../../components/Board.svelte';
 	import Note from '../../components/Note.svelte';
-
-	$: notes = [
-		{
-			text: `hello world`
-		}
-	];
+	import { localNotes } from './noteStore';
 
 	function handleCreateNote() {
-		const length = notes.length;
-		notes = [...notes, { text: `hello world ${length}` }];
+		const length = $localNotes.length;
+		localNotes.update((current) => [...current, { text: `hello world ${length}` }]);
 	}
 </script>
 
@@ -20,7 +15,7 @@
 </svelte:head>
 
 <Board on:createNote={handleCreateNote}>
-	{#each notes as note}
+	{#each $localNotes as note}
 		<Note bind:text={note.text} />
 	{/each}
 </Board>

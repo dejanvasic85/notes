@@ -5,7 +5,6 @@
 	const dispatch = createEventDispatcher();
 
 	function handleClick(e: MouseEvent) {
-		console.log('here we go', e);
 		dispatch('createNote', e);
 	}
 </script>
