@@ -1,7 +1,16 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Board from '../../components/Board.svelte';
 	import Note from '../../components/Note.svelte';
 	import { localNotes } from './noteStore';
+
+	onMount(() => {
+		if ($localNotes.length === 0) {
+			localNotes.update(() => [
+				{ text: 'Hello world!. <p><em>Use the force and edit me by clicking here.</em></p>' }
+			]);
+		}
+	});
 
 	function handleCreateNote() {
 		const length = $localNotes.length;
