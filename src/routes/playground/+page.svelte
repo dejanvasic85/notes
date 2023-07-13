@@ -9,7 +9,8 @@
 	];
 
 	function handleCreateNote() {
-		notes = [...notes, { text: 'hello world' }];
+		const length = notes.length;
+		notes = [...notes, { text: `hello world ${length}` }];
 	}
 </script>
 
