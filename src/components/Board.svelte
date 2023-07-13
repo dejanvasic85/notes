@@ -10,7 +10,7 @@
 	}
 </script>
 
-<div class="flex justify-center p-8 gap-8 flex-wrap">
+<div class="flex justify-center items-start p-8 gap-8 flex-wrap">
 	<slot />
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="my-5 mx-5 float-right">
