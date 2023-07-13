@@ -9,7 +9,6 @@
 	];
 
 	function handleCreateNote() {
-		console.log('cmon');
 		notes = [...notes, { text: 'hello world' }];
 	}
 </script>
@@ -21,6 +20,6 @@
 
 <Board on:createNote={handleCreateNote}>
 	{#each notes as note}
-		<Note text={note.text} />
+		<Note bind:text={note.text} />
 	{/each}
 </Board>
