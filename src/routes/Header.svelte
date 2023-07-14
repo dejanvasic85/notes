@@ -11,11 +11,6 @@
 		>
 		<a
 			class="rounded-lg px-3 py-2 text-slate-700 font-medium hover:bg-slate-100 hover:text-slate-900"
-			href="/about"
-			aria-current={$page.url.pathname === '/about' ? 'page' : undefined}>About</a
-		>
-		<a
-			class="rounded-lg px-3 py-2 text-slate-700 font-medium hover:bg-slate-100 hover:text-slate-900"
 			href="/playground"
 			aria-current={$page.url.pathname === '/playground' ? 'page' : undefined}>Playground</a
 		>
