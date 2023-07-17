@@ -1,16 +1,32 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import Button from './Button.svelte';
+	import Note from './Note.svelte';
+	import type { NoteType } from '../types';
 
 	const dispatch = createEventDispatcher();
+
+	export let notes: NoteType[];
+	let currentEditId: string;
 
 	function handleClick(e: MouseEvent) {
 		dispatch('createNote', e);
 	}
+
+	function handleEdit(id: string) {
+		currentEditId = id;
+	}
 </script>
 
 <div class="flex justify-center items-start p-8 gap-8 flex-wrap">
-	<slot />
+	{#each notes as note, i}
+		<Note
+			bind:text={note.text}
+			editMode={note.id === currentEditId}
+			tabIndex={i + 1}
+			on:edit={() => handleEdit(note.id)}
+		/>
+	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="my-5 mx-5 float-right">
 			<Button on:click={handleClick}>
