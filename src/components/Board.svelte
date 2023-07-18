@@ -9,32 +9,18 @@
 	import type { NoteType } from '../types';
 	import { goto } from '$app/navigation';
 
-	const dispatchCreate = createEventDispatcher();
-	const dispatchUpdate = createEventDispatcher<{ updateNote: NoteType }>();
-
+	// Props
 	export let notes: NoteType[];
-
-	function handleClick(e: MouseEvent) {
-		dispatchCreate('createNote', e);
-	}
-
-	function handleEdit(id: string) {
-		goto(`?id=${id}`);
-	}
-
-	function handleClose() {
-		goto(`/playground`);
-	}
 
 	let currentNoteText: string = '';
 	let editor: HTMLDivElement;
 
-	$: orderedNotes = notes.sort((a, b) => a.sequence - b.sequence);
-	$: search = new URL($page.url).searchParams;
-	$: selectedId = search.get('id');
-	$: selectedNote = notes.find((n) => n.id === selectedId);
-	$: selectedNoteText = selectedNote?.text ?? '';
-	$: showModal = !!selectedId;
+	const dispatchCreate = createEventDispatcher();
+	const dispatchUpdate = createEventDispatcher<{ updateNote: NoteType }>();
+
+	function handleClose() {
+		goto(`/playground`);
+	}
 
 	function handleSave() {
 		if (!selectedNote) {
@@ -44,9 +30,24 @@
 		handleClose();
 	}
 
+	function handleClick(e: MouseEvent) {
+		dispatchCreate('createNote', e);
+	}
+
+	function handleEdit(id: string) {
+		goto(`?id=${id}`);
+	}
+
 	function handleChange() {
 		currentNoteText = editor.innerHTML;
 	}
+
+	$: orderedNotes = notes.sort((a, b) => a.sequence - b.sequence);
+	$: search = new URL($page.url).searchParams;
+	$: selectedId = search.get('id');
+	$: selectedNote = notes.find((n) => n.id === selectedId);
+	$: selectedNoteText = selectedNote?.text ?? '';
+	$: showModal = !!selectedId;
 </script>
 
 <div class="flex justify-center items-start p-8 gap-8 flex-wrap">
@@ -56,7 +57,7 @@
 				bind:this={editor}
 				on:input={handleChange}
 				contenteditable="true"
-				class="w-60 min-h-48 border p-4 bg-cyan-200 shadow-xl"
+				class="w-60 min-h-48 border p-4 bg-cyan-50 shadow-xl"
 			>
 				{@html selectedNoteText}
 			</div>
@@ -67,7 +68,7 @@
 		</div>
 	</Modal>
 	{#each orderedNotes as note, i}
-		<Note text={note.text} editMode={false} tabIndex={i + 1} on:click={() => handleEdit(note.id)} />
+		<Note text={note.text} tabIndex={i + 1} on:click={() => handleEdit(note.id)} />
 	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="my-5 mx-5 float-right">
