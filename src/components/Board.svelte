@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { page } from '$app/stores';
 
 	import Button from './Button.svelte';
 	import Modal from './Modal.svelte';
@@ -11,15 +10,17 @@
 
 	// Props
 	export let notes: NoteType[];
+	export let selectedNote: NoteType | undefined;
 
-	let currentNoteText: string = '';
+	let currentNoteText: string = selectedNote?.text ?? '';
 	let editor: HTMLDivElement;
 
 	const dispatchCreate = createEventDispatcher();
 	const dispatchUpdate = createEventDispatcher<{ updateNote: NoteType }>();
+	const dispatchCancelUpdate = createEventDispatcher();
 
 	function handleClose() {
-		goto(`/playground`);
+		dispatchCancelUpdate('cancelUpdate');
 	}
 
 	function handleSave() {
@@ -27,11 +28,10 @@
 			return;
 		}
 		dispatchUpdate('updateNote', { ...selectedNote, text: currentNoteText });
-		handleClose();
 	}
 
-	function handleClick(e: MouseEvent) {
-		dispatchCreate('createNote', e);
+	function handleCreateClick() {
+		dispatchCreate('createNote');
 	}
 
 	function handleEdit(id: string) {
@@ -43,10 +43,8 @@
 	}
 
 	$: orderedNotes = notes.sort((a, b) => a.sequence - b.sequence);
-	$: search = new URL($page.url).searchParams;
-	$: selectedId = search.get('id');
-	$: selectedNote = notes.find((n) => n.id === selectedId);
 	$: selectedNoteText = selectedNote?.text ?? '';
+	$: selectedId = selectedNote?.id;
 	$: showModal = !!selectedId;
 </script>
 
@@ -62,9 +60,9 @@
 				{@html selectedNoteText}
 			</div>
 		</div>
-		<div slot="footer">
-			<button on:click={handleSave}>Save</button>
-			<button on:click={handleClose}>Cancel</button>
+		<div slot="footer" class="p-4 mt-4 flex justify-between">
+			<Button on:click={handleClose}>Cancel</Button>
+			<Button on:click={handleSave}>Save</Button>
 		</div>
 	</Modal>
 	{#each orderedNotes as note, i}
@@ -72,7 +70,7 @@
 	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="my-5 mx-5 float-right">
-			<Button on:click={handleClick}>
+			<Button on:click={handleCreateClick} rounded>
 				<svg
 					viewBox="0 0 16 16"
 					height="48"
