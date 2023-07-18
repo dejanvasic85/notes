@@ -51,17 +51,16 @@
 
 <div class="flex justify-center items-start p-8 gap-8 flex-wrap">
 	<Modal bind:show={showModal} on:close={handleClose}>
-		<div>
-			<div
-				bind:this={editor}
-				on:input={handleChange}
-				contenteditable="true"
-				class="w-60 min-h-48 border p-4 bg-cyan-50 shadow-xl"
-			>
-				{@html selectedNoteText}
-			</div>
+		<div
+			bind:this={editor}
+			on:input={handleChange}
+			contenteditable="true"
+			class="w-full outline-none"
+		>
+			{@html selectedNoteText}
 		</div>
-		<div slot="footer" class="p-4 mt-4 flex justify-between">
+
+		<div slot="footer" class="flex justify-between">
 			<Button on:click={handleClose}>Cancel</Button>
 			<Button on:click={handleSave}>Save</Button>
 		</div>

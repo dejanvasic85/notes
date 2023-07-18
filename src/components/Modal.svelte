@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let show: boolean;
 	let dialog: HTMLDialogElement;
+	let innerHeight = 0;
 
 	$: if (dialog && show) {
 		dialog.showModal();
@@ -11,29 +12,35 @@
 	}
 </script>
 
+<svelte:window bind:innerHeight />
+
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
-<dialog bind:this={dialog} on:close on:click|self={() => dialog.close()}>
+<dialog
+	bind:this={dialog}
+	on:close
+	on:click|self={() => dialog.close()}
+	class="w-full sm:w-3/4 rounded-md"
+>
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div on:click|stopPropagation>
-		<slot name="header" />
-		<slot />
-		<slot name="footer" />
+	<div on:click|stopPropagation class="flex flex-col" style="height: {innerHeight - 100}px">
+		<div>
+			Header: {innerHeight}
+			<slot name="header" />
+		</div>
+		<div class="flex-1 w-full">
+			<slot />
+		</div>
+		<div>
+			<slot name="footer" />
+		</div>
 	</div>
 </dialog>
 
 <style>
-	dialog {
-		max-width: 32em;
-		border-radius: 0.2em;
-		border: none;
-		padding: 0;
-	}
 	dialog::backdrop {
 		background: rgba(0, 0, 0, 0.5);
 	}
-	dialog > div {
-		padding: 1em;
-	}
+
 	dialog[open] {
 		animation: zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 	}
