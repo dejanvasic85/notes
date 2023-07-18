@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { nanoid } from 'nanoid';
+	import partition from 'lodash/partition';
 
 	import Board from '../../components/Board.svelte';
 	import { localNotes } from './noteStore';
+	import type { NoteType } from '../../types';
 
 	onMount(() => {
 		if ($localNotes.length === 0) {
@@ -16,10 +18,17 @@
 		}
 	});
 
-	function handleCreateNote() {
+	const handleCreateNote = () => {
 		const length = $localNotes.length;
 		localNotes.update((current) => [...current, { text: `hello world ${length}`, id: nanoid() }]);
-	}
+	};
+
+	const handleUpdateNote = ({ detail }: CustomEvent<NoteType>) => {
+		localNotes.update((state) => {
+			const [[noteToUpdate], rest] = partition(state, (n) => n.id === detail.id);
+			return [...rest, { ...noteToUpdate, text: detail.text }];
+		});
+	};
 </script>
 
 <svelte:head>
@@ -27,4 +36,4 @@
 	<meta name="description" content="Playground is the best place to try out creating some notes" />
 </svelte:head>
 
-<Board notes={$localNotes} on:createNote={handleCreateNote} />
+<Board notes={$localNotes} on:createNote={handleCreateNote} on:updateNote={handleUpdateNote} />

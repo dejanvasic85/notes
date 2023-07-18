@@ -9,12 +9,13 @@
 	import type { NoteType } from '../types';
 	import { goto } from '$app/navigation';
 
-	const dispatch = createEventDispatcher();
+	const dispatchCreate = createEventDispatcher();
+	const dispatchUpdate = createEventDispatcher<{ updateNote: NoteType }>();
 
 	export let notes: NoteType[];
 
 	function handleClick(e: MouseEvent) {
-		dispatch('createNote', e);
+		dispatchCreate('createNote', e);
 	}
 
 	function handleEdit(id: string) {
@@ -25,23 +26,47 @@
 		goto(`/playground`);
 	}
 
-	function handleSave() {}
+	let currentNoteText: string = '';
+	let editor: HTMLDivElement;
 
 	$: search = new URL($page.url).searchParams;
 	$: selectedId = search.get('id');
+	$: selectedNote = notes.find((n) => n.id === selectedId);
+	$: selectedNoteText = selectedNote?.text ?? '';
 	$: showModal = !!selectedId;
+
+	function handleSave() {
+		if (!selectedNote) {
+			return;
+		}
+		dispatchUpdate('updateNote', { ...selectedNote, text: currentNoteText });
+		handleClose();
+	}
+
+	function handleChange() {
+		currentNoteText = editor.innerHTML;
+	}
 </script>
 
 <div class="flex justify-center items-start p-8 gap-8 flex-wrap">
 	<Modal bind:show={showModal} on:close={handleClose}>
-		<Note editMode={true} text={notes.find((n) => n.id === selectedId)?.text ?? ''} tabIndex={0} />
+		<div>
+			<div
+				bind:this={editor}
+				on:input={handleChange}
+				contenteditable="true"
+				class="w-60 min-h-48 border p-4 bg-cyan-200 shadow-xl"
+			>
+				{@html selectedNoteText}
+			</div>
+		</div>
 		<div slot="footer">
 			<button on:click={handleSave}>Save</button>
 			<button on:click={handleClose}>Cancel</button>
 		</div>
 	</Modal>
 	{#each notes as note, i}
-		<Note text={note.text} editMode={false} tabIndex={i + 1} on:edit={() => handleEdit(note.id)} />
+		<Note text={note.text} editMode={false} tabIndex={i + 1} on:click={() => handleEdit(note.id)} />
 	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="my-5 mx-5 float-right">

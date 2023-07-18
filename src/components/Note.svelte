@@ -7,7 +7,7 @@
 
 	const dispatch = createEventDispatcher();
 	const handleClick = () => {
-		dispatch('edit');
+		dispatch('click');
 	};
 </script>
 
