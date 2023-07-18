@@ -29,6 +29,7 @@
 	let currentNoteText: string = '';
 	let editor: HTMLDivElement;
 
+	$: orderedNotes = notes.sort((a, b) => a.sequence - b.sequence);
 	$: search = new URL($page.url).searchParams;
 	$: selectedId = search.get('id');
 	$: selectedNote = notes.find((n) => n.id === selectedId);
@@ -65,7 +66,7 @@
 			<button on:click={handleClose}>Cancel</button>
 		</div>
 	</Modal>
-	{#each notes as note, i}
+	{#each orderedNotes as note, i}
 		<Note text={note.text} editMode={false} tabIndex={i + 1} on:click={() => handleEdit(note.id)} />
 	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">

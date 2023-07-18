@@ -8,19 +8,21 @@
 	import type { NoteType } from '../../types';
 
 	onMount(() => {
-		if ($localNotes.length === 0) {
-			localNotes.update(() => [
-				{
-					text: 'Hello world!. <p><em>Use the force and edit me by clicking here.</em></p>',
-					id: nanoid()
-				}
-			]);
-		}
+		localNotes.update(() => [
+			{
+				id: nanoid(),
+				sequence: 0,
+				text: 'Hello world!. <p><em>Use the force and edit me by clicking here.</em></p>'
+			}
+		]);
 	});
 
 	const handleCreateNote = () => {
 		const length = $localNotes.length;
-		localNotes.update((current) => [...current, { text: `hello world ${length}`, id: nanoid() }]);
+		localNotes.update((current) => [
+			...current,
+			{ id: nanoid(), sequence: length, text: `hello world ${length}` }
+		]);
 	};
 
 	const handleUpdateNote = ({ detail }: CustomEvent<NoteType>) => {
