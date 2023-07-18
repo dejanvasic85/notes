@@ -1,28 +1,32 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { page } from '$app/stores';
 	import Button from './Button.svelte';
 	import Note from './Note.svelte';
 	import type { NoteType } from '../types';
+	import { goto } from '$app/navigation';
 
 	const dispatch = createEventDispatcher();
 
 	export let notes: NoteType[];
-	let currentEditId: string;
 
 	function handleClick(e: MouseEvent) {
 		dispatch('createNote', e);
 	}
 
 	function handleEdit(id: string) {
-		currentEditId = id;
+		goto(`?id=${id}`);
 	}
+
+	$: search = new URL($page.url).searchParams;
+	$: selectedId = search.get('id');
 </script>
 
 <div class="flex justify-center items-start p-8 gap-8 flex-wrap">
 	{#each notes as note, i}
 		<Note
 			bind:text={note.text}
-			editMode={note.id === currentEditId}
+			editMode={false}
 			tabIndex={i + 1}
 			on:edit={() => handleEdit(note.id)}
 		/>
