@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { page } from '$app/stores';
+
 	import Button from './Button.svelte';
+	import Modal from './Modal.svelte';
 	import Note from './Note.svelte';
+
 	import type { NoteType } from '../types';
 	import { goto } from '$app/navigation';
 
@@ -18,18 +21,27 @@
 		goto(`?id=${id}`);
 	}
 
+	function handleClose() {
+		goto(`/playground`);
+	}
+
+	function handleSave() {}
+
 	$: search = new URL($page.url).searchParams;
 	$: selectedId = search.get('id');
+	$: showModal = !!selectedId;
 </script>
 
 <div class="flex justify-center items-start p-8 gap-8 flex-wrap">
+	<Modal bind:show={showModal} on:close={handleClose}>
+		<Note editMode={true} text={notes.find((n) => n.id === selectedId)?.text ?? ''} tabIndex={0} />
+		<div slot="footer">
+			<button on:click={handleSave}>Save</button>
+			<button on:click={handleClose}>Cancel</button>
+		</div>
+	</Modal>
 	{#each notes as note, i}
-		<Note
-			bind:text={note.text}
-			editMode={false}
-			tabIndex={i + 1}
-			on:edit={() => handleEdit(note.id)}
-		/>
+		<Note text={note.text} editMode={false} tabIndex={i + 1} on:edit={() => handleEdit(note.id)} />
 	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="my-5 mx-5 float-right">
