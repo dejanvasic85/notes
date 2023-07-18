@@ -35,7 +35,7 @@
 	class="w-full sm:w-3/4 rounded-md"
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div on:click|stopPropagation class="flex flex-col" style="height: {innerHeight - 100}px">
+	<div on:click|stopPropagation class="flex flex-col" style="height: {visualViewport - 100}px">
 		<div>
 			Header: {innerHeight}, VisualViewport: {visualViewport}
 			<slot name="header" />
