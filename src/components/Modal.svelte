@@ -32,10 +32,10 @@
 	bind:this={dialog}
 	on:close
 	on:click|self={() => dialog.close()}
-	class="w-full sm:w-3/4 rounded-md"
+	class="w-full sm:w-3/4 rounded-md fixed top-0 left-0 right-0 bottom-0 mx-auto my-2"
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div on:click|stopPropagation class="flex flex-col" style="height: {visualViewport - 100}px">
+	<div on:click|stopPropagation class="flex flex-col" style="height: {visualViewport}px">
 		<div>
 			Header: {innerHeight}, VisualViewport: {visualViewport}
 			<slot name="header" />
