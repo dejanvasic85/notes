@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
+	import type { NoteType } from '../types';
+
 	import Button from './Button.svelte';
 	import Modal from './Modal.svelte';
 	import Note from './Note.svelte';
-
-	import type { NoteType } from '../types';
-	import { goto } from '$app/navigation';
 
 	// Props
 	export let notes: NoteType[];
@@ -15,9 +14,11 @@
 	let currentNoteText: string = selectedNote?.text ?? '';
 	let editor: HTMLDivElement;
 
+	// Events
 	const dispatchCreate = createEventDispatcher();
 	const dispatchUpdate = createEventDispatcher<{ updateNote: NoteType }>();
 	const dispatchCancelUpdate = createEventDispatcher();
+	const dispatchSelect = createEventDispatcher<{ select: string }>();
 
 	function handleClose() {
 		dispatchCancelUpdate('cancelUpdate');
@@ -35,7 +36,7 @@
 	}
 
 	function handleEdit(id: string) {
-		goto(`?id=${id}`);
+		dispatchSelect('select', id);
 	}
 
 	function handleChange() {

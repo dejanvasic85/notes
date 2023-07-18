@@ -39,6 +39,10 @@
 		goto('/playground');
 	}
 
+	function handleSelect({ detail: id }: CustomEvent<string>) {
+		goto(`/playground?id=${id}`);
+	}
+
 	$: search = new URL($page.url).searchParams;
 	$: selectedId = search.get('id');
 	$: selectedNote = $localNotes.find((n) => n.id === selectedId);
@@ -54,5 +58,6 @@
 	{selectedNote}
 	on:createNote={handleCreateNote}
 	on:cancelUpdate={handleClose}
+	on:select={handleSelect}
 	on:updateNote={handleUpdateNote}
 />
