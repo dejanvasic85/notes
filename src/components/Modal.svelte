@@ -2,6 +2,19 @@
 	export let show: boolean;
 	let dialog: HTMLDialogElement;
 	let innerHeight = 0;
+	let visualViewport = 0;
+
+	if (typeof window !== 'undefined') {
+		visualViewport = window.innerHeight;
+	}
+
+	function handleResize() {
+		if (!window.visualViewport) {
+			return;
+		}
+
+		visualViewport = window.visualViewport.height;
+	}
 
 	$: if (dialog && show) {
 		dialog.showModal();
@@ -12,7 +25,7 @@
 	}
 </script>
 
-<svelte:window bind:innerHeight />
+<svelte:window bind:innerHeight on:resize={handleResize} />
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 <dialog
@@ -24,7 +37,7 @@
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div on:click|stopPropagation class="flex flex-col" style="height: {innerHeight - 100}px">
 		<div>
-			Header: {innerHeight}
+			Header: {innerHeight}, VisualViewport: {visualViewport}
 			<slot name="header" />
 		</div>
 		<div class="flex-1 w-full">
