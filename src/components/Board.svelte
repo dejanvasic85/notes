@@ -43,6 +43,22 @@
 		currentNoteText = editor.innerHTML;
 	}
 
+	let isControlDown = false;
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.repeat) {
+			return;
+		}
+
+		if (event.key === 'Control') {
+			isControlDown = true;
+			event.preventDefault();
+		}
+
+		if (event.key === 'Enter' && isControlDown) {
+			handleSave();
+		}
+	}
+
 	$: orderedNotes = notes.sort((a, b) => a.sequence - b.sequence);
 	$: selectedNoteText = selectedNote?.text ?? '';
 	$: selectedId = selectedNote?.id;
@@ -51,11 +67,13 @@
 
 <div class="flex justify-center items-start p-8 gap-8 flex-wrap">
 	<Modal bind:show={showModal} on:close={handleClose}>
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div
+			contenteditable="true"
+			class="w-full outline-none h-full"
 			bind:this={editor}
 			on:input={handleChange}
-			contenteditable="true"
-			class="w-full outline-none"
+			on:keydown={handleKeydown}
 		>
 			{@html selectedNoteText}
 		</div>
