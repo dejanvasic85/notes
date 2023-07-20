@@ -1,11 +1,14 @@
 <script lang="ts">
 	export let show: boolean;
 	let dialog: HTMLDialogElement;
-	let innerHeight = 0;
-	let visualViewport = 0;
+	let modalHeight: number | null = 0;
+
+	const getModalHeight = (viewportHeight: number, viewportWidth: number) => {
+		return viewportWidth < 1024 ? viewportHeight - 80 : null;
+	};
 
 	if (typeof window !== 'undefined') {
-		visualViewport = window.innerHeight;
+		modalHeight = getModalHeight(window.innerHeight, window.innerWidth);
 	}
 
 	function handleResize() {
@@ -13,7 +16,7 @@
 			return;
 		}
 
-		visualViewport = window.visualViewport.height;
+		modalHeight = getModalHeight(window.visualViewport.height, window.visualViewport.width);
 	}
 
 	$: if (dialog && show) {
@@ -25,7 +28,7 @@
 	}
 </script>
 
-<svelte:window bind:innerHeight on:resize={handleResize} />
+<svelte:window on:resize={handleResize} />
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 <dialog
@@ -35,9 +38,12 @@
 	class="w-full sm:w-3/4 lg:w-1/2 rounded-md fixed top-0 left-0 right-0 bottom-0 mx-auto my-1"
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div on:click|stopPropagation class="flex flex-col" style="height: {visualViewport - 80}px">
+	<div
+		on:click|stopPropagation
+		class="flex flex-col overflow-scroll"
+		style="height: {modalHeight ? modalHeight + 'px' : '50vh'}"
+	>
 		<div>
-			Header: {innerHeight}, VisualViewport: {visualViewport}
 			<slot name="header" />
 		</div>
 		<div class="flex-1 w-full">
