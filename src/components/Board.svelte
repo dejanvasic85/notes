@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 
 	import type { NoteType } from '../types';
 
@@ -20,8 +20,19 @@
 	const dispatchCancelUpdate = createEventDispatcher();
 	const dispatchSelect = createEventDispatcher<{ select: string }>();
 
-	function handleClose() {
+	function handleModalClose() {
 		dispatchCancelUpdate('cancelUpdate');
+	}
+
+	async function handleModalOpen() {
+		await tick();
+		const selection = window.getSelection();
+		const range = document.createRange();
+		selection?.removeAllRanges();
+		range.selectNodeContents(editor);
+		range.collapse(false);
+		selection?.addRange(range);
+		editor.focus();
 	}
 
 	function handleSave() {
@@ -66,7 +77,7 @@
 </script>
 
 <div class="flex justify-center items-start p-8 gap-8 flex-wrap">
-	<Modal bind:show={showModal} on:close={handleClose}>
+	<Modal bind:show={showModal} on:close={handleModalClose} on:open={handleModalOpen}>
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div
 			contenteditable="true"
@@ -79,7 +90,7 @@
 		</div>
 
 		<div slot="footer" class="flex justify-between">
-			<Button on:click={handleClose}>Cancel</Button>
+			<Button on:click={handleModalClose}>Cancel</Button>
 			<Button on:click={handleSave}>Save</Button>
 		</div>
 	</Modal>

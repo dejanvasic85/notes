@@ -1,5 +1,10 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatchOpen = createEventDispatcher();
+
 	export let show: boolean;
+
 	let dialog: HTMLDialogElement;
 	let modalHeight: number | null = 0;
 
@@ -21,6 +26,7 @@
 
 	$: if (dialog && show) {
 		dialog.showModal();
+		dispatchOpen('open');
 	}
 
 	$: if (dialog && !show) {
