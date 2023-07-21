@@ -35,7 +35,7 @@
 	bind:this={dialog}
 	on:close
 	on:click|self={() => dialog.close()}
-	class="w-full sm:w-3/4 lg:w-1/2 rounded-md fixed top-0 left-0 right-0 bottom-0 mx-auto my-1"
+	class="w-full sm:w-3/4 lg:w-1/2 rounded-md fixed top-0 left-0 right-0 bottom-0 mx-auto my-4 lg:my-auto"
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div
