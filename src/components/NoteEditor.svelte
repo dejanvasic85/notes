@@ -44,7 +44,6 @@
 		if (event.repeat) {
 			return;
 		}
-		console.log('event.key', event.key);
 
 		if (event.key === 'Control' || event.key === 'Meta') {
 			isControlDown = true;
