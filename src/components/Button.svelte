@@ -12,6 +12,11 @@
 	const roundedClass = rounded ? 'rounded-full' : 'rounded-md';
 </script>
 
-<button class=" {variantClass[variant]} {roundedClass} p-2 hover:ring-2 text-base" on:click>
+<button
+	class="{variantClass[
+		variant
+	]} {roundedClass} p-2 hover:ring-2 text-base min-h-11 min-w-[44px] flex justify-center items-center"
+	on:click
+>
 	<slot />
 </button>
