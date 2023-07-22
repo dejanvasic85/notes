@@ -11,7 +11,7 @@
 </script>
 
 <div
-	class="w-60 min-h-48 border p-4 bg-transparent rounded-lg"
+	class="md:w-60 w-full min-h-48 border p-4 bg-transparent rounded-lg"
 	tabindex={tabIndex}
 	role="button"
 	on:click={handleClick}
