@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let icon: keyof typeof svgPath;
 	export let size: number = 24;
+	export let title: string = '';
 
 	const svgPath = {
 		chevronLeft: {
@@ -24,5 +25,5 @@
 	width={size}
 	focusable="false"
 	role="img"
-	fill="currentColor"><title>ChevronLeft icon</title><path d={svgPath[icon].path} /></svg
+	fill="currentColor"><title>{title}</title><path d={svgPath[icon].path} /></svg
 >

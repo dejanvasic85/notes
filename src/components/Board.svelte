@@ -54,7 +54,7 @@
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="my-5 mx-5 float-right">
 			<Button on:click={handleCreateClick} rounded>
-				<Icon icon="plus" size={48} />
+				<Icon icon="plus" size={48} title="Add note" />
 			</Button>
 		</div>
 	</div>

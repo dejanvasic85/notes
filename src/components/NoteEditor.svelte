@@ -59,9 +59,10 @@
 <Modal bind:show={showModal} on:close on:open={handleModalOpen}>
 	<div slot="header">
 		<Button variant="ghost" on:click={() => dispatch('close')}>
-			<Icon icon="chevronLeft" />
+			<Icon icon="chevronLeft" title="Cancel note edit" />
 		</Button>
 	</div>
+
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div
 		contenteditable="true"
@@ -69,13 +70,11 @@
 		bind:this={editor}
 		bind:innerHTML={noteText}
 		on:keydown={handleKeydown}
-	>
-		<!-- {@html noteText} -->
-	</div>
+	/>
 
 	<div slot="footer" class="flex justify-end">
 		<Button on:click={handleSave}>
-			<Icon icon="check" size={32} />
+			<Icon icon="check" size={32} title="Save note" />
 		</Button>
 	</div>
 </Modal>
