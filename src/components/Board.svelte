@@ -46,6 +46,7 @@
 			note={selectedNote}
 			on:close={handleModalClose}
 			on:saveNote={handleSave}
+			on:deleteNote
 		/>
 	{/if}
 	{#each orderedNotes as note, i}

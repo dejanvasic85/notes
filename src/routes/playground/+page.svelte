@@ -14,7 +14,7 @@
 			{
 				id: nanoid(),
 				sequence: 0,
-				text: 'Hello world!. <p><em>Use the force and edit me by clicking here.</em></p>'
+				text: 'Hello world!. <p>Use the force and edit me by clicking here.</em>'
 			}
 		]);
 	});
@@ -31,6 +31,13 @@
 		localNotes.update((state) => {
 			const [[noteToUpdate], rest] = partition(state, (n) => n.id === detail.id);
 			return [...rest, { ...noteToUpdate, text: detail.text }];
+		});
+		handleClose();
+	}
+
+	function handleDeleteNote({ detail }: CustomEvent<{ note: NoteType }>) {
+		localNotes.update((state) => {
+			return [...state.filter((n) => n.id !== detail.note.id)];
 		});
 		handleClose();
 	}
@@ -60,4 +67,5 @@
 	on:cancelUpdate={handleClose}
 	on:select={handleSelect}
 	on:updateNote={handleUpdateNote}
+	on:deleteNote={handleDeleteNote}
 />

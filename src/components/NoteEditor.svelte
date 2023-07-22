@@ -18,6 +18,7 @@
 	// External events
 	const dispatch = createEventDispatcher();
 	const dispatchNoteSave = createEventDispatcher<{ saveNote: { note: NoteType } }>();
+	const dispatchDeleteNote = createEventDispatcher<{ deleteNote: { note: NoteType } }>();
 
 	// Internal handlers
 	async function handleModalOpen() {
@@ -54,13 +55,28 @@
 			handleSave();
 		}
 	}
+
+	function handleDeleteClick() {
+		if (confirm('Are you sure you want to delete this note?')) {
+			dispatchDeleteNote('deleteNote', { note });
+		}
+	}
 </script>
 
 <Modal bind:show={showModal} on:close on:open={handleModalOpen}>
 	<div slot="header">
-		<Button variant="ghost" on:click={() => dispatch('close')}>
-			<Icon icon="chevronLeft" title="Cancel note edit" />
-		</Button>
+		<div class="flex justify-between">
+			<div class="flex-1">
+				<Button variant="ghost" on:click={() => dispatch('close')}>
+					<Icon icon="chevronLeft" title="Cancel note edit" />
+				</Button>
+			</div>
+			<div>
+				<Button variant="ghost" on:click={handleDeleteClick}>
+					<Icon icon="trash" title="Delete note" />
+				</Button>
+			</div>
+		</div>
 	</div>
 
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
