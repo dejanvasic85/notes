@@ -87,7 +87,7 @@
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div
 			contenteditable="true"
-			class="w-full outline-none mt-4"
+			class="w-full outline-none p-4 h-full"
 			bind:this={editor}
 			on:input={handleChange}
 			on:keydown={handleKeydown}
