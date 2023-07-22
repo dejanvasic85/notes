@@ -46,13 +46,13 @@
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div
 		on:click|stopPropagation
-		class="flex flex-col overflow-scroll"
+		class="flex flex-col"
 		style="height: {modalHeight ? modalHeight + 'px' : '50vh'}"
 	>
 		<div>
 			<slot name="header" />
 		</div>
-		<div class="flex-1 w-full">
+		<div class="flex-1 w-full overflow-y-auto">
 			<slot />
 		</div>
 		<div>
