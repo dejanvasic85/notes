@@ -1,19 +1,16 @@
 <script lang="ts">
-	import { createEventDispatcher, tick } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 
 	import type { NoteType } from '../types';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
-	import Modal from './Modal.svelte';
 	import Note from './Note.svelte';
+	import NoteEditor from './NoteEditor.svelte';
 
 	// Props
 	export let notes: NoteType[];
 	export let selectedNote: NoteType | undefined;
-
-	let currentNoteText: string = selectedNote?.text ?? '';
-	let editor: HTMLDivElement;
 
 	// Events
 	const dispatchCreate = createEventDispatcher();
@@ -25,22 +22,8 @@
 		dispatchCancelUpdate('cancelUpdate');
 	}
 
-	async function handleModalOpen() {
-		await tick();
-		const selection = window.getSelection();
-		const range = document.createRange();
-		selection?.removeAllRanges();
-		range.selectNodeContents(editor);
-		range.collapse(false);
-		selection?.addRange(range);
-		editor.focus();
-	}
-
-	function handleSave() {
-		if (!selectedNote) {
-			return;
-		}
-		dispatchUpdate('updateNote', { ...selectedNote, text: currentNoteText });
+	function handleSave({ detail }: CustomEvent<{ note: NoteType }>) {
+		dispatchUpdate('updateNote', detail.note);
 	}
 
 	function handleCreateClick() {
@@ -51,56 +34,20 @@
 		dispatchSelect('select', id);
 	}
 
-	function handleChange() {
-		currentNoteText = editor.innerHTML;
-	}
-
-	let isControlDown = false;
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.repeat) {
-			return;
-		}
-
-		if (event.key === 'Control') {
-			isControlDown = true;
-			event.preventDefault();
-		}
-
-		if (event.key === 'Enter' && isControlDown) {
-			handleSave();
-		}
-	}
-
 	$: orderedNotes = notes.sort((a, b) => a.sequence - b.sequence);
-	$: selectedNoteText = selectedNote?.text ?? '';
 	$: selectedId = selectedNote?.id;
 	$: showModal = !!selectedId;
 </script>
 
 <div class="flex justify-center items-start p-8 gap-8 flex-wrap">
-	<Modal bind:show={showModal} on:close={handleModalClose} on:open={handleModalOpen}>
-		<div slot="header">
-			<Button variant="ghost" on:click={handleModalClose}>
-				<Icon icon="chevronLeft" />
-			</Button>
-		</div>
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div
-			contenteditable="true"
-			class="w-full outline-none p-4 h-full"
-			bind:this={editor}
-			on:input={handleChange}
-			on:keydown={handleKeydown}
-		>
-			{@html selectedNoteText}
-		</div>
-
-		<div slot="footer" class="flex justify-end">
-			<Button on:click={handleSave}>
-				<Icon icon="check" size={32} />
-			</Button>
-		</div>
-	</Modal>
+	{#if selectedNote}
+		<NoteEditor
+			bind:showModal
+			note={selectedNote}
+			on:close={handleModalClose}
+			on:saveNote={handleSave}
+		/>
+	{/if}
 	{#each orderedNotes as note, i}
 		<Note text={note.text} tabIndex={i + 1} on:click={() => handleEdit(note.id)} />
 	{/each}
