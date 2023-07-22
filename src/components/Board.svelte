@@ -4,6 +4,7 @@
 	import type { NoteType } from '../types';
 
 	import Button from './Button.svelte';
+	import Icon from './Icon.svelte';
 	import Modal from './Modal.svelte';
 	import Note from './Note.svelte';
 
@@ -79,20 +80,8 @@
 <div class="flex justify-center items-start p-8 gap-8 flex-wrap">
 	<Modal bind:show={showModal} on:close={handleModalClose} on:open={handleModalOpen}>
 		<div slot="header">
-			<Button on:click={handleModalClose}>
-				<svg
-					viewBox="0 0 24 24"
-					height="24"
-					width="24"
-					focusable="false"
-					role="img"
-					fill="currentColor"
-					xmlns="http://www.w3.org/2000/svg"
-					class="StyledIconBase-sc-ea9ulj-0 hRnJPC"
-					><title>ChevronLeft icon</title><path
-						d="M13.939 4.939 6.879 12l7.06 7.061 2.122-2.122L11.121 12l4.94-4.939z"
-					/></svg
-				>
+			<Button variant="ghost" on:click={handleModalClose}>
+				<Icon icon="chevronLeft" />
 			</Button>
 		</div>
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -108,20 +97,7 @@
 
 		<div slot="footer" class="flex justify-end">
 			<Button on:click={handleSave}>
-				<svg
-					viewBox="0 0 512 512"
-					height="32"
-					width="32"
-					focusable="false"
-					role="img"
-					fill="currentColor"
-					xmlns="http://www.w3.org/2000/svg"
-					class="StyledIconBase-sc-ea9ulj-0 hRnJPC"
-					><title>Save note</title><path
-						fill="currentColor"
-						d="M0 256C0 114.6 114.6 0 256 0s256 114.6 256 256-114.6 256-256 256S0 397.4 0 256zm371.8-44.2c10.9-10.9 10.9-28.7 0-39.6-10.9-10.9-28.7-10.9-39.6 0L224 280.4l-44.2-44.2c-10.9-10.9-28.7-10.9-39.6 0-10.9 10.9-10.9 28.7 0 39.6l64 64c10.9 10.9 28.7 10.9 39.6 0l128-128z"
-					/></svg
-				>
+				<Icon icon="check" size={32} />
 			</Button>
 		</div>
 	</Modal>
@@ -131,19 +107,7 @@
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="my-5 mx-5 float-right">
 			<Button on:click={handleCreateClick} rounded>
-				<svg
-					viewBox="0 0 16 16"
-					height="48"
-					width="48"
-					focusable="false"
-					role="img"
-					fill="currentColor"
-					xmlns="http://www.w3.org/2000/svg"
-					class="StyledIconBase-sc-ea9ulj-0 hRnJPC"
-					><title>Plus icon</title><path
-						d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
-					/></svg
-				>
+				<Icon icon="plus" size={48} />
 			</Button>
 		</div>
 	</div>
