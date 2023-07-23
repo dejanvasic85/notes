@@ -6,7 +6,7 @@
 
 	const variantClass = {
 		primary: 'bg-cyan-700 hover:bg-cyan-600 text-white',
-		ghost: 'bg-transparent hover:bg-gray-100'
+		ghost: 'bg-transparent hover:bg-gray-100 dark:hover:bg-slate-800'
 	};
 
 	const roundedClass = rounded ? 'rounded-full' : 'rounded-md';
