@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { fly } from 'svelte/transition';
 
 	export let text: string;
 	export let tabIndex: number;
@@ -16,6 +17,7 @@
 	role="button"
 	on:click={handleClick}
 	on:keypress={handleClick}
+	transition:fly={{ x: 15, duration: 400 }}
 >
 	{@html text}
 </div>
