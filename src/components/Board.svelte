@@ -34,21 +34,36 @@
 		dispatchSelect('select', id);
 	}
 
+	function scrollToBottom(node: HTMLDivElement, _: NoteType[]) {
+		const scroll = () => {
+			window.scroll({
+				top: node.scrollHeight,
+				behavior: 'smooth'
+			});
+		};
+		scroll();
+
+		return {
+			update: scroll
+		};
+	}
+
 	$: orderedNotes = notes.sort((a, b) => a.sequence - b.sequence);
 	$: selectedId = selectedNote?.id;
 	$: showModal = !!selectedId;
 </script>
 
-<div class="flex justify-center items-start p-8 gap-8 flex-wrap">
-	{#if selectedNote}
-		<NoteEditor
-			bind:showModal
-			note={selectedNote}
-			on:close={handleModalClose}
-			on:saveNote={handleSave}
-			on:deleteNote
-		/>
-	{/if}
+{#if selectedNote}
+	<NoteEditor
+		bind:showModal
+		note={selectedNote}
+		on:close={handleModalClose}
+		on:saveNote={handleSave}
+		on:deleteNote
+	/>
+{/if}
+
+<div use:scrollToBottom={orderedNotes} class="flex justify-center items-start p-8 gap-8 flex-wrap">
 	{#each orderedNotes as note, i}
 		<Note text={note.text} tabIndex={i + 1} on:click={() => handleEdit(note.id)} />
 	{/each}
