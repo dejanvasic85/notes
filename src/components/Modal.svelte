@@ -48,7 +48,7 @@
 	<div
 		on:click|stopPropagation
 		class="flex flex-col"
-		style="height: {modalHeight ? modalHeight + 'px' : '50vh'}"
+		style="height: {modalHeight ? modalHeight + 'px' : '60vh'}"
 	>
 		<div>
 			<slot name="header" />
