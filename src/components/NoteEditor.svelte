@@ -2,6 +2,7 @@
 	import { createEventDispatcher, tick } from 'svelte';
 
 	import Button from './Button.svelte';
+	import ColourPicker from './ColourPicker.svelte';
 	import Icon from './Icon.svelte';
 	import Modal from './Modal.svelte';
 	import type { NoteType } from '../types';
@@ -18,6 +19,7 @@
 	// External events
 	const dispatch = createEventDispatcher();
 	const dispatchNoteSave = createEventDispatcher<{ saveNote: { note: NoteType } }>();
+	const dispatchColourUpdate = createEventDispatcher<{ updateColour: { note: NoteType } }>();
 	const dispatchDeleteNote = createEventDispatcher<{ deleteNote: { note: NoteType } }>();
 
 	// Internal handlers
@@ -26,10 +28,12 @@
 		const selection = window.getSelection();
 		const range = document.createRange();
 		selection?.removeAllRanges();
-		range.selectNodeContents(editor);
-		range.collapse(false);
-		selection?.addRange(range);
-		editor.focus();
+		if (editor) {
+			range.selectNodeContents(editor);
+			range.collapse(false);
+			selection?.addRange(range);
+			editor.focus();
+		}
 	}
 
 	function handleSave() {
@@ -61,6 +65,15 @@
 			dispatchDeleteNote('deleteNote', { note });
 		}
 	}
+
+	function handleColourPick({ detail }: CustomEvent<{ colour: string }>) {
+		dispatchColourUpdate('updateColour', {
+			note: {
+				...note,
+				colour: detail.colour
+			}
+		});
+	}
 </script>
 
 <Modal bind:show={showModal} on:close on:open={handleModalOpen}>
@@ -71,7 +84,8 @@
 					<Icon icon="chevronLeft" title="Cancel note edit" />
 				</Button>
 			</div>
-			<div>
+			<div class="flex">
+				<ColourPicker on:colourClick={handleColourPick} />
 				<Button variant="ghost" on:click={handleDeleteClick}>
 					<Icon icon="trash" title="Delete note" />
 				</Button>

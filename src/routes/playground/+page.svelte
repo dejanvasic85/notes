@@ -35,6 +35,13 @@
 		handleClose();
 	}
 
+	function handleUpdateColour({ detail }: CustomEvent<{ note: NoteType }>) {
+		localNotes.update((state) => {
+			const [[noteToUpdate], rest] = partition(state, (n) => n.id === detail.note.id);
+			return [...rest, { ...noteToUpdate, colour: detail.note.colour }];
+		});
+	}
+
 	function handleDeleteNote({ detail }: CustomEvent<{ note: NoteType }>) {
 		localNotes.update((state) => {
 			return [...state.filter((n) => n.id !== detail.note.id)];
@@ -67,5 +74,6 @@
 	on:cancelUpdate={handleClose}
 	on:select={handleSelect}
 	on:updateNote={handleUpdateNote}
+	on:updateColour={handleUpdateColour}
 	on:deleteNote={handleDeleteNote}
 />
