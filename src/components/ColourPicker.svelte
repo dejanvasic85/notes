@@ -4,21 +4,13 @@
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
+	import { colours, type Colour } from '$lib/colours';
 
 	let isOpen = false;
-	const colours = [
-		{ name: 'slate', cssClass: 'bg-slate-800' },
-		{ name: 'indigo', cssClass: 'bg-indigo-800' },
-		{ name: 'blue', cssClass: 'bg-blue-800' },
-		{ name: 'rose', cssClass: 'bg-rose-800' },
-		{ name: 'orange', cssClass: 'bg-orange-800' },
-		{ name: 'amber', cssClass: 'bg-amber-800' },
-		{ name: 'teal', cssClass: 'bg-teal-800' }
-	];
 
 	const dispatch = createEventDispatcher();
 
-	function handleColourClick(colour: string) {
+	function handleColourClick(colour: Colour) {
 		dispatch('colourClick', { colour });
 		isOpen = false;
 	}

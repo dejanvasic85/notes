@@ -3,6 +3,7 @@
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
+	import type { Colour } from '$lib/colours';
 	import Icon from './Icon.svelte';
 	import Modal from './Modal.svelte';
 	import type { NoteType } from '../types';
@@ -66,7 +67,7 @@
 		}
 	}
 
-	function handleColourPick({ detail }: CustomEvent<{ colour: string }>) {
+	function handleColourPick({ detail }: CustomEvent<{ colour: Colour }>) {
 		dispatchColourUpdate('updateColour', {
 			note: {
 				...note,

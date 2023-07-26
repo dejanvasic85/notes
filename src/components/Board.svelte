@@ -56,6 +56,7 @@
 	$: orderedNotes = notes.sort((a, b) => a.sequence - b.sequence);
 	$: selectedId = selectedNote?.id;
 	$: showModal = !!selectedId;
+	$: console.log('ordered', orderedNotes);
 </script>
 
 {#if selectedNote}
@@ -71,7 +72,7 @@
 
 <div use:scrollToBottom={orderedNotes} class="flex justify-center items-start p-8 gap-8 flex-wrap">
 	{#each orderedNotes as note, i}
-		<Note text={note.text} tabIndex={i + 1} on:click={() => handleEdit(note.id)} />
+		<Note {note} tabIndex={i + 1} on:click={() => handleEdit(note.id)} />
 	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="my-5 mx-5 float-right">
