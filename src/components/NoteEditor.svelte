@@ -3,7 +3,7 @@
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
-	import type { Colour } from '$lib/colours';
+	import { getNoteCssClass, type Colour } from '$lib/colours';
 	import Icon from './Icon.svelte';
 	import Modal from './Modal.svelte';
 	import type { NoteType } from '../types';
@@ -75,9 +75,14 @@
 			}
 		});
 	}
+
+	$: className = getNoteCssClass({
+		defaultClass: 'bg-white dark:bg-slate-800 dark:text-white border',
+		variant: note.colour
+	});
 </script>
 
-<Modal bind:show={showModal} on:close on:open={handleModalOpen}>
+<Modal bind:show={showModal} on:close on:open={handleModalOpen} {className}>
 	<div slot="header">
 		<div class="flex justify-between">
 			<div class="flex-1">

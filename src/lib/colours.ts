@@ -9,3 +9,13 @@ export const colours = [
 ];
 
 export type Colour = (typeof colours)[number]['name'];
+
+interface GetNoteCssClass {
+	variant?: Colour;
+	defaultClass: string;
+}
+
+export function getNoteCssClass({ defaultClass, variant }: GetNoteCssClass) {
+	const colour = colours.find((c) => c.name === variant);
+	return colour ? `${colour.cssClass} text-white border` : defaultClass;
+}

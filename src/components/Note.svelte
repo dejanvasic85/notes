@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { fly } from 'svelte/transition';
-	import { colours } from '$lib/colours';
+	import { getNoteCssClass } from '$lib/colours';
 	import type { NoteType } from '../types';
 
 	export let note: NoteType;
@@ -12,8 +12,10 @@
 		dispatch('click');
 	};
 
-	$: colour = colours.find((c) => c.name === note.colour);
-	$: className = colour ? `${colour.cssClass} text-white` : 'bg-transparent text-base border';
+	$: className = getNoteCssClass({
+		defaultClass: 'bg-transparent text-base border',
+		variant: note.colour
+	});
 </script>
 
 <div
