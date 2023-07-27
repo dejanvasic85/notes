@@ -5,10 +5,7 @@ export default {
 		extend: {
 			minHeight: (theme) => ({
 				...theme('spacing')
-			}),
-			fontFamily: {
-				sans: ['Open-Sans']
-			}
+			})
 		}
 	},
 	plugins: []
