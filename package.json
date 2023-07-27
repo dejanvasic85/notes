@@ -39,6 +39,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@auth0/auth0-spa-js": "^2.1.1",
 		"lodash": "^4.17.21",
 		"nanoid": "^4.0.2"
 	}
