@@ -15,7 +15,7 @@
 <button
 	class="{variantClass[
 		variant
-	]} {roundedClass} p-2 hover:ring-2 text-base min-h-11 min-w-[44px] flex justify-center items-center"
+	]} {roundedClass} flex min-h-11 min-w-[44px] items-center justify-center p-2 text-base hover:ring-2"
 	on:click
 >
 	<slot />

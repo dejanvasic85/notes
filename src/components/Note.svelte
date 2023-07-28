@@ -19,7 +19,7 @@
 </script>
 
 <div
-	class="md:w-60 w-full min-h-48 p-4 rounded-lg {className}"
+	class="min-h-48 w-full rounded-lg p-4 md:w-60 {className}"
 	tabindex={tabIndex}
 	role="button"
 	on:click={handleClick}

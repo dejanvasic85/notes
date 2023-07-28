@@ -22,14 +22,14 @@
 	</Button>
 	{#if isOpen}
 		<div
-			class="absolute flex flex-col gap-1 left-0 top-14 bg-transparent"
+			class="absolute left-0 top-14 flex flex-col gap-1 bg-transparent"
 			in:slide={{ duration: 200 }}
 		>
 			{#each colours as { cssClass, name }}
 				<li class="block text-gray-800">
 					<button
 						aria-label={name}
-						class="h-12 w-12 border-2 rounded-full {cssClass}"
+						class="h-12 w-12 rounded-full border-2 {cssClass}"
 						on:click={() => handleColourClick(name)}
 					/>
 				</li>
