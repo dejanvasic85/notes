@@ -29,7 +29,7 @@
 				<li class="block text-gray-800">
 					<button
 						aria-label={name}
-						class="h-12 w-12 rounded-full border-2 {cssClass}"
+						class="dark:border- h-12 w-12 rounded-full border-2 border-slate-400 dark:border-slate-200 {cssClass}"
 						on:click={() => handleColourClick(name)}
 					/>
 				</li>
