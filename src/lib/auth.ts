@@ -17,7 +17,7 @@ async function getOrCreateClient() {
 		domain: 'post-it.au.auth0.com',
 		clientId: 'tSJdy4HqPxk9yA6RnUX0rEhfDVXEQebV',
 		authorizationParams: {
-			redirect_uri: window.location.href
+			redirect_uri: window.location.origin
 		}
 	});
 
