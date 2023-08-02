@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { createEventDispatcher, tick } from 'svelte';
 
+	import { getNoteCssClass, type Colour } from '$lib/colours';
+	import type { NoteType } from '../types';
+
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
-	import { getNoteCssClass, type Colour } from '$lib/colours';
 	import Icon from './Icon.svelte';
 	import Modal from './Modal.svelte';
-	import type { NoteType } from '../types';
 
 	// Props
 	export let note: NoteType;

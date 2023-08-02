@@ -1,4 +1,6 @@
 <script>
+	import github from '$lib/images/github.svg';
+
 	import Header from './Header.svelte';
 	import './app.css';
 </script>
@@ -10,8 +12,13 @@
 		<slot />
 	</main>
 
-	<footer>
-		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p>
+	<footer class="p-4 text-center">
+		Made with <a href="https://kit.svelte.dev" target="_blank" class="font-bold underline">svelte</a
+		>
+		- Github
+		<a href="https://github.com/dejanvasic85/post-it" target="_blank"
+			><img src={github} alt="Github" class="inline h-8 w-8" /></a
+		>
 	</footer>
 </div>
 
@@ -30,23 +37,5 @@
 		width: 100%;
 		margin: 0 auto;
 		box-sizing: border-box;
-	}
-
-	footer {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding: 12px;
-	}
-
-	footer a {
-		font-weight: bold;
-	}
-
-	@media (min-width: 480px) {
-		footer {
-			padding: 12px 0;
-		}
 	}
 </style>

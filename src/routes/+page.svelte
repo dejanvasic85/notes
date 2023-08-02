@@ -8,43 +8,19 @@
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<section>
-	<h1 class="text-3xl font-bold underline">
-		<span class="welcome">
+<section class="flex flex-[0.6] flex-col items-center justify-center">
+	<h1 class="w-full">
+		<span class="relative block h-0 w-full">
 			<picture>
 				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
+				<img src={welcome_fallback} alt="Welcome" class="absolute top-0 block w-full" />
 			</picture>
 		</span>
 	</h1>
 </section>
 
-<style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
+<p class="text-center">A barebones note taking app. Something that fits on a post-it note...</p>
 
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
-</style>
+<p class="text-center mt-2">
+	Try it out by using the <a href="/playground" class="underline">playground.</a>
+</p>

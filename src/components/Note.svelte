@@ -5,7 +5,6 @@
 	import type { NoteType } from '../types';
 
 	export let note: NoteType;
-	export let tabIndex: number;
 
 	const dispatch = createEventDispatcher();
 	const handleClick = () => {
@@ -18,9 +17,9 @@
 	});
 </script>
 
+<!-- svelte-ignore a11y-interactive-supports-focus -->
 <div
 	class="min-h-48 w-full rounded-lg p-4 md:w-60 {className}"
-	tabindex={tabIndex}
 	role="button"
 	on:click={handleClick}
 	on:keypress={handleClick}

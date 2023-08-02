@@ -71,8 +71,8 @@
 {/if}
 
 <div use:scrollToBottom={orderedNotes} class="flex flex-wrap items-start justify-center gap-8 p-8">
-	{#each orderedNotes as note, i}
-		<Note {note} tabIndex={i + 1} on:click={() => handleEdit(note.id)} />
+	{#each orderedNotes as note}
+		<Note {note} on:click={() => handleEdit(note.id)} />
 	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="float-right mx-5 my-5">
