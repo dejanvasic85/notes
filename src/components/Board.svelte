@@ -56,7 +56,6 @@
 	$: orderedNotes = notes.sort((a, b) => a.sequence - b.sequence);
 	$: selectedId = selectedNote?.id;
 	$: showModal = !!selectedId;
-	$: console.log('ordered', orderedNotes);
 </script>
 
 {#if selectedNote}
