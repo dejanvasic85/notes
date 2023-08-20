@@ -18,9 +18,3 @@
 		</span>
 	</h1>
 </section>
-
-<p class="text-center">A barebones note taking app. Something that fits on a post-it note...</p>
-
-<p class="text-center mt-2">
-	Try it out by using the <a href="/playground" class="underline">playground.</a>
-</p>
