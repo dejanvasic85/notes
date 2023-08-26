@@ -17,7 +17,9 @@ async function getOrCreateClient() {
 		domain: 'post-it.au.auth0.com',
 		clientId: 'tSJdy4HqPxk9yA6RnUX0rEhfDVXEQebV',
 		authorizationParams: {
-			redirect_uri: window.location.origin
+			redirect_uri: window.location.origin,
+			audience: 'https://api.posit-it.com',
+			scope: 'openid profile email'
 		}
 	});
 
@@ -32,6 +34,12 @@ async function login() {
 async function logout() {
 	const client = await getOrCreateClient();
 	client?.logout();
+}
+
+async function getToken(): Promise<string> {
+	const client = await getOrCreateClient();
+	const token = await client?.getTokenSilently();
+	return token || '';
 }
 
 async function getUser(): Promise<void> {
@@ -55,6 +63,8 @@ export function withAuth(): {
 
 	login: () => Promise<void>;
 	logout: () => Promise<void>;
+
+	getToken: () => Promise<string>;
 } {
-	return { accessToken, user, login, logout };
+	return { accessToken, user, login, logout, getToken };
 }
