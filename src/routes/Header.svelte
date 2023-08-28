@@ -34,16 +34,16 @@
 			>
 		{/if}
 		{#if isLoggedIn}
-			<button
-				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
-				on:click={auth.logout}
-				>Logout
-			</button>
 			<a
 				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
 				href="/board"
 				aria-current={$page.url.pathname === '/board' ? 'page' : undefined}>Board</a
 			>
+			<button
+				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
+				on:click={auth.logout}
+				>Logout
+			</button>
 		{/if}
 	</nav>
 </header>
