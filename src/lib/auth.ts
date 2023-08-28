@@ -3,6 +3,10 @@ import { writable, type Writable } from 'svelte/store';
 
 export { User };
 
+const AUTH0_CLIENT_ID = 'tSJdy4HqPxk9yA6RnUX0rEhfDVXEQebV';
+const AUTH0_DOMAIN = 'post-it.au.auth0.com';
+const AUTH0_AUDIENCE = 'https://api.posit-it.com';
+
 const user: Writable<User> = writable();
 const accessToken: Writable<string> = writable();
 
@@ -14,11 +18,11 @@ async function getOrCreateClient() {
 	}
 
 	authClient = await createAuth0Client({
-		domain: 'post-it.au.auth0.com',
-		clientId: 'tSJdy4HqPxk9yA6RnUX0rEhfDVXEQebV',
+		domain: AUTH0_DOMAIN,
+		clientId: AUTH0_CLIENT_ID,
 		authorizationParams: {
 			redirect_uri: window.location.origin,
-			audience: 'https://api.posit-it.com',
+			audience: AUTH0_AUDIENCE,
 			scope: 'openid profile email'
 		}
 	});
@@ -48,7 +52,6 @@ async function getUser(): Promise<void> {
 		const token = await client?.getTokenSilently();
 		accessToken.set(token);
 		const userDetails = await client?.getUser();
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		user.set(userDetails!);
 	} catch (e) {
 		console.warn(e);
