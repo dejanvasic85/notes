@@ -6,6 +6,7 @@
 
 	export let note: Note;
 	export let index: number;
+	export let hello: string;
 
 	const dispatch = createEventDispatcher();
 	const handleClick = () => {
