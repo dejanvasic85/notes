@@ -2,7 +2,7 @@
 	import { createEventDispatcher, tick } from 'svelte';
 
 	import { getNoteCssClass, type Colour } from '$lib/colours';
-	import type { NoteType } from '../types';
+	import type { Note } from '../types';
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
@@ -10,7 +10,7 @@
 	import Modal from './Modal.svelte';
 
 	// Props
-	export let note: NoteType;
+	export let note: Note;
 	export let showModal: boolean = false;
 
 	// Internal state
@@ -20,9 +20,9 @@
 
 	// External events
 	const dispatch = createEventDispatcher();
-	const dispatchNoteSave = createEventDispatcher<{ saveNote: { note: NoteType } }>();
-	const dispatchColourUpdate = createEventDispatcher<{ updateColour: { note: NoteType } }>();
-	const dispatchDeleteNote = createEventDispatcher<{ deleteNote: { note: NoteType } }>();
+	const dispatchNoteSave = createEventDispatcher<{ saveNote: { note: Note } }>();
+	const dispatchColourUpdate = createEventDispatcher<{ updateColour: { note: Note } }>();
+	const dispatchDeleteNote = createEventDispatcher<{ deleteNote: { note: Note } }>();
 
 	// Internal handlers
 	async function handleModalOpen() {

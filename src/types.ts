@@ -1,6 +1,6 @@
 import type { Colour } from '$lib/colours';
 
-export interface NoteType {
+export interface Note {
 	id: string;
 	sequence: number;
 	text: string;

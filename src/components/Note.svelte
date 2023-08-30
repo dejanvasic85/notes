@@ -2,9 +2,9 @@
 	import { createEventDispatcher } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { getNoteCssClass } from '$lib/colours';
-	import type { NoteType } from '../types';
+	import type { Note } from '../types';
 
-	export let note: NoteType;
+	export let note: Note;
 
 	const dispatch = createEventDispatcher();
 	const handleClick = () => {

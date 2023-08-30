@@ -1,13 +1,14 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
 	import { nanoid } from 'nanoid';
 	import partition from 'lodash/partition';
 
+	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+
 	import Board from '../../components/Board.svelte';
 	import { localNotes } from './noteStore';
-	import type { NoteType } from '../../types';
-	import { goto } from '$app/navigation';
+	import type { Note } from '../../types';
 
 	onMount(() => {
 		localNotes.update(() => [
@@ -27,7 +28,7 @@
 		]);
 	}
 
-	function handleUpdateNote({ detail }: CustomEvent<NoteType>) {
+	function handleUpdateNote({ detail }: CustomEvent<Note>) {
 		localNotes.update((state) => {
 			const [[noteToUpdate], rest] = partition(state, (n) => n.id === detail.id);
 			return [...rest, { ...noteToUpdate, text: detail.text }];
@@ -35,14 +36,14 @@
 		handleClose();
 	}
 
-	function handleUpdateColour({ detail }: CustomEvent<{ note: NoteType }>) {
+	function handleUpdateColour({ detail }: CustomEvent<{ note: Note }>) {
 		localNotes.update((state) => {
 			const [[noteToUpdate], rest] = partition(state, (n) => n.id === detail.note.id);
 			return [...rest, { ...noteToUpdate, colour: detail.note.colour }];
 		});
 	}
 
-	function handleDeleteNote({ detail }: CustomEvent<{ note: NoteType }>) {
+	function handleDeleteNote({ detail }: CustomEvent<{ note: Note }>) {
 		localNotes.update((state) => {
 			return [...state.filter((n) => n.id !== detail.note.id)];
 		});

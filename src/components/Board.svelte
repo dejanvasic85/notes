@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
-	import type { NoteType } from '../types';
+	import type { Note as NoteType } from '../types';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';

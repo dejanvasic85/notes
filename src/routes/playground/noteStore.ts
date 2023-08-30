@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { NoteType } from '../../types';
+import type { Note } from '../../types';
 
 const getFromStorage = () => {
 	return typeof localStorage === 'undefined'
@@ -7,10 +7,10 @@ const getFromStorage = () => {
 		: JSON.parse(localStorage.getItem('playground') ?? '[]');
 };
 
-const setInStorage = (notes: NoteType[]) => {
+const setInStorage = (notes: Note[]) => {
 	if (typeof localStorage === 'undefined') return;
 	localStorage.setItem('playground', JSON.stringify(notes));
 };
 
-export const localNotes = writable<NoteType[]>(getFromStorage());
+export const localNotes = writable<Note[]>(getFromStorage());
 localNotes.subscribe(setInStorage);
