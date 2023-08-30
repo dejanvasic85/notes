@@ -6,10 +6,10 @@
 		"build": "prisma generate && vite build",
 		"build:tsc": "tsc --noEmit",
 		"preview": "vite preview",
-		"test": "playwright test",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
+		"test:playwright": "playwright test",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
 		"postinstall": "prisma generate"
@@ -48,7 +48,6 @@
 		"@prisma/client": "^5.2.0",
 		"jsonwebtoken": "^9.0.1",
 		"jwks-rsa": "^3.0.1",
-		"lodash": "^4.17.21",
-		"nanoid": "^4.0.2"
+		"lodash": "^4.17.21"
 	}
 }

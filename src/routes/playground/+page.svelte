@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { nanoid } from 'nanoid';
 	import partition from 'lodash/partition';
 
 	import { onMount } from 'svelte';
@@ -13,9 +12,9 @@
 	onMount(() => {
 		localNotes.update(() => [
 			{
-				id: nanoid(),
+				id: crypto.randomUUID(),
 				sequence: 0,
-				text: 'Hello world!. <p>Use the force and edit me by clicking here.</em>'
+				text: 'Use the force and edit me by clicking here.'
 			}
 		]);
 	});
@@ -24,7 +23,7 @@
 		const length = $localNotes.length;
 		localNotes.update((current) => [
 			...current,
-			{ id: nanoid(), sequence: length, text: `hello world ${length}` }
+			{ id: crypto.randomUUID(), sequence: length, text: `New note` }
 		]);
 	}
 
