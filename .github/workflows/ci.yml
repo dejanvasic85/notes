@@ -1,4 +1,6 @@
 name: CI
+env:
+  PUBLIC_BUILD: '${{ github.ref_name }} - ${{ github.run_number }}'
 on:
   push:
     branches: [main]
