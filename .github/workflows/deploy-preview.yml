@@ -1,7 +1,5 @@
 name: Vercel Preview Deployment
 env:
-  BUILD_NUMBER: ${{ github.run_number }}
-  BRANCH_NAME: ${{ github.ref }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
@@ -12,7 +10,7 @@ jobs:
   Deploy-Preview:
     runs-on: ubuntu-latest
     env:
-      PUBLIC_BUILD: '${BUILD_NUMBER}-${BRANCH_NAME}'
+      PUBLIC_BUILD: '${{ github.ref }} - ${{ github.sha }}'
     steps:
       - uses: actions/checkout@v2
       - name: Install Vercel CLI
