@@ -1,4 +1,6 @@
 name: Playwright Tests
+env:
+  PUBLIC_BUILD: '${{ github.ref_name }} - ${{ github.run_number }}'
 on:
   push:
     branches: [main]
@@ -18,7 +20,9 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: npx playwright test
+        run: |
+          npm run check
+          npx playwright test
       - uses: actions/upload-artifact@v3
         if: always()
         with:

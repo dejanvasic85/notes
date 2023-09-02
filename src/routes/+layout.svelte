@@ -1,4 +1,5 @@
 <script>
+	import { PUBLIC_BUILD } from '$env/static/public';
 	import github from '$lib/images/github.svg';
 
 	import Header from './Header.svelte';
@@ -19,6 +20,7 @@
 		<a href="https://github.com/dejanvasic85/post-it" target="_blank"
 			><img src={github} alt="Github" class="inline h-8 w-8" /></a
 		>
+		Build: {PUBLIC_BUILD}
 	</footer>
 </div>
 
