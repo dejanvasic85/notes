@@ -1,6 +1,7 @@
 name: Vercel Preview Deployment
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
+  PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
   PUBLIC_BUILD: '${{ github.ref_name }} - ${{ github.run_number }}'
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

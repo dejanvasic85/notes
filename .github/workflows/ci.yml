@@ -1,5 +1,6 @@
 name: CI
 env:
+  PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
   PUBLIC_BUILD: '${{ github.ref_name }} - ${{ github.run_number }}'
 on:
   push:
