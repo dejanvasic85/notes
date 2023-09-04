@@ -1,3 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { fieldEncryptionExtension } from 'prisma-field-encryption';
+
+const prisma = new PrismaClient().$extends(fieldEncryptionExtension());
+
 export default prisma;

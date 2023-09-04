@@ -12,6 +12,7 @@
 	async function getBoard(): Promise<Hello | null> {
 		if (!$accessToken) return null;
 		const res = await fetch('/api/board', {
+			cache: 'no-cache',
 			headers: { Authorization: `Bearer ${$accessToken}` }
 		});
 
@@ -28,7 +29,7 @@
 {#await getBoard()}
 	<p>Loading ...</p>
 {:then data}
-	<p>{data?.hello}</p>
+	<p>{JSON.stringify(data?.hello || {}, null, 2)}</p>
 {:catch error}
 	<p>{error.message}</p>
 {/await}

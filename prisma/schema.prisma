@@ -26,7 +26,7 @@ model Note {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
-  text      String   @db.Text
+  text      String   @db.Text /// @encrypted
   sequence  Int
   colour    String
 
