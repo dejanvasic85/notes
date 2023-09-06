@@ -21,13 +21,12 @@
 			href="/"
 			aria-current={$page.url.pathname === '/' ? 'page' : undefined}>Home</a
 		>
-
+		<a
+			class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
+			href="/playground"
+			aria-current={$page.url.pathname === '/playground' ? 'page' : undefined}>Playground</a
+		>
 		{#if isLoggedOut}
-			<a
-				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
-				href="/playground"
-				aria-current={$page.url.pathname === '/playground' ? 'page' : undefined}>Playground</a
-			>
 			<button
 				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
 				on:click={auth.login}>Login</button
@@ -37,7 +36,7 @@
 			<a
 				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
 				href="/board"
-				aria-current={$page.url.pathname === '/board' ? 'page' : undefined}>Board</a
+				aria-current={$page.url.pathname === '/board' ? 'page' : undefined}>My Board</a
 			>
 			<button
 				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
