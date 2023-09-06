@@ -5,9 +5,8 @@ env:
 on:
   workflow_dispatch:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches-ignore:
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
