@@ -1,4 +1,4 @@
-name: Vercel Preview Deployment
+name: Deploy dev
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}

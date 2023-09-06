@@ -1,4 +1,4 @@
-name: GitHub Actions Vercel Production Deployment
+name: Deploy prod
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
