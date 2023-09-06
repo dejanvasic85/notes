@@ -1,4 +1,4 @@
-name: GitHub Actions Vercel Production Deployment
+name: Deploy prod
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
@@ -6,6 +6,7 @@ env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
+  workflow_dispatch:
   push:
     branches:
       - main

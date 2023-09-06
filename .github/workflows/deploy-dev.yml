@@ -1,4 +1,4 @@
-name: Vercel Preview Deployment
+name: Deploy dev
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
@@ -6,8 +6,9 @@ env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
-  pull_request:
-    branches:
+  workflow_dispatch:
+  push:
+    branches-ignore: 
       - main
 jobs:
   Deploy-Preview:
