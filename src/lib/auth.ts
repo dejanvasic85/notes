@@ -1,11 +1,12 @@
 import { Auth0Client, createAuth0Client, User } from '@auth0/auth0-spa-js';
 import { writable, type Writable } from 'svelte/store';
+import {
+	PUBLIC_AUTH0_AUDIENCE,
+	PUBLIC_AUTH0_CLIENT_ID,
+	PUBLIC_AUTH0_DOMAIN
+} from '$env/static/public';
 
 export { User };
-
-const AUTH0_CLIENT_ID = 'tSJdy4HqPxk9yA6RnUX0rEhfDVXEQebV';
-const AUTH0_DOMAIN = 'post-it.au.auth0.com';
-const AUTH0_AUDIENCE = 'https://api.posit-it.com';
 
 const user: Writable<User> = writable();
 const accessToken: Writable<string> = writable();
@@ -18,11 +19,11 @@ async function getOrCreateClient() {
 	}
 
 	authClient = await createAuth0Client({
-		domain: AUTH0_DOMAIN,
-		clientId: AUTH0_CLIENT_ID,
+		domain: PUBLIC_AUTH0_DOMAIN,
+		clientId: PUBLIC_AUTH0_CLIENT_ID,
 		authorizationParams: {
 			redirect_uri: window.location.origin,
-			audience: AUTH0_AUDIENCE,
+			audience: PUBLIC_AUTH0_AUDIENCE,
 			scope: 'openid profile email'
 		}
 	});
