@@ -8,7 +8,6 @@ on:
   push:
     branches-ignore:
       - main
-      - dev
 jobs:
   test:
     timeout-minutes: 60
