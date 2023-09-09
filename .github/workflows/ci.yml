@@ -1,4 +1,7 @@
 name: CI
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
 on:
   workflow_dispatch:
   push:
@@ -9,22 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-env
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - uses: ./.github/actions/setup-env
-        with:
-          database-url: ${{ secrets.DATABASE_URL }}
-          prisma-field-encryption-key: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
-      - name: print env
-        run: |
-          echo $PUBLIC_BUILD
-
       - name: Install dependencies
         run: npm ci
-
       - name: Add Svelte Check annotator
         uses: prgm-dev/svelte-check-pr-annotator@main
-
       - name: Run Svelte-Check
         run: npm run check
