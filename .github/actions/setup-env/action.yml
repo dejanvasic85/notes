@@ -4,5 +4,5 @@ runs:
   using: 'composite'
   steps:
     - run: |
-      shell: bash
         echo "HELLO=world" >> $GITHUB_ENV
+      shell: bash
