@@ -1,0 +1,8 @@
+name: 'Setup env'
+description: 'Sets the default environment variables'
+runs:
+  using: 'composite'
+  steps:
+    - run: |
+      shell: bash
+        echo "HELLO=world" >> $GITHUB_ENV

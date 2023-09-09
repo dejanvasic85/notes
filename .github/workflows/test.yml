@@ -1,5 +1,6 @@
 name: Playwright Tests
 env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
   PUBLIC_BUILD: '${{ github.ref_name }} - ${{ github.run_number }}'
 on:
@@ -7,6 +8,7 @@ on:
   push:
     branches-ignore:
       - main
+      - dev
 jobs:
   test:
     timeout-minutes: 60
