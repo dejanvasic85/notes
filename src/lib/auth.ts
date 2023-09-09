@@ -38,7 +38,11 @@ async function login() {
 
 async function logout() {
 	const client = await getOrCreateClient();
-	client?.logout();
+	client?.logout({
+		logoutParams: {
+			returnTo: window.location.origin
+		}
+	});
 }
 
 async function getToken(): Promise<string> {
