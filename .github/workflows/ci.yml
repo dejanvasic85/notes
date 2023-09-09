@@ -1,7 +1,4 @@
 name: CI
-env:
-  PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
-  PUBLIC_BUILD: '${{ github.ref_name }} - ${{ github.run_number }}'
 on:
   workflow_dispatch:
   push:
@@ -19,6 +16,7 @@ jobs:
       - name: print env
         run: |
           echo $HELLO
+          echo $PUBLIC_BUILD
 
       - name: Install dependencies
         run: npm ci

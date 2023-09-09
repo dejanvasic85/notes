@@ -4,5 +4,10 @@ runs:
   using: 'composite'
   steps:
     - run: |
-        echo "HELLO=world" >> $GITHUB_ENV
+        echo "PUBLIC_AUTH0_CLIENT_ID=GLHJJUCeLrnWqcYZ0tf9uTpmIwXjmLjP" >> $GITHUB_ENV
+        echo "PUBLIC_APUBLIC_AUTH0_DOMAIN=dejanvasic.au.auth0.com" >> $GITHUB_ENV
+        echo "PUBLIC_AUTH0_AUDIENCE=https://api-notes.dejanvasic.me" >> $GITHUB_ENV
+        echo "PRISMA_FIELD_ENCRYPTION_KEY=${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}" >> $GITHUB_ENV
+        echo "PUBLIC_BUILD=${{ github.ref_name }} - ${{ github.run_number }}" >> $GITHUB_ENV
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL_STAGING }}" >> $GITHUB_ENV
       shell: bash
