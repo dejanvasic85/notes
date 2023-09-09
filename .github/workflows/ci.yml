@@ -13,9 +13,11 @@ jobs:
         with:
           node-version: 18
       - uses: ./.github/actions/setup-env
+        with:
+          database-url: ${{ secrets.DATABASE_URL }}
+          prisma-field-encryption-key: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
       - name: print env
         run: |
-          echo $HELLO
           echo $PUBLIC_BUILD
 
       - name: Install dependencies
