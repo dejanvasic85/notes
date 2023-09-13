@@ -12,7 +12,7 @@
 		"test:playwright": "playwright test",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
-		"postinstall": "prisma generate"
+		"verce-build": "prisma generate && prisma migrate deploy && prisma db seed && next build"
 	},
 	"devDependencies": {
 		"@fontsource/fira-mono": "^5.0.8",
