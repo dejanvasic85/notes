@@ -5,11 +5,12 @@
 	import type { Note } from '../../types';
 
 	const auth = withAuth();
-	const { accessToken } = auth;
+	const { getToken } = auth;
 
 	export const load = async () => {
+		const token = await getToken();
 		const resp = await fetch('/api/board', {
-			headers: { Authorization: `Bearer ${$accessToken}` }
+			headers: { Authorization: `Bearer ${token}` }
 		});
 		const { notes }: { notes: Note[] } = await resp.json();
 		return { props: { notes } };
