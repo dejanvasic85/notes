@@ -20,7 +20,7 @@
 </script>
 
 <svelte:head>
-	<title>Playground</title>
+	<title>My notes board</title>
 	<meta name="description" content="Playground is the best place to try out creating some notes" />
 </svelte:head>
 
