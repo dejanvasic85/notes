@@ -1,5 +1,6 @@
 import db from '$lib/db';
 import type { User as PrismaUser } from '@prisma/client';
+import { PUBLIC_AUTH0_DOMAIN } from '$env/static/public';
 
 export interface User extends PrismaUser {}
 
@@ -18,7 +19,7 @@ export async function getAuthUserProfile({
 }: {
 	accessToken: string;
 }): Promise<AuthUserProfile> {
-	return fetch(`https://post-it.au.auth0.com/userinfo`, {
+	return fetch(`https://${PUBLIC_AUTH0_DOMAIN}/userinfo`, {
 		headers: {
 			Authorization: `Bearer ${accessToken}`
 		}

@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "prisma generate && vite build",
+		"build": "prisma generate && prisma migrate deploy && vite build",
 		"build:tsc": "tsc --noEmit",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -11,8 +11,7 @@
 		"test:unit": "vitest",
 		"test:playwright": "playwright test",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
-		"format": "prettier --plugin-search-dir . --write .",
-		"postinstall": "prisma generate"
+		"format": "prettier --plugin-search-dir . --write ."
 	},
 	"devDependencies": {
 		"@fontsource/fira-mono": "^5.0.8",

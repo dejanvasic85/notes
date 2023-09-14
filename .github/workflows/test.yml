@@ -1,5 +1,6 @@
 name: Playwright Tests
 env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
   PUBLIC_BUILD: '${{ github.ref_name }} - ${{ github.run_number }}'
 on:
@@ -12,7 +13,8 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-env
       - uses: actions/setup-node@v3
         with:
           node-version: 18

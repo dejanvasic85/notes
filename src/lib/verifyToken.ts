@@ -1,6 +1,8 @@
 import jwt, { type JwtHeader, type SigningKeyCallback } from 'jsonwebtoken';
 import jwks from 'jwks-rsa';
 
+import { PUBLIC_AUTH0_DOMAIN } from '$env/static/public';
+
 export interface DecodedToken {
 	iss: string;
 	sub: string;
@@ -11,7 +13,7 @@ export interface DecodedToken {
 	scope: string;
 }
 
-const AUTH0_JWK_URI = 'https://post-it.au.auth0.com/.well-known/jwks.json';
+const AUTH0_JWK_URI = `https://${PUBLIC_AUTH0_DOMAIN}/.well-known/jwks.json`;
 
 const client = jwks({
 	jwksUri: AUTH0_JWK_URI
