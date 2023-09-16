@@ -49,7 +49,24 @@
 		goto('/board');
 	}
 
-	function handleUpdateNote() {}
+	async function handleUpdate({ detail }: CustomEvent<Note>) {
+		const token = await getToken();
+		await fetch(`/api/notes/${detail.id}`, {
+			headers: { Authorization: `Bearer ${token}` },
+			method: 'PATCH',
+			body: JSON.stringify(detail)
+		});
+
+		localNotes = [
+			...localNotes.map((n) => {
+				if (n.id === detail.id) {
+					return { ...n, ...detail };
+				}
+				return n;
+			})
+		];
+		handleClose();
+	}
 
 	function handleUpdateColour() {}
 
@@ -71,8 +88,8 @@
 </script>
 
 <svelte:head>
-	<title>My notes board</title>
-	<meta name="description" content="My personal board with notes" />
+	<title>My board with some notes on it</title>
+	<meta name="description" content="My personal whiteboard with secure post-it notes" />
 </svelte:head>
 
 {#if loading}
@@ -83,7 +100,7 @@
 		on:createNote={handleCreate}
 		on:cancelUpdate={handleClose}
 		on:select={handleSelect}
-		on:updateNote={handleUpdateNote}
+		on:updateNote={handleUpdate}
 		on:updateColour={handleUpdateColour}
 		on:deleteNote={handleDeleteNote}
 		{selectedNote}
