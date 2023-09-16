@@ -29,7 +29,7 @@ model Note {
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
   text      String   @db.Text /// @encrypted
   sequence  Int
-  colour    String
+  colour    String?
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.Uuid
