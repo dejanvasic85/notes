@@ -2,6 +2,7 @@
 	import { withAuth } from '$lib/auth';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { nanoid } from 'nanoid';
 
 	import Board from '../../components/Board.svelte';
 	import type { Note } from '../../types';
@@ -34,7 +35,8 @@
 		const token = await getToken();
 		const resp = await fetch('/api/notes', {
 			headers: { Authorization: `Bearer ${token}` },
-			method: 'POST'
+			method: 'POST',
+			body: JSON.stringify({ id: nanoid(8), text: '', colour: null })
 		});
 
 		if (resp.ok) {

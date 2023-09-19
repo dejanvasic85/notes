@@ -1,15 +1,18 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 import db from '$lib/db';
-import { colours } from '$lib/colours';
 
-export const POST: RequestHandler = async ({ locals }) => {
+export const POST: RequestHandler = async ({ locals, request }) => {
+	const { id, text, colour } = await request.json();
+
+	// todo: validate id, text, colour
+
 	const note = await db.note.create({
 		data: {
-			text: '',
-			sequence: 0,
+			id,
+			text,
 			userId: locals.user.id,
-			colour: colours[0].name
+			colour
 		}
 	});
 

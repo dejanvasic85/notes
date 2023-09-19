@@ -13,18 +13,13 @@
 		localNotes.update(() => [
 			{
 				id: crypto.randomUUID(),
-				sequence: 0,
 				text: 'Use the force and edit me by clicking here.'
 			}
 		]);
 	});
 
 	function handleCreateNote() {
-		const length = $localNotes.length;
-		localNotes.update((current) => [
-			...current,
-			{ id: crypto.randomUUID(), sequence: length, text: `New note` }
-		]);
+		localNotes.update((current) => [...current, { id: crypto.randomUUID(), text: `New note` }]);
 	}
 
 	function handleUpdateNote({ detail }: CustomEvent<Note>) {
