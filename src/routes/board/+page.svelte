@@ -47,9 +47,8 @@
 
 		if (resp.ok) {
 			const noteResp: { note: Note } = await resp.json();
-			// Update the UI with the new note details
-			console.log('noteResp', noteResp);
-			//localNotes = [...localNotes, noteResp.note];
+			const rest = localNotes.filter((n) => n.id !== id);
+			localNotes = [...rest, { ...noteResp.note, ...newNote }];
 		}
 	}
 
