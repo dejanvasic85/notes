@@ -2,6 +2,7 @@
 	import { withAuth } from '$lib/auth';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { nanoid } from 'nanoid';
 
 	import Board from '../../components/Board.svelte';
 	import type { Note } from '../../types';
@@ -31,17 +32,23 @@
 	}
 
 	async function handleCreate() {
+		const id = nanoid(8);
+		const newNote: Note = { id, text: '' };
+		// update the UI first and then send the request
+		localNotes = [...localNotes, newNote];
+		goto(`/board?id=${id}`);
+
 		const token = await getToken();
 		const resp = await fetch('/api/notes', {
 			headers: { Authorization: `Bearer ${token}` },
-			method: 'POST'
+			method: 'POST',
+			body: JSON.stringify(newNote)
 		});
 
 		if (resp.ok) {
 			const noteResp: { note: Note } = await resp.json();
-			// add to local notes
-			localNotes = [...localNotes, noteResp.note];
-			goto(`/board?id=${noteResp.note.id}`);
+			const rest = localNotes.filter((n) => n.id !== id);
+			localNotes = [...rest, { ...noteResp.note, ...newNote }];
 		}
 	}
 
