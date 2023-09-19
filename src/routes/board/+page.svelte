@@ -32,18 +32,24 @@
 	}
 
 	async function handleCreate() {
+		const id = nanoid(8);
+		const newNote: Note = { id, text: '' };
+		// update the UI first and then send the request
+		localNotes = [...localNotes, newNote];
+		goto(`/board?id=${id}`);
+
 		const token = await getToken();
 		const resp = await fetch('/api/notes', {
 			headers: { Authorization: `Bearer ${token}` },
 			method: 'POST',
-			body: JSON.stringify({ id: nanoid(8), text: '', colour: null })
+			body: JSON.stringify(newNote)
 		});
 
 		if (resp.ok) {
 			const noteResp: { note: Note } = await resp.json();
-			// add to local notes
-			localNotes = [...localNotes, noteResp.note];
-			goto(`/board?id=${noteResp.note.id}`);
+			// Update the UI with the new note details
+			console.log('noteResp', noteResp);
+			//localNotes = [...localNotes, noteResp.note];
 		}
 	}
 
