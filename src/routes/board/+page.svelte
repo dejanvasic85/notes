@@ -76,8 +76,6 @@
 		});
 	}
 
-	function handleUpdateColour() {}
-
 	async function handleDeleteNote({ detail }: CustomEvent<{ note: Note }>) {
 		const { note } = detail;
 		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
@@ -108,7 +106,6 @@
 		on:cancelUpdate={handleClose}
 		on:select={handleSelect}
 		on:updateNote={handleUpdate}
-		on:updateColour={handleUpdateColour}
 		on:deleteNote={handleDeleteNote}
 		{selectedNote}
 	/>

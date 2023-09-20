@@ -15,7 +15,6 @@
 	// Events
 	const dispatchCreate = createEventDispatcher();
 	const dispatchUpdate = createEventDispatcher<{ updateNote: NoteType }>();
-	const dispatchUpdateColour = createEventDispatcher<{ updateColour: { note: NoteType } }>();
 	const dispatchCancelUpdate = createEventDispatcher();
 	const dispatchSelect = createEventDispatcher<{ select: string }>();
 
@@ -28,7 +27,7 @@
 	}
 
 	function handleUpdateColour({ detail }: CustomEvent<{ note: NoteType }>) {
-		dispatchUpdateColour('updateColour', { note: detail.note });
+		dispatchUpdate('updateNote', detail.note);
 	}
 
 	function handleCreateClick() {
