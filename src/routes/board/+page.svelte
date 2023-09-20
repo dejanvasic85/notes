@@ -56,37 +56,37 @@
 		goto('/board');
 	}
 
-	async function handleUpdate({ detail }: CustomEvent<Note>) {
-		const token = await getToken();
-		await fetch(`/api/notes/${detail.id}`, {
-			headers: { Authorization: `Bearer ${token}` },
-			method: 'PATCH',
-			body: JSON.stringify(detail)
-		});
-
+	async function handleUpdate({ detail: updatedNote }: CustomEvent<Note>) {
 		localNotes = [
 			...localNotes.map((n) => {
-				if (n.id === detail.id) {
-					return { ...n, ...detail };
+				if (n.id === updatedNote.id) {
+					return { ...n, ...updatedNote };
 				}
 				return n;
 			})
 		];
+
 		handleClose();
+
+		const token = await getToken();
+		await fetch(`/api/notes/${updatedNote.id}`, {
+			headers: { Authorization: `Bearer ${token}` },
+			method: 'PATCH',
+			body: JSON.stringify(updatedNote)
+		});
 	}
 
 	function handleUpdateColour() {}
 
 	async function handleDeleteNote({ detail }: CustomEvent<{ note: Note }>) {
 		const { note } = detail;
+		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
+		handleClose();
 		const token = await getToken();
 		await fetch(`/api/notes/${note.id}`, {
 			headers: { Authorization: `Bearer ${token}` },
 			method: 'DELETE'
 		});
-
-		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
-		handleClose();
 	}
 
 	$: search = new URL($page.url).searchParams;
