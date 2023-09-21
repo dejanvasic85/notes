@@ -56,30 +56,28 @@
 		goto('/board');
 	}
 
-	async function handleUpdate({ detail: updatedNote }: CustomEvent<Note>) {
+	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: Note }>) {
 		localNotes = [
 			...localNotes.map((n) => {
-				if (n.id === updatedNote.id) {
-					return { ...n, ...updatedNote };
+				if (n.id === note.id) {
+					return { ...n, ...note };
 				}
 				return n;
 			})
 		];
 
-		handleClose();
-
 		const token = await getToken();
-		await fetch(`/api/notes/${updatedNote.id}`, {
+		await fetch(`/api/notes/${note.id}`, {
 			headers: { Authorization: `Bearer ${token}` },
 			method: 'PATCH',
-			body: JSON.stringify(updatedNote)
+			body: JSON.stringify(note)
 		});
 	}
 
 	async function handleDeleteNote({ detail }: CustomEvent<{ note: Note }>) {
 		const { note } = detail;
 		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
-		handleClose();
+
 		const token = await getToken();
 		await fetch(`/api/notes/${note.id}`, {
 			headers: { Authorization: `Bearer ${token}` },
@@ -103,7 +101,7 @@
 	<Board
 		notes={localNotes}
 		on:createNote={handleCreate}
-		on:cancelUpdate={handleClose}
+		on:closeNote={handleClose}
 		on:select={handleSelect}
 		on:updateNote={handleUpdate}
 		on:deleteNote={handleDeleteNote}

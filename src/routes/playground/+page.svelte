@@ -22,10 +22,10 @@
 		localNotes.update((current) => [...current, { id: crypto.randomUUID(), text: `New note` }]);
 	}
 
-	function handleUpdateNote({ detail }: CustomEvent<Note>) {
+	function handleUpdateNote({ detail: { note } }: CustomEvent<{ note: Note }>) {
 		localNotes.update((state) => {
-			const [[noteToUpdate], rest] = partition(state, (n) => n.id === detail.id);
-			return [...rest, { ...noteToUpdate, text: detail.text }];
+			const [[noteToUpdate], rest] = partition(state, (n) => n.id === note.id);
+			return [...rest, { ...noteToUpdate, text: note.text }];
 		});
 		handleClose();
 	}
@@ -60,7 +60,7 @@
 	{selectedNote}
 	on:createNote={handleCreateNote}
 	on:cancelUpdate={handleClose}
+	on:deleteNote={handleDeleteNote}
 	on:select={handleSelect}
 	on:updateNote={handleUpdateNote}
-	on:deleteNote={handleDeleteNote}
 />
