@@ -26,7 +26,6 @@
 	aria-label={`Edit note ${index + 1}`}
 	on:click={handleClick}
 	on:keypress={handleClick}
-	transition:fly={{ x: 15, duration: 400 }}
 >
 	{@html note.text}
 </div>
