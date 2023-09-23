@@ -8,27 +8,31 @@
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
 
+	interface UpdateProps {
+		note: NoteType;
+	}
+
 	// Props
 	export let notes: NoteType[];
 	export let selectedNote: NoteType | undefined;
 
 	// Events
 	const dispatchCreate = createEventDispatcher();
-	const dispatchUpdate = createEventDispatcher<{ updateNote: NoteType }>();
-	const dispatchUpdateColour = createEventDispatcher<{ updateColour: { note: NoteType } }>();
-	const dispatchCancelUpdate = createEventDispatcher();
+	const dispatchUpdate = createEventDispatcher<{ updateNote: UpdateProps }>();
+	const dispatchClose = createEventDispatcher();
 	const dispatchSelect = createEventDispatcher<{ select: string }>();
 
 	function handleModalClose() {
-		dispatchCancelUpdate('cancelUpdate');
+		dispatchClose('closeNote');
 	}
 
-	function handleSave({ detail }: CustomEvent<{ note: NoteType }>) {
-		dispatchUpdate('updateNote', detail.note);
+	function handleSave({ detail: { note } }: CustomEvent<{ note: NoteType }>) {
+		dispatchUpdate('updateNote', { note });
+		dispatchClose('closeNote');
 	}
 
-	function handleUpdateColour({ detail }: CustomEvent<{ note: NoteType }>) {
-		dispatchUpdateColour('updateColour', { note: detail.note });
+	function handleUpdateColour({ detail: { note } }: CustomEvent<{ note: NoteType }>) {
+		dispatchUpdate('updateNote', { note });
 	}
 
 	function handleCreateClick() {

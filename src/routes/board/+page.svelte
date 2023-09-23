@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { withAuth } from '$lib/auth';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	import { nanoid } from 'nanoid';
 
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+
+	import { withAuth } from '$lib/auth';
+	import { updateNote } from '$lib/notes';
+	import { MaybeType, tryFetch } from '$lib/fetch';
 	import Board from '../../components/Board.svelte';
 	import type { Note } from '../../types';
-	import { onMount } from 'svelte';
 
 	const auth = withAuth();
 	const { getToken } = auth;
@@ -34,21 +37,22 @@
 	async function handleCreate() {
 		const id = nanoid(8);
 		const newNote: Note = { id, text: '' };
-		// update the UI first and then send the request
 		localNotes = [...localNotes, newNote];
+
 		goto(`/board?id=${id}`);
 
 		const token = await getToken();
-		const resp = await fetch('/api/notes', {
+		const resp = await tryFetch('/api/notes', {
 			headers: { Authorization: `Bearer ${token}` },
 			method: 'POST',
 			body: JSON.stringify(newNote)
 		});
 
-		if (resp.ok) {
-			const noteResp: { note: Note } = await resp.json();
-			const rest = localNotes.filter((n) => n.id !== id);
-			localNotes = [...rest, { ...noteResp.note, ...newNote }];
+		if (resp.type === MaybeType.Error) {
+			localNotes = [...localNotes.filter((n) => n.id !== id)];
+			goto('/board');
+
+			// todo: show an error
 		}
 	}
 
@@ -56,37 +60,42 @@
 		goto('/board');
 	}
 
-	async function handleUpdate({ detail }: CustomEvent<Note>) {
+	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: Note }>) {
+		const original = localNotes.find((n) => n.id === note.id);
+		if (!original) {
+			// todo: show an error
+			return;
+		}
+
+		localNotes = [...updateNote(localNotes, note)];
 		const token = await getToken();
-		await fetch(`/api/notes/${detail.id}`, {
+
+		const { type } = await tryFetch(`/api/notes/${note.id}`, {
 			headers: { Authorization: `Bearer ${token}` },
 			method: 'PATCH',
-			body: JSON.stringify(detail)
+			body: JSON.stringify(note)
 		});
 
-		localNotes = [
-			...localNotes.map((n) => {
-				if (n.id === detail.id) {
-					return { ...n, ...detail };
-				}
-				return n;
-			})
-		];
-		handleClose();
+		if (type === MaybeType.Error) {
+			// todo: show an error
+			localNotes = [...updateNote(localNotes, original)];
+		}
 	}
-
-	function handleUpdateColour() {}
 
 	async function handleDeleteNote({ detail }: CustomEvent<{ note: Note }>) {
 		const { note } = detail;
+		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
+
 		const token = await getToken();
-		await fetch(`/api/notes/${note.id}`, {
+		const { type } = await tryFetch(`/api/notes/${note.id}`, {
 			headers: { Authorization: `Bearer ${token}` },
 			method: 'DELETE'
 		});
 
-		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
-		handleClose();
+		if (type === MaybeType.Error) {
+			localNotes = [...localNotes, note];
+			// todo: show an error
+		}
 	}
 
 	$: search = new URL($page.url).searchParams;
@@ -105,10 +114,9 @@
 	<Board
 		notes={localNotes}
 		on:createNote={handleCreate}
-		on:cancelUpdate={handleClose}
+		on:closeNote={handleClose}
 		on:select={handleSelect}
 		on:updateNote={handleUpdate}
-		on:updateColour={handleUpdateColour}
 		on:deleteNote={handleDeleteNote}
 		{selectedNote}
 	/>
