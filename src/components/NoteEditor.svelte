@@ -16,7 +16,6 @@
 	// Internal state
 	let editor: HTMLDivElement;
 	let noteText: string = note.text;
-	let isControlDown = false; // Used to detect Ctrl keydown
 
 	// External events
 	const dispatch = createEventDispatcher();
@@ -52,12 +51,7 @@
 			return;
 		}
 
-		if (event.key === 'Control' || event.key === 'Meta') {
-			isControlDown = true;
-			event.preventDefault();
-		}
-
-		if (event.key === 'Enter' && isControlDown) {
+		if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
 			handleSave();
 		}
 	}
