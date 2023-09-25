@@ -42,6 +42,6 @@ export async function tryFetch<T>(input: URL | RequestInfo, init?: RequestInit):
 		if (error instanceof Error) {
 			return none(error.message);
 		}
-		return none('Unknown error');
+		return none(`Unknown error: ${JSON.stringify(error)}`);
 	}
 }

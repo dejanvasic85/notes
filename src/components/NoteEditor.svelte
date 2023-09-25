@@ -25,16 +25,7 @@
 
 	// Internal handlers
 	async function handleModalOpen() {
-		await tick();
-		const selection = window.getSelection();
-		const range = document.createRange();
-		selection?.removeAllRanges();
-		if (editor) {
-			range.selectNodeContents(editor);
-			range.collapse(false);
-			selection?.addRange(range);
-			editor.focus();
-		}
+		await moveCursorToEnd();
 	}
 
 	function handleSave() {
@@ -56,6 +47,13 @@
 		}
 	}
 
+	function handlePaste(event: ClipboardEvent) {
+		event.preventDefault();
+		const text = event.clipboardData?.getData('text/plain') ?? '';
+		noteText += text.replaceAll('\n', '<br />');
+		moveCursorToEnd();
+	}
+
 	function handleDeleteClick() {
 		if (confirm('Are you sure you want to delete this note?')) {
 			dispatchDeleteNote('deleteNote', { note });
@@ -69,6 +67,19 @@
 				colour: detail.colour
 			}
 		});
+	}
+
+	async function moveCursorToEnd() {
+		await tick();
+		const selection = window.getSelection();
+		const range = document.createRange();
+		selection?.removeAllRanges();
+		if (editor) {
+			range.selectNodeContents(editor);
+			range.collapse(false);
+			selection?.addRange(range);
+			editor.focus();
+		}
 	}
 
 	$: className = getNoteCssClass({
@@ -101,6 +112,7 @@
 		bind:this={editor}
 		bind:innerHTML={noteText}
 		on:keydown={handleKeydown}
+		on:paste={handlePaste}
 	/>
 
 	<div slot="footer" class="flex justify-end">
