@@ -50,8 +50,7 @@
 	function handlePaste(event: ClipboardEvent) {
 		event.preventDefault();
 		const text = event.clipboardData?.getData('text/plain') ?? '';
-		noteText += text.replaceAll('\n', '<br />');
-		moveCursorToEnd();
+		document.execCommand('insertHTML', false, text);
 	}
 
 	function handleDeleteClick() {
