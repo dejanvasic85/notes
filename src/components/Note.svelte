@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { fly } from 'svelte/transition';
 	import { getNoteCssClass } from '$lib/colours';
 	import type { Note } from '../types';
 
@@ -18,9 +17,8 @@
 	});
 </script>
 
-<!-- svelte-ignore a11y-interactive-supports-focus -->
 <div
-	class="min-h-48 w-full rounded-lg p-4 md:w-60 {className}"
+	class="h-48 w-full overflow-y-hidden rounded-lg p-4 md:w-60 {className}"
 	tabindex={index}
 	role="button"
 	aria-label={`Edit note ${index + 1}`}
