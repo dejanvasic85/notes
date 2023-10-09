@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
+	import { dropzone } from '$lib/draggable';
 	import type { Note as NoteType } from '../types';
 
 	import Button from './Button.svelte';
@@ -43,6 +44,10 @@
 		dispatchSelect('select', id);
 	}
 
+	function handleDrop(item: NoteType) {
+		console.log('item dropped', item);
+	}
+
 	$: selectedId = selectedNote?.id;
 	$: showModal = !!selectedId;
 </script>
@@ -58,8 +63,12 @@
 	/>
 {/if}
 
-<div class="flex flex-wrap items-start justify-center gap-8 p-8">
+<div class="flex flex-wrap items-stretch justify-center gap-2 p-8">
 	{#each notes as note, index}
+		<div
+			class="dropzone block h-4 w-full md:h-48 md:w-4"
+			use:dropzone={{ onDropped: handleDrop }}
+		></div>
 		<Note {note} {index} on:click={() => handleEdit(note.id)} />
 	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">
@@ -70,3 +79,13 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	.dropzone {
+		content: '';
+	}
+
+	:global(.droppable) {
+		@apply rounded-md bg-slate-600;
+	}
+</style>
