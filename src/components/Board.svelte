@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
-	import type { Note as NoteType } from '../types';
+	import { dropzone, type DraggableData } from '$lib/draggable';
+	import type { NoteOrdered } from '../types';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
@@ -9,29 +10,32 @@
 	import NoteEditor from './NoteEditor.svelte';
 
 	interface UpdateProps {
-		note: NoteType;
+		note: NoteOrdered;
 	}
 
 	// Props
-	export let notes: NoteType[];
-	export let selectedNote: NoteType | undefined;
+	export let notes: NoteOrdered[];
+	export let selectedNote: NoteOrdered | undefined;
 
 	// Events
 	const dispatchCreate = createEventDispatcher();
 	const dispatchUpdate = createEventDispatcher<{ updateNote: UpdateProps }>();
 	const dispatchClose = createEventDispatcher();
 	const dispatchSelect = createEventDispatcher<{ select: string }>();
+	const dispatchReorder = createEventDispatcher<{
+		reorder: { fromIndex: number; toIndex: number };
+	}>();
 
 	function handleModalClose() {
 		dispatchClose('closeNote');
 	}
 
-	function handleSave({ detail: { note } }: CustomEvent<{ note: NoteType }>) {
+	function handleSave({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
 		dispatchUpdate('updateNote', { note });
 		dispatchClose('closeNote');
 	}
 
-	function handleUpdateColour({ detail: { note } }: CustomEvent<{ note: NoteType }>) {
+	function handleUpdateColour({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
 		dispatchUpdate('updateNote', { note });
 	}
 
@@ -41,6 +45,10 @@
 
 	function handleEdit(id: string) {
 		dispatchSelect('select', id);
+	}
+
+	function handleDrop(toIndex: number, { index }: DraggableData, _: DragEvent) {
+		dispatchReorder('reorder', { fromIndex: index, toIndex });
 	}
 
 	$: selectedId = selectedNote?.id;
@@ -58,8 +66,12 @@
 	/>
 {/if}
 
-<div class="flex flex-wrap items-start justify-center gap-8 p-8">
+<div class="flex flex-wrap items-stretch justify-center gap-2 p-8">
 	{#each notes as note, index}
+		<div
+			class="dropzone block h-4 w-full md:h-48 md:w-4"
+			use:dropzone={{ onDropped: (args, evt) => handleDrop(index, args, evt) }}
+		></div>
 		<Note {note} {index} on:click={() => handleEdit(note.id)} />
 	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">
@@ -70,3 +82,13 @@
 		</div>
 	</div>
 </div>
+
+<style type="text/postcss">
+	.dropzone {
+		content: '';
+	}
+
+	:global(.droppable) {
+		@apply rounded-md bg-pink-500;
+	}
+</style>

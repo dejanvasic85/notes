@@ -5,3 +5,12 @@ export interface Note {
 	text: string;
 	colour?: Colour;
 }
+
+export interface NoteOrdered extends Note {
+	order: number;
+}
+
+export interface Board {
+	notes: Note[];
+	noteOrder: string[];
+}
