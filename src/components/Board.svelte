@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
-	import { dropzone } from '$lib/draggable';
+	import { dropzone, type DraggableData } from '$lib/draggable';
 	import type { Note as NoteType } from '../types';
 
 	import Button from './Button.svelte';
@@ -44,8 +44,8 @@
 		dispatchSelect('select', id);
 	}
 
-	function handleDrop(item: NoteType) {
-		console.log('item dropped', item);
+	function handleDrop(targetIndex: number, { index, note }: DraggableData, event: DragEvent) {
+		console.log('args', targetIndex, index, note, event);
 	}
 
 	$: selectedId = selectedNote?.id;
@@ -67,7 +67,7 @@
 	{#each notes as note, index}
 		<div
 			class="dropzone block h-4 w-full md:h-48 md:w-4"
-			use:dropzone={{ onDropped: handleDrop }}
+			use:dropzone={{ onDropped: (args, evt) => handleDrop(index, args, evt) }}
 		></div>
 		<Note {note} {index} on:click={() => handleEdit(note.id)} />
 	{/each}
@@ -80,7 +80,7 @@
 	</div>
 </div>
 
-<style>
+<style type="text/postcss">
 	.dropzone {
 		content: '';
 	}

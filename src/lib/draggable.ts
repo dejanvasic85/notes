@@ -1,8 +1,14 @@
 import type { Note } from '../types';
 
-interface DraggableData {
+export interface DraggableData {
 	note: Note;
 	index: number;
+}
+
+export interface DropzoneData {
+	dropEffect?: string;
+	dragoverClass?: string;
+	onDropped?: (data: DraggableData, event: DragEvent) => void;
 }
 
 export function draggable(node: HTMLElement, data: DraggableData) {
@@ -11,13 +17,13 @@ export function draggable(node: HTMLElement, data: DraggableData) {
 	node.draggable = true;
 	node.style.cursor = 'grab';
 
-	function onDragStart(event) {
+	function onDragStart(event: DragEvent) {
 		event.dataTransfer?.setData('text/plain', JSON.stringify(state));
-		event.target?.classList.add('dragging');
+		(event.target as Element).classList.add('dragging');
 	}
 
-	function onDragEnd(event) {
-		event.target?.classList.remove('dragging');
+	function onDragEnd(event: DragEvent) {
+		(event.target as Element).classList.remove('dragging');
 	}
 
 	node.addEventListener('dragstart', onDragStart);
@@ -33,31 +39,32 @@ export function draggable(node: HTMLElement, data: DraggableData) {
 	};
 }
 
-export function dropzone(node: HTMLElement, options?) {
-	let state = {
+export function dropzone(node: HTMLElement, options: DropzoneData) {
+	let state: DropzoneData = {
 		dropEffect: 'move',
 		dragoverClass: 'droppable',
 		...options
 	};
 
-	function handleDragEnter(e) {
-		e.target?.classList.add(state.dragoverClass);
+	function handleDragEnter(e: DragEvent) {
+		(e.target as Element).classList.add(state.dragoverClass!);
 	}
 
-	function handleDragLeave(e) {
-		e.target?.classList.remove(state.dragoverClass);
+	function handleDragLeave(e: DragEvent) {
+		(e.target as Element).classList.remove(state.dragoverClass!);
 	}
 
-	function handleDragOver(e) {
+	function handleDragOver(e: DragEvent) {
 		e.preventDefault();
-		e.dataTransfer.dropEffect = state.dropEffect;
+		//e.dataTransfer.dropEffect = state.dropEffect;
 	}
 
-	function handleDrop(e) {
+	function handleDrop(e: DragEvent) {
 		e.preventDefault();
+		if (!e.dataTransfer) return;
 		const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-		e.target.classList.remove(state.dragoverClass);
-		state.onDropped(data, e);
+		(e.target as Element).classList.remove(state.dragoverClass!);
+		state.onDropped?.(data, e);
 	}
 
 	node.addEventListener('dragenter', handleDragEnter);
@@ -66,7 +73,7 @@ export function dropzone(node: HTMLElement, options?) {
 	node.addEventListener('drop', handleDrop);
 
 	return {
-		update(options) {
+		update(options: DropzoneData) {
 			state = {
 				...state,
 				...options
