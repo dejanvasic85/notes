@@ -1,16 +1,24 @@
-import { writable } from 'svelte/store';
-import type { Note } from '../../types';
+import { derived, writable } from 'svelte/store';
+
+import { getOrderedNotes } from '$lib/notes';
+
+import type { Board } from '../../types';
 
 const getFromStorage = () => {
+	const data = { notes: [], noteOrder: [] };
 	return typeof localStorage === 'undefined'
-		? []
-		: JSON.parse(localStorage.getItem('playground') ?? '[]');
+		? data
+		: JSON.parse(localStorage.getItem('playground') ?? JSON.stringify(data));
 };
 
-const setInStorage = (notes: Note[]) => {
+const setInStorage = (board: Board) => {
 	if (typeof localStorage === 'undefined') return;
-	localStorage.setItem('playground', JSON.stringify(notes));
+	localStorage.setItem('playground', JSON.stringify(board));
 };
 
-export const localNotes = writable<Note[]>(getFromStorage());
+export const localNotes = writable<Board>(getFromStorage());
 localNotes.subscribe(setInStorage);
+
+export const orderedNotes = derived(localNotes, ({ notes, noteOrder }) =>
+	getOrderedNotes(noteOrder, notes)
+);

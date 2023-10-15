@@ -1,7 +1,7 @@
-import type { Note } from '../types';
+import type { NoteOrdered } from '../types';
 
 export interface DraggableData {
-	note: Note;
+	note: NoteOrdered;
 	index: number;
 }
 

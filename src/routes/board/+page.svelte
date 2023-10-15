@@ -9,11 +9,11 @@
 	import { updateNote } from '$lib/notes';
 	import { MaybeType, tryFetch } from '$lib/fetch';
 	import Board from '../../components/Board.svelte';
-	import type { Note } from '../../types';
+	import type { Note, NoteOrdered } from '../../types';
 
 	const auth = withAuth();
 	const { getToken } = auth;
-	let localNotes: Note[] = [];
+	let localNotes: NoteOrdered[] = [];
 	let loading: boolean = true;
 
 	onMount(() => {
@@ -22,7 +22,7 @@
 			const resp = await fetch('/api/board', {
 				headers: { Authorization: `Bearer ${token}` }
 			});
-			const { notes }: { notes: Note[] } = await resp.json();
+			const { notes }: { notes: NoteOrdered[] } = await resp.json();
 			localNotes = [...notes];
 			loading = false;
 		};
@@ -37,7 +37,7 @@
 	async function handleCreate() {
 		const id = nanoid(8);
 		const newNote: Note = { id, text: '' };
-		localNotes = [...localNotes, newNote];
+		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
 
 		goto(`/board?id=${id}`);
 
@@ -60,7 +60,7 @@
 		goto('/board');
 	}
 
-	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: Note }>) {
+	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
 		const original = localNotes.find((n) => n.id === note.id);
 		if (!original) {
 			// todo: show an error
@@ -69,11 +69,12 @@
 
 		localNotes = [...updateNote(localNotes, note)];
 		const token = await getToken();
+		const { order, ...restNoteProps } = note;
 
 		const { type } = await tryFetch(`/api/notes/${note.id}`, {
 			headers: { Authorization: `Bearer ${token}` },
 			method: 'PATCH',
-			body: JSON.stringify(note)
+			body: JSON.stringify(restNoteProps)
 		});
 
 		if (type === MaybeType.Error) {
@@ -82,7 +83,7 @@
 		}
 	}
 
-	async function handleDeleteNote({ detail }: CustomEvent<{ note: Note }>) {
+	async function handleDeleteNote({ detail }: CustomEvent<{ note: NoteOrdered }>) {
 		const { note } = detail;
 		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
 
