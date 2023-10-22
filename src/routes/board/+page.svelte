@@ -49,12 +49,9 @@
 
 		goto(`/board?id=${id}`);
 
-		const resp = await tryFetch(
+		const resp = await tryFetch<Note>(
 			'/api/notes',
-			{
-				method: 'POST',
-				body: JSON.stringify(newNote)
-			},
+			{ method: 'POST', body: JSON.stringify(newNote) },
 			{ getBearerToken: getToken }
 		);
 
@@ -80,12 +77,9 @@
 		localNotes = [...updateNote(localNotes, note)];
 		const { order, boardId, ...restNoteProps } = note;
 
-		const { type } = await tryFetch(
+		const { type } = await tryFetch<Note>(
 			`/api/notes/${note.id}`,
-			{
-				method: 'PATCH',
-				body: JSON.stringify(restNoteProps)
-			},
+			{ method: 'PATCH', body: JSON.stringify(restNoteProps) },
 			{ getBearerToken: getToken }
 		);
 
@@ -100,16 +94,18 @@
 		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
 		localNoteOrder = [...localNoteOrder.filter((id) => id !== detail.note.id)];
 
-		const token = await getToken();
-		const { type } = await tryFetch(`/api/notes/${note.id}`, {
-			headers: { Authorization: `Bearer ${token}` },
-			method: 'DELETE'
-		});
+		const resp = await tryFetch(
+			`/api/notes/${note.id}`,
+			{ method: 'DELETE' },
+			{ getBearerToken: getToken, shouldParse: false }
+		);
 
-		if (type === MaybeType.Error) {
+		if (resp.type === MaybeType.Error) {
 			localNotes = [...localNotes, note];
 			localNoteOrder = [...localNoteOrder, note.id!];
 			// todo: show an error
+		} else {
+			goto('/board');
 		}
 	}
 
@@ -120,12 +116,9 @@
 		localNoteOrder = [...noteOrder];
 		localNotes = [...getOrderedNotes(noteOrder, localNotes)];
 
-		const result = await tryFetch(
+		const result = await tryFetch<Board>(
 			`/api/board/${boardId}`,
-			{
-				method: 'PATCH',
-				body: JSON.stringify({ noteOrder })
-			},
+			{ method: 'PATCH', body: JSON.stringify({ noteOrder }) },
 			{ getBearerToken: getToken }
 		);
 
