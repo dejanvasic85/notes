@@ -2,7 +2,7 @@ import { json, type RequestHandler } from '@sveltejs/kit';
 
 import { getUserById, isBoardOwner } from '$lib/services/userService';
 import { createNote } from '$lib/services/noteService';
-import { updateBoard } from '$lib/services/boardService'
+import { updateBoard } from '$lib/services/boardService';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { id, boardId, text, colour = null } = await request.json();

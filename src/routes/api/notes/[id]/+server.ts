@@ -49,7 +49,6 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 
 	const updatedNote = await updateNote({ ...note, ...changes });
 
-	// No content for patch
 	return json(updatedNote);
 };
 

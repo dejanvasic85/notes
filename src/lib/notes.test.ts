@@ -9,7 +9,13 @@ describe('updateNote', () => {
 			{ id: '3', text: 'three', order: 2, colour: null, boardId: null }
 		];
 
-		const updatedNotes = updateNote(notes, { id: '2', text: 'updated', order: 1, colour: null, boardId: null });
+		const updatedNotes = updateNote(notes, {
+			id: '2',
+			text: 'updated',
+			order: 1,
+			colour: null,
+			boardId: null
+		});
 
 		expect(updatedNotes).toEqual([
 			{ id: '1', text: 'one', order: 0 },

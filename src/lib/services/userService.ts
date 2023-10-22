@@ -52,15 +52,15 @@ export async function createUser({
 						id: generateId('bid'),
 						noteOrder: []
 					}
-				],
-			},
+				]
+			}
 		},
 		include: {
 			boards: {
 				include: {
-					notes: true,
+					notes: true
 				}
-			},
+			}
 		}
 	});
 }
@@ -90,6 +90,8 @@ export async function getUserById(
 
 	return {
 		...user,
-		boards: boards ? user.boards.map((board) => ({ ...board, notes: notes ? board.notes : [] })) : []
+		boards: boards
+			? user.boards.map((board) => ({ ...board, notes: notes ? board.notes : [] }))
+			: []
 	};
 }
