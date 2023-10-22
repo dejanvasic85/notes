@@ -2,7 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 
 	import { dropzone, type DraggableData } from '$lib/draggable';
-	import type { NoteOrdered } from '../types';
+	import type { NoteOrdered } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
@@ -43,8 +43,10 @@
 		dispatchCreate('createNote');
 	}
 
-	function handleEdit(id: string) {
-		dispatchSelect('select', id);
+	function handleEdit(id?: string) {
+		if (id) {
+			dispatchSelect('select', id);
+		}
 	}
 
 	function handleDrop(toIndex: number, { index }: DraggableData, _: DragEvent) {

@@ -12,7 +12,7 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id            String   @id
   createdAt     DateTime @default(now()) @db.Timestamptz(6)
   updatedAt     DateTime @updatedAt @db.Timestamptz(6)
   authId        String   @unique
@@ -20,7 +20,18 @@ model User {
   emailVerified Boolean
   name          String?
   picture       String?
-  notes         Note[]
+  boards        Board[]
+}
+
+model Board {
+  id        String   @id
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  noteOrder String[]
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  notes  Note[]
 }
 
 model Note {
@@ -29,7 +40,6 @@ model Note {
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
   text      String   @db.Text /// @encrypted
   colour    String?
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @db.Uuid
+  boardId   String?
+  board     Board?   @relation(fields: [boardId], references: [id])
 }

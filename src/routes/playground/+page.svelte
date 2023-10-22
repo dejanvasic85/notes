@@ -4,41 +4,46 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { generateId } from '$lib/identityGenerator';
 	import { reorderNotes } from '$lib/notes';
+	import type { Note } from '$lib/types';
 
 	import Board from '../../components/Board.svelte';
-	import type { Note } from '../../types';
-
-	import { localNotes, orderedNotes } from './noteStore';
+	import { localBoard, orderedNotes } from './noteStore';
 
 	onMount(() => {
-		const id = crypto.randomUUID();
-		localNotes.update(() => ({
+		const id = generateId('nid');
+		localBoard.update(() => ({
+			boardId: generateId('bid'),
+			userId: '',
 			noteOrder: [id],
 			notes: [
 				{
 					id,
-					text: 'Use the force and edit me by clicking here.'
+					text: 'Use the force and edit me by clicking here.',
+					boardId: $localBoard.id!,
+					colour: null
 				}
 			]
 		}));
 	});
 
 	function handleCreateNote() {
-		const id = crypto.randomUUID();
-		localNotes.update((current) => {
+		const id = generateId('nid');
+		localBoard.update((current) => {
 			return {
 				...current,
 				noteOrder: [...current.noteOrder, id],
-				notes: [...current.notes, { id, text: `New note` }]
+				notes: [...current.notes, { id, text: `New note`, boardId: $localBoard.id!, colour: null }]
 			};
 		});
 	}
 
 	function handleUpdateNote({ detail: { note } }: CustomEvent<{ note: Note }>) {
-		localNotes.update((state) => {
+		localBoard.update((state) => {
 			const [[noteToUpdate], rest] = partition(state.notes, (n) => n.id === note.id);
 			return {
+				...state,
 				noteOrder: [...state.noteOrder],
 				notes: [...rest, { ...noteToUpdate, text: note.text }]
 			};
@@ -48,8 +53,9 @@
 	}
 
 	function handleDeleteNote({ detail }: CustomEvent<{ note: Note }>) {
-		localNotes.update((state) => {
+		localBoard.update((state) => {
 			return {
+				...state,
 				noteOrder: [...state.noteOrder.filter((id) => id !== detail.note.id)],
 				notes: [...state.notes.filter((n) => n.id !== detail.note.id)]
 			};
@@ -68,7 +74,7 @@
 	function handleReorder({
 		detail: { fromIndex, toIndex }
 	}: CustomEvent<{ fromIndex: number; toIndex: number }>) {
-		localNotes.update((state) => {
+		localBoard.update((state) => {
 			const newOrder = reorderNotes(state.noteOrder, fromIndex, toIndex);
 			return {
 				...state,

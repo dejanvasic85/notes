@@ -29,12 +29,32 @@ export function none(message: string): None {
 	};
 }
 
-export async function tryFetch<T>(input: URL | RequestInfo, init?: RequestInit): Promise<Maybe<T>> {
+interface FetchOptions {
+	getBearerToken?: () => Promise<string>;
+	shouldParse?: boolean;
+}
+
+export async function tryFetch<T>(input: URL | RequestInfo, init?: RequestInit, options?: FetchOptions): Promise<Maybe<T>> {
 	try {
-		const response = await fetch(input, init);
+		const token = options?.getBearerToken ? await options.getBearerToken() : null;
+
+		const response = await fetch(input, {
+			...init,
+			headers: {
+				...init?.headers,
+				'Content-Type': 'application/json',
+				...(token ? { Authorization: `Bearer ${token}` } : {})
+			}
+		});
+
 		if (response.ok) {
-			const data = await response.json();
-			return some(data);
+			const shouldParse = options?.shouldParse ?? true;
+			if (shouldParse) {
+				const data = await response.json();
+				return some(data) as Maybe<T>;
+			} else {
+				return some(null) as Maybe<T>;
+			}
 		}
 		const rawText = await response.text();
 		return none(rawText);
