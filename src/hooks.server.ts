@@ -1,6 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 
-import { createUser, getUserByAuthId, getAuthUserProfile } from '$lib/user';
+import { createUser, getUserByAuthId, getAuthUserProfile } from '$lib/services/userService';
 import { verifyToken } from '$lib/verifyToken';
 
 const getTokenFromHeader = (authHeader: string) => authHeader.split(' ')[1];

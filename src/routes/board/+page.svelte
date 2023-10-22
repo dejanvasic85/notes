@@ -1,29 +1,34 @@
 <script lang="ts">
-	import { nanoid } from 'nanoid';
-
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
 	import { withAuth } from '$lib/auth';
-	import { updateNote } from '$lib/notes';
+	import { getOrderedNotes, updateNote } from '$lib/notes';
 	import { MaybeType, tryFetch } from '$lib/fetch';
+	import type { Note, NoteOrdered, User } from '$lib/types';
+	import { generateId } from '$lib/identityGenerator';
+
 	import Board from '../../components/Board.svelte';
-	import type { Note, NoteOrdered } from '../../types';
 
 	const auth = withAuth();
 	const { getToken } = auth;
 	let localNotes: NoteOrdered[] = [];
+	let boardId: string;
 	let loading: boolean = true;
 
 	onMount(() => {
 		const loadNotes = async () => {
 			const token = await getToken();
-			const resp = await fetch('/api/board', {
+			const resp = await fetch('/api/user', {
 				headers: { Authorization: `Bearer ${token}` }
 			});
-			const { notes }: { notes: NoteOrdered[] } = await resp.json();
-			localNotes = [...notes];
+
+			const user: User = await resp.json();
+			// At the moment only a single board per user...
+			const [{ id, noteOrder, notes }] = user.boards;
+			boardId = id!;
+			localNotes = [...getOrderedNotes(noteOrder, notes)];
 			loading = false;
 		};
 
@@ -35,8 +40,8 @@
 	}
 
 	async function handleCreate() {
-		const id = nanoid(8);
-		const newNote: Note = { id, text: '' };
+		const id = generateId('nid');
+		const newNote: Note = { id, text: '', boardId, colour: null };
 		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
 
 		goto(`/board?id=${id}`);
@@ -69,7 +74,7 @@
 
 		localNotes = [...updateNote(localNotes, note)];
 		const token = await getToken();
-		const { order, ...restNoteProps } = note;
+		const { order, boardId, ...restNoteProps } = note;
 
 		const { type } = await tryFetch(`/api/notes/${note.id}`, {
 			headers: { Authorization: `Bearer ${token}` },

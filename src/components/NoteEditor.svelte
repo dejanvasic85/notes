@@ -2,7 +2,7 @@
 	import { createEventDispatcher, tick } from 'svelte';
 
 	import { getNoteCssClass, type Colour } from '$lib/colours';
-	import type { Note, NoteOrdered } from '../types';
+	import type { NoteOrdered } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
@@ -83,7 +83,7 @@
 
 	$: className = getNoteCssClass({
 		defaultClass: 'bg-white dark:bg-slate-800 dark:text-white border',
-		variant: note.colour
+		variant: note.colour ?? ''
 	});
 </script>
 

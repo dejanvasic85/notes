@@ -1,4 +1,4 @@
-import type { Note, NoteOrdered } from '../types';
+import type { Note, NoteOrdered } from '$lib/types';
 
 export function updateNote(notes: NoteOrdered[], noteToUpdate: NoteOrdered) {
 	return notes.map((n) => {

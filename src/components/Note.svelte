@@ -2,7 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { getNoteCssClass } from '$lib/colours';
 	import { draggable } from '$lib/draggable';
-	import type { NoteOrdered } from '../types';
+	import type { NoteOrdered } from '../lib/types';
 
 	export let note: NoteOrdered;
 	export let index: number;
@@ -14,7 +14,7 @@
 
 	$: className = getNoteCssClass({
 		defaultClass: 'text-base border',
-		variant: note.colour
+		variant: note.colour ?? ''
 	});
 </script>
 
