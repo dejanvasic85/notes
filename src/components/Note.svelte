@@ -2,7 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { getNoteCssClass } from '$lib/colours';
 	import { draggable } from '$lib/draggable';
-	import type { NoteOrdered } from '../lib/types';
+	import type { NoteOrdered } from '$lib/types';
 
 	export let note: NoteOrdered;
 	export let index: number;
