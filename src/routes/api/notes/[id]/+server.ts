@@ -1,5 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 
+import { updateBoard } from '$lib/services/boardService';
 import { getNoteById, updateNote, deleteNote } from '$lib/services/noteService';
 import { getUserById, isBoardOwner } from '$lib/services/userService';
 
@@ -71,6 +72,18 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
 	}
 
 	await deleteNote(noteId);
+
+	// delete the note from the order
+	const board = user.boards.find((b) => b.id === note.boardId);
+	if (!board) {
+		return json(null, { status: 404 });
+	}
+
+	const updatedOrder = board.noteOrder.filter((id) => id !== noteId);
+	await updateBoard({
+		...board,
+		noteOrder: updatedOrder
+	});
 
 	return new Response(null, { status: 204 });
 };

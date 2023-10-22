@@ -45,6 +45,7 @@
 		const id = generateId('nid');
 		const newNote: Note = { id, text: '', boardId, colour: null };
 		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
+		localNoteOrder = [...localNoteOrder, id];
 
 		goto(`/board?id=${id}`);
 
@@ -97,6 +98,7 @@
 	async function handleDeleteNote({ detail }: CustomEvent<{ note: NoteOrdered }>) {
 		const { note } = detail;
 		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
+		localNoteOrder = [...localNoteOrder.filter((id) => id !== detail.note.id)];
 
 		const token = await getToken();
 		const { type } = await tryFetch(`/api/notes/${note.id}`, {
@@ -106,6 +108,7 @@
 
 		if (type === MaybeType.Error) {
 			localNotes = [...localNotes, note];
+			localNoteOrder = [...localNoteOrder, note.id!];
 			// todo: show an error
 		}
 	}
