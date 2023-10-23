@@ -2,15 +2,16 @@
 	import { slide } from 'svelte/transition';
 	import { createEventDispatcher } from 'svelte';
 
+	import { colours, type Colour } from '$lib/colours';
+
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
-	import { colours, type Colour } from '$lib/colours';
 
 	let isOpen = false;
 
 	const dispatch = createEventDispatcher();
 
-	function handleColourClick(colour: Colour) {
+	function handleColourClick(colour: Colour | null) {
 		dispatch('colourClick', { colour });
 		isOpen = false;
 	}
@@ -25,11 +26,20 @@
 			class="absolute left-0 top-14 flex flex-col gap-1 bg-transparent"
 			in:slide={{ duration: 200 }}
 		>
+			<li class="block text-gray-800">
+				<button
+					aria-label="No colour"
+					class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200"
+					on:click={() => handleColourClick(null)}
+				>
+					<Icon icon="cross" size={30} />
+				</button>
+			</li>
 			{#each colours as { cssClass, name }}
 				<li class="block text-gray-800">
 					<button
 						aria-label={name}
-						class="dark:border- h-12 w-12 rounded-full border-2 border-slate-400 dark:border-slate-200 {cssClass}"
+						class="h-12 w-12 rounded-full border-2 border-slate-400 dark:border dark:border-slate-200 {cssClass}"
 						on:click={() => handleColourClick(name)}
 					/>
 				</li>
