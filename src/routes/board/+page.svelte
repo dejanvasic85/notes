@@ -3,13 +3,12 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
+	import Board from '$components/Board.svelte';
 	import { withAuth } from '$lib/auth';
 	import { getOrderedNotes, reorderNotes, updateNote } from '$lib/notes';
 	import { MaybeType, tryFetch } from '$lib/fetch';
 	import type { Note, NoteOrdered, User } from '$lib/types';
 	import { generateId } from '$lib/identityGenerator';
-
-	import Board from '../../components/Board.svelte';
 
 	const auth = withAuth();
 	const { getToken } = auth;

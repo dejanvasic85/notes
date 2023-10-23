@@ -4,11 +4,11 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import Board from '$components/Board.svelte';
 	import { generateId } from '$lib/identityGenerator';
 	import { reorderNotes } from '$lib/notes';
 	import type { Note } from '$lib/types';
 
-	import Board from '../../components/Board.svelte';
 	import { localBoard, orderedNotes } from './noteStore';
 
 	onMount(() => {

@@ -1,5 +1,4 @@
 export const colours = [
-	{ name: 'slate', cssClass: 'bg-slate-100 dark:bg-slate-800' },
 	{ name: 'indigo', cssClass: 'bg-indigo-100 dark:bg-indigo-800' },
 	{ name: 'blue', cssClass: 'bg-blue-100 dark:bg-blue-800' },
 	{ name: 'rose', cssClass: 'bg-rose-100 dark:bg-rose-800' },
