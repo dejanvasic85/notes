@@ -37,7 +37,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 		return json(null, { status: 404 });
 	}
 
-	// todo: validate body
+	// todo: validate body (using joi)
 	const changes = await request.json();
 	const user = await getUserById(userId, { boards: true, notes: false });
 	if (!user) {

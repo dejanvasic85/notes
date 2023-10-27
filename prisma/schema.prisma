@@ -39,7 +39,8 @@ model Note {
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
   text      String   @db.Text /// @encrypted
+  textPlain String   @db.Text /// @encrypted
   colour    String?
   boardId   String?
-  board     Board?   @relation(fields: [boardId], references: [id])
+  board     Board?   @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }

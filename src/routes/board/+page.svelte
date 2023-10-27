@@ -42,7 +42,7 @@
 
 	async function handleCreate() {
 		const id = generateId('nid');
-		const newNote: Note = { id, text: '', boardId, colour: null };
+		const newNote: Note = { id, text: '', textPlain: '', boardId, colour: null };
 		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
 		localNoteOrder = [...localNoteOrder, id];
 

@@ -5,7 +5,7 @@ import { createNote } from '$lib/services/noteService';
 import { updateBoard } from '$lib/services/boardService';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
-	const { id, boardId, text, colour = null } = await request.json();
+	const { id, boardId, text, textPlain, colour = null } = await request.json();
 	const userId = locals.user.id!;
 	const user = await getUserById(userId, { boards: true, notes: false });
 	if (!user) {
@@ -22,7 +22,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	}
 
 	await updateBoard({ ...currentBoard, noteOrder: [...currentBoard.noteOrder, id] });
-	const note = await createNote({ id, boardId, text, colour });
+	const note = await createNote({ id, boardId, text, textPlain, colour });
 
 	return json(note, { status: 201 });
 };

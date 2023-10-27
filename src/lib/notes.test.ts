@@ -4,14 +4,15 @@ import { getOrderedNotes, updateNote, reorderNotes } from './notes';
 describe('updateNote', () => {
 	it('should update a note in a collection by finding and re-creating the notes', () => {
 		const notes = [
-			{ id: '1', text: 'one', order: 0, colour: null, boardId: null },
-			{ id: '2', text: 'two', order: 1, colour: null, boardId: null },
-			{ id: '3', text: 'three', order: 2, colour: null, boardId: null }
+			{ id: '1', text: 'one', textPlain: 'one', colour: null, boardId: null, order: 1 },
+			{ id: '2', text: 'two', textPlain: 'two', colour: null, boardId: null, order: 2 },
+			{ id: '3', text: 'three', textPlain: 'three', colour: null, boardId: null, order: 3 }
 		];
 
 		const updatedNotes = updateNote(notes, {
 			id: '2',
 			text: 'updated',
+			textPlain: 'updated',
 			order: 1,
 			colour: null,
 			boardId: null
@@ -28,9 +29,9 @@ describe('updateNote', () => {
 describe('getOrderedNotes', () => {
 	it('should return notes by order specified in order array', () => {
 		const notes = [
-			{ id: '1', text: 'one', colour: null, boardId: null },
-			{ id: '2', text: 'two', colour: null, boardId: null },
-			{ id: '3', text: 'three', colour: null, boardId: null }
+			{ id: '1', text: 'one', textPlain: 'one', colour: null, boardId: null },
+			{ id: '2', text: 'two', textPlain: 'two', colour: null, boardId: null },
+			{ id: '3', text: 'three', textPlain: 'three', colour: null, boardId: null }
 		];
 
 		const noteOrder = ['2', '3', '1'];

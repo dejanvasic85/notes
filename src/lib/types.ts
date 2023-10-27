@@ -27,6 +27,7 @@ export interface AuthUserProfile {
 
 export interface Note extends Entity {
 	text: string;
+	textPlain: string;
 	colour?: Colour | null;
 	boardId: string | null;
 }
@@ -35,7 +36,7 @@ export interface NoteOrdered extends Note {
 	order: number;
 }
 
-export interface NoteCreateParams extends Pick<Note, 'boardId' | 'colour' | 'text'> {
+export interface NoteCreateParams extends Pick<Note, 'boardId' | 'colour' | 'text' | 'textPlain'> {
 	id: string;
 }
 
