@@ -35,12 +35,32 @@ model Board {
 }
 
 model Note {
+  id                String             @id
+  createdAt         DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime           @updatedAt @db.Timestamptz(6)
+  text              String             @db.Text /// @encrypted
+  textPlain         String             @db.Text /// @encrypted
+  colour            String?
+  boardId           String
+  board             Board              @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  noteAccess        NoteAccess[]
+  noteAccessInvites NoteAccessInvite[]
+}
+
+model NoteAccess {
   id        String   @id
+  noteId    String
+  userId    String
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
-  text      String   @db.Text /// @encrypted
-  textPlain String   @db.Text /// @encrypted
-  colour    String?
-  boardId   String?
-  board     Board?   @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+}
+
+model NoteAccessInvite {
+  id        String   @id
+  noteId    String
+  email     String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
 }
