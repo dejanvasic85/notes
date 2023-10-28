@@ -2,6 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 
 	import { dropzone, type DraggableData } from '$lib/draggable';
+	import { searchNotes } from '$lib/notes';
 	import type { NoteOrdered } from '$lib/types';
 
 	import Button from './Button.svelte';
@@ -56,12 +57,14 @@
 
 	$: selectedId = selectedNote?.id;
 	$: showModal = !!selectedId;
+	$: notesOrderedFiltered = searchNotes(notes, searchQuery);
 </script>
 
 <input
 	type="search"
+	placeholder="Search notes"
 	bind:value={searchQuery}
-	class="block w-full md:w-1/2 mx-auto rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+	class="mx-auto block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 md:w-1/2"
 />
 
 {#if selectedNote}
@@ -76,7 +79,7 @@
 {/if}
 
 <div class="flex flex-wrap items-stretch justify-center gap-2 p-8">
-	{#each notes as note, index}
+	{#each notesOrderedFiltered as note, index}
 		<div
 			class="dropzone block h-4 w-full md:h-48 md:w-4"
 			use:dropzone={{ onDropped: (args, evt) => handleDrop(index, args, evt) }}
