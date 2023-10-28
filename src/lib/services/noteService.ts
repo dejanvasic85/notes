@@ -1,10 +1,10 @@
 import db from '$lib/db';
-import type { Note, NoteCreateParams } from '$lib/types';
+import type { Note, NoteCreateInput } from '$lib/types';
 
-export async function createNote(createParams: NoteCreateParams): Promise<Note> {
+export async function createNote(createInput: NoteCreateInput): Promise<Note> {
 	return await db.note.create({
 		data: {
-			...createParams
+			...createInput
 		}
 	});
 }
@@ -21,7 +21,8 @@ export async function updateNote(note: Note): Promise<Note> {
 	return await db.note.update({
 		where: { id: note.id },
 		data: {
-			...note
+			...note,
+			boardId: note.boardId!
 		}
 	});
 }
