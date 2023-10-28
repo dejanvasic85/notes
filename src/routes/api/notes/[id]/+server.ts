@@ -2,6 +2,7 @@ import { json, type RequestHandler } from '@sveltejs/kit';
 
 import { updateBoard } from '$lib/services/boardService';
 import { getNoteById, updateNote, deleteNote } from '$lib/services/noteService';
+import { NotePatchInputSchema } from '$lib/types';
 import { getUserById, isBoardOwner } from '$lib/services/userService';
 
 export const GET: RequestHandler = async ({ locals, params }) => {
@@ -37,8 +38,13 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 		return json(null, { status: 404 });
 	}
 
-	// todo: validate body (using joi)
 	const changes = await request.json();
+	const parseResult = NotePatchInputSchema.safeParse(changes);
+	if (!parseResult.success) {
+		parseResult.error.errors.forEach((e) => console.error(e));
+		return json({ message: 'Unable to parse NoteSchema' }, { status: 400 });
+	}
+
 	const user = await getUserById(userId, { boards: true, notes: false });
 	if (!user) {
 		return json(null, { status: 404 });
@@ -50,8 +56,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 
 	const updatedNote = await updateNote({
 		...note,
-		...changes,
-		updatedAt: new Date()
+		...parseResult.data
 	});
 
 	return json(updatedNote);

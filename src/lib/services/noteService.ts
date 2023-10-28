@@ -22,7 +22,8 @@ export async function updateNote(note: Note): Promise<Note> {
 		where: { id: note.id },
 		data: {
 			...note,
-			boardId: note.boardId!
+			boardId: note.boardId!,
+			updatedAt: new Date()
 		}
 	});
 }

@@ -19,6 +19,14 @@ export const NoteSchema = EntitySchema.extend({
 
 export type Note = z.infer<typeof NoteSchema>;
 
+export const NotePatchInputSchema = z.object({
+	text: z.string(),
+	textPlain: z.string(),
+	colour: z.string().nullable()
+});
+
+export type NotePatchInput = z.infer<typeof NotePatchInputSchema>;
+
 export const BoardSchema = EntitySchema.extend({
 	userId: z.string(),
 	notes: z.array(NoteSchema),
