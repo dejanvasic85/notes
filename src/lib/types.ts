@@ -1,46 +1,81 @@
-import type { Colour } from '$lib/colours';
+import z from 'zod';
 
-interface Entity {
-	id?: string;
-	createdAt?: Date;
-	updatedAt?: Date;
-}
+export type { Colour } from '$lib/colours';
 
-export interface User extends Entity {
-	authId?: string;
-	email?: string | undefined;
-	emailVerified: boolean;
-	name: string | null;
-	picture: string | null;
-	boards: Board[];
-}
+export const EntitySchema = z.object({
+	id: z.string().optional(),
+	createdAt: z.date().optional(),
+	updatedAt: z.date().optional()
+});
 
-export interface AuthUserProfile {
-	sub: string;
-	nickname: string;
-	name: string;
-	picture: string;
-	updated_at: string;
-	email: string;
-	email_verified: boolean;
-}
+export type Entity = z.infer<typeof EntitySchema>;
 
-export interface Note extends Entity {
-	text: string;
-	colour?: Colour | null;
-	boardId: string | null;
-}
+export const NoteSchema = EntitySchema.extend({
+	text: z.string(),
+	textPlain: z.string(),
+	colour: z.string().nullable(),
+	boardId: z.string().nullable()
+});
 
-export interface NoteOrdered extends Note {
-	order: number;
-}
+export type Note = z.infer<typeof NoteSchema>;
 
-export interface NoteCreateParams extends Pick<Note, 'boardId' | 'colour' | 'text'> {
-	id: string;
-}
+export const NotePatchInputSchema = z.object({
+	text: z.string(),
+	textPlain: z.string(),
+	colour: z.string().nullable()
+});
 
-export interface Board extends Entity {
-	userId: string;
-	notes: Note[];
-	noteOrder: string[];
-}
+export type NotePatchInput = z.infer<typeof NotePatchInputSchema>;
+
+export const BoardSchema = EntitySchema.extend({
+	userId: z.string(),
+	notes: z.array(NoteSchema),
+	noteOrder: z.array(z.string())
+});
+
+export type Board = z.infer<typeof BoardSchema>;
+
+export const BoardPatchSchema = z.object({
+	noteOrder: z.array(z.string())
+});
+
+export type BoardPatch = z.infer<typeof BoardPatchSchema>;
+
+export const NoteOrderedSchema = NoteSchema.extend({
+	order: z.number()
+});
+
+export type NoteOrdered = z.infer<typeof NoteOrderedSchema>;
+
+export const UserSchema = EntitySchema.extend({
+	authId: z.string().optional(),
+	email: z.string().optional(),
+	emailVerified: z.boolean(),
+	name: z.string().nullable(),
+	picture: z.string().nullable(),
+	boards: z.array(BoardSchema)
+});
+
+export type User = z.infer<typeof UserSchema>;
+
+export const AuthUserProfileSchema = z.object({
+	sub: z.string(),
+	nickname: z.string(),
+	name: z.string(),
+	picture: z.string(),
+	updated_at: z.string(),
+	email: z.string(),
+	email_verified: z.boolean()
+});
+
+export type AuthUserProfile = z.infer<typeof AuthUserProfileSchema>;
+
+export const NoteCreateInputSchema = z.object({
+	id: z.string(),
+	boardId: z.string(),
+	colour: z.string().nullable(),
+	text: z.string(),
+	textPlain: z.string()
+});
+
+export type NoteCreateInput = z.infer<typeof NoteCreateInputSchema>;

@@ -1,6 +1,6 @@
 import type { Note, NoteOrdered } from '$lib/types';
 
-export function updateNote(notes: NoteOrdered[], noteToUpdate: NoteOrdered) {
+export function updateNote<T extends Note>(notes: T[], noteToUpdate: T) {
 	return notes.map((n) => {
 		if (n.id === noteToUpdate.id) {
 			return {
@@ -28,4 +28,10 @@ export function reorderNotes(noteOrder: string[], fromIndex: number, toIndex: nu
 	const [removed] = result.splice(fromIndex, 1);
 	result.splice(toIndex, 0, removed);
 	return result;
+}
+
+export function searchNotes<T extends Note>(notes: T[], query: string = '') {
+	const cleanedQuery = query.trim().toLowerCase();
+	if (!cleanedQuery) return notes;
+	return notes.filter((n) => n.textPlain?.toLowerCase().includes(cleanedQuery));
 }

@@ -5,10 +5,17 @@
 
 	import Board from '$components/Board.svelte';
 	import { withAuth } from '$lib/auth';
-	import { getOrderedNotes, reorderNotes, updateNote } from '$lib/notes';
 	import { MaybeType, tryFetch } from '$lib/fetch';
-	import type { Note, NoteOrdered, User } from '$lib/types';
 	import { generateId } from '$lib/identityGenerator';
+	import { getOrderedNotes, reorderNotes, updateNote } from '$lib/notes';
+	import type {
+		BoardPatch,
+		NoteCreateInput,
+		NotePatchInput,
+		Note,
+		NoteOrdered,
+		User
+	} from '$lib/types';
 
 	const auth = withAuth();
 	const { getToken } = auth;
@@ -37,16 +44,16 @@
 	});
 
 	function handleSelect({ detail: id }: CustomEvent<string>) {
-		goto(`/board?id=${id}`);
+		goto(`/my-board?id=${id}`);
 	}
 
 	async function handleCreate() {
 		const id = generateId('nid');
-		const newNote: Note = { id, text: '', boardId, colour: null };
+		const newNote: NoteCreateInput = { id, text: '', textPlain: '', boardId, colour: null };
 		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
 		localNoteOrder = [...localNoteOrder, id];
 
-		goto(`/board?id=${id}`);
+		goto(`/my-board?id=${id}`);
 
 		const resp = await tryFetch<Note>(
 			'/api/notes',
@@ -56,14 +63,14 @@
 
 		if (resp.type === MaybeType.Error) {
 			localNotes = [...localNotes.filter((n) => n.id !== id)];
-			goto('/board');
+			goto('/my-board');
 
 			// todo: show an error
 		}
 	}
 
 	function handleClose() {
-		goto('/board');
+		goto('/my-board');
 	}
 
 	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
@@ -74,11 +81,15 @@
 		}
 
 		localNotes = [...updateNote(localNotes, note)];
-		const { order, boardId, ...restNoteProps } = note;
+		const notePatch: NotePatchInput = {
+			colour: note.colour,
+			text: note.text,
+			textPlain: note.textPlain
+		};
 
 		const { type } = await tryFetch<Note>(
 			`/api/notes/${note.id}`,
-			{ method: 'PATCH', body: JSON.stringify(restNoteProps) },
+			{ method: 'PATCH', body: JSON.stringify(notePatch) },
 			{ getBearerToken: getToken }
 		);
 
@@ -104,7 +115,7 @@
 			localNoteOrder = [...localNoteOrder, note.id!];
 			// todo: show an error
 		} else {
-			goto('/board');
+			goto('/my-board');
 		}
 	}
 
@@ -114,10 +125,11 @@
 		const noteOrder = reorderNotes(localNoteOrder, fromIndex, toIndex);
 		localNoteOrder = [...noteOrder];
 		localNotes = [...getOrderedNotes(noteOrder, localNotes)];
+		const boardPatch: BoardPatch = { noteOrder };
 
 		const result = await tryFetch<Board>(
 			`/api/board/${boardId}`,
-			{ method: 'PATCH', body: JSON.stringify({ noteOrder }) },
+			{ method: 'PATCH', body: JSON.stringify(boardPatch) },
 			{ getBearerToken: getToken }
 		);
 

@@ -22,3 +22,5 @@ jobs:
         uses: prgm-dev/svelte-check-pr-annotator@main
       - name: Run Svelte-Check
         run: npm run check
+      - name: Run unit tests
+        run: npm run test:unit

@@ -16,6 +16,7 @@
 	// Internal state
 	let editor: HTMLDivElement;
 	let noteText: string = note.text;
+	let noteTextPlain: string = note.textPlain;
 
 	// External events
 	const dispatch = createEventDispatcher();
@@ -32,7 +33,8 @@
 		dispatchNoteSave('saveNote', {
 			note: {
 				...note,
-				text: noteText
+				text: noteText,
+				textPlain: noteTextPlain
 			}
 		});
 	}
@@ -110,6 +112,7 @@
 		class="h-full w-full p-4 outline-none"
 		bind:this={editor}
 		bind:innerHTML={noteText}
+		bind:innerText={noteTextPlain}
 		on:keydown={handleKeydown}
 		on:paste={handlePaste}
 	/>

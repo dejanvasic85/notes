@@ -21,6 +21,7 @@
 				{
 					id,
 					text: 'Use the force and edit me by clicking here.',
+					textPlain: 'Use the force and edit me by clicking here.',
 					boardId: $localBoard.id!,
 					colour: null
 				}
@@ -34,7 +35,10 @@
 			return {
 				...current,
 				noteOrder: [...current.noteOrder, id],
-				notes: [...current.notes, { id, text: `New note`, boardId: $localBoard.id!, colour: null }]
+				notes: [
+					...current.notes,
+					{ id, text: `New note`, textPlain: `New note`, boardId: $localBoard.id!, colour: null }
+				]
 			};
 		});
 	}

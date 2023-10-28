@@ -3,28 +3,33 @@ import { json } from '@sveltejs/kit';
 
 import { getBoardById, updateBoard } from '$lib/services/boardService';
 import { getUserById, isBoardOwner } from '$lib/services/userService';
+import { BoardPatchSchema } from '$lib/types';
 
 export const PATCH: RequestHandler = async ({ locals, params, request }) => {
-  const boardId = params.id!;
-  const userId = locals.user.id!;
+	const boardId = params.id!;
+	const userId = locals.user.id!;
 
-  // todo: validate body
-  const changes = await request.json();
-  const user = await getUserById(userId, { boards: true, notes: false });
-  if (!user) {
-    return json(null, { status: 404 });
-  }
+	const changes = await request.json();
+	const parseResult = BoardPatchSchema.safeParse(changes);
+	if (!parseResult.success) {
+		return json({ message: 'Unable to parse BoardPatchSchema' }, { status: 400 });
+	}
 
-  if (!isBoardOwner(user, boardId)) {
-    return json(null, { status: 403 });
-  }
+	const user = await getUserById(userId, { boards: true, notes: false });
+	if (!user) {
+		return json({ message: 'Unknown user' }, { status: 404 });
+	}
 
-  const board = await getBoardById(boardId);
-  if (!board) {
-    return json(null, { status: 404 });
-  }
+	if (!isBoardOwner(user, boardId)) {
+		return json({ message: 'Do not have access' }, { status: 403 });
+	}
 
-  const updatedBoard = await updateBoard({ ...board, ...changes });
+	const board = await getBoardById(boardId);
+	if (!board) {
+		return json({ message: 'Unknown board' }, { status: 404 });
+	}
 
-  return json(updatedBoard);
+	const updatedBoard = await updateBoard({ ...board, ...parseResult.data });
+
+	return json(updatedBoard);
 };
