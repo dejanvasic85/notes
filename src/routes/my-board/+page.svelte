@@ -37,7 +37,7 @@
 	});
 
 	function handleSelect({ detail: id }: CustomEvent<string>) {
-		goto(`/board?id=${id}`);
+		goto(`/my-board?id=${id}`);
 	}
 
 	async function handleCreate() {
@@ -46,7 +46,7 @@
 		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
 		localNoteOrder = [...localNoteOrder, id];
 
-		goto(`/board?id=${id}`);
+		goto(`/my-board?id=${id}`);
 
 		const resp = await tryFetch<Note>(
 			'/api/notes',
@@ -56,14 +56,14 @@
 
 		if (resp.type === MaybeType.Error) {
 			localNotes = [...localNotes.filter((n) => n.id !== id)];
-			goto('/board');
+			goto('/my-board');
 
 			// todo: show an error
 		}
 	}
 
 	function handleClose() {
-		goto('/board');
+		goto('/my-board');
 	}
 
 	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
@@ -104,7 +104,7 @@
 			localNoteOrder = [...localNoteOrder, note.id!];
 			// todo: show an error
 		} else {
-			goto('/board');
+			goto('/my-board');
 		}
 	}
 
@@ -116,7 +116,7 @@
 		localNotes = [...getOrderedNotes(noteOrder, localNotes)];
 
 		const result = await tryFetch<Board>(
-			`/api/board/${boardId}`,
+			`/api/my-board/${boardId}`,
 			{ method: 'PATCH', body: JSON.stringify({ noteOrder }) },
 			{ getBearerToken: getToken }
 		);

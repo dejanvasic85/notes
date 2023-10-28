@@ -35,8 +35,8 @@
 		{#if isLoggedIn}
 			<a
 				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
-				href="/board"
-				aria-current={$page.url.pathname === '/board' ? 'page' : undefined}>My Board</a
+				href="/my-board"
+				aria-current={$page.url.pathname === '/my-board' ? 'page' : undefined}>My Board</a
 			>
 			<button
 				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
