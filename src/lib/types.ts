@@ -27,6 +27,12 @@ export const BoardSchema = EntitySchema.extend({
 
 export type Board = z.infer<typeof BoardSchema>;
 
+export const BoardPatchSchema = z.object({
+	noteOrder: z.array(z.string())
+});
+
+export type BoardPatch = z.infer<typeof BoardPatchSchema>;
+
 export const NoteOrderedSchema = NoteSchema.extend({
 	order: z.number()
 });

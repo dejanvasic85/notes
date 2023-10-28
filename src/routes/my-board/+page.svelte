@@ -5,10 +5,10 @@
 
 	import Board from '$components/Board.svelte';
 	import { withAuth } from '$lib/auth';
-	import { getOrderedNotes, reorderNotes, updateNote } from '$lib/notes';
 	import { MaybeType, tryFetch } from '$lib/fetch';
-	import type { Note, NoteOrdered, User } from '$lib/types';
 	import { generateId } from '$lib/identityGenerator';
+	import { getOrderedNotes, reorderNotes, updateNote } from '$lib/notes';
+	import type { BoardPatch, Note, NoteOrdered, User } from '$lib/types';
 
 	const auth = withAuth();
 	const { getToken } = auth;
@@ -114,10 +114,11 @@
 		const noteOrder = reorderNotes(localNoteOrder, fromIndex, toIndex);
 		localNoteOrder = [...noteOrder];
 		localNotes = [...getOrderedNotes(noteOrder, localNotes)];
+		const boardPatch: BoardPatch = { noteOrder };
 
 		const result = await tryFetch<Board>(
-			`/api/my-board/${boardId}`,
-			{ method: 'PATCH', body: JSON.stringify({ noteOrder }) },
+			`/api/board/${boardId}`,
+			{ method: 'PATCH', body: JSON.stringify(boardPatch) },
 			{ getBearerToken: getToken }
 		);
 
