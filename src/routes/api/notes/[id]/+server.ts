@@ -48,7 +48,11 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 		return json(null, { status: 403 });
 	}
 
-	const updatedNote = await updateNote({ ...note, ...changes });
+	const updatedNote = await updateNote({
+		...note,
+		...changes,
+		updatedAt: new Date()
+	});
 
 	return json(updatedNote);
 };
