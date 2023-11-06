@@ -33,21 +33,23 @@ const getUserTask = ({ id }: IdParams): TE.TaskEither<ApiError, User> => {
 	);
 };
 
+const isNoteOwner = ({ user, note }: { user: User; note: Note }): E.Either<ApiError, Note> => {
+	return isBoardOwner(user, note.boardId!)
+		? E.right(note)
+		: E.left({ status: 403, message: 'Unauthorized' });
+};
+
 export const GET: RequestHandler = async ({ locals, params }) => {
-	const result = await pipe(
+	return await pipe(
 		TE.Do,
 		TE.bind('user', () => getUserTask({ id: locals.user.id! })),
 		TE.bind('note', () => getNoteTask({ id: params.id! })),
-		TE.chain(({ user, note }) =>
-			isBoardOwner(user, note.boardId!)
-				? TE.right(note)
-				: TE.left({ status: 403, message: 'Unauthorized' } as ApiError)
+		TE.chainEitherK(isNoteOwner),
+		TE.match(
+			(err) => json({ message: err.message }, { status: err.status }),
+			(note) => json(note)
 		)
 	)();
-
-	console.log('result', result);
-
-	return json(null, { status: 500 });
 };
 
 export const PATCH: RequestHandler = async ({ locals, params, request }) => {
