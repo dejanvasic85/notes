@@ -9,8 +9,8 @@ export async function createNote(createInput: NoteCreateInput): Promise<Note> {
 	});
 }
 
-export async function getNoteById(id: string): Promise<Note | null> {
-	return await db.note.findUnique({
+export async function getNoteById(id: string): Promise<Note> {
+	return await db.note.findUniqueOrThrow({
 		where: {
 			id
 		}

@@ -69,11 +69,8 @@ export function isBoardOwner(user: User, boardId: string): boolean {
 	return user.boards.some((board) => board.id === boardId);
 }
 
-export async function getUserById(
-	id: string,
-	{ boards = true, notes = true } = {}
-): Promise<User | null> {
-	const user = await db.user.findUnique({
+export async function getUserById(id: string, { boards = true, notes = true } = {}): Promise<User> {
+	const user = await db.user.findUniqueOrThrow({
 		where: { id },
 		include: {
 			boards: {
@@ -83,10 +80,6 @@ export async function getUserById(
 			}
 		}
 	});
-
-	if (!user) {
-		return null;
-	}
 
 	return {
 		...user,
