@@ -1,0 +1,11 @@
+interface CustomMatchers<R = unknown> {
+	toBeRightStrictEqual(data: unknown): R;
+	toBeLeftStrictEqual(data: unknown): R;
+}
+
+declare module 'vitest' {
+	interface Assertion<T = any> extends CustomMatchers<T> {}
+	interface AsymmetricMatchersContaining extends CustomMatchers {}
+}
+
+export {};
