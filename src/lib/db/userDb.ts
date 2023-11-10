@@ -6,12 +6,37 @@ import type { User } from '$lib/types';
 import type { DatabaseResult } from './types';
 import { fromNullableRecord, toDatabasError } from './utils';
 
-export const getUserByIdTask = ({ id }: { id: string }): TE.TaskEither<DatabaseResult, User> =>
+interface GetUserByIdTaskParams {
+	id: string;
+	includeBoards?: boolean;
+	includeNotes?: boolean;
+}
+
+export const getUserByIdTask = ({
+	id,
+	includeBoards = true,
+	includeNotes = true
+}: GetUserByIdTaskParams): TE.TaskEither<DatabaseResult, User> =>
 	pipe(
-		TE.tryCatch(() => db.user.findUnique({ where: { id } }), toDatabasError),
+		TE.tryCatch(
+			() =>
+				db.user.findUnique({
+					where: { id },
+					include: {
+						boards: {
+							include: {
+								notes: includeNotes
+							}
+						}
+					}
+				}),
+			toDatabasError
+		),
 		TE.chain(fromNullableRecord(`User with id ${id} not found`)),
 		TE.map((user) => ({
 			...user,
-			boards: []
+			boards: !includeBoards
+				? []
+				: user.boards.map((board) => ({ ...board, notes: includeNotes ? board.notes : [] }))
 		}))
 	);
