@@ -79,3 +79,21 @@ export const NoteCreateInputSchema = z.object({
 });
 
 export type NoteCreateInput = z.infer<typeof NoteCreateInputSchema>;
+
+export interface DatabaseError {
+	readonly _tag: 'DatabaseError';
+	readonly message: string;
+	readonly originalError: Error | string;
+}
+
+export interface RecordNotFoundError {
+	readonly _tag: 'RecordNotFound';
+	readonly message: string;
+}
+
+export type ServerError = DatabaseError | RecordNotFoundError;
+
+export interface ApiError {
+	status: 200 | 404 | 403 | 400 | 500;
+	message: string;
+}
