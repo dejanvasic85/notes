@@ -1,7 +1,7 @@
 import { describe, it, vi, type Mocked, expect, beforeEach } from 'vitest';
 import db from '$lib/db';
 
-import { getUserByIdTask } from './userDb';
+import { getUser } from './userDb';
 
 vi.mock('$lib/db', () => ({
 	default: {
@@ -13,7 +13,7 @@ vi.mock('$lib/db', () => ({
 
 const dbUserMock = db.user as Mocked<typeof db.user>;
 
-describe('getUserByIdTask', () => {
+describe('getUser', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
@@ -35,7 +35,7 @@ describe('getUserByIdTask', () => {
 			]
 		} as any);
 
-		const result = await getUserByIdTask({ id: 'uid_123', includeBoards: false })();
+		const result = await getUser({ id: 'uid_123', includeBoards: false })();
 		expect(result).toBeRightStrictEqual({
 			id: 'hello world',
 			name: 'Goerge Costanza',
@@ -55,7 +55,7 @@ describe('getUserByIdTask', () => {
 			]
 		} as any);
 
-		const result = await getUserByIdTask({ id: 'uid_123', includeBoards: true })();
+		const result = await getUser({ id: 'uid_123', includeBoards: true })();
 		expect(result).toBeRightStrictEqual({
 			id: 'hello world',
 			name: 'Goerge Costanza',
@@ -71,7 +71,7 @@ describe('getUserByIdTask', () => {
 	it('should return RecordNotFoundError when the user is null', async () => {
 		dbUserMock.findUnique.mockResolvedValue(null as any);
 
-		const result = await getUserByIdTask({ id: 'uid_123' })();
+		const result = await getUser({ id: 'uid_123' })();
 		expect(result).toBeLeftStrictEqual({
 			_tag: 'RecordNotFound',
 			message: 'User with id uid_123 not found'
@@ -81,7 +81,7 @@ describe('getUserByIdTask', () => {
 	it('should return a DatabaseError when the db throws an error', async () => {
 		dbUserMock.findUnique.mockRejectedValue(new Error('Something went wrong'));
 
-		const result = await getUserByIdTask({ id: 'uid_123' })();
+		const result = await getUser({ id: 'uid_123' })();
 		expect(result).toBeLeftStrictEqual({
 			_tag: 'DatabaseError',
 			message: 'Database error',

@@ -8,12 +8,7 @@ import { updateBoard } from '$lib/services/boardService';
 import { getNoteById, updateNote, deleteNote } from '$lib/services/noteService';
 import { NotePatchInputSchema } from '$lib/types';
 import { getUserById, isBoardOwner } from '$lib/services/userService';
-import type { Note, User } from '$lib/types';
-
-interface ApiError {
-	status: number;
-	message: string;
-}
+import type { ApiError, Note, User } from '$lib/types';
 
 interface IdParams {
 	id: string;

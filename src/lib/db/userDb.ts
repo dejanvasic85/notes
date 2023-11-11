@@ -2,8 +2,7 @@ import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/db';
-import type { User } from '$lib/types';
-import type { DatabaseResult } from './types';
+import type { ServerError, User } from '$lib/types';
 import { fromNullableRecord, toDatabasError } from './utils';
 
 interface GetUserByIdTaskParams {
@@ -12,11 +11,11 @@ interface GetUserByIdTaskParams {
 	includeNotes?: boolean;
 }
 
-export const getUserByIdTask = ({
+export const getUser = ({
 	id,
 	includeBoards = true,
 	includeNotes = true
-}: GetUserByIdTaskParams): TE.TaskEither<DatabaseResult, User> =>
+}: GetUserByIdTaskParams): TE.TaskEither<ServerError, User> =>
 	pipe(
 		TE.tryCatch(
 			() =>
