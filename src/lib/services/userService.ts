@@ -1,74 +1,55 @@
-import { PUBLIC_AUTH0_DOMAIN } from '$env/static/public';
+import * as TE from 'fp-ts/TaskEither';
+
+import { fetchAuthUser } from '$lib/auth/fetchUser';
 import db from '$lib/db';
-import { generateId } from '$lib/identityGenerator';
-import type { AuthUserProfile, User } from '$lib/types';
-
-export async function getAuthUserProfile({
-	accessToken
-}: {
-	accessToken: string;
-}): Promise<AuthUserProfile> {
-	return fetch(`https://${PUBLIC_AUTH0_DOMAIN}/userinfo`, {
-		headers: {
-			Authorization: `Bearer ${accessToken}`
-		}
-	}).then((res) => res.json() as Promise<AuthUserProfile>);
-}
-
-export async function getUserByAuthId(authId: string): Promise<User | null> {
-	const user = await db.user.findUnique({
-		where: {
-			authId
-		}
-	});
-
-	if (!user) {
-		return null;
-	}
-
-	return {
-		...user,
-		boards: []
-	};
-}
-
-export async function createUser({
-	authUserProfile
-}: {
-	authUserProfile: AuthUserProfile;
-}): Promise<User> {
-	const { email, email_verified, name, picture, sub } = authUserProfile;
-	return await db.user.create({
-		data: {
-			id: generateId('uid'),
-			authId: sub,
-			name,
-			email,
-			emailVerified: email_verified,
-			picture,
-			boards: {
-				create: [
-					{
-						id: generateId('bid'),
-						noteOrder: []
-					}
-				]
-			}
-		},
-		include: {
-			boards: {
-				include: {
-					notes: true
-				}
-			}
-		}
-	});
-}
+import { createUser, getUserByAuthId } from '$lib/db/userDb';
+import type { AuthUserProfile, ServerError, User, FetchError } from '$lib/types';
+import { pipe } from 'fp-ts/lib/function';
 
 export function isBoardOwner(user: User, boardId: string): boolean {
 	return user.boards.some((board) => board.id === boardId);
 }
 
+const tryFetchAuthUser = ({
+	accessToken
+}: {
+	accessToken: string;
+}): TE.TaskEither<ServerError, AuthUserProfile> =>
+	TE.tryCatch(
+		() => fetchAuthUser({ accessToken }),
+		(reason) => {
+			const fetchError: FetchError = {
+				_tag: 'FetchError',
+				message: `Failed to fetch user with access token`,
+				originalError: reason
+			};
+			return fetchError;
+		}
+	);
+
+interface GetOrCreateParams {
+	accessToken: string;
+	authId: string;
+}
+
+export const getOrCreateUserByAuth = ({
+	accessToken,
+	authId
+}: GetOrCreateParams): TE.TaskEither<ServerError, User> =>
+	pipe(
+		getUserByAuthId(authId),
+		TE.orElse((err) => {
+			if (err._tag === 'RecordNotFound') {
+				return pipe(
+					tryFetchAuthUser({ accessToken }),
+					TE.chain((u) => createUser({ authUserProfile: u }))
+				);
+			}
+			return TE.left(err);
+		})
+	);
+
+// Deprecate this method in favour of userDb
 export async function getUserById(id: string, { boards = true, notes = true } = {}): Promise<User> {
 	const user = await db.user.findUniqueOrThrow({
 		where: { id },

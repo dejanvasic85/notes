@@ -11,13 +11,13 @@ vitest.expect.extend({
 	toBeRightStrictEqual(received: E.Either<unknown, unknown>, expected: unknown) {
 		return {
 			pass: E.isRight(received) && this.equals(received.right, expected),
-			message: () => `expected ${received} to be right ${expected}`
+			message: () => `expected ${received} to be Either Right ${expected}`
 		};
 	},
 	toBeLeftStrictEqual(received, expected) {
 		return {
 			pass: E.isLeft(received) && this.equals(received.left, expected),
-			message: () => `expected ${received} to be left ${expected}`
+			message: () => `expected ${received} to be Either Left ${expected}`
 		};
 	}
 });

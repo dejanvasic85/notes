@@ -1,7 +1,11 @@
 import type { Handle } from '@sveltejs/kit';
 
-import { createUser, getUserByAuthId, getAuthUserProfile } from '$lib/services/userService';
-import { verifyToken } from '$lib/verifyToken';
+import * as E from 'fp-ts/lib/Either';
+import * as TE from 'fp-ts/lib/TaskEither';
+import { pipe } from 'fp-ts/lib/function';
+
+import { verifyToken } from '$lib/auth/verifyToken';
+import { getOrCreateUserByAuth } from '$lib/services/userService';
 
 const getTokenFromHeader = (authHeader: string) => authHeader.split(' ')[1];
 
@@ -14,12 +18,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 			throw new Error('Invalid token');
 		}
 
-		const user = await getUserByAuthId(decodedToken.sub);
-		if (user) {
-			event.locals.user = user;
-		} else {
-			const authUserProfile = await getAuthUserProfile({ accessToken });
-			event.locals.user = await createUser({ authUserProfile });
+		const result = await pipe(
+			getOrCreateUserByAuth({ accessToken, authId: decodedToken.sub }),
+			TE.map((user) => {
+				event.locals.user = user;
+			})
+		)();
+
+		if (E.isLeft(result)) {
+			throw new Error('Failed to get or create user');
 		}
 	}
 

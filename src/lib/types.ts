@@ -83,7 +83,7 @@ export type NoteCreateInput = z.infer<typeof NoteCreateInputSchema>;
 export interface DatabaseError {
 	readonly _tag: 'DatabaseError';
 	readonly message: string;
-	readonly originalError: Error | string;
+	readonly originalError: Error | string | unknown;
 }
 
 export interface RecordNotFoundError {
@@ -91,7 +91,13 @@ export interface RecordNotFoundError {
 	readonly message: string;
 }
 
-export type ServerError = DatabaseError | RecordNotFoundError;
+export interface FetchError {
+	readonly _tag: 'FetchError';
+	readonly message: string;
+	readonly originalError: Error | string | unknown;
+}
+
+export type ServerError = DatabaseError | RecordNotFoundError | FetchError;
 
 export interface ApiError {
 	status: 200 | 404 | 403 | 400 | 500;
