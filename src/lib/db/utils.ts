@@ -1,5 +1,9 @@
 import * as TE from 'fp-ts/TaskEither';
-import type { DatabaseError, DatabaseResult, RecordNotFoundError } from './types';
+import type { DatabaseError, ServerError, RecordNotFoundError } from '$lib/types';
+
+export const tryDbTask = <T>(func: () => Promise<T>): TE.TaskEither<ServerError, T> => {
+	return TE.tryCatch(func, toDatabasError);
+};
 
 export const toDatabasError = (err: unknown) => {
 	if (err instanceof Error) {
@@ -21,7 +25,7 @@ export const toDatabasError = (err: unknown) => {
 
 export const fromNullableRecord =
 	<T>(message: string) =>
-	(value: T | null): TE.TaskEither<DatabaseResult, T> => {
+	(value: T | null): TE.TaskEither<ServerError, T> => {
 		if (!value) {
 			const recordNotFoundError: RecordNotFoundError = {
 				_tag: 'RecordNotFound',
