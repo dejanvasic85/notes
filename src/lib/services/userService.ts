@@ -1,4 +1,4 @@
-import * as TE from 'fp-ts/TaskEither';
+import { taskEither as TE } from 'fp-ts';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
 import db from '$lib/db';

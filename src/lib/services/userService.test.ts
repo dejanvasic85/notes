@@ -1,4 +1,4 @@
-import * as TE from 'fp-ts/TaskEither';
+import { taskEither as TE } from 'fp-ts';
 import { describe, expect, it, vi, type MockedFunction, beforeEach } from 'vitest';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';

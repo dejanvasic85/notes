@@ -1,6 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
+import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
-import * as TE from 'fp-ts/TaskEither';
 
 import { getUser } from '$lib/db/userDb';
 import { mapToApiError } from '$lib/mapApi';

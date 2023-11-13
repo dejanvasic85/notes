@@ -1,7 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 
-import * as E from 'fp-ts/lib/Either';
-import * as TE from 'fp-ts/lib/TaskEither';
+import { either as E, taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { verifyToken } from '$lib/auth/verifyToken';

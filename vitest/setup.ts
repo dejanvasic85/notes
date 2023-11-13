@@ -1,4 +1,4 @@
-import * as E from 'fp-ts/Either';
+import { either as E } from 'fp-ts';
 import * as vitest from 'vitest';
 
 declare module 'vitest' {
