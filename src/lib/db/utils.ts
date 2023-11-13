@@ -1,4 +1,4 @@
-import * as TE from 'fp-ts/TaskEither';
+import { taskEither as TE } from 'fp-ts';
 import type { DatabaseError, ServerError, RecordNotFoundError } from '$lib/types';
 
 export const tryDbTask = <T>(func: () => Promise<T>): TE.TaskEither<ServerError, T> => {

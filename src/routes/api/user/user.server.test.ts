@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, type MockedFunction } from 'vitest';
-import * as TE from 'fp-ts/TaskEither';
+import { taskEither as TE } from 'fp-ts';
 
 import { getUser } from '$lib/db/userDb';
 import type { DatabaseError, RecordNotFoundError } from '$lib/types';

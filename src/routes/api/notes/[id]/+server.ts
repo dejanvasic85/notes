@@ -1,7 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 
-import * as E from 'fp-ts/Either';
-import * as TE from 'fp-ts/TaskEither';
+import { either as E, taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { updateBoard } from '$lib/services/boardService';
