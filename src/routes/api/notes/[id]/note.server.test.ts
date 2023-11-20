@@ -1,21 +1,30 @@
 import { describe, it, expect, vi, beforeEach, type MockedFunction } from 'vitest';
+import { either as E, taskEither as TE } from 'fp-ts';
 
-import { getUserById, isBoardOwner } from '$lib/services/userService';
-import { getNoteById } from '$lib/services/noteService';
+import { getNoteById } from '$lib/db/notesDb';
+import { getUser } from '$lib/db/userDb';
+import { isBoardOwnerApiTask } from '$lib/services/userService';
 import { GET } from './+server';
+import type { ApiError } from '$lib/types';
 
+vi.mock('$lib/db/notesDb');
+vi.mock('$lib/db/userDb');
 vi.mock('$lib/services/userService');
-vi.mock('$lib/services/noteService');
 
-const getUserByIdMock = getUserById as MockedFunction<typeof getUserById>;
-const getNoteByIdMock = getNoteById as MockedFunction<typeof getNoteById>;
-const isBoardOwnerMock = isBoardOwner as MockedFunction<typeof isBoardOwner>;
+const mockGetUser = getUser as MockedFunction<typeof getUser>;
+const mockGetNoteById = getNoteById as MockedFunction<typeof getNoteById>;
+const mockIsBoardOwnerApiTask = isBoardOwnerApiTask as MockedFunction<typeof isBoardOwnerApiTask>;
+
+const mockNote = {
+	id: 'nid_123',
+	text: 'Hello world!'
+};
 
 describe('GET', () => {
 	beforeEach(() => {
-		getUserByIdMock.mockResolvedValue({ id: 'uid_123' } as any);
-		getNoteByIdMock.mockResolvedValue({ id: 'nid_123', text: 'Hello world!' } as any);
-		isBoardOwnerMock.mockReturnValue(true);
+		mockGetUser.mockReturnValue(TE.right(mockNote) as any);
+		mockGetNoteById.mockReturnValue(TE.right({ id: 'nid_123', text: 'Hello world!' }) as any);
+		mockIsBoardOwnerApiTask.mockReturnValue(E.right(mockNote) as any);
 	});
 
 	it('should return a note successfully', async () => {
@@ -31,7 +40,7 @@ describe('GET', () => {
 	});
 
 	it('should return a 404 when user is not found', async () => {
-		getUserByIdMock.mockRejectedValue(new Error('User not found'));
+		mockGetUser.mockReturnValue(TE.left({ _tag: 'RecordNotFound', message: 'User not found' }));
 
 		const locals = { user: { id: 'uid_123' } };
 		const result = await GET({
@@ -45,7 +54,7 @@ describe('GET', () => {
 	});
 
 	it('should return a 404 when user is not found', async () => {
-		getNoteByIdMock.mockRejectedValue(new Error('Note not found'));
+		mockGetNoteById.mockReturnValue(TE.left({ _tag: 'RecordNotFound', message: 'Note not found' }));
 
 		const locals = { user: { id: 'uid_123' } };
 		const result = await GET({
@@ -59,7 +68,8 @@ describe('GET', () => {
 	});
 
 	it('should return a 403 when isBoardOwner returns false', async () => {
-		isBoardOwnerMock.mockReturnValue(false);
+		const apiError: ApiError = { message: 'Unauthorized', status: 403 };
+		mockIsBoardOwnerApiTask.mockReturnValue(E.left(apiError));
 
 		const locals = { user: { id: 'uid_123' } };
 		const result = await GET({
