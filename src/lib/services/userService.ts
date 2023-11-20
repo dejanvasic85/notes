@@ -1,14 +1,26 @@
-import { taskEither as TE } from 'fp-ts';
+import { either as E, taskEither as TE } from 'fp-ts';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
 import db from '$lib/db';
 import { createUser, getUserByAuthId } from '$lib/db/userDb';
-import type { AuthUserProfile, ServerError, User, FetchError } from '$lib/types';
+import type { ApiError, AuthUserProfile, FetchError, Note, ServerError, User } from '$lib/types';
 import { pipe } from 'fp-ts/lib/function';
 
 export function isBoardOwner(user: User, boardId: string): boolean {
 	return user.boards.some((board) => board.id === boardId);
 }
+
+export const isBoardOwnerApiTask = ({
+	user,
+	note
+}: {
+	user: User;
+	note: Note;
+}): E.Either<ApiError, Note> => {
+	return isBoardOwner(user, note.boardId!)
+		? E.right(note)
+		: E.left({ status: 403, message: 'Unauthorized' });
+};
 
 const tryFetchAuthUser = ({
 	accessToken

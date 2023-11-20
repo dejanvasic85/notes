@@ -1,44 +1,23 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 
-import { either as E, taskEither as TE } from 'fp-ts';
+import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
+import { getNoteById } from '$lib/db/notesDb';
 import { updateBoard } from '$lib/services/boardService';
-import { getNoteById, updateNote, deleteNote } from '$lib/services/noteService';
+import { getNoteById as getNote, updateNote, deleteNote } from '$lib/services/noteService';
+import { getUserById, isBoardOwner, isBoardOwnerApiTask } from '$lib/services/userService';
 import { NotePatchInputSchema } from '$lib/types';
-import { getUserById, isBoardOwner } from '$lib/services/userService';
-import type { ApiError, Note, User } from '$lib/types';
-
-interface IdParams {
-	id: string;
-}
-
-const getNoteTask = ({ id }: IdParams): TE.TaskEither<ApiError, Note> => {
-	return TE.tryCatch(
-		() => getNoteById(id),
-		() => ({ status: 404, message: 'Note not found' })
-	);
-};
-
-const getUserTask = ({ id }: IdParams): TE.TaskEither<ApiError, User> => {
-	return TE.tryCatch(
-		() => getUserById(id),
-		() => ({ status: 404, message: 'User not found' })
-	);
-};
-
-const isNoteOwner = ({ user, note }: { user: User; note: Note }): E.Either<ApiError, Note> => {
-	return isBoardOwner(user, note.boardId!)
-		? E.right(note)
-		: E.left({ status: 403, message: 'Unauthorized' });
-};
+import { mapToApiError } from '$lib/mapApi';
+import { getUser } from '$lib/db/userDb';
 
 export const GET: RequestHandler = async ({ locals, params }) => {
 	return await pipe(
 		TE.Do,
-		TE.bind('user', () => getUserTask({ id: locals.user.id! })),
-		TE.bind('note', () => getNoteTask({ id: params.id! })),
-		TE.chainEitherK(isNoteOwner),
+		TE.bind('user', () => getUser({ id: locals.user.id! })),
+		TE.bind('note', () => getNoteById({ id: params.id! })),
+		TE.mapLeft(mapToApiError),
+		TE.chainEitherK(isBoardOwnerApiTask),
 		TE.match(
 			(err) => json({ message: err.message }, { status: err.status }),
 			(note) => json(note)
@@ -50,7 +29,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 	const noteId = params.id!;
 	const userId = locals.user.id!;
 
-	const note = await getNoteById(noteId);
+	const note = await getNote(noteId);
 	if (!note) {
 		return json(null, { status: 404 });
 	}
@@ -83,7 +62,7 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
 	const noteId = params.id!;
 	const userId = locals.user.id!;
 
-	const note = await getNoteById(noteId);
+	const note = await getNote(noteId);
 	if (!note) {
 		return json(null, { status: 404 });
 	}

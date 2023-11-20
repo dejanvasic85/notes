@@ -103,3 +103,7 @@ export interface ApiError {
 	status: 200 | 404 | 403 | 400 | 500;
 	message: string;
 }
+
+export interface IdParams {
+	id: string;
+}
