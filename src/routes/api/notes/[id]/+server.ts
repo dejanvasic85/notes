@@ -3,12 +3,12 @@ import { json, type RequestHandler } from '@sveltejs/kit';
 import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
+import { mapToApiError } from '$lib/api/mapApi';
 import { getNoteById } from '$lib/db/notesDb';
 import { updateBoard } from '$lib/services/boardService';
 import { getNoteById as getNote, updateNote, deleteNote } from '$lib/services/noteService';
 import { getUserById, isBoardOwner, isBoardOwnerApiTask } from '$lib/services/userService';
 import { NotePatchInputSchema } from '$lib/types';
-import { mapToApiError } from '$lib/mapApi';
 import { getUser } from '$lib/db/userDb';
 
 export const GET: RequestHandler = async ({ locals, params }) => {
