@@ -9,7 +9,7 @@ import type { ApiError } from '$lib/types';
 
 vi.mock('$lib/db/notesDb');
 vi.mock('$lib/db/userDb');
-vi.mock('$lib/services/userService');
+vi.mock('$lib/server/services/userService');
 
 const mockGetUser = getUser as MockedFunction<typeof getUser>;
 const mockGetNoteById = getNoteById as MockedFunction<typeof getNoteById>;

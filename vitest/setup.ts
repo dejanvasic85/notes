@@ -18,7 +18,14 @@ vitest.expect.extend({
 	toBeLeftStrictEqual(received, expected) {
 		return {
 			pass: E.isLeft(received) && this.equals(received.left, expected),
-			message: () => `expected ${JSON.stringify(received)} to be Either Left ${JSON.stringify(expected)}`
+			message: () =>
+				`expected ${JSON.stringify(received)} to be Either Left ${JSON.stringify(expected)}`
+		};
+	},
+	toBeLeft(received, expected) {
+		return {
+			pass: E.isLeft(received) && (received.left as any)._tag === expected,
+			message: () => `expected ${JSON.stringify(received)} to be Either Left ${expected}`
 		};
 	}
 });
