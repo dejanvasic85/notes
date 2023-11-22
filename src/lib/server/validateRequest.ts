@@ -1,22 +1,21 @@
 import { taskEither as TE } from 'fp-ts';
-import { pipe } from 'fp-ts/lib/function';
 
-import type { NoteCreateInput, ServerError, ValidationError } from '$lib/types';
+import type { ServerError } from '$lib/types';
 
-const createValidationError = (err: unknown, message: string): ValidationError => {
-	return {
-		_tag: 'ValidationError',
-		message,
-		originalError: err
-	};
-};
+import { createValidationError } from './createError';
 
-export const validateNoteInput = async (
-	request: Request
-): TE.TaskEither<ServerError, NoteCreateInput> =>
-	pipe(
-		TE.tryCatch(
-			() => request.json(),
-			(err) => createValidationError(err, 'Unable to parse NoteCreateInputSchema')
-		)
+interface Parser<T> {
+	parse: (json: any) => T;
+}
+
+export const validateRequest = <T>(
+	request: Request,
+	parser: Parser<T>
+): TE.TaskEither<ServerError, T> =>
+	TE.tryCatch(
+		async () => {
+			const json = await request.json();
+			return parser.parse(json);
+		},
+		(err) => createValidationError(err, 'Invalid note input')
 	);
