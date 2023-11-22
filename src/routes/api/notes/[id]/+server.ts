@@ -3,11 +3,11 @@ import { json, type RequestHandler } from '@sveltejs/kit';
 import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
-import { mapToApiError } from '$lib/api/mapApi';
+import { mapToApiError } from '$lib/server/mapApi';
 import { getNoteById } from '$lib/db/notesDb';
-import { updateBoard } from '$lib/services/boardService';
-import { getNoteById as getNote, updateNote, deleteNote } from '$lib/services/noteService';
-import { getUserById, isBoardOwner, isBoardOwnerApiTask } from '$lib/services/userService';
+import { updateBoard } from '$lib/server/services/boardService';
+import { getNoteById as getNote, updateNote, deleteNote } from '$lib/server/services/noteService';
+import { getUserById, isBoardOwner, isBoardOwnerApiTask } from '$lib/server/services/userService';
 import { NotePatchInputSchema } from '$lib/types';
 import { getUser } from '$lib/db/userDb';
 
