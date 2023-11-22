@@ -1,8 +1,8 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 
-import { getBoardById, updateBoard } from '$lib/services/boardService';
-import { getUserById, isBoardOwner } from '$lib/services/userService';
+import { getBoardById, updateBoard } from '$lib/server/services/boardService';
+import { getUserById, isBoardOwner } from '$lib/server/services/userService';
 import { BoardPatchSchema } from '$lib/types';
 
 export const PATCH: RequestHandler = async ({ locals, params, request }) => {

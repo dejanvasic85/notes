@@ -4,7 +4,7 @@ import { either as E, taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { verifyToken } from '$lib/auth/verifyToken';
-import { getOrCreateUserByAuth } from '$lib/services/userService';
+import { getOrCreateUserByAuth } from '$lib/server/services/userService';
 
 const getTokenFromHeader = (authHeader: string) => authHeader.split(' ')[1];
 

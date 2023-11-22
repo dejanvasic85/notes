@@ -1,8 +1,8 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 
-import { createNote } from '$lib/services/noteService';
-import { updateBoard } from '$lib/services/boardService';
-import { getUserById, isBoardOwner } from '$lib/services/userService';
+import { createNote } from '$lib/server/services/noteService';
+import { updateBoard } from '$lib/server/services/boardService';
+import { getUserById, isBoardOwner } from '$lib/server/services/userService';
 import { NoteCreateInputSchema } from '$lib/types';
 
 export const POST: RequestHandler = async ({ locals, request }) => {

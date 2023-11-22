@@ -3,7 +3,7 @@ import { either as E, taskEither as TE } from 'fp-ts';
 
 import { getNoteById } from '$lib/db/notesDb';
 import { getUser } from '$lib/db/userDb';
-import { isBoardOwnerApiTask } from '$lib/services/userService';
+import { isBoardOwnerApiTask } from '$lib/server/services/userService';
 import { GET } from './+server';
 import type { ApiError } from '$lib/types';
 

@@ -1,7 +1,7 @@
 import { type RequestHandler, json } from '@sveltejs/kit';
 
-import { getNoteById } from '$lib/services/noteService';
-import { isBoardOwner } from '$lib/services/userService';
+import { getNoteById } from '$lib/server/services/noteService';
+import { isBoardOwner } from '$lib/server/services/userService';
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
 	const noteId = params.id!;

@@ -97,7 +97,13 @@ export interface FetchError {
 	readonly originalError: Error | string | unknown;
 }
 
-export type ServerError = DatabaseError | RecordNotFoundError | FetchError;
+export interface ValidationError {
+	readonly _tag: 'ValidationError';
+	readonly message: string;
+	readonly originalError: Error | string | unknown;
+}
+
+export type ServerError = DatabaseError | RecordNotFoundError | FetchError | ValidationError;
 
 export interface ApiError {
 	status: 200 | 404 | 403 | 400 | 500;
