@@ -80,30 +80,29 @@ export const NoteCreateInputSchema = z.object({
 
 export type NoteCreateInput = z.infer<typeof NoteCreateInputSchema>;
 
-export interface DatabaseError {
+interface BaseError {
+	readonly message: string;
+	readonly originalError?: Error | string | unknown;
+}
+
+export interface DatabaseError extends BaseError {
 	readonly _tag: 'DatabaseError';
-	readonly message: string;
-	readonly originalError: Error | string | unknown;
 }
 
-export interface RecordNotFoundError {
+export interface RecordNotFoundError extends BaseError {
 	readonly _tag: 'RecordNotFound';
-	readonly message: string;
 }
 
-export interface FetchError {
+export interface FetchError extends BaseError {
 	readonly _tag: 'FetchError';
-	readonly message: string;
-	readonly originalError: Error | string | unknown;
 }
 
-export interface ValidationError {
+export interface ValidationError extends BaseError {
 	readonly _tag: 'ValidationError';
-	readonly message: string;
-	readonly originalError: Error | string | unknown;
 }
 
 export type ServerError = DatabaseError | RecordNotFoundError | FetchError | ValidationError;
+export type ErrorType = ServerError['_tag'];
 
 export interface ApiError {
 	status: 200 | 404 | 403 | 400 | 500;

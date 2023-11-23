@@ -1,28 +1,31 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
-import type { DatabaseError, RecordNotFoundError } from '$lib/types';
+import type { ErrorType } from '$lib/types';
 
+import { createError } from './createError';
 import { mapToApiError } from './mapApi';
 
 describe('mapToApiError', () => {
-	it('should map a DatabaseError to an ApiError', () => {
-		const err: DatabaseError = {
-			_tag: 'DatabaseError',
-			message: 'Database error',
-			originalError: new Error()
-		};
+	test.each([
+		[
+			'DatabaseError',
+			'A database error occurred',
+			{ status: 500, message: 'A database error occurred' }
+		],
+		['FetchError', 'A fetch error occurred', { status: 500, message: 'A fetch error occurred' }],
+		[
+			'RecordNotFound',
+			'A record was not found',
+			{ status: 404, message: 'A record was not found' }
+		],
+		[
+			'ValidationError',
+			'A validation error occurred',
+			{ status: 400, message: 'A validation error occurred' }
+		]
+	])(`should map a %s to an ApiError`, (tag, message, expected) => {
+		const err = createError(tag as ErrorType, message)(new Error());
 		const result = mapToApiError(err);
-		expect(result).toStrictEqual({ status: 500, message: 'Database error' });
-	});
-
-	it('should map a RecordNotFound to an ApiError', () => {
-		const err: RecordNotFoundError = {
-			_tag: 'RecordNotFound',
-			message: 'Record not found'
-		};
-
-		const result = mapToApiError(err);
-
-		expect(result).toStrictEqual({ status: 404, message: 'Record not found' });
+		expect(result).toEqual(expected);
 	});
 });
