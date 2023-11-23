@@ -2,7 +2,7 @@ import { taskEither as TE } from 'fp-ts';
 
 import type { ServerError } from '$lib/types';
 
-import { createValidationError } from './createError';
+import { createError } from './createError';
 
 interface Parser<T> {
 	parse: (json: any) => T;
@@ -17,5 +17,5 @@ export const validateRequest = <T>(
 			const json = await request.json();
 			return parser.parse(json);
 		},
-		(err) => createValidationError(err, 'Invalid note input')
+		createError('ValidationError', 'Invalid note input')
 	);
