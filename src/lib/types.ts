@@ -101,7 +101,17 @@ export interface ValidationError extends BaseError {
 	readonly _tag: 'ValidationError';
 }
 
-export type ServerError = DatabaseError | RecordNotFoundError | FetchError | ValidationError;
+export interface AuthorizationError extends BaseError {
+	readonly _tag: 'AuthorizationError';
+}
+
+export type ServerError =
+	| AuthorizationError
+	| DatabaseError
+	| RecordNotFoundError
+	| FetchError
+	| ValidationError;
+
 export type ErrorType = ServerError['_tag'];
 
 export interface ApiError {

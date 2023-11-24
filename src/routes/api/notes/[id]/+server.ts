@@ -5,19 +5,19 @@ import { pipe } from 'fp-ts/lib/function';
 
 import { mapToApiError } from '$lib/server/mapApi';
 import { getNoteById } from '$lib/db/notesDb';
+import { getUser } from '$lib/db/userDb';
 import { updateBoard } from '$lib/server/services/boardService';
 import { getNoteById as getNote, updateNote, deleteNote } from '$lib/server/services/noteService';
-import { getUserById, isBoardOwner, isBoardOwnerApiTask } from '$lib/server/services/userService';
+import { getUserById, isBoardOwner, isNoteOwner } from '$lib/server/services/userService';
 import { NotePatchInputSchema } from '$lib/types';
-import { getUser } from '$lib/db/userDb';
 
 export const GET: RequestHandler = async ({ locals, params }) => {
 	return await pipe(
 		TE.Do,
 		TE.bind('user', () => getUser({ id: locals.user.id! })),
 		TE.bind('note', () => getNoteById({ id: params.id! })),
+		TE.chain(({ user, note }) => isNoteOwner({ user, note })),
 		TE.mapLeft(mapToApiError),
-		TE.chainEitherK(isBoardOwnerApiTask),
 		TE.match(
 			(err) => json({ message: err.message }, { status: err.status }),
 			(note) => json(note)
