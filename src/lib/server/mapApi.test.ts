@@ -22,9 +22,14 @@ describe('mapToApiError', () => {
 			'ValidationError',
 			'A validation error occurred',
 			{ status: 400, message: 'A validation error occurred' }
+		],
+		[
+			'AuthorizationError',
+			'An authorization error occurred',
+			{ status: 403, message: 'An authorization error occurred' }
 		]
 	])(`should map a %s to an ApiError`, (tag, message, expected) => {
-		const err = createError(tag as ErrorType, message)(new Error());
+		const err = createError(tag as ErrorType, message);
 		const result = mapToApiError(err);
 		expect(result).toEqual(expected);
 	});
