@@ -1,12 +1,12 @@
 import { describe, expect, it, vi, type MockedFunction } from 'vitest';
 import { taskEither as TE } from 'fp-ts';
 
-import { getUser } from '$lib/db/userDb';
+import { getUser } from '$lib/server/db/userDb';
 import type { DatabaseError, RecordNotFoundError } from '$lib/types';
 
 import { GET } from './+server';
 
-vi.mock('$lib/db/userDb');
+vi.mock('$lib/server/db/userDb');
 
 const mockGetUser = getUser as MockedFunction<typeof getUser>;
 

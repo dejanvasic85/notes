@@ -1,9 +1,9 @@
 import { describe, it, vi, type Mocked, expect, beforeEach } from 'vitest';
-import db from '$lib/db';
+import db from '$lib/server/db';
 
 import { getUser, getUserByAuthId, createUser } from './userDb';
 
-vi.mock('$lib/db', () => ({
+vi.mock('$lib/server/db', () => ({
 	default: {
 		user: {
 			findUnique: vi.fn(),

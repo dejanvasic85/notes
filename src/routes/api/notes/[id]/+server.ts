@@ -4,8 +4,8 @@ import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { mapToApiError } from '$lib/server/mapApi';
-import { getNoteById } from '$lib/db/notesDb';
-import { getUser } from '$lib/db/userDb';
+import { getNoteById } from '$lib/server/db/notesDb';
+import { getUser } from '$lib/server/db/userDb';
 import { updateBoard } from '$lib/server/services/boardService';
 import { getNoteById as getNote, updateNote, deleteNote } from '$lib/server/services/noteService';
 import { getUserById, isBoardOwner, isNoteOwner } from '$lib/server/services/userService';

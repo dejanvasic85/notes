@@ -2,8 +2,8 @@ import { either as E, taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
-import db from '$lib/db';
-import { createUser, getUserByAuthId } from '$lib/db/userDb';
+import db from '$lib/server/db';
+import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
 import { createError } from '$lib/server/createError';
 import type { ApiError, AuthUserProfile, FetchError, Note, ServerError, User } from '$lib/types';
 

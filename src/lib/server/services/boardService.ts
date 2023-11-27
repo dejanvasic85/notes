@@ -1,4 +1,4 @@
-import db from '$lib/db';
+import db from '$lib/server/db';
 
 import type { Board } from '$lib/types';
 

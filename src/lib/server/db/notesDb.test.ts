@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, type Mocked, beforeEach } from 'vitest';
 
-import db from '$lib/db';
+import db from '$lib/server/db';
 
 import { getNoteById } from './notesDb';
 
-vi.mock('$lib/db', () => ({
+vi.mock('$lib/server/db', () => ({
 	default: {
 		note: {
 			findUnique: vi.fn()

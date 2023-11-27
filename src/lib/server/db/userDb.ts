@@ -1,7 +1,7 @@
 import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
-import db from '$lib/db';
+import db from '$lib/server/db';
 import { generateId } from '$lib/identityGenerator';
 import type { AuthUserProfile, ServerError, User } from '$lib/types';
 

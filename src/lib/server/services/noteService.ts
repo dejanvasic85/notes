@@ -1,4 +1,4 @@
-import db from '$lib/db';
+import db from '$lib/server/db';
 import type { Note, NoteCreateInput } from '$lib/types';
 
 export async function createNote(createInput: NoteCreateInput): Promise<Note> {

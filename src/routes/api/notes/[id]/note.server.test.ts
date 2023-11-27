@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach, type MockedFunction } from 'vitest';
 import { taskEither as TE } from 'fp-ts';
 
-import { getNoteById } from '$lib/db/notesDb';
-import { getUser } from '$lib/db/userDb';
+import { getNoteById } from '$lib/server/db/notesDb';
+import { getUser } from '$lib/server/db/userDb';
 import { isNoteOwner } from '$lib/server/services/userService';
 import { GET } from './+server';
 import type { AuthorizationError } from '$lib/types';
 
-vi.mock('$lib/db/notesDb');
-vi.mock('$lib/db/userDb');
+vi.mock('$lib/server/db/notesDb');
+vi.mock('$lib/server/db/userDb');
 vi.mock('$lib/server/services/userService');
 
 const mockGetUser = getUser as MockedFunction<typeof getUser>;

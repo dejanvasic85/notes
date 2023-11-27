@@ -1,7 +1,7 @@
 import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
-import db from '$lib/db';
+import db from '$lib/server/db';
 import type { ServerError, Note, IdParams } from '$lib/types';
 import { fromNullableRecord, tryDbTask } from './utils';
 

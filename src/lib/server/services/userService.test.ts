@@ -2,12 +2,12 @@ import { taskEither as TE } from 'fp-ts';
 import { describe, expect, it, vi, type MockedFunction, beforeEach } from 'vitest';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
-import { createUser, getUserByAuthId } from '$lib/db/userDb';
+import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
 import type { DatabaseError, RecordNotFoundError } from '$lib/types';
 
 import { getOrCreateUserByAuth, isNoteOwner } from './userService';
 
-vi.mock('$lib/db/userDb');
+vi.mock('$lib/server/db/userDb');
 vi.mock('$lib/auth/fetchUser');
 
 const mockGetUserByAuthId = getUserByAuthId as MockedFunction<typeof getUserByAuthId>;

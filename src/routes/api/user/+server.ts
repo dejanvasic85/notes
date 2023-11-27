@@ -2,7 +2,7 @@ import { json, type RequestHandler } from '@sveltejs/kit';
 import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
-import { getUser } from '$lib/db/userDb';
+import { getUser } from '$lib/server/db/userDb';
 import { mapToApiError } from '$lib/server/mapApi';
 
 export const GET: RequestHandler = async ({ locals }) => {
