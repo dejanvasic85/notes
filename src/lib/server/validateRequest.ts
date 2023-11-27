@@ -8,6 +8,7 @@ interface Parser<T> {
 	parse: (json: any) => T;
 }
 
+// todo: rename this to parseRequest
 export const validateRequest = <T>(
 	request: Request,
 	parser: Parser<T>

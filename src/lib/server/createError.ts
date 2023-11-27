@@ -1,12 +1,7 @@
-import type { ErrorType, ServerError } from '$lib/types';
+import type { ErrorType } from '$lib/types';
 
-export const createFromError = (
-	_tag: ErrorType,
-	message: string
-): ((e: unknown) => ServerError) => {
-	return function (err: unknown) {
-		return createError(_tag, message, err);
-	};
+export const createFromError = (_tag: ErrorType, message: string) => (err: unknown) => {
+	return createError(_tag, message, err);
 };
 
 export const createError = (_tag: ErrorType, message: string, originalError?: unknown) => ({

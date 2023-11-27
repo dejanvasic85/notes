@@ -110,11 +110,12 @@ describe('getOrCreateUserByAuth', () => {
 
 describe('isNoteOwner', () => {
 	it('should return', async () => {
-		const result = await isNoteOwner({
+		const param = {
 			note: { id: 'note_123', boardId: 'bid_999' },
 			user: { id: 'user_123', boards: [{ id: 'bid_999' }] }
-		} as any)();
+		};
+		const result = await isNoteOwner(param as any)();
 
-		expect(result).toBeRightStrictEqual({ id: 'note_123', boardId: 'bid_999' });
+		expect(result).toBeRightStrictEqual(param);
 	});
 });
