@@ -109,10 +109,11 @@ describe('getOrCreateUserByAuth', () => {
 });
 
 describe('isNoteOwner', () => {
-	it('should return', async () => {
+	it('should return the same argument provided when the ', async () => {
 		const param = {
 			note: { id: 'note_123', boardId: 'bid_999' },
-			user: { id: 'user_123', boards: [{ id: 'bid_999' }] }
+			user: { id: 'user_123', boards: [{ id: 'bid_999' }] },
+			randomProperty: '1'
 		};
 		const result = await isNoteOwner(param as any)();
 

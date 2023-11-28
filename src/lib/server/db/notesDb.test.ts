@@ -54,3 +54,5 @@ describe('getNoteById', () => {
 		});
 	});
 });
+
+// todo - add tests for updateNote

@@ -25,12 +25,13 @@ export const isBoardOwnerApiTask = ({
 		: E.left({ status: 403, message: 'Unauthorized' });
 };
 
-export const isNoteOwner = ({
+export const isNoteOwner = <T extends IsBoardOwnerParams>({
 	note,
-	user
-}: IsBoardOwnerParams): TE.TaskEither<ServerError, IsBoardOwnerParams> =>
+	user,
+	...rest
+}: T): TE.TaskEither<ServerError, T> =>
 	user.boards.some((board) => board.id === note.boardId)
-		? TE.right({ note, user })
+		? TE.right({ note, user, ...rest } as T)
 		: TE.left(
 				createError('AuthorizationError', `User ${user.id} is not the owner of note ${note.id}`)
 		  );
