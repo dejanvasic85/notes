@@ -11,12 +11,13 @@ interface Parser<T> {
 // todo: rename this to parseRequest
 export const validateRequest = <T>(
 	request: Request,
-	parser: Parser<T>
+	parser: Parser<T>,
+	errorMessage: string
 ): TE.TaskEither<ServerError, T> =>
 	TE.tryCatch(
 		async () => {
 			const json = await request.json();
 			return parser.parse(json);
 		},
-		createFromError('ValidationError', 'Invalid note input')
+		createFromError('ValidationError', errorMessage)
 	);

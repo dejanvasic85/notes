@@ -1,31 +1,34 @@
-import { either as E, taskEither as TE } from 'fp-ts';
+import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
 import db from '$lib/server/db';
 import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
 import { createError } from '$lib/server/createError';
-import type { ApiError, AuthUserProfile, FetchError, Note, ServerError, User } from '$lib/types';
-
-export function isBoardOwner(user: User, boardId: string): boolean {
-	return user.boards.some((board) => board.id === boardId);
-}
+import type { AuthUserProfile, Board, FetchError, Note, ServerError, User } from '$lib/types';
 
 interface IsBoardOwnerParams {
+	user: User;
+	board: Board;
+}
+
+export const isBoardOwner = <T extends IsBoardOwnerParams>({
+	user,
+	board,
+	...rest
+}: T): TE.TaskEither<ServerError, T> =>
+	user.boards.some((b) => b.id === board.id)
+		? TE.right({ user, board, ...rest } as T)
+		: TE.left(
+				createError('AuthorizationError', `User ${user.id} is not the owner of board ${board.id}`)
+		  );
+
+interface IsNoteOwnerParams {
 	user: User;
 	note: Note;
 }
 
-export const isBoardOwnerApiTask = ({
-	user,
-	note
-}: IsBoardOwnerParams): E.Either<ApiError, Note> => {
-	return isBoardOwner(user, note.boardId!)
-		? E.right(note)
-		: E.left({ status: 403, message: 'Unauthorized' });
-};
-
-export const isNoteOwner = <T extends IsBoardOwnerParams>({
+export const isNoteOwner = <T extends IsNoteOwnerParams>({
 	note,
 	user,
 	...rest

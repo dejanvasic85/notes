@@ -19,7 +19,11 @@ describe('validateRequest', () => {
 			json: vi.fn().mockResolvedValue(noteCreateInput)
 		};
 
-		const result = await validateRequest(req as any, NoteCreateInputSchema)();
+		const result = await validateRequest(
+			req as any,
+			NoteCreateInputSchema,
+			'Unable to parse note create input'
+		)();
 
 		expect(result).toBeRightStrictEqual(noteCreateInput);
 	});
@@ -33,7 +37,11 @@ describe('validateRequest', () => {
 			json: vi.fn().mockResolvedValue(noteCreateInput)
 		};
 
-		const result = await validateRequest(req as any, NoteCreateInputSchema)();
+		const result = await validateRequest(
+			req as any,
+			NoteCreateInputSchema,
+			'Unable to parse note create input'
+		)();
 
 		expect(result).toBeLeft('ValidationError');
 	});
@@ -43,7 +51,11 @@ describe('validateRequest', () => {
 			json: vi.fn().mockRejectedValue('boom')
 		};
 
-		const result = await validateRequest(req as any, NoteCreateInputSchema)();
+		const result = await validateRequest(
+			req as any,
+			NoteCreateInputSchema,
+			'Unable to parse note create input'
+		)();
 
 		expect(result).toBeLeft('ValidationError');
 	});

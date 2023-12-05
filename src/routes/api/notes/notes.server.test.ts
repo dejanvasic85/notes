@@ -68,7 +68,7 @@ describe('POST', () => {
 
 		expect(resp.status).toBe(400);
 		const data = await resp.json();
-		expect(data).toEqual({ message: 'Invalid note input', status: 400 });
+		expect(data).toEqual({ message: 'Unable to parse NoteCreateInputSchema', status: 400 });
 	});
 
 	it('should return a 403 when the user is not the owner of the note', async () => {

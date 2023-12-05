@@ -5,17 +5,18 @@ import { taskEither as TE } from 'fp-ts/lib';
 
 import { updateBoard } from '$lib/server/db/boardDb';
 import { getUser } from '$lib/server/db/userDb';
-
 import { isNoteOwner } from '$lib/server/services/userService';
-import { NoteCreateInputSchema } from '$lib/types';
 import { validateRequest } from '$lib/server/validateRequest';
 import { mapToApiError } from '$lib/server/mapApi';
 import { createError } from '$lib/server/createError';
+import { NoteCreateInputSchema } from '$lib/types';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	return pipe(
 		TE.Do,
-		TE.bind('noteInput', () => validateRequest(request, NoteCreateInputSchema)),
+		TE.bind('noteInput', () =>
+			validateRequest(request, NoteCreateInputSchema, 'Unable to parse NoteCreateInputSchema')
+		),
 		TE.bind('user', () => getUser({ id: locals.user.id!, includeBoards: true })),
 		TE.chain(({ noteInput, user }) => isNoteOwner({ user, note: noteInput })),
 		TE.chain(({ note, user }) => {
