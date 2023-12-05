@@ -16,20 +16,3 @@ export async function getNoteById(id: string): Promise<Note> {
 		}
 	});
 }
-
-export async function updateNote(note: Note): Promise<Note> {
-	return await db.note.update({
-		where: { id: note.id },
-		data: {
-			...note,
-			boardId: note.boardId!,
-			updatedAt: new Date()
-		}
-	});
-}
-
-export async function deleteNote(noteId: string): Promise<Note> {
-	return await db.note.delete({
-		where: { id: noteId }
-	});
-}

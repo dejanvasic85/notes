@@ -26,3 +26,13 @@ export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> =>
 		},
 		createFromError('DatabaseError', 'Failed to update note')
 	);
+
+export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, Note> =>
+	TE.tryCatch(
+		() => {
+			return db.note.delete({
+				where: { id }
+			});
+		},
+		createFromError('DatabaseError', 'Failed to delete note')
+	);

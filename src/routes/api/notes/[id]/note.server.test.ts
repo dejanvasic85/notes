@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach, type MockedFunction } from 'vitest';
+import { describe, it, expect, vi, type MockedFunction } from 'vitest';
 import { taskEither as TE } from 'fp-ts';
 
-import { getNoteById, updateNote } from '$lib/server/db/notesDb';
+import { getNoteById, updateNote, deleteNote } from '$lib/server/db/notesDb';
 import { getUser } from '$lib/server/db/userDb';
 import { isNoteOwner } from '$lib/server/services/userService';
 import type { AuthorizationError, NotePatchInput } from '$lib/types';
 
-import { GET, PATCH } from './+server';
+import { GET, PATCH, DELETE } from './+server';
 
 vi.mock('$lib/server/db/notesDb');
 vi.mock('$lib/server/db/userDb');
@@ -14,6 +14,7 @@ vi.mock('$lib/server/services/userService');
 
 const mockGetUser = getUser as MockedFunction<typeof getUser>;
 const mockGetNoteById = getNoteById as MockedFunction<typeof getNoteById>;
+const mockDeleteNote = deleteNote as MockedFunction<typeof deleteNote>;
 const mockUpdateNote = updateNote as MockedFunction<typeof updateNote>;
 const mockIsNoteOwner = isNoteOwner as MockedFunction<typeof isNoteOwner>;
 
@@ -30,14 +31,11 @@ const mockUser = {
 };
 
 describe('GET', () => {
-	beforeEach(() => {
-		// todo: move these out of here because they being overwritten in other tests
+	it('should return a note successfully', async () => {
 		mockGetUser.mockReturnValue(TE.right(mockUser) as any);
 		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
 		mockIsNoteOwner.mockReturnValue(TE.right(mockNote) as any);
-	});
 
-	it('should return a note successfully', async () => {
 		const locals = { user: { id: 'uid_123' } };
 		const result = await GET({
 			locals,
@@ -51,6 +49,8 @@ describe('GET', () => {
 
 	it('should return a 404 when user is not found', async () => {
 		mockGetUser.mockReturnValue(TE.left({ _tag: 'RecordNotFound', message: 'User not found' }));
+		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
+		mockIsNoteOwner.mockReturnValue(TE.right(mockNote) as any);
 
 		const locals = { user: { id: 'uid_123' } };
 		const result = await GET({
@@ -64,7 +64,9 @@ describe('GET', () => {
 	});
 
 	it('should return a 404 when note is not found', async () => {
+		mockGetUser.mockReturnValue(TE.right(mockUser) as any);
 		mockGetNoteById.mockReturnValue(TE.left({ _tag: 'RecordNotFound', message: 'Note not found' }));
+		mockIsNoteOwner.mockReturnValue(TE.right(mockNote) as any);
 
 		const locals = { user: { id: 'uid_123' } };
 		const result = await GET({
@@ -80,6 +82,8 @@ describe('GET', () => {
 	it('should return a 403 when note does belong to the user', async () => {
 		const apiError: AuthorizationError = { message: 'Unauthorized', _tag: 'AuthorizationError' };
 		mockIsNoteOwner.mockReturnValue(TE.left(apiError));
+		mockGetUser.mockReturnValue(TE.right(mockUser) as any);
+		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
 
 		const locals = { user: { id: 'uid_123' } };
 		const result = await GET({
@@ -104,6 +108,8 @@ describe('PATCH', () => {
 
 		mockIsNoteOwner.mockReturnValue(TE.right({ user: mockUser, note: mockNote, noteInput }) as any);
 		mockUpdateNote.mockReturnValue(TE.right(mockNote) as any);
+		mockGetUser.mockReturnValue(TE.right(mockUser) as any);
+		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
 
 		const request = {
 			json: vi.fn().mockResolvedValue(noteInput)
@@ -125,5 +131,23 @@ describe('PATCH', () => {
 			id: 'nid_123',
 			boardId: 'bid_123'
 		});
+	});
+});
+
+describe('DELETE', () => {
+	it('should return 204 and call the repository to delete the note successfully', async () => {
+		const locals = { user: { id: 'uid_123' } };
+		mockGetUser.mockReturnValue(TE.right(mockUser) as any);
+		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
+		mockIsNoteOwner.mockReturnValue(TE.right({ user: mockUser, note: mockNote }) as any);
+		mockDeleteNote.mockReturnValue(TE.right(mockNote) as any);
+
+		const result = await DELETE({
+			locals,
+			params: { id: mockNote.id }
+		} as any);
+
+		expect(mockIsNoteOwner).toHaveBeenCalledWith({ user: mockUser, note: mockNote });
+		expect(result.status).toBe(204);
 	});
 });
