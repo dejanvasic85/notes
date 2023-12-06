@@ -2,7 +2,7 @@ import { taskEither as TE } from 'fp-ts';
 
 import type { ServerError } from '$lib/types';
 
-import { createFromError } from './createError';
+import { withError } from './createError';
 
 interface Parser<T> {
 	parse: (json: any) => T;
@@ -19,5 +19,5 @@ export const validateRequest = <T>(
 			const json = await request.json();
 			return parser.parse(json);
 		},
-		createFromError('ValidationError', errorMessage)
+		withError('ValidationError', errorMessage)
 	);

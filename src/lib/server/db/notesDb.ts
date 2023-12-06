@@ -2,7 +2,7 @@ import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/server/db';
-import { createFromError } from '$lib/server/createError';
+import { withError } from '$lib/server/createError';
 import type { ServerError, Note, IdParams } from '$lib/types';
 import { fromNullableRecord, tryDbTask } from './utils';
 
@@ -24,7 +24,7 @@ export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> =>
 				}
 			});
 		},
-		createFromError('DatabaseError', 'Failed to update note')
+		withError('DatabaseError', 'Failed to update note')
 	);
 
 export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, Note> =>
@@ -34,5 +34,5 @@ export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, N
 				where: { id }
 			});
 		},
-		createFromError('DatabaseError', 'Failed to delete note')
+		withError('DatabaseError', 'Failed to delete note')
 	);

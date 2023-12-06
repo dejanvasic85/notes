@@ -4,7 +4,7 @@ import { pipe } from 'fp-ts/lib/function';
 import type { Board, IdParams, ServerError } from '$lib/types';
 import db from '$lib/server/db';
 import { tryDbTask, fromNullableRecord } from './utils';
-import { createFromError } from '../createError';
+import { withError } from '../createError';
 
 export const getBoard = ({ id }: IdParams): TE.TaskEither<ServerError, Board> =>
 	pipe(
@@ -27,6 +27,6 @@ export const updateBoard = (board: Board): TE.TaskEither<ServerError, Board> => 
 			});
 			return updatedBoard;
 		},
-		createFromError('DatabaseError', 'Failed to update board')
+		withError('DatabaseError', 'Failed to update board')
 	);
 };
