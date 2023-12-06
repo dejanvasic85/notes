@@ -9,8 +9,8 @@ describe('mapToApiError', () => {
 	test.each([
 		[
 			'DatabaseError',
-			'A database error occurred',
-			{ status: 500, message: 'A database error occurred' }
+			'A Unexpted database error occurred occurred',
+			{ status: 500, message: 'A Unexpted database error occurred occurred' }
 		],
 		['FetchError', 'A fetch error occurred', { status: 500, message: 'A fetch error occurred' }],
 		[

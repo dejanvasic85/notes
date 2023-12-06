@@ -35,14 +35,14 @@ describe('getOrCreateUserByAuth', () => {
 	describe('when the database is not available', () => {
 		const databaseError: DatabaseError = {
 			_tag: 'DatabaseError',
-			message: 'Database error',
+			message: 'Unexpted database error occurred',
 			originalError: new Error('')
 		};
 		beforeEach(() => {
 			mockGetUserByAuthId.mockReturnValue(TE.left(databaseError));
 		});
 
-		it('should return database error and not fetch user from Auth0 when the get user fails', async () => {
+		it('should return Unexpted database error occurred and not fetch user from Auth0 when the get user fails', async () => {
 			const result = await getOrCreateUserByAuth({ accessToken, authId })();
 
 			expect(result).toBeLeftStrictEqual(databaseError);
@@ -88,10 +88,10 @@ describe('getOrCreateUserByAuth', () => {
 			});
 		});
 
-		it('should return a database error when the create user fails', async () => {
+		it('should return a Unexpted database error occurred when the create user fails', async () => {
 			const databaseError: DatabaseError = {
 				_tag: 'DatabaseError',
-				message: 'Database error',
+				message: 'Unexpted database error occurred',
 				originalError: new Error('')
 			};
 

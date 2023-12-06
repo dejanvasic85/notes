@@ -13,18 +13,15 @@ export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> 
 	);
 
 export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> =>
-	TE.tryCatch(
-		() => {
-			return db.note.update({
-				where: { id: note.id },
-				data: {
-					...note,
-					boardId: note.boardId!,
-					updatedAt: new Date()
-				}
-			});
-		},
-		withError('DatabaseError', 'Failed to update note')
+	tryDbTask(() =>
+		db.note.update({
+			where: { id: note.id },
+			data: {
+				...note,
+				boardId: note.boardId!,
+				updatedAt: new Date()
+			}
+		})
 	);
 
 export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, Note> =>
