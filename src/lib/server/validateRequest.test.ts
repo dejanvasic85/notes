@@ -3,9 +3,9 @@ import { describe, expect, it, vi } from 'vitest';
 import type { NoteCreateInput } from '$lib/types';
 import { NoteCreateInputSchema } from '$lib/types';
 
-import { validateRequest } from './validateRequest';
+import { parseRequest } from './parseRequest';
 
-describe('validateRequest', () => {
+describe('parseRequest', () => {
 	it('should return a NoteCreateInput when parsing succeeds', async () => {
 		const noteCreateInput: NoteCreateInput = {
 			boardId: 'boardId',
@@ -19,7 +19,7 @@ describe('validateRequest', () => {
 			json: vi.fn().mockResolvedValue(noteCreateInput)
 		};
 
-		const result = await validateRequest(
+		const result = await parseRequest(
 			req as any,
 			NoteCreateInputSchema,
 			'Unable to parse note create input'
@@ -37,7 +37,7 @@ describe('validateRequest', () => {
 			json: vi.fn().mockResolvedValue(noteCreateInput)
 		};
 
-		const result = await validateRequest(
+		const result = await parseRequest(
 			req as any,
 			NoteCreateInputSchema,
 			'Unable to parse note create input'
@@ -51,7 +51,7 @@ describe('validateRequest', () => {
 			json: vi.fn().mockRejectedValue('boom')
 		};
 
-		const result = await validateRequest(
+		const result = await parseRequest(
 			req as any,
 			NoteCreateInputSchema,
 			'Unable to parse note create input'

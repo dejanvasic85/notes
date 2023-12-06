@@ -7,7 +7,7 @@ import { pipe } from 'fp-ts/lib/function';
 import { getBoard, updateBoard } from '$lib/server/db/boardDb';
 import { isBoardOwner } from '$lib/server/services/userService';
 import { getUser } from '$lib/server/db/userDb';
-import { validateRequest } from '$lib/server/validateRequest';
+import { parseRequest } from '$lib/server/parseRequest';
 import { mapToApiError } from '$lib/server/mapApi';
 import { BoardPatchSchema } from '$lib/types';
 
@@ -15,7 +15,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 	return pipe(
 		TE.Do,
 		TE.bind('changes', () =>
-			validateRequest(request, BoardPatchSchema, 'Unable to parse BoardPatchSchema')
+			parseRequest(request, BoardPatchSchema, 'Unable to parse BoardPatchSchema')
 		),
 		TE.bind('user', () =>
 			getUser({ id: locals.user.id!, includeBoards: true, includeNotes: true })

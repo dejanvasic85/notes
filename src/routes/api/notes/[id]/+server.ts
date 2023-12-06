@@ -7,7 +7,7 @@ import { mapToApiError } from '$lib/server/mapApi';
 import { getNoteById, updateNote, deleteNote } from '$lib/server/db/notesDb';
 import { getUser } from '$lib/server/db/userDb';
 import { isNoteOwner } from '$lib/server/services/userService';
-import { validateRequest } from '$lib/server/validateRequest';
+import { parseRequest } from '$lib/server/parseRequest';
 import { NotePatchInputSchema } from '$lib/types';
 
 export const GET: RequestHandler = async ({ locals, params }) => {
@@ -28,7 +28,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 	return pipe(
 		TE.Do,
 		TE.bind('noteInput', () =>
-			validateRequest(request, NotePatchInputSchema, 'Unable to parse NotePatchInputSchema')
+			parseRequest(request, NotePatchInputSchema, 'Unable to parse NotePatchInputSchema')
 		),
 		TE.bind('note', () => getNoteById({ id: params.id! })),
 		TE.bind('user', () => getUser({ id: locals.user.id! })),
