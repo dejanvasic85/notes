@@ -10,12 +10,12 @@ import { isNoteOwner } from '$lib/server/services/userService';
 import { parseRequest } from '$lib/server/parseRequest';
 import { NotePatchInputSchema } from '$lib/types';
 
-export const GET: RequestHandler = async ({ locals, params }) => {
-	return await pipe(
+export const GET: RequestHandler = ({ locals, params }) => {
+	return pipe(
 		TE.Do,
 		TE.bind('user', () => getUser({ id: locals.user.id! })),
 		TE.bind('note', () => getNoteById({ id: params.id! })),
-		TE.chain(({ user, note }) => isNoteOwner({ user, note })),
+		TE.flatMap(({ user, note }) => isNoteOwner({ user, note })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => json({ message: err.message }, { status: err.status }),
