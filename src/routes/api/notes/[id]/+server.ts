@@ -32,8 +32,8 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 		),
 		TE.bind('note', () => getNoteById({ id: params.id! })),
 		TE.bind('user', () => getUser({ id: locals.user.id! })),
-		TE.chain((params) => isNoteOwner(params)),
-		TE.chain(({ noteInput, note }) => updateNote({ ...note, ...noteInput })),
+		TE.flatMap((params) => isNoteOwner(params)),
+		TE.flatMap(({ noteInput, note }) => updateNote({ ...note, ...noteInput })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => json({ message: err.message }, { status: err.status }),
@@ -47,8 +47,8 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
 		TE.Do,
 		TE.bind('note', () => getNoteById({ id: params.id! })),
 		TE.bind('user', () => getUser({ id: locals.user.id! })),
-		TE.chain((params) => isNoteOwner(params)),
-		TE.chain(({ note }) => deleteNote({ id: note.id! })),
+		TE.flatMap((params) => isNoteOwner(params)),
+		TE.flatMap(({ note }) => deleteNote({ id: note.id! })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => json({ message: err.message }, { status: err.status }),

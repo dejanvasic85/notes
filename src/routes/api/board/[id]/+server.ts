@@ -21,8 +21,8 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 			getUser({ id: locals.user.id!, includeBoards: true, includeNotes: true })
 		),
 		TE.bind('board', () => getBoard({ id: params.id! })),
-		TE.chain((params) => isBoardOwner(params)),
-		TE.chain(({ changes, board }) => updateBoard({ ...board, ...changes })),
+		TE.flatMap((params) => isBoardOwner(params)),
+		TE.flatMap(({ changes, board }) => updateBoard({ ...board, ...changes })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => json({ message: err.message }, { status: err.status }),

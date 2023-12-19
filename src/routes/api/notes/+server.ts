@@ -18,8 +18,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 			parseRequest(request, NoteCreateInputSchema, 'Unable to parse NoteCreateInputSchema')
 		),
 		TE.bind('user', () => getUser({ id: locals.user.id!, includeBoards: true })),
-		TE.chain(({ noteInput, user }) => isNoteOwner({ user, note: noteInput })),
-		TE.chain(({ note, user }) => {
+		TE.flatMap(({ noteInput, user }) => isNoteOwner({ user, note: noteInput })),
+		TE.flatMap(({ note, user }) => {
 			const boardId = note.boardId;
 			const currentBoard = user.boards.find((b) => b.id === boardId);
 			if (!currentBoard) {

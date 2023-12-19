@@ -9,7 +9,7 @@ import { withError } from '../createError';
 export const getBoard = ({ id }: IdParams): TE.TaskEither<ServerError, Board> =>
 	pipe(
 		tryDbTask(() => db.board.findUnique({ where: { id }, include: { notes: true } })),
-		TE.chain(fromNullableRecord(`Board ${id} not found`))
+		TE.flatMap(fromNullableRecord(`Board ${id} not found`))
 	);
 
 export const updateBoard = (board: Board): TE.TaskEither<ServerError, Board> => {

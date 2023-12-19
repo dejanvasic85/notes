@@ -9,7 +9,7 @@ import { fromNullableRecord, tryDbTask } from './utils';
 export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> =>
 	pipe(
 		tryDbTask(() => db.note.findUnique({ where: { id } })),
-		TE.chain(fromNullableRecord(`Note with id ${id} not found`))
+		TE.flatMap(fromNullableRecord(`Note with id ${id} not found`))
 	);
 
 export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> =>

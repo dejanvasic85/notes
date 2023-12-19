@@ -31,7 +31,7 @@ export const getUser = ({
 				}
 			})
 		),
-		TE.chain(fromNullableRecord(`User with id ${id} not found`)),
+		TE.flatMap(fromNullableRecord(`User with id ${id} not found`)),
 		TE.map((user) => ({
 			...user,
 			boards: !includeBoards
@@ -43,7 +43,7 @@ export const getUser = ({
 export const getUserByAuthId = (authId: string): TE.TaskEither<ServerError, User> =>
 	pipe(
 		tryDbTask(() => db.user.findUnique({ where: { authId } })),
-		TE.chain(fromNullableRecord(`User with authId ${authId} not found`)),
+		TE.flatMap(fromNullableRecord(`User with authId ${authId} not found`)),
 		TE.map((user) => ({
 			...user,
 			boards: []

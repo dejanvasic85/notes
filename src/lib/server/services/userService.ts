@@ -63,7 +63,7 @@ export const getOrCreateUserByAuth = ({
 			if (err._tag === 'RecordNotFound') {
 				return pipe(
 					tryFetchAuthUser({ accessToken }),
-					TE.chain((u) => createUser({ authUserProfile: u }))
+					TE.flatMap((u) => createUser({ authUserProfile: u }))
 				);
 			}
 			return TE.left(err);
