@@ -7,6 +7,7 @@
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
+	import Input from './Input.svelte';
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
 
@@ -61,11 +62,11 @@
 	$: notesOrderedFiltered = searchNotes(notes, searchQuery);
 </script>
 
-<input
+<Input
 	type="search"
 	placeholder="Search notes"
 	bind:value={searchQuery}
-	class="mx-auto block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 md:w-1/2"
+	class="mx-auto block w-full p-2.5 md:w-1/2"
 />
 
 {#if selectedNote}

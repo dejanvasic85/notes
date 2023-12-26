@@ -51,6 +51,7 @@
 		"lodash": "^4.17.21",
 		"nanoid": "^5.0.1",
 		"prisma-field-encryption": "^1.5.0",
+		"tailwind-merge": "^2.2.0",
 		"zod": "^3.22.4"
 	}
 }
