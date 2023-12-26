@@ -17,6 +17,7 @@
 	// Props
 	export let notes: NoteOrdered[];
 	export let selectedNote: NoteOrdered | undefined;
+	export let enableSharing: boolean = false;
 	let searchQuery: string;
 
 	// Events
@@ -71,6 +72,7 @@
 	<NoteEditor
 		bind:showModal
 		note={selectedNote}
+		{enableSharing}
 		on:close={handleModalClose}
 		on:saveNote={handleSave}
 		on:deleteNote

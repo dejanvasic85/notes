@@ -156,6 +156,7 @@
 {:else}
 	<Board
 		notes={localNotes}
+		enableSharing={true}
 		on:createNote={handleCreate}
 		on:closeNote={handleClose}
 		on:select={handleSelect}
