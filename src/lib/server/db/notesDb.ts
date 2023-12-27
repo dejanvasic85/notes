@@ -3,7 +3,7 @@ import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/server/db';
 import { withError } from '$lib/server/createError';
-import type { ServerError, Note, IdParams } from '$lib/types';
+import type { ServerError, Note, IdParams, NoteCreateInput } from '$lib/types';
 import { fromNullableRecord, tryDbTask } from './utils';
 
 export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> =>
@@ -32,4 +32,16 @@ export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, N
 			});
 		},
 		withError('DatabaseError', 'Failed to delete note')
+	);
+
+export const createNote = (noteInput: NoteCreateInput): TE.TaskEither<ServerError, Note> =>
+	TE.tryCatch(
+		() => {
+			return db.note.create({
+				data: {
+					...noteInput
+				}
+			});
+		},
+		withError('DatabaseError', 'Failed to create note')
 	);
