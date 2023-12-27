@@ -5,7 +5,7 @@ import { taskEither as TE } from 'fp-ts/lib';
 
 import { updateBoard } from '$lib/server/db/boardDb';
 import { getUser } from '$lib/server/db/userDb';
-
+import { createNote } from '$lib/server/db/notesDb';
 import { isNoteOwner } from '$lib/server/services/userService';
 import { parseRequest } from '$lib/server/parseRequest';
 import { mapToApiError } from '$lib/server/mapApi';
@@ -26,15 +26,19 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 			if (!currentBoard) {
 				return TE.left(createError('RecordNotFound', `Board ${boardId} not found`));
 			}
-			return pipe(
+			return TE.right({ note, user, currentBoard });
+		}),
+		TE.flatMap(({ currentBoard, note, user }) =>
+			pipe(
 				updateBoard({ ...currentBoard, noteOrder: [...currentBoard.noteOrder, note.id!] }),
 				TE.map(() => ({ note, user }))
-			);
-		}),
+			)
+		),
+		TE.flatMap(({ note }) => createNote({ ...note, boardId: note.boardId! })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(error) => json(error, { status: error.status }),
-			({ note }) => json(note, { status: 201 })
+			(note) => json(note, { status: 201 })
 		)
 	)();
 };

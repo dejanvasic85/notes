@@ -3,14 +3,16 @@ import { describe, it, vi, type MockedFunction, beforeEach, expect } from 'vites
 import { taskEither as TE } from 'fp-ts';
 
 import { updateBoard } from '$lib/server/db/boardDb';
+import { createNote } from '$lib/server/db/notesDb';
 import { getUser } from '$lib/server/db/userDb';
 import type { NoteCreateInput } from '$lib/types';
 
 import { POST } from './+server';
 import { createError } from '$lib/server/createError';
 
-vi.mock('$lib/server/db/userDb');
 vi.mock('$lib/server/db/boardDb');
+vi.mock('$lib/server/db/notesDb');
+vi.mock('$lib/server/db/userDb');
 
 const mockNoteInput: NoteCreateInput = {
 	boardId: 'board_123',
@@ -22,6 +24,7 @@ const mockNoteInput: NoteCreateInput = {
 
 const mockGetUser = getUser as MockedFunction<typeof getUser>;
 const mockUpdateBoard = updateBoard as MockedFunction<typeof updateBoard>;
+const mockCreateNote = createNote as MockedFunction<typeof createNote>;
 
 describe('POST', () => {
 	beforeEach(() => {
@@ -29,6 +32,7 @@ describe('POST', () => {
 			TE.right({ id: 'uid_hello', boards: [{ id: 'board_123', noteOrder: [] }] } as any)
 		);
 		mockUpdateBoard.mockReturnValue(TE.right({} as any));
+		mockCreateNote.mockReturnValue(TE.right(mockNoteInput));
 	});
 
 	it('should return 201 when note is created successfully', async () => {
@@ -50,6 +54,9 @@ describe('POST', () => {
 			text: 'This is a note',
 			textPlain: 'This is a note'
 		});
+
+		expect(createNote).toHaveBeenCalled();
+
 		expect(updateBoard).toHaveBeenCalledWith({
 			id: 'board_123',
 			noteOrder: ['note_123']
