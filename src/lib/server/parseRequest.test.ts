@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { NoteCreateInput } from '$lib/types';
-import { NoteCreateInputSchema } from '$lib/types';
+import type { Note } from '$lib/types';
+import { NoteSchema } from '$lib/types';
 
 import { parseRequest } from './parseRequest';
 
 describe('parseRequest', () => {
 	it('should return a NoteCreateInput when parsing succeeds', async () => {
-		const noteCreateInput: NoteCreateInput = {
+		const noteCreateInput: Note = {
 			boardId: 'boardId',
 			colour: 'colour',
 			id: 'id',
@@ -21,7 +21,7 @@ describe('parseRequest', () => {
 
 		const result = await parseRequest(
 			req as any,
-			NoteCreateInputSchema,
+			NoteSchema,
 			'Unable to parse note create input'
 		)();
 
@@ -39,7 +39,7 @@ describe('parseRequest', () => {
 
 		const result = await parseRequest(
 			req as any,
-			NoteCreateInputSchema,
+			NoteSchema,
 			'Unable to parse note create input'
 		)();
 
@@ -53,7 +53,7 @@ describe('parseRequest', () => {
 
 		const result = await parseRequest(
 			req as any,
-			NoteCreateInputSchema,
+			NoteSchema,
 			'Unable to parse note create input'
 		)();
 

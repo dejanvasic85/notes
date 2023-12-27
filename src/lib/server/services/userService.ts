@@ -23,8 +23,8 @@ export const isBoardOwner = <T extends IsBoardOwnerParams>({
 		  );
 
 interface IsNoteOwnerParams {
-	user: User;
 	note: Note;
+	user: User;
 }
 
 export const isNoteOwner = <T extends IsNoteOwnerParams>({
@@ -69,3 +69,18 @@ export const getOrCreateUserByAuth = ({
 			return TE.left(err);
 		})
 	);
+
+export const getCurrentBoardForUserNote = ({
+	note,
+	user
+}: {
+	note: Note;
+	user: User;
+}): TE.TaskEither<ServerError, { note: Note; user: User; board: Board }> => {
+	const boardId = note.boardId;
+	const board = user.boards.find((b) => b.id === boardId);
+	if (!board) {
+		return TE.left(createError('RecordNotFound', `Board ${boardId} not found`));
+	}
+	return TE.right({ note, user, board });
+};

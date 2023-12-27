@@ -5,16 +5,16 @@ import { taskEither as TE } from 'fp-ts';
 import { updateBoard } from '$lib/server/db/boardDb';
 import { createNote } from '$lib/server/db/notesDb';
 import { getUser } from '$lib/server/db/userDb';
-import type { NoteCreateInput } from '$lib/types';
+import { createError } from '$lib/server/createError';
+import type { Note } from '$lib/types';
 
 import { POST } from './+server';
-import { createError } from '$lib/server/createError';
 
 vi.mock('$lib/server/db/boardDb');
 vi.mock('$lib/server/db/notesDb');
 vi.mock('$lib/server/db/userDb');
 
-const mockNoteInput: NoteCreateInput = {
+const mockNoteInput: Note = {
 	boardId: 'board_123',
 	text: 'This is a note',
 	textPlain: 'This is a note',
@@ -75,7 +75,7 @@ describe('POST', () => {
 
 		expect(resp.status).toBe(400);
 		const data = await resp.json();
-		expect(data).toEqual({ message: 'Unable to parse NoteCreateInputSchema', status: 400 });
+		expect(data).toEqual({ message: 'Unable to parse Note', status: 400 });
 	});
 
 	it('should return a 403 when the user is not the owner of the note', async () => {

@@ -3,7 +3,7 @@ import z from 'zod';
 export type { Colour } from '$lib/colours';
 
 export const EntitySchema = z.object({
-	id: z.string().optional(),
+	id: z.string(),
 	createdAt: z.date().optional(),
 	updatedAt: z.date().optional()
 });
@@ -69,16 +69,6 @@ export const AuthUserProfileSchema = z.object({
 });
 
 export type AuthUserProfile = z.infer<typeof AuthUserProfileSchema>;
-
-export const NoteCreateInputSchema = z.object({
-	id: z.string(),
-	boardId: z.string(),
-	colour: z.string().nullable(),
-	text: z.string(),
-	textPlain: z.string()
-});
-
-export type NoteCreateInput = z.infer<typeof NoteCreateInputSchema>;
 
 interface BaseError {
 	readonly message: string;

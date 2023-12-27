@@ -3,13 +3,15 @@ import { taskEither as TE } from 'fp-ts';
 
 import { getNoteById, updateNote, deleteNote } from '$lib/server/db/notesDb';
 import { getUser } from '$lib/server/db/userDb';
-import { isNoteOwner } from '$lib/server/services/userService';
+import { updateBoard } from '$lib/server/db/boardDb';
+import { isNoteOwner, getCurrentBoardForUserNote } from '$lib/server/services/userService';
 import type { AuthorizationError, NotePatchInput } from '$lib/types';
 
 import { GET, PATCH, DELETE } from './+server';
 
 vi.mock('$lib/server/db/notesDb');
 vi.mock('$lib/server/db/userDb');
+vi.mock('$lib/server/db/boardDb');
 vi.mock('$lib/server/services/userService');
 
 const mockGetUser = getUser as MockedFunction<typeof getUser>;
@@ -17,6 +19,10 @@ const mockGetNoteById = getNoteById as MockedFunction<typeof getNoteById>;
 const mockDeleteNote = deleteNote as MockedFunction<typeof deleteNote>;
 const mockUpdateNote = updateNote as MockedFunction<typeof updateNote>;
 const mockIsNoteOwner = isNoteOwner as MockedFunction<typeof isNoteOwner>;
+const mockUpdateBoard = updateBoard as MockedFunction<typeof updateBoard>;
+const mockGetCurrentBoardForUserNote = getCurrentBoardForUserNote as MockedFunction<
+	typeof getCurrentBoardForUserNote
+>;
 
 const mockNote = {
 	id: 'nid_123',
@@ -27,7 +33,7 @@ const mockNote = {
 const mockUser = {
 	id: 'uid_123',
 	username: 'testuser',
-	boards: [{ id: 'bid_123', name: 'Test board', ownerId: 'uid_123' }]
+	boards: [{ id: 'bid_123', name: 'Test board', ownerId: 'uid_123', noteOrder: [] }]
 };
 
 describe('GET', () => {
@@ -137,10 +143,20 @@ describe('PATCH', () => {
 describe('DELETE', () => {
 	it('should return 204 and call the repository to delete the note successfully', async () => {
 		const locals = { user: { id: 'uid_123' } };
-		mockGetUser.mockReturnValue(TE.right(mockUser) as any);
+		const mockBoard = { ...mockUser.boards[0], noteOrder: [mockNote.id] };
+		mockGetUser.mockReturnValue(
+			TE.right({
+				...mockUser,
+				boards: [mockBoard]
+			}) as any
+		);
 		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
 		mockIsNoteOwner.mockReturnValue(TE.right({ user: mockUser, note: mockNote }) as any);
 		mockDeleteNote.mockReturnValue(TE.right(mockNote) as any);
+		mockGetCurrentBoardForUserNote.mockReturnValue(
+			TE.right({ user: mockUser, note: mockNote, board: mockBoard } as any)
+		);
+		mockUpdateBoard.mockReturnValue(TE.right({} as any));
 
 		const result = await DELETE({
 			locals,
@@ -148,6 +164,7 @@ describe('DELETE', () => {
 		} as any);
 
 		expect(mockIsNoteOwner).toHaveBeenCalledWith({ user: mockUser, note: mockNote });
+		expect(mockUpdateBoard).toHaveBeenCalled();
 		expect(result.status).toBe(204);
 	});
 });
