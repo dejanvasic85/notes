@@ -12,15 +12,16 @@ datasource db {
 }
 
 model User {
-  id            String   @id
-  createdAt     DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
-  authId        String   @unique
-  email         String   @unique
-  emailVerified Boolean
-  name          String?
-  picture       String?
-  boards        Board[]
+  id                String             @id
+  createdAt         DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime           @updatedAt @db.Timestamptz(6)
+  authId            String             @unique
+  email             String             @unique
+  emailVerified     Boolean
+  name              String?
+  picture           String?
+  boards            Board[]
+  noteCollaborators NoteCollaborator[]
 }
 
 model Board {
@@ -43,20 +44,21 @@ model Note {
   colour            String?
   boardId           String
   board             Board              @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  noteAccess        NoteAccess[]
-  noteAccessInvites NoteAccessInvite[]
+  noteCollaborators NoteCollaborator[]
+  noteInvites       NoteInvite[]
 }
 
-model NoteAccess {
+model NoteCollaborator {
   id        String   @id
   noteId    String
   userId    String
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
   note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model NoteAccessInvite {
+model NoteInvite {
   id        String   @id
   noteId    String
   email     String
