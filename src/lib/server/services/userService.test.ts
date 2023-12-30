@@ -2,12 +2,12 @@ import { taskEither as TE } from 'fp-ts';
 import { describe, expect, it, vi, type MockedFunction, beforeEach } from 'vitest';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
-import { createUser, getUserByAuthId } from '$lib/db/userDb';
+import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
 import type { DatabaseError, RecordNotFoundError } from '$lib/types';
 
 import { getOrCreateUserByAuth, isNoteOwner } from './userService';
 
-vi.mock('$lib/db/userDb');
+vi.mock('$lib/server/db/userDb');
 vi.mock('$lib/auth/fetchUser');
 
 const mockGetUserByAuthId = getUserByAuthId as MockedFunction<typeof getUserByAuthId>;
@@ -35,14 +35,14 @@ describe('getOrCreateUserByAuth', () => {
 	describe('when the database is not available', () => {
 		const databaseError: DatabaseError = {
 			_tag: 'DatabaseError',
-			message: 'Database error',
+			message: 'Unexpted database error occurred',
 			originalError: new Error('')
 		};
 		beforeEach(() => {
 			mockGetUserByAuthId.mockReturnValue(TE.left(databaseError));
 		});
 
-		it('should return database error and not fetch user from Auth0 when the get user fails', async () => {
+		it('should return Unexpted database error occurred and not fetch user from Auth0 when the get user fails', async () => {
 			const result = await getOrCreateUserByAuth({ accessToken, authId })();
 
 			expect(result).toBeLeftStrictEqual(databaseError);
@@ -88,10 +88,10 @@ describe('getOrCreateUserByAuth', () => {
 			});
 		});
 
-		it('should return a database error when the create user fails', async () => {
+		it('should return a Unexpted database error occurred when the create user fails', async () => {
 			const databaseError: DatabaseError = {
 				_tag: 'DatabaseError',
-				message: 'Database error',
+				message: 'Unexpted database error occurred',
 				originalError: new Error('')
 			};
 
@@ -109,12 +109,14 @@ describe('getOrCreateUserByAuth', () => {
 });
 
 describe('isNoteOwner', () => {
-	it('should return', async () => {
-		const result = await isNoteOwner({
+	it('should return the same argument provided when the ', async () => {
+		const param = {
 			note: { id: 'note_123', boardId: 'bid_999' },
-			user: { id: 'user_123', boards: [{ id: 'bid_999' }] }
-		} as any)();
+			user: { id: 'user_123', boards: [{ id: 'bid_999' }] },
+			randomProperty: '1'
+		};
+		const result = await isNoteOwner(param as any)();
 
-		expect(result).toBeRightStrictEqual({ id: 'note_123', boardId: 'bid_999' });
+		expect(result).toBeRightStrictEqual(param);
 	});
 });

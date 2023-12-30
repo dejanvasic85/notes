@@ -1,13 +1,14 @@
 import { describe, it, expect, vi, type Mocked, beforeEach } from 'vitest';
 
-import db from '$lib/db';
+import db from '$lib/server/db';
 
-import { getNoteById } from './notesDb';
+import { getNoteById, createNote } from './notesDb';
 
-vi.mock('$lib/db', () => ({
+vi.mock('$lib/server/db', () => ({
 	default: {
 		note: {
-			findUnique: vi.fn()
+			findUnique: vi.fn(),
+			create: vi.fn()
 		}
 	}
 }));
@@ -49,7 +50,49 @@ describe('getNoteById', () => {
 
 		expect(result).toBeLeftStrictEqual({
 			_tag: 'DatabaseError',
-			message: 'Database error',
+			message: 'Unexpted database error occurred',
+			originalError: new Error('db error')
+		});
+	});
+});
+
+describe('createNote', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('should return a note when it is created', async () => {
+		dbNoteMock.create.mockResolvedValue({
+			id: 'nid_123'
+		} as any);
+
+		const result = await createNote({
+			id: 'nid_123',
+			boardId: 'bid_123',
+			text: 'foo',
+			textPlain: 'foo',
+			colour: null
+		})();
+
+		expect(result).toBeRightStrictEqual({
+			id: 'nid_123'
+		});
+	});
+
+	it('should return DatabaseError when the db throws an error', async () => {
+		dbNoteMock.create.mockRejectedValue(new Error('db error'));
+
+		const result = await createNote({
+			id: 'nid_123',
+			boardId: 'bid_123',
+			text: 'foo',
+			textPlain: 'foo',
+			colour: null
+		})();
+
+		expect(result).toBeLeftStrictEqual({
+			_tag: 'DatabaseError',
+			message: 'Failed to create note',
 			originalError: new Error('db error')
 		});
 	});

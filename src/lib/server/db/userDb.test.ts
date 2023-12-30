@@ -1,9 +1,9 @@
 import { describe, it, vi, type Mocked, expect, beforeEach } from 'vitest';
-import db from '$lib/db';
+import db from '$lib/server/db';
 
 import { getUser, getUserByAuthId, createUser } from './userDb';
 
-vi.mock('$lib/db', () => ({
+vi.mock('$lib/server/db', () => ({
 	default: {
 		user: {
 			findUnique: vi.fn(),
@@ -85,7 +85,7 @@ describe('getUser', () => {
 		const result = await getUser({ id: 'uid_123' })();
 		expect(result).toBeLeftStrictEqual({
 			_tag: 'DatabaseError',
-			message: 'Database error',
+			message: 'Unexpted database error occurred',
 			originalError: new Error('Something went wrong')
 		});
 	});
@@ -133,7 +133,7 @@ describe('getUserByAuthId', () => {
 		const result = await getUserByAuthId('auth_123')();
 		expect(result).toBeLeftStrictEqual({
 			_tag: 'DatabaseError',
-			message: 'Database error',
+			message: 'Unexpted database error occurred',
 			originalError: new Error('Something went wrong')
 		});
 	});
@@ -189,7 +189,7 @@ describe('createUser', () => {
 
 		expect(result).toBeLeftStrictEqual({
 			_tag: 'DatabaseError',
-			message: 'Database error',
+			message: 'Unexpted database error occurred',
 			originalError: new Error('Something went wrong')
 		});
 	});

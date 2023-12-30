@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { NoteCreateInput } from '$lib/types';
-import { NoteCreateInputSchema } from '$lib/types';
+import type { Note } from '$lib/types';
+import { NoteSchema } from '$lib/types';
 
-import { validateRequest } from './validateRequest';
+import { parseRequest } from './parseRequest';
 
-describe('validateRequest', () => {
+describe('parseRequest', () => {
 	it('should return a NoteCreateInput when parsing succeeds', async () => {
-		const noteCreateInput: NoteCreateInput = {
+		const noteCreateInput: Note = {
 			boardId: 'boardId',
 			colour: 'colour',
 			id: 'id',
@@ -19,7 +19,11 @@ describe('validateRequest', () => {
 			json: vi.fn().mockResolvedValue(noteCreateInput)
 		};
 
-		const result = await validateRequest(req as any, NoteCreateInputSchema)();
+		const result = await parseRequest(
+			req as any,
+			NoteSchema,
+			'Unable to parse note create input'
+		)();
 
 		expect(result).toBeRightStrictEqual(noteCreateInput);
 	});
@@ -33,7 +37,11 @@ describe('validateRequest', () => {
 			json: vi.fn().mockResolvedValue(noteCreateInput)
 		};
 
-		const result = await validateRequest(req as any, NoteCreateInputSchema)();
+		const result = await parseRequest(
+			req as any,
+			NoteSchema,
+			'Unable to parse note create input'
+		)();
 
 		expect(result).toBeLeft('ValidationError');
 	});
@@ -43,7 +51,11 @@ describe('validateRequest', () => {
 			json: vi.fn().mockRejectedValue('boom')
 		};
 
-		const result = await validateRequest(req as any, NoteCreateInputSchema)();
+		const result = await parseRequest(
+			req as any,
+			NoteSchema,
+			'Unable to parse note create input'
+		)();
 
 		expect(result).toBeLeft('ValidationError');
 	});

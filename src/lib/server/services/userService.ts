@@ -1,36 +1,39 @@
-import { either as E, taskEither as TE } from 'fp-ts';
+import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
-import db from '$lib/db';
-import { createUser, getUserByAuthId } from '$lib/db/userDb';
-import { createError } from '$lib/server/createError';
-import type { ApiError, AuthUserProfile, FetchError, Note, ServerError, User } from '$lib/types';
-
-export function isBoardOwner(user: User, boardId: string): boolean {
-	return user.boards.some((board) => board.id === boardId);
-}
+import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
+import { createError, withError } from '$lib/server/createError';
+import type { AuthUserProfile, Board, Note, ServerError, User } from '$lib/types';
 
 interface IsBoardOwnerParams {
 	user: User;
-	note: Note;
+	board: Board;
 }
 
-export const isBoardOwnerApiTask = ({
+export const isBoardOwner = <T extends IsBoardOwnerParams>({
 	user,
-	note
-}: IsBoardOwnerParams): E.Either<ApiError, Note> => {
-	return isBoardOwner(user, note.boardId!)
-		? E.right(note)
-		: E.left({ status: 403, message: 'Unauthorized' });
-};
+	board,
+	...rest
+}: T): TE.TaskEither<ServerError, T> =>
+	user.boards.some((b) => b.id === board.id)
+		? TE.right({ user, board, ...rest } as T)
+		: TE.left(
+				createError('AuthorizationError', `User ${user.id} is not the owner of board ${board.id}`)
+		  );
 
-export const isNoteOwner = ({
+interface IsNoteOwnerParams {
+	note: Note;
+	user: User;
+}
+
+export const isNoteOwner = <T extends IsNoteOwnerParams>({
 	note,
-	user
-}: IsBoardOwnerParams): TE.TaskEither<ServerError, Note> =>
+	user,
+	...rest
+}: T): TE.TaskEither<ServerError, T> =>
 	user.boards.some((board) => board.id === note.boardId)
-		? TE.right(note)
+		? TE.right({ note, user, ...rest } as T)
 		: TE.left(
 				createError('AuthorizationError', `User ${user.id} is not the owner of note ${note.id}`)
 		  );
@@ -42,14 +45,7 @@ const tryFetchAuthUser = ({
 }): TE.TaskEither<ServerError, AuthUserProfile> =>
 	TE.tryCatch(
 		() => fetchAuthUser({ accessToken }),
-		(reason) => {
-			const fetchError: FetchError = {
-				_tag: 'FetchError',
-				message: `Failed to fetch user with access token`,
-				originalError: reason
-			};
-			return fetchError;
-		}
+		withError('FetchError', 'Failed to fetch user with access token')
 	);
 
 interface GetOrCreateParams {
@@ -67,30 +63,24 @@ export const getOrCreateUserByAuth = ({
 			if (err._tag === 'RecordNotFound') {
 				return pipe(
 					tryFetchAuthUser({ accessToken }),
-					TE.chain((u) => createUser({ authUserProfile: u }))
+					TE.flatMap((u) => createUser({ authUserProfile: u }))
 				);
 			}
 			return TE.left(err);
 		})
 	);
 
-// Deprecate this method in favour of userDb
-export async function getUserById(id: string, { boards = true, notes = true } = {}): Promise<User> {
-	const user = await db.user.findUniqueOrThrow({
-		where: { id },
-		include: {
-			boards: {
-				include: {
-					notes
-				}
-			}
-		}
-	});
-
-	return {
-		...user,
-		boards: boards
-			? user.boards.map((board) => ({ ...board, notes: notes ? board.notes : [] }))
-			: []
-	};
-}
+export const getCurrentBoardForUserNote = ({
+	note,
+	user
+}: {
+	note: Note;
+	user: User;
+}): TE.TaskEither<ServerError, { note: Note; user: User; board: Board }> => {
+	const boardId = note.boardId;
+	const board = user.boards.find((b) => b.id === boardId);
+	if (!board) {
+		return TE.left(createError('RecordNotFound', `Board ${boardId} not found`));
+	}
+	return TE.right({ note, user, board });
+};

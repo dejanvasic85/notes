@@ -29,16 +29,17 @@
 			<li class="block text-gray-800">
 				<button
 					aria-label="No colour"
-					class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200"
+					class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200 dark:bg-slate-800"
 					on:click={() => handleColourClick(null)}
 				>
-					<Icon icon="cross" size={30} />
+					<Icon icon="cross" size={30} title="No colour" />
 				</button>
 			</li>
 			{#each colours as { cssClass, name }}
 				<li class="block text-gray-800">
 					<button
 						aria-label={name}
+						title={name}
 						class="h-12 w-12 rounded-full border-2 border-slate-400 dark:border dark:border-slate-200 {cssClass}"
 						on:click={() => handleColourClick(name)}
 					/>

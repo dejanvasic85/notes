@@ -8,8 +8,10 @@
 	import ColourPicker from './ColourPicker.svelte';
 	import Icon from './Icon.svelte';
 	import Modal from './Modal.svelte';
+	import Share from './Share.svelte';
 
 	// Props
+	export let enableSharing: boolean = false;
 	export let note: NoteOrdered;
 	export let showModal: boolean = false;
 
@@ -90,7 +92,7 @@
 </script>
 
 <Modal bind:show={showModal} on:close on:open={handleModalOpen} {className}>
-	<div slot="header">
+	<div slot="header" class="px-2 pt-2">
 		<div class="flex justify-between">
 			<div class="flex-1">
 				<Button variant="ghost" on:click={() => dispatch('close')}>
@@ -117,9 +119,14 @@
 		on:paste={handlePaste}
 	/>
 
-	<div slot="footer" class="flex justify-end">
-		<Button on:click={handleSave}>
-			<Icon icon="check" size={32} title="Save note" />
-		</Button>
+	<div slot="footer">
+		<div class="flex justify-between px-2 pb-2">
+			{#if enableSharing}
+				<Share collaborators={[]} />
+			{/if}
+			<Button on:click={handleSave}>
+				<Icon icon="check" size={32} title="Save note" />
+			</Button>
+		</div>
 	</div>
 </Modal>

@@ -2,20 +2,21 @@ import { taskEither as TE } from 'fp-ts';
 
 import type { ServerError } from '$lib/types';
 
-import { createFromError } from './createError';
+import { withError } from './createError';
 
 interface Parser<T> {
 	parse: (json: any) => T;
 }
 
-export const validateRequest = <T>(
+export const parseRequest = <T>(
 	request: Request,
-	parser: Parser<T>
+	parser: Parser<T>,
+	errorMessage: string
 ): TE.TaskEither<ServerError, T> =>
 	TE.tryCatch(
 		async () => {
 			const json = await request.json();
 			return parser.parse(json);
 		},
-		createFromError('ValidationError', 'Invalid note input')
+		withError('ValidationError', errorMessage)
 	);

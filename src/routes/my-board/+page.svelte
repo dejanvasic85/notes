@@ -148,7 +148,7 @@
 
 <svelte:head>
 	<title>My board with some notes on it</title>
-	<meta name="description" content="My personal whiteboard with secure post-it notes" />
+	<meta name="description" content="My personal whiteboard with secure notes" />
 </svelte:head>
 
 {#if loading}
@@ -156,6 +156,7 @@
 {:else}
 	<Board
 		notes={localNotes}
+		enableSharing={true}
 		on:createNote={handleCreate}
 		on:closeNote={handleClose}
 		on:select={handleSelect}
