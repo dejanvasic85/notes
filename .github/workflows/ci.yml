@@ -57,7 +57,7 @@ jobs:
     needs: [build, test]
     environment:
       name: Preview
-      url: ${{ env.PREVIEW_DOMAIN }}
+      url: https://${{ env.PREVIEW_DOMAIN }}
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
     steps:

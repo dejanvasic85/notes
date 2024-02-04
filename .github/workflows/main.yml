@@ -1,6 +1,7 @@
 name: Deploy prod
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  PRODUCTION_DOMAIN: notes.dejanvasic.me
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -10,7 +11,11 @@ on:
     branches:
       - main
 jobs:
-  Deploy-Production:
+  deploy_production:
+    name: Production deploy
+    environment:
+      name: production
+      url: https://${{ env.PRODUCTION_DOMAIN }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
