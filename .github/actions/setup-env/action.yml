@@ -18,11 +18,16 @@ runs:
     - name: Pull Environment variables from Vercel
       run: |
         vercel pull --yes --environment=${{ inputs.environment-name }} --token=${{ inputs.vercel-token }}
-        echo $DATABASE_URL
+      shell: bash
+    - name: Set ENV variables from .env.preview.local
+      run: |
+        cat .vercel/.env.${{ inputs.environment-name }}.local
+        cat .vercel/.env.${{ inputs.environment-name }}.local >> $GITHUB_ENV
       shell: bash
     - name: Set build environment variables
       id: set-build-number
       run: |
+        echo DB $DATABASE_URL
         echo "PUBLIC_BUILD=${{ github.ref_name }} - ${{ github.run_number }}" >> $GITHUB_ENV
         echo "PUBLIC_AUTH0_CLIENT_ID=GLHJJUCeLrnWqcYZ0tf9uTpmIwXjmLjP" >> $GITHUB_ENV
         echo "PUBLIC_AUTH0_DOMAIN=dejanvasic.au.auth0.com" >> $GITHUB_ENV
