@@ -28,9 +28,10 @@ jobs:
       - name: Run Svelte-Check
         run: npm run check
       - name: Run unit tests
+        env:
+          PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
         run: |
-          echo PRISMA IS: $PRISMA_FIELD_ENCRYPTION_KEY
-          # npm run test:unit
+          npm run test:unit
   test:
     name: Test Playwright
     timeout-minutes: 60
@@ -49,6 +50,8 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
+        env:
+          STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
         run: npx playwright test
       - uses: actions/upload-artifact@v3
         if: always()
