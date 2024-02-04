@@ -12,6 +12,8 @@ jobs:
   build:
     name: Check and test
     runs-on: ubuntu-latest
+    env:
+      PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-env
