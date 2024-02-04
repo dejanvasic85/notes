@@ -8,14 +8,7 @@
 	import { MaybeType, tryFetch } from '$lib/fetch';
 	import { generateId } from '$lib/identityGenerator';
 	import { getOrderedNotes, reorderNotes, updateNote } from '$lib/notes';
-	import type {
-		BoardPatch,
-		NoteCreateInput,
-		NotePatchInput,
-		Note,
-		NoteOrdered,
-		User
-	} from '$lib/types';
+	import type { BoardPatch, NotePatchInput, Note, NoteOrdered, User } from '$lib/types';
 
 	const auth = withAuth();
 	const { getToken } = auth;
@@ -49,7 +42,7 @@
 
 	async function handleCreate() {
 		const id = generateId('nid');
-		const newNote: NoteCreateInput = { id, text: '', textPlain: '', boardId, colour: null };
+		const newNote: Note = { id, text: '', textPlain: '', boardId, colour: null };
 		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
 		localNoteOrder = [...localNoteOrder, id];
 

@@ -14,7 +14,7 @@
 	onMount(() => {
 		const id = generateId('nid');
 		localBoard.update(() => ({
-			boardId: generateId('bid'),
+			id: generateId('bid'),
 			userId: '',
 			noteOrder: [id],
 			notes: [

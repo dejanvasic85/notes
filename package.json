@@ -8,10 +8,12 @@
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"test": "vitest run && npm run check",
 		"test:unit": "vitest",
 		"test:playwright": "playwright test",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
-		"format": "prettier --plugin-search-dir . --write ."
+		"format": "prettier --plugin-search-dir . --write .",
+		"prepare": "husky"
 	},
 	"devDependencies": {
 		"@fontsource/fira-mono": "^5.0.8",
@@ -28,6 +30,7 @@
 		"eslint": "^8.53.0",
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-svelte": "^2.34.1",
+		"husky": "^9.0.7",
 		"postcss": "^8.4.28",
 		"prettier": "^3.0.2",
 		"prettier-plugin-svelte": "^3.0.3",

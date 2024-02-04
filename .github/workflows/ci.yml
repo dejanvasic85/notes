@@ -1,7 +1,10 @@
 name: CI
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  PREVIEW_DOMAIN: notes-dev.dejanvasic.me
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
   workflow_dispatch:
   push:
@@ -9,6 +12,7 @@ on:
       - main
 jobs:
   build:
+    name: Check and test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,3 +28,50 @@ jobs:
         run: npm run check
       - name: Run unit tests
         run: npm run test:unit
+  test:
+    name: Test Playwright
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-env
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npx playwright test
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  deploy_preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    environment:
+      name: Preview
+      url: ${{ env.PREVIEW_DOMAIN }}
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-env
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy
+        id: deploy
+        run: |
+          url="$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
+          vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "$url" ${{ env.PREVIEW_DOMAIN }}
+          echo "deployment_url=$url" >> $GITHUB_ENV
