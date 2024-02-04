@@ -21,8 +21,23 @@ runs:
       shell: bash
     - name: Set ENV variables from .env.preview.local
       run: |
+        ENV_FILE=".vercel/.env.${{ inputs.environment-name }}.local"
+        if [ -f "$ENV_FILE" ]; then
+          while IFS= read -r line; do
+            # Ignore comments and empty lines
+            if [[ "$line" =~ ^\s*# || "$line" =~ ^\s*$ ]]; then
+              continue
+            fi
+
+            # Parse the line and set the environment variable
+            echo "$line" >> "$GITHUB_ENV"
+          done < "$ENV_FILE"
+
+          echo "Environment variables set successfully."
+        else
+          echo "File not found: $ENV_FILE"
+        fi
         cat .vercel/.env.${{ inputs.environment-name }}.local
-        cat .vercel/.env.${{ inputs.environment-name }}.local >> $GITHUB_ENV
       shell: bash
     - name: Set build environment variables
       id: set-build-number
