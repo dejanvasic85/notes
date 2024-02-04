@@ -1,9 +1,28 @@
 name: 'Setup env'
 description: 'Sets the default environment variables'
+inputs:
+  environment-name:
+    description: 'The name of the environment'
+    required: true
+    default: 'Preview'
+  vercel-token:
+    description: 'The Vercel token'
+    required: true
 runs:
   using: 'composite'
   steps:
-    - run: |
+    - name: Install Vercel CLI
+      id: install-vercel
+      run: npm install --global vercel@latest
+      shell: bash
+    - name: Pull Environment variables from Vercel
+      run: |
+        vercel pull --yes --environment=${{ inputs.environment-name }} --token=${{ inputs.vercel-token }}
+        echo $DATABASE_URL
+      shell: bash
+    - name:
+      id: Set build environment variable
+      run: |
         echo "PUBLIC_BUILD=${{ github.ref_name }} - ${{ github.run_number }}" >> $GITHUB_ENV
         echo "PUBLIC_AUTH0_CLIENT_ID=GLHJJUCeLrnWqcYZ0tf9uTpmIwXjmLjP" >> $GITHUB_ENV
         echo "PUBLIC_AUTH0_DOMAIN=dejanvasic.au.auth0.com" >> $GITHUB_ENV
