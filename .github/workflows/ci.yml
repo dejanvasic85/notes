@@ -52,6 +52,7 @@ jobs:
       - name: Run Playwright tests
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
         run: npx playwright test
       - uses: actions/upload-artifact@v3
         if: always()
