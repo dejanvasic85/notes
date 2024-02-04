@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-env
         with:
-          environment-name: Preview
+          environment-name: preview
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
       - uses: actions/setup-node@v4
         with:
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-env
         with:
-          environment-name: Preview
+          environment-name: preview
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
       - uses: actions/setup-node@v4
         with:
@@ -61,7 +61,7 @@ jobs:
     needs: [build, test]
     concurrency: preview_deploy
     environment:
-      name: Preview
+      name: preview
       url: https://${{ env.PREVIEW_DOMAIN }}
     steps:
       - uses: actions/checkout@v4
