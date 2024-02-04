@@ -50,8 +50,10 @@ jobs:
 
   deploy_dev:
     runs-on: ubuntu-latest
+    needs: [build, test]
     environment:
       name: dev
+      url: ${{ steps.deployment_status.outputs.deployment_url }}
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
     steps:
@@ -64,8 +66,9 @@ jobs:
       - name: Build Project Artifacts
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy
-        id: deploy
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deployment.txt
+      - name: Deployment url
+        id: deployment_status
         run: |
-          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > deployment_url.txt
-      - name: Print the deployment URL
-        run: cat deployment_url.txt
+          value=$(cat deployment.txt)
+          echo "deployment_url=${value}" >> "$GITHUB_OUTPUT"
