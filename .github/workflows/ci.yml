@@ -1,7 +1,7 @@
 name: CI
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  PREVIEW_URL: https://notes-dev.dejanvasic.me/
+  PREVIEW_DOMAIN: notes-dev.dejanvasic.me
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -57,7 +57,7 @@ jobs:
     needs: [build, test]
     environment:
       name: Preview
-      url: ${{ env.PREVIEW_URL }}
+      url: ${{ env.PREVIEW_DOMAIN }}
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
     steps:
@@ -73,4 +73,4 @@ jobs:
         id: deploy
         run: |
           url="$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
-          vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "$url" ${{ env.PREVIEW_URL }}
+          vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "$url" ${{ env.PREVIEW_DOMAIN }}
