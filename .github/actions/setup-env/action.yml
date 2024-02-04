@@ -7,7 +7,7 @@ runs:
       id: set-build-number
       run: |
         echo "PUBLIC_BUILD=${{ github.ref_name }}-${{ github.run_number }}" >> $GITHUB_ENV
-        echo "PUBLIC_AUTH0_CLIENT_ID=GLHJJUCeLrnWqcYZ0tf9uTpmIwXjmLjP" >> $GITHUB_ENV
-        echo "PUBLIC_AUTH0_DOMAIN=dejanvasic.au.auth0.com" >> $GITHUB_ENV
-        echo "PUBLIC_AUTH0_AUDIENCE=https://api-notes.dejanvasic.me" >> $GITHUB_ENV
+        # echo "PUBLIC_AUTH0_CLIENT_ID=GLHJJUCeLrnWqcYZ0tf9uTpmIwXjmLjP" >> $GITHUB_ENV
+        # echo "PUBLIC_AUTH0_DOMAIN=dejanvasic.au.auth0.com" >> $GITHUB_ENV
+        # echo "PUBLIC_AUTH0_AUDIENCE=https://api-notes.dejanvasic.me" >> $GITHUB_ENV
       shell: bash
