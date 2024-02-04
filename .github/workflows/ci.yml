@@ -74,3 +74,4 @@ jobs:
         run: |
           url="$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
           vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "$url" ${{ env.PREVIEW_DOMAIN }}
+          echo "deployment_url=$url" >> $GITHUB_ENV
