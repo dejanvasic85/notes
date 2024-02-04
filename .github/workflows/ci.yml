@@ -30,8 +30,7 @@ jobs:
       - name: Run Svelte-Check
         run: npm run check
       - name: Run unit tests
-        run: |
-          npm run test:unit
+        run: npm run test:unit
   test:
     name: Test Playwright
     timeout-minutes: 60

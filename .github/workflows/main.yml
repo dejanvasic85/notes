@@ -1,8 +1,12 @@
 name: Deploy prod
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  PRODUCTION_DOMAIN: notes.dejanvasic.me
+  PUBLIC_AUTH0_CLIENT_ID: ${{ vars.PUBLIC_AUTH0_CLIENT_ID }}
+  PUBLIC_AUTH0_DOMAIN: ${{ vars.PUBLIC_AUTH0_DOMAIN }}
+  PUBLIC_AUTH0_AUDIENCE: ${{ vars.PUBLIC_AUTH0_AUDIENCE }}
+  PUBLIC_BUILD: ${{ github.ref_name }}-${{ github.run_number }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
+  PRODUCTION_DOMAIN: notes.dejanvasic.me
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
@@ -20,7 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-env
       - name: Deploy
         run: |
           npm install --global vercel@canary
