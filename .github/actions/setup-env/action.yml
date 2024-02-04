@@ -30,6 +30,7 @@ runs:
             fi
 
             # Parse the line and set the environment variable
+            echo setting $line
             echo "$line" >> "$GITHUB_ENV"
           done < "$ENV_FILE"
 
@@ -42,7 +43,6 @@ runs:
     - name: Set build environment variables
       id: set-build-number
       run: |
-        echo DB $DATABASE_URL
         echo "PUBLIC_BUILD=${{ github.ref_name }}-${{ github.run_number }}" >> $GITHUB_ENV
         echo "PUBLIC_AUTH0_CLIENT_ID=GLHJJUCeLrnWqcYZ0tf9uTpmIwXjmLjP" >> $GITHUB_ENV
         echo "PUBLIC_AUTH0_DOMAIN=dejanvasic.au.auth0.com" >> $GITHUB_ENV
