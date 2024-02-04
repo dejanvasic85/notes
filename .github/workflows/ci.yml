@@ -1,8 +1,6 @@
 name: CI
 env:
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
   PREVIEW_DOMAIN: notes-dev.dejanvasic.me
-  PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
@@ -59,8 +57,6 @@ jobs:
     environment:
       name: Preview
       url: https://${{ env.PREVIEW_DOMAIN }}
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-env
