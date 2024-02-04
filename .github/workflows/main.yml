@@ -13,6 +13,7 @@ on:
 jobs:
   deploy_production:
     name: Production deploy
+    concurrency: production_deploy
     environment:
       name: production
       url: https://${{ env.PRODUCTION_DOMAIN }}
