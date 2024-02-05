@@ -1,8 +1,12 @@
 name: CI
 env:
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  PREVIEW_DOMAIN: notes-dev.dejanvasic.me
+  DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+  PUBLIC_AUTH0_CLIENT_ID: ${{ vars.PUBLIC_AUTH0_CLIENT_ID }}
+  PUBLIC_AUTH0_DOMAIN: ${{ vars.PUBLIC_AUTH0_DOMAIN }}
+  PUBLIC_AUTH0_AUDIENCE: ${{ vars.PUBLIC_AUTH0_AUDIENCE }}
+  PUBLIC_BUILD: ${{ github.ref_name }}-${{ github.run_number }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
+  PREVIEW_DOMAIN: notes-dev.dejanvasic.me
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
@@ -16,10 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-env
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
       - name: Install dependencies
         run: npm ci
       - name: Add Svelte Check annotator
@@ -34,10 +37,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-env
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright Browsers
@@ -55,23 +57,17 @@ jobs:
     name: Deploy Preview
     runs-on: ubuntu-latest
     needs: [build, test]
+    concurrency: preview_deploy
     environment:
-      name: Preview
+      name: preview
       url: https://${{ env.PREVIEW_DOMAIN }}
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-env
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy
-        id: deploy
         run: |
+          npm install --global vercel@canary
+          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --token=${{ secrets.VERCEL_TOKEN }}
           url="$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
           vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "$url" ${{ env.PREVIEW_DOMAIN }}
           echo "deployment_url=$url" >> $GITHUB_ENV

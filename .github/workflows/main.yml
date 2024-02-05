@@ -1,8 +1,12 @@
 name: Deploy prod
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  PRODUCTION_DOMAIN: notes.dejanvasic.me
+  PUBLIC_AUTH0_CLIENT_ID: ${{ vars.PUBLIC_AUTH0_CLIENT_ID }}
+  PUBLIC_AUTH0_DOMAIN: ${{ vars.PUBLIC_AUTH0_DOMAIN }}
+  PUBLIC_AUTH0_AUDIENCE: ${{ vars.PUBLIC_AUTH0_AUDIENCE }}
+  PUBLIC_BUILD: ${{ github.ref_name }}-${{ github.run_number }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
+  PRODUCTION_DOMAIN: notes.dejanvasic.me
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
@@ -13,18 +17,16 @@ on:
 jobs:
   deploy_production:
     name: Production deploy
+    concurrency: production_deploy
     environment:
       name: production
       url: https://${{ env.PRODUCTION_DOMAIN }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-env
-      - name: Install Vercel CLI
-        run: npm install --global vercel@canary
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy
+        run: |
+          npm install --global vercel@canary
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
