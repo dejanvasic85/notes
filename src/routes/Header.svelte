@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import type { User } from '@auth0/auth0-spa-js';
 
+	import HeaderLink from '$components/HeaderLink.svelte';
 	import { withAuth } from '$lib/auth';
 
 	const auth = withAuth();
@@ -16,33 +17,15 @@
 
 <header class="container mx-auto px-4">
 	<nav class="flex justify-center space-x-4 pt-4">
-		<a
-			class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
-			href="/"
-			aria-current={$page.url.pathname === '/' ? 'page' : undefined}>Home</a
-		>
-		<a
-			class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
-			href="/playground"
-			aria-current={$page.url.pathname === '/playground' ? 'page' : undefined}>Playground</a
-		>
+		<HeaderLink label="Home" path="/" />
+		<HeaderLink label="Playground" path="/playground" />
 		{#if isLoggedOut}
-			<button
-				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
-				on:click={auth.login}>Login</button
-			>
+			<button on:click={auth.login}>Login</button>
 		{/if}
 		{#if isLoggedIn}
-			<a
-				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
-				href="/my-board"
-				aria-current={$page.url.pathname === '/my-board' ? 'page' : undefined}>My Board</a
-			>
-			<button
-				class="rounded-lg px-3 py-2 font-medium hover:bg-slate-100 hover:text-slate-900"
-				on:click={auth.logout}
-				>Logout
-			</button>
+			<HeaderLink label="My Board" path="/my-board" />
+			<HeaderLink label="Friends" path="/friends" />
+			<HeaderLink label="Logout" type="button" on:click={auth.logout} />
 		{/if}
 	</nav>
 </header>
