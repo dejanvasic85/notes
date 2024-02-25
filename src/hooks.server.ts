@@ -12,7 +12,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const authHeader = event.request.headers.get('Authorization');
 	if (authHeader) {
 		const accessToken = getTokenFromHeader(authHeader);
-		const decodedToken = await verifyToken(accessToken);
+		const decodedToken = await verifyToken<{ sub: string }>(accessToken);
 		if (!decodedToken) {
 			throw new Error('Invalid token');
 		}

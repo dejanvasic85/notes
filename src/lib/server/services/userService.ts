@@ -20,7 +20,7 @@ export const isBoardOwner = <T extends IsBoardOwnerParams>({
 		? TE.right({ user, board, ...rest } as T)
 		: TE.left(
 				createError('AuthorizationError', `User ${user.id} is not the owner of board ${board.id}`)
-		  );
+			);
 
 interface IsNoteOwnerParams {
 	note: Note;
@@ -36,7 +36,7 @@ export const isNoteOwner = <T extends IsNoteOwnerParams>({
 		? TE.right({ note, user, ...rest } as T)
 		: TE.left(
 				createError('AuthorizationError', `User ${user.id} is not the owner of note ${note.id}`)
-		  );
+			);
 
 const tryFetchAuthUser = ({
 	accessToken
@@ -46,6 +46,25 @@ const tryFetchAuthUser = ({
 	TE.tryCatch(
 		() => fetchAuthUser({ accessToken }),
 		withError('FetchError', 'Failed to fetch user with access token')
+	);
+
+interface GetOrCreateUserParams {
+	authId: string;
+	authUserProfile: AuthUserProfile;
+}
+
+export const getOrCreateUser = ({
+	authId,
+	authUserProfile
+}: GetOrCreateUserParams): TE.TaskEither<ServerError, User> =>
+	pipe(
+		getUserByAuthId(authId),
+		TE.orElse((err) => {
+			if (err._tag === 'RecordNotFound') {
+				return createUser({ authUserProfile });
+			}
+			return TE.left(err);
+		})
 	);
 
 interface GetOrCreateParams {
