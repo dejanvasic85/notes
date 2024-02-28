@@ -12,6 +12,8 @@ import { setAuthCookie } from '$lib/auth/session';
 export const GET: RequestHandler = async ({ url, cookies }) => {
 	const code = url.searchParams.get('code');
 	const state = url.searchParams.get('state');
+	const returnUrl = url.searchParams.get('returnUrl') || '/';
+
 	const csrfState = cookies.get('csrfState');
 
 	if (state !== csrfState || !code) {
@@ -22,12 +24,12 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		getToken({ code }),
 		TE.flatMap((token) => tryVerifyToken<AuthUserProfile>(token.id_token)),
 		TE.flatMap((authUser) => getOrCreateUser({ authId: authUser.sub, authUserProfile: authUser })),
-		TE.flatMap((user) => setAuthCookie(cookies, user)),
+		TE.map((user) => setAuthCookie(cookies, user)),
 		TE.match(
 			(err) => new Response(`Failed to get token. Err: ${err}`, { status: 500 }),
 			() => {
 				cookies.delete('csrfState', { path: '/' });
-				return new Response(null, { status: 302, headers: { location: '/' } });
+				return new Response(null, { status: 302, headers: { location: returnUrl } });
 			}
 		)
 	)();
