@@ -52,6 +52,7 @@ const second: Handle = async ({ event, resolve }) => {
 			},
 			(user) => {
 				setAuthCookie(event.cookies, user);
+				event.locals.userData = user;
 				return resolve(event);
 			}
 		)

@@ -4,10 +4,12 @@
 
 	import Header from './Header.svelte';
 	import './app.css';
+
+	export let data;
 </script>
 
 <div class="app">
-	<Header />
+	<Header isAuthenticated={data.isAuthenticated} />
 
 	<main>
 		<slot />

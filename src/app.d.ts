@@ -7,6 +7,7 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			user: User;
+			userData?: User;
 		}
 		// interface PageData {}
 		// interface Platform {}
