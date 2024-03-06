@@ -34,7 +34,17 @@ const first: Handle = async ({ event, resolve }) => {
 	return await resolve(event);
 };
 
-const privateRoutes = new Set(['/my-board', '/friends', '/friends/invite']);
+const privateRoutes: Readonly<string[]> = ['/my-board', '/friends', '/friends/invite', '/my/*'];
+
+const pathToRegexp = (path: string): RegExp => {
+	// Replace '*' with '.*' to match any characters and escape special characters
+	const regexString = path.replace(/[-[\]/{}()+?.\\^$|]/g, '\\$&').replace(/\*/g, '.*');
+	return new RegExp(`^${regexString}$`);
+};
+
+const matchesPrivateRoute = (path: string): boolean => {
+	return privateRoutes.some((route) => pathToRegexp(route).test(path));
+};
 
 const second: Handle = async ({ event, resolve }) => {
 	return await pipe(
@@ -42,7 +52,7 @@ const second: Handle = async ({ event, resolve }) => {
 		TE.match(
 			(left) => {
 				const url = new URL(event.request.url);
-				if (left === false && privateRoutes.has(url.pathname)) {
+				if (left === false && matchesPrivateRoute(url.pathname)) {
 					return new Response('LoginRequired', {
 						status: 302,
 						headers: { location: `/api/auth/login?returnUrl=${url.pathname}` }
