@@ -19,6 +19,10 @@ export const setAuthCookie = (cookies: Cookies, user: User) => {
 	});
 };
 
+export const clearAuthCookie = (cookies: Cookies) => {
+	cookies.delete(COOKIE_NAME, { path: '/' });
+};
+
 export const getSession = (cookies: Cookies): TE.TaskEither<false | ServerError, User> => {
 	const cookie = cookies.get(COOKIE_NAME);
 
