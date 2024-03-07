@@ -9,8 +9,8 @@
 		<HeaderLink label="Home" path="/" />
 		<HeaderLink label="Playground" path="/playground" />
 		{#if isAuthenticated}
-			<HeaderLink label="My Board" path="/my-board" />
-			<HeaderLink label="Friends" path="/friends" />
+			<HeaderLink label="My Board" path="/my/board" />
+			<HeaderLink label="Friends" path="/my/friends" />
 			<HeaderLink label="Logout" path="/api/auth/logout" />
 		{:else}
 			<HeaderLink label="Login" path="/api/auth/login" />
