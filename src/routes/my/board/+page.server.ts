@@ -3,6 +3,8 @@ import { taskEither as TE } from 'fp-ts';
 
 import { getBoardByUserId } from '$lib/server/db/boardDb.js';
 
+export const prerender = false;
+
 export const load = async ({ locals }) => {
 	return pipe(
 		getBoardByUserId({
