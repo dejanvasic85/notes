@@ -26,7 +26,10 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		TE.flatMap((authUser) => getOrCreateUser({ authId: authUser.sub, authUserProfile: authUser })),
 		TE.map((user) => setAuthCookie(cookies, user)),
 		TE.match(
-			(err) => new Response(`Failed to get token. Err: ${err}`, { status: 500 }),
+			(err) => {
+				console.log('Failed to get token', JSON.stringify(err));
+				return new Response(`Failed to get token.`, { status: 500 });
+			},
 			() => {
 				cookies.delete('csrfState', { path: '/' });
 				return new Response(null, { status: 302, headers: { location: returnUrl } });
