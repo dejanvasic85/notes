@@ -4,7 +4,7 @@ export const prerender = true;
 
 export const load: LayoutServerLoad = async ({ locals }) => {
 	return {
-		isAuthenticated: !!locals.userData,
-		userData: locals.userData
+		isAuthenticated: !!locals.user,
+		userData: locals.user
 	};
 };

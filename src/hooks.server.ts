@@ -4,13 +4,19 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { either as E, taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
+import { matchesPrivateRoute } from '$lib/auth/privateRoutes';
 import { verifyToken } from '$lib/auth/verifyToken';
 import { getSession, setAuthCookie } from '$lib/auth/session';
 import { getOrCreateUserByAuth } from '$lib/server/services/userService';
 
 const getTokenFromHeader = (authHeader: string) => authHeader.split(' ')[1];
 
-const first: Handle = async ({ event, resolve }) => {
+const handleAuthHeader: Handle = async ({ event, resolve }) => {
+	if (event.locals.user) {
+		// Todo: this hanler is temporary so remove it once everything is moved to session
+		return await resolve(event);
+	}
+
 	const authHeader = event.request.headers.get('Authorization');
 	if (authHeader) {
 		const accessToken = getTokenFromHeader(authHeader);
@@ -34,19 +40,7 @@ const first: Handle = async ({ event, resolve }) => {
 	return await resolve(event);
 };
 
-const privateRoutes: Readonly<string[]> = ['/my-board', '/friends', '/friends/invite', '/my/*'];
-
-const pathToRegexp = (path: string): RegExp => {
-	// Replace '*' with '.*' to match any characters and escape special characters
-	const regexString = path.replace(/[-[\]/{}()+?.\\^$|]/g, '\\$&').replace(/\*/g, '.*');
-	return new RegExp(`^${regexString}$`);
-};
-
-const matchesPrivateRoute = (path: string): boolean => {
-	return privateRoutes.some((route) => pathToRegexp(route).test(path));
-};
-
-const second: Handle = async ({ event, resolve }) => {
+const handleSessionCookie: Handle = async ({ event, resolve }) => {
 	return await pipe(
 		getSession(event.cookies),
 		TE.match(
@@ -62,11 +56,11 @@ const second: Handle = async ({ event, resolve }) => {
 			},
 			(user) => {
 				setAuthCookie(event.cookies, user);
-				event.locals.userData = user;
+				event.locals.user = user;
 				return resolve(event);
 			}
 		)
 	)();
 };
 
-export const handle = sequence(first, second);
+export const handle = sequence(handleSessionCookie, handleAuthHeader);

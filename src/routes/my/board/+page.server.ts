@@ -6,7 +6,7 @@ import { getBoardByUserId } from '$lib/server/db/boardDb.js';
 export const load = async ({ locals }) => {
 	return pipe(
 		getBoardByUserId({
-			userId: locals.userData!.id
+			userId: locals.user!.id
 		}),
 		TE.match(
 			() => {

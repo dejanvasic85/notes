@@ -18,6 +18,6 @@ export const tryFetchJson = <T>(
 				throw new Error(`Failed to fetch. Error: ${error}`);
 			}
 		},
-		withError('FetchError', 'Failed to fetch user with access token')
+		withError('FetchError', 'Failed to fetch')
 	);
 };

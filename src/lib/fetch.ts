@@ -34,7 +34,11 @@ interface FetchOptions {
 	shouldParse?: boolean;
 }
 
-export async function tryFetch<T>(input: URL | RequestInfo, init?: RequestInit, options?: FetchOptions): Promise<Maybe<T>> {
+export async function tryFetch<T>(
+	input: URL | RequestInfo,
+	init?: RequestInit,
+	options?: FetchOptions
+): Promise<Maybe<T>> {
 	try {
 		const token = options?.getBearerToken ? await options.getBearerToken() : null;
 

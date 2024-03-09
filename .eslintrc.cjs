@@ -14,7 +14,7 @@ module.exports = {
 		extraFileExtensions: ['.svelte']
 	},
 	rules: {
-		"@typescript-eslint/no-explicit-any": "off"
+		'@typescript-eslint/no-explicit-any': 'off'
 	},
 	env: {
 		browser: true,
