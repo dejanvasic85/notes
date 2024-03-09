@@ -21,6 +21,7 @@ const GetTokenResponseSchema = z.object({
 
 export type GetTokenResponse = z.infer<typeof GetTokenResponseSchema>;
 
+// todo: Remove this
 export const getToken = ({
 	code
 }: GetTokenParams): TE.TaskEither<ServerError, GetTokenResponse> => {

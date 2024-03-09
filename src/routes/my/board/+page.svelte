@@ -2,12 +2,12 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	import type { Note } from '$lib/types';
-	import { getOrderedNotes } from '$lib/notes.js';
+	import type { Note, NoteOrdered, NotePatchInput } from '$lib/types';
+	import { getOrderedNotes, updateNote } from '$lib/notes.js';
 	import { generateId } from '$lib/identityGenerator.js';
+	import { tryFetch, MaybeType } from '$lib/fetch.js';
 
 	import Board from '$components/Board.svelte';
-	import { tryFetch, MaybeType } from '$lib/fetch.js';
 
 	export let data;
 	const boardId = data.board.id;
@@ -46,6 +46,31 @@
 			// todo: show an error
 		}
 	}
+
+	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
+		const original = localNotes.find((n) => n.id === note.id);
+		if (!original) {
+			// todo: show an error
+			return;
+		}
+
+		localNotes = [...updateNote(localNotes, note)];
+		const notePatch: NotePatchInput = {
+			colour: note.colour,
+			text: note.text,
+			textPlain: note.textPlain
+		};
+
+		const { type } = await tryFetch<Note>(`/api/notes/${note.id}`, {
+			method: 'PATCH',
+			body: JSON.stringify(notePatch)
+		});
+
+		if (type === MaybeType.Error) {
+			// todo: show an error
+			localNotes = [...updateNote(localNotes, original)];
+		}
+	}
 </script>
 
 <svelte:head>
@@ -58,6 +83,7 @@
 	on:select={handleSelect}
 	on:closeNote={handleClose}
 	on:createNote={handleCreate}
+	on:updateNote={handleUpdate}
 	enableSharing={true}
 	{selectedNote}
 />
