@@ -2,8 +2,8 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	import type { Note, NoteOrdered, NotePatchInput } from '$lib/types';
-	import { getOrderedNotes, updateNote } from '$lib/notes.js';
+	import type { Note, NoteOrdered, NotePatchInput, BoardPatch } from '$lib/types';
+	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes.js';
 	import { generateId } from '$lib/identityGenerator.js';
 	import { tryFetch, MaybeType } from '$lib/fetch.js';
 
@@ -71,6 +71,47 @@
 			localNotes = [...updateNote(localNotes, original)];
 		}
 	}
+
+	async function handleDelete({ detail }: CustomEvent<{ note: NoteOrdered }>) {
+		const { note } = detail;
+		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
+		localNoteOrder = [...localNoteOrder.filter((id) => id !== detail.note.id)];
+
+		const resp = await tryFetch(
+			`/api/notes/${note.id}`,
+			{ method: 'DELETE' },
+			{ shouldParse: false }
+		);
+
+		if (resp.type === MaybeType.Error) {
+			localNotes = [...localNotes, note];
+			localNoteOrder = [...localNoteOrder, note.id!];
+			// todo: show an error
+		} else {
+			goto('/my/board');
+		}
+	}
+
+	async function handleReorder({
+		detail: { fromIndex, toIndex }
+	}: CustomEvent<{ fromIndex: number; toIndex: number }>) {
+		const noteOrder = reorderNotes(localNoteOrder, fromIndex, toIndex);
+		localNoteOrder = [...noteOrder];
+		localNotes = [...getOrderedNotes(noteOrder, localNotes)];
+		const boardPatch: BoardPatch = { noteOrder };
+
+		const result = await tryFetch<Board>(`/api/board/${boardId}`, {
+			method: 'PATCH',
+			body: JSON.stringify(boardPatch)
+		});
+
+		if (result.type === MaybeType.Error) {
+			// revert the local change
+			localNoteOrder = [...reorderNotes(noteOrder, toIndex, fromIndex)];
+			localNotes = [...getOrderedNotes(localNoteOrder, localNotes)];
+			// todo: show an error
+		}
+	}
 </script>
 
 <svelte:head>
@@ -84,6 +125,8 @@
 	on:closeNote={handleClose}
 	on:createNote={handleCreate}
 	on:updateNote={handleUpdate}
+	on:deleteNote={handleDelete}
+	on:reorder={handleReorder}
 	enableSharing={true}
 	{selectedNote}
 />
