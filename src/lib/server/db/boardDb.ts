@@ -12,6 +12,20 @@ export const getBoard = ({ id }: IdParams): TE.TaskEither<ServerError, Board> =>
 		TE.flatMap(fromNullableRecord(`Board ${id} not found`))
 	);
 
+export const getBoardByUserId = ({
+	userId,
+	includeNotes = true
+}: {
+	userId: string;
+	includeNotes?: boolean;
+}): TE.TaskEither<ServerError, Board> =>
+	pipe(
+		tryDbTask(() =>
+			db.board.findFirstOrThrow({ where: { userId }, include: { notes: includeNotes } })
+		),
+		TE.flatMap(fromNullableRecord(`Board for user ${userId} not found`))
+	);
+
 export const updateBoard = (board: Board): TE.TaskEither<ServerError, Board> => {
 	return TE.tryCatch(
 		async () => {

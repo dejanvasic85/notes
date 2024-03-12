@@ -49,7 +49,7 @@ describe('reorderNotes', () => {
 	it('should reorder notes', () => {
 		const noteOrder = ['1', '2', '3', '4'];
 		const reorderedNotes = reorderNotes(noteOrder, 1, 3);
-		expect(reorderedNotes).toEqual(['1', '3', '4', '2'])
+		expect(reorderedNotes).toEqual(['1', '3', '4', '2']);
 	});
 });
 
@@ -67,7 +67,7 @@ describe('searchNotes', () => {
 			{ id: '1', text: 'one', textPlain: 'hello world', colour: null, boardId: null },
 			{ id: '3', text: 'three', textPlain: 'hello sweet action', colour: null, boardId: null }
 		]);
-	})
+	});
 
 	it('should return empty array if no notes match query', () => {
 		const notes = [
@@ -79,7 +79,7 @@ describe('searchNotes', () => {
 		const filteredNotes = searchNotes(notes, 'goodbye');
 
 		expect(filteredNotes).toEqual([]);
-	})
+	});
 
 	it('should return all notes if query is empty', () => {
 		const notes = [

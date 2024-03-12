@@ -7,7 +7,7 @@ import { mapToApiError } from '$lib/server/mapApi';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	return pipe(
-		{ id: locals.user.id! },
+		{ id: locals.user!.id },
 		({ id }) => getUser({ id }),
 		TE.mapLeft(mapToApiError),
 		TE.match(

@@ -18,7 +18,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 			parseRequest(request, BoardPatchSchema, 'Unable to parse BoardPatchSchema')
 		),
 		TE.bind('user', () =>
-			getUser({ id: locals.user.id!, includeBoards: true, includeNotes: true })
+			getUser({ id: locals.user!.id, includeBoards: true, includeNotes: true })
 		),
 		TE.bind('board', () => getBoard({ id: params.id! })),
 		TE.flatMap((params) => isBoardOwner(params)),
