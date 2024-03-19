@@ -12,19 +12,20 @@ datasource db {
 }
 
 model User {
-  id            String       @id
-  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime     @updatedAt @db.Timestamptz(6)
-  authId        String       @unique
-  email         String       @unique
+  id            String   @id
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+  authId        String   @unique
+  email         String   @unique
   emailVerified Boolean
   name          String?
   picture       String?
-  boards        Board[]
-  sharedNotes   NoteEditor[]
 
+  boards      Board[]
   connections UserConnection[] @relation(name: "connections")
   connectedTo UserConnection[] @relation(name: "connectedTo")
+  invites     UserInvite[]
+  sharedNotes NoteEditor[]
 }
 
 model UserConnection {
@@ -38,6 +39,17 @@ model UserConnection {
   userSecond User @relation(fields: [userSecondId], references: [id], name: "connectedTo")
 
   @@id([userFirstId, userSecondId])
+}
+
+model UserInvite {
+  id          String   @id
+  friendEmail String   @unique
+  userId      String
+  status      String
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Board {
