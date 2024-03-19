@@ -12,16 +12,32 @@ datasource db {
 }
 
 model User {
-  id                String             @id
-  createdAt         DateTime           @default(now()) @db.Timestamptz(6)
-  updatedAt         DateTime           @updatedAt @db.Timestamptz(6)
-  authId            String             @unique
-  email             String             @unique
-  emailVerified     Boolean
-  name              String?
-  picture           String?
-  boards            Board[]
-  noteCollaborators NoteCollaborator[]
+  id            String       @id
+  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime     @updatedAt @db.Timestamptz(6)
+  authId        String       @unique
+  email         String       @unique
+  emailVerified Boolean
+  name          String?
+  picture       String?
+  boards        Board[]
+  sharedNotes   NoteEditor[]
+
+  connections UserConnection[] @relation(name: "connections")
+  connectedTo UserConnection[] @relation(name: "connectedTo")
+}
+
+model UserConnection {
+  userFirstId  String
+  userSecondId String
+  type         String
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(6)
+
+  userFirst  User @relation(fields: [userFirstId], references: [id], name: "connections")
+  userSecond User @relation(fields: [userSecondId], references: [id], name: "connectedTo")
+
+  @@id([userFirstId, userSecondId])
 }
 
 model Board {
@@ -29,26 +45,24 @@ model Board {
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
   noteOrder String[]
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
-  notes  Note[]
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  notes     Note[]
 }
 
 model Note {
-  id                String             @id
-  createdAt         DateTime           @default(now()) @db.Timestamptz(6)
-  updatedAt         DateTime           @updatedAt @db.Timestamptz(6)
-  text              String             @db.Text /// @encrypted
-  textPlain         String             @db.Text /// @encrypted
-  colour            String?
-  boardId           String
-  board             Board              @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  noteCollaborators NoteCollaborator[]
-  noteInvites       NoteInvite[]
+  id        String       @id
+  createdAt DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime     @updatedAt @db.Timestamptz(6)
+  text      String       @db.Text /// @encrypted
+  textPlain String       @db.Text /// @encrypted
+  colour    String?
+  boardId   String
+  board     Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  editors   NoteEditor[]
 }
 
-model NoteCollaborator {
+model NoteEditor {
   id        String   @id
   noteId    String
   userId    String
@@ -56,13 +70,4 @@ model NoteCollaborator {
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
   note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model NoteInvite {
-  id        String   @id
-  noteId    String
-  email     String
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
-  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
 }
