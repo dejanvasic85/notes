@@ -3,7 +3,7 @@ import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/server/db';
 import { generateId } from '$lib/identityGenerator';
-import type { AuthUserProfile, ServerError, User } from '$lib/types';
+import type { AuthUserProfile, ServerError, User, UserInvite } from '$lib/types';
 
 import { fromNullableRecord, tryDbTask } from './utils';
 
@@ -84,3 +84,14 @@ export const createUser = ({
 		});
 	});
 };
+
+export const getUserInvites = (uid: string): TE.TaskEither<ServerError, UserInvite[]> =>
+	pipe(
+		tryDbTask(() =>
+			db.userInvite.findMany({
+				where: {
+					userId: uid
+				}
+			})
+		)
+	);

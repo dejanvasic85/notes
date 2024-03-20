@@ -47,13 +47,35 @@ export const NoteOrderedSchema = NoteSchema.extend({
 
 export type NoteOrdered = z.infer<typeof NoteOrderedSchema>;
 
+export const UserInviteSchema = z.object({
+	id: z.string(),
+	friendEmail: z.string(),
+	userId: z.string(),
+	acceptedAt: z.date().nullable(),
+	createdAt: z.date(),
+	updatedAt: z.date()
+});
+
+export type UserInvite = z.infer<typeof UserInviteSchema>;
+
+export const UserConnectionSchema = z.object({
+	userId: z.string(),
+	friendId: z.string(),
+	status: z.enum(['pending', 'accepted']),
+	createdAt: z.date()
+});
+
+export type UserConnection = z.infer<typeof UserConnectionSchema>;
+
 export const UserSchema = EntitySchema.extend({
 	authId: z.string().optional(),
 	email: z.string().optional(),
 	emailVerified: z.boolean(),
 	name: z.string().nullable(),
 	picture: z.string().nullable(),
-	boards: z.array(BoardSchema)
+	boards: z.array(BoardSchema),
+	connections: z.array(UserConnectionSchema).optional(),
+	invites: z.array(UserInviteSchema).optional()
 });
 
 export type User = z.infer<typeof UserSchema>;
