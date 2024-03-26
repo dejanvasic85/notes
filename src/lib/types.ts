@@ -47,13 +47,10 @@ export const NoteOrderedSchema = NoteSchema.extend({
 
 export type NoteOrdered = z.infer<typeof NoteOrderedSchema>;
 
-export const UserInviteSchema = z.object({
-	id: z.string(),
+export const UserInviteSchema = EntitySchema.extend({
 	friendEmail: z.string(),
 	userId: z.string(),
-	acceptedAt: z.date().nullable(),
-	createdAt: z.date(),
-	updatedAt: z.date()
+	acceptedAt: z.date().nullable()
 });
 
 export type UserInvite = z.infer<typeof UserInviteSchema>;
@@ -113,6 +110,10 @@ export interface ValidationError extends BaseError {
 	readonly _tag: 'ValidationError';
 }
 
+export interface SendEmailError extends BaseError {
+	readonly _tag: 'SendEmailError';
+}
+
 export interface AuthorizationError extends BaseError {
 	readonly _tag: 'AuthorizationError';
 }
@@ -122,7 +123,8 @@ export type ServerError =
 	| DatabaseError
 	| RecordNotFoundError
 	| FetchError
-	| ValidationError;
+	| ValidationError
+	| SendEmailError;
 
 export type ErrorType = ServerError['_tag'];
 

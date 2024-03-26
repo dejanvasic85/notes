@@ -85,7 +85,7 @@ describe('getUser', () => {
 		const result = await getUser({ id: 'uid_123' })();
 		expect(result).toBeLeftStrictEqual({
 			_tag: 'DatabaseError',
-			message: 'Unexpted database error occurred',
+			message: 'Unexpected database error occurred',
 			originalError: new Error('Something went wrong')
 		});
 	});
@@ -133,7 +133,7 @@ describe('getUserByAuthId', () => {
 		const result = await getUserByAuthId('auth_123')();
 		expect(result).toBeLeftStrictEqual({
 			_tag: 'DatabaseError',
-			message: 'Unexpted database error occurred',
+			message: 'Unexpected database error occurred',
 			originalError: new Error('Something went wrong')
 		});
 	});
@@ -189,7 +189,7 @@ describe('createUser', () => {
 
 		expect(result).toBeLeftStrictEqual({
 			_tag: 'DatabaseError',
-			message: 'Unexpted database error occurred',
+			message: 'Unexpected database error occurred',
 			originalError: new Error('Something went wrong')
 		});
 	});

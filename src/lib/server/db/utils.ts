@@ -3,7 +3,7 @@ import type { ServerError } from '$lib/types';
 import { createError, withError } from '$lib/server/createError';
 
 export const tryDbTask = <T>(func: () => Promise<T>): TE.TaskEither<ServerError, T> => {
-	return TE.tryCatch(func, withError('DatabaseError', 'Unexpted database error occurred'));
+	return TE.tryCatch(func, withError('DatabaseError', 'Unexpected database error occurred'));
 };
 
 export const fromNullableRecord =

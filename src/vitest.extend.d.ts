@@ -2,6 +2,7 @@ interface CustomMatchers<R = unknown> {
 	toBeRightStrictEqual(data: unknown): R;
 	toBeLeftStrictEqual(data: unknown): R;
 	toBeLeft(tag: string): R;
+	toBeRight(): R;
 }
 
 declare module 'vitest' {

@@ -86,12 +86,14 @@ export const createUser = ({
 };
 
 export const getUserInvites = (uid: string): TE.TaskEither<ServerError, UserInvite[]> =>
-	pipe(
-		tryDbTask(() =>
-			db.userInvite.findMany({
-				where: {
-					userId: uid
-				}
-			})
-		)
+	tryDbTask(() =>
+		db.userInvite.findMany({
+			where: {
+				userId: uid,
+				acceptedAt: null
+			}
+		})
 	);
+
+export const createInvite = (invite: UserInvite): TE.TaskEither<ServerError, UserInvite> =>
+	tryDbTask(() => db.userInvite.create({ data: invite }));

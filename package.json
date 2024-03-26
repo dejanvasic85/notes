@@ -48,6 +48,7 @@
 	"type": "module",
 	"dependencies": {
 		"@auth0/auth0-spa-js": "^2.1.1",
+		"@aws-sdk/client-ses": "^3.535.0",
 		"@prisma/client": "^5.2.0",
 		"fp-ts": "^2.16.1",
 		"jsonwebtoken": "^9.0.1",

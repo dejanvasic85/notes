@@ -36,3 +36,11 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+## Config
+
+To configure environment variables, you can use `.env` file. When running the command `npm run check` the environment variables will be automatically available from `import {} from '$env/static/private'`...
+
+Just be sure to update the ci.yml and deploy.yml files to include the new environment variables.
+
+Github actions may also need to be updated.

@@ -2,17 +2,21 @@ import { taskEither as TE } from 'fp-ts';
 import { describe, expect, it, vi, type MockedFunction, beforeEach } from 'vitest';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
-import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
-import type { DatabaseError, RecordNotFoundError } from '$lib/types';
+import { createUser, getUserByAuthId, createInvite } from '$lib/server/db/userDb';
+import type { DatabaseError, RecordNotFoundError, SendEmailError } from '$lib/types';
+import { sendEmail } from '$lib/server/services/emailService';
 
-import { getOrCreateUserByAuth, isNoteOwner } from './userService';
+import { getOrCreateUserByAuth, isNoteOwner, sendInvite } from './userService';
 
 vi.mock('$lib/server/db/userDb');
 vi.mock('$lib/auth/fetchUser');
+vi.mock('$lib/server/services/emailService');
 
 const mockGetUserByAuthId = getUserByAuthId as MockedFunction<typeof getUserByAuthId>;
 const mockCreateUser = createUser as MockedFunction<typeof createUser>;
 const mockFetchAuthUser = fetchAuthUser as MockedFunction<typeof fetchAuthUser>;
+const mockSendEmail = sendEmail as MockedFunction<typeof sendEmail>;
+const mockCreateInvite = createInvite as MockedFunction<typeof createInvite>;
 
 describe('getOrCreateUserByAuth', () => {
 	const accessToken = 'access_token';
@@ -35,14 +39,14 @@ describe('getOrCreateUserByAuth', () => {
 	describe('when the database is not available', () => {
 		const databaseError: DatabaseError = {
 			_tag: 'DatabaseError',
-			message: 'Unexpted database error occurred',
+			message: 'Unexpected database error occurred',
 			originalError: new Error('')
 		};
 		beforeEach(() => {
 			mockGetUserByAuthId.mockReturnValue(TE.left(databaseError));
 		});
 
-		it('should return Unexpted database error occurred and not fetch user from Auth0 when the get user fails', async () => {
+		it('should return Unexpected database error occurred and not fetch user from Auth0 when the get user fails', async () => {
 			const result = await getOrCreateUserByAuth({ accessToken, authId })();
 
 			expect(result).toBeLeftStrictEqual(databaseError);
@@ -88,10 +92,10 @@ describe('getOrCreateUserByAuth', () => {
 			});
 		});
 
-		it('should return a Unexpted database error occurred when the create user fails', async () => {
+		it('should return a Unexpected database error occurred when the create user fails', async () => {
 			const databaseError: DatabaseError = {
 				_tag: 'DatabaseError',
-				message: 'Unexpted database error occurred',
+				message: 'Unexpected database error occurred',
 				originalError: new Error('')
 			};
 
@@ -118,5 +122,59 @@ describe('isNoteOwner', () => {
 		const result = await isNoteOwner(param as any)();
 
 		expect(result).toBeRightStrictEqual(param);
+	});
+});
+
+describe('sendInvites', () => {
+	it('should create an invite and send an email to the friend', async () => {
+		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
+		mockSendEmail.mockReturnValue(TE.right({} as any));
+
+		const result = await sendInvite({
+			baseUrl: 'localhost:1000',
+			friendEmail: 'bob@foo.com',
+			name: '',
+			userId: 'uid_123'
+		})();
+
+		expect(result).toBeRight();
+	});
+
+	it('should return an error when the invite creation fails', async () => {
+		const databaseError: DatabaseError = {
+			_tag: 'DatabaseError',
+			message: 'Unexpected database error occurred',
+			originalError: new Error('')
+		};
+
+		mockCreateInvite.mockReturnValue(TE.left(databaseError));
+
+		const result = await sendInvite({
+			baseUrl: 'localhost:1000',
+			friendEmail: 'bob@foo.com',
+			name: '',
+			userId: 'uid_123'
+		})();
+
+		expect(result).toBeLeftStrictEqual(databaseError);
+	});
+
+	it('should return an error when the sendEmail fails', async () => {
+		const emailError: SendEmailError = {
+			_tag: 'SendEmailError',
+			message: 'Failed to send email'
+		};
+
+		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
+		mockSendEmail.mockReturnValue(TE.left(emailError));
+
+		const result = await sendInvite({
+			baseUrl: 'localhost:1000',
+			friendEmail: 'bob@foo.com',
+			name: '',
+			userId: 'uid_123'
+		})();
+
+		expect(result).toBeLeftStrictEqual(emailError);
 	});
 });
