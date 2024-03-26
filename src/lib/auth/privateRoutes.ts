@@ -1,4 +1,4 @@
-const privateRoutes: Readonly<string[]> = ['/my/*', '/api/board|notes|user'];
+const privateRoutes: Readonly<string[]> = ['/my/*', '/invite/*', '/api/board|notes|user'];
 
 const pathToRegexp = (path: string): RegExp => {
 	// First, escape necessary special characters except for '*' and '|'

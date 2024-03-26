@@ -35,9 +35,7 @@ export const sendEmail = ({
 	return TE.tryCatch(
 		async () => {
 			const client = getClient();
-			console.log('client', client);
-
-			const resp = await client.send(
+			await client.send(
 				new SendEmailCommand({
 					Destination: {
 						ToAddresses: [to]
@@ -57,7 +55,6 @@ export const sendEmail = ({
 					Source: 'Notes App <info@dejanvasic.me>'
 				})
 			);
-			console.log('Email sent', resp);
 		},
 		withError('SendEmailError', 'Failed to send email')
 	);

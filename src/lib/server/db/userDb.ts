@@ -95,5 +95,18 @@ export const getUserInvites = (uid: string): TE.TaskEither<ServerError, UserInvi
 		})
 	);
 
+interface GetInviteOptions {
+	friendEmail?: string;
+}
+
+export const getInvite = (
+	id: string,
+	{ friendEmail }: GetInviteOptions = {}
+): TE.TaskEither<ServerError, UserInvite> =>
+	pipe(
+		tryDbTask(() => db.userInvite.findUnique({ where: { id, friendEmail } })),
+		TE.flatMap(fromNullableRecord(`User with authId ${id} not found`))
+	);
+
 export const createInvite = (invite: UserInvite): TE.TaskEither<ServerError, UserInvite> =>
 	tryDbTask(() => db.userInvite.create({ data: invite }));
