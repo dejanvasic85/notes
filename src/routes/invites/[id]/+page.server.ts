@@ -11,6 +11,8 @@ export const load = async ({ params, locals }) => {
 
 	return pipe(
 		getInvite(inviteId, { friendEmail: email }),
+		// accept the invite
+
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => {
