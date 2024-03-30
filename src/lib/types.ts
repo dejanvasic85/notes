@@ -56,10 +56,11 @@ export const UserInviteSchema = EntitySchema.extend({
 export type UserInvite = z.infer<typeof UserInviteSchema>;
 
 export const UserConnectionSchema = z.object({
-	userId: z.string(),
-	friendId: z.string(),
-	status: z.enum(['pending', 'accepted']),
-	createdAt: z.date()
+	createdAt: z.date().optional(),
+	updatedAt: z.date().optional(),
+	userFirstId: z.string(),
+	userSecondId: z.string(),
+	type: z.string()
 });
 
 export type UserConnection = z.infer<typeof UserConnectionSchema>;

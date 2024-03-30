@@ -2,9 +2,16 @@ import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
-import { createUser, getUserByAuthId, createInvite } from '$lib/server/db/userDb';
+import {
+	createConnection,
+	createUser,
+	getUserByAuthId,
+	createInvite,
+	updateInvite,
+	getInvite
+} from '$lib/server/db/userDb';
 import { createError, withError } from '$lib/server/createError';
-import type { AuthUserProfile, Board, Note, ServerError, User } from '$lib/types';
+import type { AuthUserProfile, Board, Note, ServerError, User, UserConnection } from '$lib/types';
 import { generateId } from '$lib/identityGenerator';
 import { sendEmail } from '$lib/server/services/emailService';
 
@@ -132,5 +139,22 @@ export const sendInvite = ({
 				html
 			});
 		})
+	);
+};
+
+export const acceptInvite = (
+	inviteId: string,
+	acceptedBy: Pick<User, 'id' | 'email'>
+): TE.TaskEither<ServerError, UserConnection> => {
+	return pipe(
+		getInvite(inviteId, { friendEmail: acceptedBy.email }),
+		TE.flatMap((invite) => updateInvite({ ...invite, acceptedAt: new Date() })),
+		TE.flatMap((invite) =>
+			createConnection({
+				userFirstId: invite.userId,
+				userSecondId: acceptedBy.id,
+				type: 'connected'
+			})
+		)
 	);
 };

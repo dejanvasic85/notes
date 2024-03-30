@@ -1,25 +1,29 @@
+import { error } from '@sveltejs/kit';
+
 import { pipe } from 'fp-ts/lib/function.js';
 import { taskEither as TE } from 'fp-ts';
 
-import { getInvite } from '$lib/server/db/userDb';
-import { error } from '@sveltejs/kit';
 import { mapToApiError } from '$lib/server/mapApi.js';
+import { acceptInvite } from '$lib/server/services/userService.js';
+import { getUser } from '$lib/server/db/userDb.js';
 
 export const load = async ({ params, locals }) => {
 	const inviteId = params.id;
-	const email = locals.user?.email;
+	const acceptedBy = locals.user!;
 
 	return pipe(
-		getInvite(inviteId, { friendEmail: email }),
-		// accept the invite
-
+		acceptInvite(inviteId, { id: acceptedBy.id, email: acceptedBy.email }),
+		TE.flatMap((connection) =>
+			getUser({ id: connection.userFirstId, includeBoards: false, includeNotes: false })
+		),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => {
 				throw error(err.status, err.message);
 			},
-			(invite) => ({
-				id: invite.id
+			(friend) => ({
+				connected: true,
+				friendName: friend.name
 			})
 		)
 	)();
