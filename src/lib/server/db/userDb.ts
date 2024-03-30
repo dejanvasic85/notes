@@ -129,3 +129,12 @@ export const createConnection = (
 		})
 	);
 };
+
+export const getConnections = (userId: string) =>
+	tryDbTask(() =>
+		db.userConnection.findMany({
+			where: {
+				OR: [{ userFirstId: userId }, { userSecondId: userId }]
+			}
+		})
+	);

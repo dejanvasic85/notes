@@ -5,10 +5,11 @@ import { fetchAuthUser } from '$lib/auth/fetchUser';
 import {
 	createConnection,
 	createUser,
-	getUserByAuthId,
 	createInvite,
-	updateInvite,
-	getInvite
+	getConnections,
+	getUserByAuthId,
+	getInvite,
+	updateInvite
 } from '$lib/server/db/userDb';
 import { createError, withError } from '$lib/server/createError';
 import type { AuthUserProfile, Board, Note, ServerError, User, UserConnection } from '$lib/types';
@@ -120,6 +121,7 @@ interface SendInviteParams {
 	baseUrl: string;
 }
 
+// todo: unit test
 export const sendInvite = ({
 	baseUrl,
 	name,
@@ -142,6 +144,7 @@ export const sendInvite = ({
 	);
 };
 
+// todo: unit test
 export const acceptInvite = (
 	inviteId: string,
 	acceptedBy: Pick<User, 'id' | 'email'>
@@ -157,4 +160,9 @@ export const acceptInvite = (
 			})
 		)
 	);
+};
+
+// get user friends
+export const getFriends = (userId: string) => {
+	return pipe(getConnections(userId));
 };

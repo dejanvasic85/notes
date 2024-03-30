@@ -11,12 +11,26 @@
 <div class="container mx-auto">
 	<h1>Invites</h1>
 	<div>
+		Sent invites
 		{#each data.invites as invite}
 			<div>
 				<p>{invite.friendEmail}, sent: {invite.createdAt}</p>
 			</div>
 		{/each}
 	</div>
+
+	<h1>
+		Friends
+		{#if data.friends.length === 0}
+			<p>No friends yet</p>
+		{:else}
+			{#each data.friends as friend}
+				<div>
+					<p>{friend.userFirstId}+{friend.userSecondId}:{friend.type}</p>
+				</div>
+			{/each}
+		{/if}
+	</h1>
 
 	<div>
 		{#if form?.success}

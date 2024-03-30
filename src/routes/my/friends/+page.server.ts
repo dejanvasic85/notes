@@ -1,24 +1,29 @@
-import { fail } from '@sveltejs/kit';
+import { fail, error } from '@sveltejs/kit';
 
 import { pipe } from 'fp-ts/lib/function.js';
 import { taskEither as TE } from 'fp-ts';
 
 import { PUBLIC_BASE_URL } from '$env/static/public';
 import { getUserInvites } from '$lib/server/db/userDb';
-import { sendInvite } from '$lib/server/services/userService';
+import { getFriends, sendInvite } from '$lib/server/services/userService';
+import { mapToApiError } from '$lib/server/mapApi.js';
 
 export const prerender = false;
 
 export const load = async ({ locals }) => {
+	const userId = locals.user!.id;
 	return pipe(
-		getUserInvites(locals.user!.id),
+		TE.Do,
+		TE.bind('invites', () => getUserInvites(userId)),
+		TE.bind('friends', () => getFriends(userId)),
+		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => {
-				console.log('err', err);
-				throw new Error('User not found');
+				throw error(err.status, err.message);
 			},
-			(invites) => ({
-				invites
+			({ invites, friends }) => ({
+				invites,
+				friends
 			})
 		)
 	)();
