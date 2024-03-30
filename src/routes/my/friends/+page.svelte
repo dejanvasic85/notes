@@ -9,16 +9,6 @@
 </script>
 
 <div class="container mx-auto">
-	<h1>Invites</h1>
-	<div>
-		Sent invites
-		{#each data.invites as invite}
-			<div>
-				<p>{invite.friendEmail}, sent: {invite.createdAt}</p>
-			</div>
-		{/each}
-	</div>
-
 	<h1>
 		Friends
 		{#if data.friends.length === 0}
@@ -31,6 +21,18 @@
 			{/each}
 		{/if}
 	</h1>
+
+	<hr />
+
+	<h1>Invites</h1>
+	<div>
+		Sent invites
+		{#each data.invites as invite}
+			<div>
+				<p>{invite.friendEmail}, sent: {invite.createdAt}</p>
+			</div>
+		{/each}
+	</div>
 
 	<div>
 		{#if form?.success}
