@@ -3,7 +3,7 @@ import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/server/db';
 import { generateId } from '$lib/identityGenerator';
-import type { AuthUserProfile, ServerError, User } from '$lib/types';
+import type { AuthUserProfile, ServerError, User, UserConnection, UserInvite } from '$lib/types';
 
 import { fromNullableRecord, tryDbTask } from './utils';
 
@@ -84,3 +84,57 @@ export const createUser = ({
 		});
 	});
 };
+
+export const getUserInvites = (uid: string): TE.TaskEither<ServerError, UserInvite[]> =>
+	tryDbTask(() =>
+		db.userInvite.findMany({
+			where: {
+				userId: uid,
+				acceptedAt: null
+			}
+		})
+	);
+
+interface GetInviteOptions {
+	friendEmail?: string;
+}
+
+export const getInvite = (
+	id: string,
+	{ friendEmail }: GetInviteOptions = {}
+): TE.TaskEither<ServerError, UserInvite> =>
+	pipe(
+		tryDbTask(() => db.userInvite.findUnique({ where: { id, friendEmail } })),
+		TE.flatMap(fromNullableRecord(`User with authId ${id} not found`))
+	);
+
+export const createInvite = (invite: UserInvite): TE.TaskEither<ServerError, UserInvite> =>
+	tryDbTask(() => db.userInvite.create({ data: invite }));
+
+export const updateInvite = (invite: UserInvite): TE.TaskEither<ServerError, UserInvite> => {
+	const { id, ...rest } = invite;
+	return tryDbTask(() => db.userInvite.update({ where: { id }, data: rest }));
+};
+
+export const createConnection = (
+	connection: UserConnection
+): TE.TaskEither<ServerError, UserConnection> => {
+	return tryDbTask(() =>
+		db.userConnection.create({
+			data: connection,
+			include: {
+				userFirst: true,
+				userSecond: true
+			}
+		})
+	);
+};
+
+export const getConnections = (userId: string) =>
+	tryDbTask(() =>
+		db.userConnection.findMany({
+			where: {
+				OR: [{ userFirstId: userId }, { userSecondId: userId }]
+			}
+		})
+	);

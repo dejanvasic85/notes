@@ -2,9 +2,19 @@ import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
-import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
+import {
+	createConnection,
+	createUser,
+	createInvite,
+	getConnections,
+	getUserByAuthId,
+	getInvite,
+	updateInvite
+} from '$lib/server/db/userDb';
 import { createError, withError } from '$lib/server/createError';
-import type { AuthUserProfile, Board, Note, ServerError, User } from '$lib/types';
+import type { AuthUserProfile, Board, Note, ServerError, User, UserConnection } from '$lib/types';
+import { generateId } from '$lib/identityGenerator';
+import { sendEmail } from '$lib/server/services/emailService';
 
 interface IsBoardOwnerParams {
 	user: User;
@@ -102,4 +112,57 @@ export const getCurrentBoardForUserNote = ({
 		return TE.left(createError('RecordNotFound', `Board ${boardId} not found`));
 	}
 	return TE.right({ note, user, board });
+};
+
+interface SendInviteParams {
+	name: string;
+	userId: string;
+	friendEmail: string;
+	baseUrl: string;
+}
+
+// todo: unit test
+export const sendInvite = ({
+	baseUrl,
+	name,
+	userId,
+	friendEmail
+}: SendInviteParams): TE.TaskEither<ServerError, void> => {
+	return pipe(
+		createInvite({ id: generateId('inv'), userId, friendEmail, acceptedAt: null }),
+		TE.flatMap(({ id }) => {
+			const inviteLink = `${baseUrl}/invite/${id}`;
+			const html = `Hello ${friendEmail}. 
+			<p>You have been invited by ${name} to join them in collaborating on Notes.</p> 
+			<p>Accept <a href="${inviteLink}">invite</a> to get started now.</p>`;
+			return sendEmail({
+				to: friendEmail,
+				subject: 'You have been invited to share notes',
+				html
+			});
+		})
+	);
+};
+
+// todo: unit test
+export const acceptInvite = (
+	inviteId: string,
+	acceptedBy: Pick<User, 'id' | 'email'>
+): TE.TaskEither<ServerError, UserConnection> => {
+	return pipe(
+		getInvite(inviteId, { friendEmail: acceptedBy.email }),
+		TE.flatMap((invite) => updateInvite({ ...invite, acceptedAt: new Date() })),
+		TE.flatMap((invite) =>
+			createConnection({
+				userFirstId: invite.userId,
+				userSecondId: acceptedBy.id,
+				type: 'connected'
+			})
+		)
+	);
+};
+
+// get user friends
+export const getFriends = (userId: string) => {
+	return pipe(getConnections(userId));
 };

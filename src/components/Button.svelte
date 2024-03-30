@@ -3,6 +3,7 @@
 
 	export let variant: Variant = 'primary';
 	export let rounded: boolean | undefined = false;
+	export let type: 'button' | 'submit' | 'reset' = 'button';
 
 	const variantClass = {
 		primary: 'bg-cyan-700 hover:bg-cyan-600 text-white',
@@ -13,6 +14,7 @@
 </script>
 
 <button
+	{type}
 	class="{variantClass[
 		variant
 	]} {roundedClass} flex min-h-11 min-w-[44px] items-center justify-center p-2 text-base hover:ring-2"

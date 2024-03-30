@@ -1,12 +1,6 @@
 import { either as E } from 'fp-ts';
 import * as vitest from 'vitest';
 
-declare module 'vitest' {
-	interface CustomMatchers<R = unknown> {
-		toBeRightStrictEqual(expected: any): R;
-	}
-}
-
 vitest.expect.extend({
 	toBeRightStrictEqual(received: E.Either<unknown, unknown>, expected: unknown) {
 		return {
@@ -26,6 +20,12 @@ vitest.expect.extend({
 		return {
 			pass: E.isLeft(received) && (received.left as any)._tag === expected,
 			message: () => `expected ${JSON.stringify(received)} to be Either Left ${expected}`
+		};
+	},
+	toBeRight(received) {
+		return {
+			pass: E.isRight(received),
+			message: () => `expected ${JSON.stringify(received)} to be Either Right`
 		};
 	}
 });

@@ -50,7 +50,7 @@ describe('getNoteById', () => {
 
 		expect(result).toBeLeftStrictEqual({
 			_tag: 'DatabaseError',
-			message: 'Unexpted database error occurred',
+			message: 'Unexpected database error occurred',
 			originalError: new Error('db error')
 		});
 	});

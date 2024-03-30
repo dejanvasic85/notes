@@ -47,13 +47,33 @@ export const NoteOrderedSchema = NoteSchema.extend({
 
 export type NoteOrdered = z.infer<typeof NoteOrderedSchema>;
 
+export const UserInviteSchema = EntitySchema.extend({
+	friendEmail: z.string(),
+	userId: z.string(),
+	acceptedAt: z.date().nullable()
+});
+
+export type UserInvite = z.infer<typeof UserInviteSchema>;
+
+export const UserConnectionSchema = z.object({
+	createdAt: z.date().optional(),
+	updatedAt: z.date().optional(),
+	userFirstId: z.string(),
+	userSecondId: z.string(),
+	type: z.string()
+});
+
+export type UserConnection = z.infer<typeof UserConnectionSchema>;
+
 export const UserSchema = EntitySchema.extend({
 	authId: z.string().optional(),
 	email: z.string().optional(),
 	emailVerified: z.boolean(),
 	name: z.string().nullable(),
 	picture: z.string().nullable(),
-	boards: z.array(BoardSchema)
+	boards: z.array(BoardSchema),
+	connections: z.array(UserConnectionSchema).optional(),
+	invites: z.array(UserInviteSchema).optional()
 });
 
 export type User = z.infer<typeof UserSchema>;
@@ -91,6 +111,10 @@ export interface ValidationError extends BaseError {
 	readonly _tag: 'ValidationError';
 }
 
+export interface SendEmailError extends BaseError {
+	readonly _tag: 'SendEmailError';
+}
+
 export interface AuthorizationError extends BaseError {
 	readonly _tag: 'AuthorizationError';
 }
@@ -100,7 +124,8 @@ export type ServerError =
 	| DatabaseError
 	| RecordNotFoundError
 	| FetchError
-	| ValidationError;
+	| ValidationError
+	| SendEmailError;
 
 export type ErrorType = ServerError['_tag'];
 
