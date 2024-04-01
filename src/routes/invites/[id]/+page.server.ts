@@ -1,11 +1,10 @@
 import { error } from '@sveltejs/kit';
 
-import { pipe } from 'fp-ts/lib/function.js';
+import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
 
-import { mapToApiError } from '$lib/server/mapApi.js';
-import { acceptInvite } from '$lib/server/services/userService.js';
-import { getUser } from '$lib/server/db/userDb.js';
+import { mapToApiError } from '$lib/server/mapApi';
+import { acceptInvite } from '$lib/server/services/inviteService';
 
 export const load = async ({ params, locals }) => {
 	const inviteId = params.id;
@@ -13,17 +12,14 @@ export const load = async ({ params, locals }) => {
 
 	return pipe(
 		acceptInvite(inviteId, { id: acceptedBy.id, email: acceptedBy.email }),
-		TE.flatMap((connection) =>
-			getUser({ id: connection.userFirstId, includeBoards: false, includeNotes: false })
-		),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => {
 				throw error(err.status, err.message);
 			},
-			(friend) => ({
+			(result) => ({
 				connected: true,
-				friendName: friend.name
+				friendName: result.invitedBy.name
 			})
 		)
 	)();

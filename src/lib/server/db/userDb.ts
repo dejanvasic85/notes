@@ -119,14 +119,12 @@ export const updateInvite = (invite: UserInvite): TE.TaskEither<ServerError, Use
 export const createConnection = (
 	connection: UserConnection
 ): TE.TaskEither<ServerError, UserConnection> => {
-	return tryDbTask(() =>
-		db.userConnection.create({
-			data: connection,
-			include: {
-				userFirst: true,
-				userSecond: true
-			}
-		})
+	return pipe(
+		tryDbTask(() =>
+			db.userConnection.create({
+				data: connection
+			})
+		)
 	);
 };
 

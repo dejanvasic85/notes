@@ -5,7 +5,8 @@ import { taskEither as TE } from 'fp-ts';
 
 import { PUBLIC_BASE_URL } from '$env/static/public';
 import { getUserInvites } from '$lib/server/db/userDb';
-import { getFriends, sendInvite } from '$lib/server/services/userService';
+import { sendInvite } from '$lib/server/services/inviteService';
+import { getFriends } from '$lib/server/services/userService';
 import { mapToApiError } from '$lib/server/mapApi.js';
 
 export const prerender = false;
