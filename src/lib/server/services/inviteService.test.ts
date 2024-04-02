@@ -11,6 +11,7 @@ import {
 import { sendEmail } from '$lib/server/services/emailService';
 import type {
 	DatabaseError,
+	RecordNotFoundError,
 	SendEmailError,
 	User,
 	UserConnection,
@@ -44,6 +45,7 @@ describe('acceptInvite', () => {
 			friendEmail: 'foo@bar.com',
 			userId: 'uid_234'
 		};
+
 		const connection: UserConnection = {
 			type: 'connected',
 			userFirstId: 'uid_123',
@@ -61,6 +63,21 @@ describe('acceptInvite', () => {
 			connection,
 			invitedBy
 		});
+	});
+
+	it('should return record not found error when the invite is not found', async () => {
+		const inviteId = 'invite_123';
+		const acceptedBy = { id: 'uid_123', email: 'foo@bar.com' };
+		const recordNotFound: RecordNotFoundError = {
+			_tag: 'RecordNotFound',
+			message: 'Invite not found'
+		};
+
+		mockGetInvite.mockReturnValue(TE.left(recordNotFound));
+
+		const result = await acceptInvite(inviteId, acceptedBy)();
+
+		expect(result).toBeLeftStrictEqual(recordNotFound);
 	});
 });
 
