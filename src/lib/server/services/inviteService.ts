@@ -1,4 +1,4 @@
-import { taskEither as TE } from 'fp-ts';
+import { taskEither as TE, either as E } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import type { ServerError, User, UserConnection } from '$lib/types';
@@ -12,29 +12,47 @@ import {
 	updateInvite
 } from '$lib/server/db/userDb';
 import { sendEmail } from '$lib/server/services/emailService';
+import { createError } from '../createError';
 
 interface SendInviteParams {
-	name: string;
-	userId: string;
-	friendEmail: string;
 	baseUrl: string;
+	name: string;
+	friendEmail: string;
+	userId: string;
+	userEmail: string;
 }
 
-export const sendInvite = ({
-	baseUrl,
-	name,
-	userId,
-	friendEmail
-}: SendInviteParams): TE.TaskEither<ServerError, void> => {
+const validateSendInvite = (params: SendInviteParams): E.Either<ServerError, SendInviteParams> => {
+	if (!params.friendEmail) {
+		return E.left(createError('ValidationError', 'Friend email is required'));
+	}
+
+	return params.friendEmail === params.userEmail
+		? E.left(
+				createError('ValidationError', 'Friend email should be different to current user email')
+			)
+		: E.right(params);
+};
+
+export const sendInvite = (params: SendInviteParams): TE.TaskEither<ServerError, void> => {
 	return pipe(
-		createInvite({ id: generateId('inv'), userId, friendEmail, acceptedAt: null }),
-		TE.flatMap(({ id }) => {
-			const inviteLink = `${baseUrl}/invite/${id}`;
-			const html = `Hello ${friendEmail}. 
-			<p>You have been invited by ${name} to join them in collaborating on Notes.</p> 
+		TE.Do,
+		TE.bind('params', () => TE.fromEither(validateSendInvite(params))),
+		TE.bind('invite', ({ params }) =>
+			createInvite({
+				id: generateId('inv'),
+				userId: params.userId,
+				friendEmail: params.friendEmail,
+				acceptedAt: null
+			})
+		),
+		TE.flatMap(({ params, invite }) => {
+			const inviteLink = `${params.baseUrl}/invite/${invite.id}`;
+			const html = `Hello ${params.friendEmail}. 
+			<p>You have been invited by ${params.name} to join them in collaborating on Notes.</p> 
 			<p>Accept <a href="${inviteLink}">invite</a> to get started now.</p>`;
 			return sendEmail({
-				to: friendEmail,
+				to: params.friendEmail,
 				subject: 'You have been invited to share notes',
 				html
 			});

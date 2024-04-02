@@ -9,7 +9,14 @@ import {
 	updateInvite
 } from '$lib/server/db/userDb';
 import { sendEmail } from '$lib/server/services/emailService';
-import type { DatabaseError, SendEmailError, User, UserConnection, UserInvite } from '$lib/types';
+import type {
+	DatabaseError,
+	SendEmailError,
+	User,
+	UserConnection,
+	UserInvite,
+	ValidationError
+} from '$lib/types';
 
 import { acceptInvite, sendInvite } from './inviteService';
 
@@ -65,8 +72,9 @@ describe('sendInvites', () => {
 		const result = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'bob@foo.com',
-			name: '',
-			userId: 'uid_123'
+			name: 'foo bar',
+			userId: 'uid_123',
+			userEmail: 'foo@bar.com'
 		})();
 
 		expect(result).toBeRight();
@@ -84,8 +92,9 @@ describe('sendInvites', () => {
 		const result = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'bob@foo.com',
-			name: '',
-			userId: 'uid_123'
+			name: 'foo bar',
+			userId: 'uid_123',
+			userEmail: 'foo@bar.com'
 		})();
 
 		expect(result).toBeLeftStrictEqual(databaseError);
@@ -103,10 +112,31 @@ describe('sendInvites', () => {
 		const result = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'bob@foo.com',
-			name: '',
-			userId: 'uid_123'
+			name: 'foo bar',
+			userId: 'uid_123',
+			userEmail: 'foo@bar.com'
 		})();
 
 		expect(result).toBeLeftStrictEqual(emailError);
+	});
+
+	it('should return a validation error when the friend email matches the current user email', async () => {
+		const validationError: ValidationError = {
+			_tag: 'ValidationError',
+			message: 'Friend email should be different to current user email'
+		};
+
+		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
+		mockSendEmail.mockReturnValue(TE.right({} as any));
+
+		const result = await sendInvite({
+			baseUrl: 'localhost:1000',
+			friendEmail: 'foo@bar.com',
+			name: 'foo bar',
+			userId: 'uid_123',
+			userEmail: 'foo@bar.com'
+		})();
+
+		expect(result).toBeLeftStrictEqual(validationError);
 	});
 });

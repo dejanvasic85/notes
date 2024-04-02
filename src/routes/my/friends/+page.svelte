@@ -37,8 +37,8 @@
 	<div>
 		{#if form?.success}
 			<p>Invite sent</p>
-		{:else if form?.missing}
-			<p>{form.missing} is a required field</p>
+		{:else if form?.message}
+			<p>{form.message}</p>
 		{/if}
 		Invite another friend to share your notes
 		<form method="post">
