@@ -43,7 +43,7 @@ model UserConnection {
 
 model UserInvite {
   id          String    @id
-  friendEmail String    @unique
+  friendEmail String
   userId      String
   acceptedAt  DateTime?
   createdAt   DateTime  @default(now()) @db.Timestamptz(6)

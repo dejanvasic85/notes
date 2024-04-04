@@ -85,11 +85,23 @@ export const createUser = ({
 	});
 };
 
-export const getUserInvites = (uid: string): TE.TaskEither<ServerError, UserInvite[]> =>
+export const getPendingSentInvites = (userId: string): TE.TaskEither<ServerError, UserInvite[]> =>
 	tryDbTask(() =>
 		db.userInvite.findMany({
 			where: {
-				userId: uid,
+				userId,
+				acceptedAt: null
+			}
+		})
+	);
+
+export const getPendingIncomingInvites = (
+	friendEmail: string
+): TE.TaskEither<ServerError, UserInvite[]> =>
+	tryDbTask(() =>
+		db.userInvite.findMany({
+			where: {
+				friendEmail,
 				acceptedAt: null
 			}
 		})

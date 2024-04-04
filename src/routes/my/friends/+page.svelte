@@ -9,41 +9,62 @@
 </script>
 
 <div class="container mx-auto">
-	<h1>
-		Friends
-		{#if data.friends.length === 0}
-			<p>No friends yet</p>
-		{:else}
-			{#each data.friends as friend}
-				<div>
-					<p>{friend.userFirstId}+{friend.userSecondId}:{friend.type}</p>
-				</div>
-			{/each}
-		{/if}
-	</h1>
-
-	<hr />
-
-	<h1>Invites</h1>
-	<div>
-		Sent invites
-		{#each data.invites as invite}
+	<div class="flex">
+		<section class="mb-20 flex-1">
+			<h1 class="text-2xl">Friends</h1>
+			<p>Having friends allows you to share notes with one another.</p>
 			<div>
-				<p>{invite.friendEmail}, sent: {invite.createdAt}</p>
+				{#if data.friends.length === 0}
+					<p>No friends yet</p>
+				{:else}
+					{#each data.friends as friend}
+						<div>
+							<p>{friend.userFirstId}+{friend.userSecondId}:{friend.type}</p>
+						</div>
+					{/each}
+				{/if}
 			</div>
-		{/each}
-	</div>
+			<div class="mt-4">
+				Invite a friend by email.
+				<form method="post">
+					<Input type="text" name="email" placeholder="Email" />
+					<Button type="submit">Invite</Button>
+				</form>
+			</div>
+		</section>
 
-	<div>
-		{#if form?.success}
-			<p>Invite sent</p>
-		{:else if form?.message}
-			<p>{form.message}</p>
-		{/if}
-		Invite another friend to share your notes
-		<form method="post">
-			<Input type="text" name="email" placeholder="Email" />
-			<Button type="submit">Invite</Button>
-		</form>
+		<section class="flex-1">
+			<h1 class="text-xl">Invites</h1>
+			<div>
+				<h3 class="text-lg">Sent invites</h3>
+				{#each data.pendingSentInvites as invite}
+					<div>
+						<p>{invite.friendEmail}, sent: {invite.createdAt}</p>
+					</div>
+				{/each}
+			</div>
+
+			<div>
+				<h3 class="text-lg">Incoming invites</h3>
+				{#each data.pendingReceivedInvites as invite}
+					<div>
+						<p>
+							{invite.friendEmail}, sent: {invite.createdAt}
+							<Button>Accept</Button>
+							<Button>Ignore</Button>
+						</p>
+					</div>
+				{/each}
+			</div>
+
+			<div>
+				{#if form?.success}
+					<p>Invite sent</p>
+				{:else if form?.message}
+					<p>{form.message}</p>
+				{/if}
+				<hr />
+			</div>
+		</section>
 	</div>
 </div>

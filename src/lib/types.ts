@@ -60,7 +60,7 @@ export const UserConnectionSchema = z.object({
 	updatedAt: z.date().optional(),
 	userFirstId: z.string(),
 	userSecondId: z.string(),
-	type: z.string()
+	type: z.string(),
 });
 
 export type UserConnection = z.infer<typeof UserConnectionSchema>;
