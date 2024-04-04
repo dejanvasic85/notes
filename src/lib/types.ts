@@ -55,12 +55,16 @@ export const UserInviteSchema = EntitySchema.extend({
 
 export type UserInvite = z.infer<typeof UserInviteSchema>;
 
+export interface UserInviteWithUserProps extends UserInvite {
+	user: Pick<User, 'email' | 'name'>;
+}
+
 export const UserConnectionSchema = z.object({
 	createdAt: z.date().optional(),
 	updatedAt: z.date().optional(),
 	userFirstId: z.string(),
 	userSecondId: z.string(),
-	type: z.string(),
+	type: z.string()
 });
 
 export type UserConnection = z.infer<typeof UserConnectionSchema>;

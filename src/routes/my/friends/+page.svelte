@@ -44,12 +44,12 @@
 				{/each}
 			</div>
 
-			<div>
+			<div class="mt-8">
 				<h3 class="text-lg">Incoming invites</h3>
 				{#each data.pendingReceivedInvites as invite}
 					<div>
 						<p>
-							{invite.friendEmail}, sent: {invite.createdAt}
+							{invite.user.name}, sent: {invite.createdAt}
 							<Button>Accept</Button>
 							<Button>Ignore</Button>
 						</p>

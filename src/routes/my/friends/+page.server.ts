@@ -4,7 +4,7 @@ import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
 
 import { PUBLIC_BASE_URL } from '$env/static/public';
-import { getPendingIncomingInvites, getPendingSentInvites } from '$lib/server/db/userDb';
+import { getPendingReceivedInvites, getPendingSentInvites } from '$lib/server/db/userDb';
 import { sendInvite } from '$lib/server/services/inviteService';
 import { getFriends } from '$lib/server/services/userService';
 import { mapToApiError } from '$lib/server/mapApi';
@@ -16,7 +16,7 @@ export const load = async ({ locals }) => {
 	return pipe(
 		TE.Do,
 		TE.bind('pendingSentInvites', () => getPendingSentInvites(user.id)),
-		TE.bind('pendingReceivedInvites', () => getPendingIncomingInvites(user.email!)),
+		TE.bind('pendingReceivedInvites', () => getPendingReceivedInvites(user.email!)),
 		TE.bind('friends', () => getFriends(user.id)),
 		TE.mapLeft(mapToApiError),
 		TE.match(

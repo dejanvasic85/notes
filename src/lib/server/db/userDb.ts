@@ -3,7 +3,14 @@ import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/server/db';
 import { generateId } from '$lib/identityGenerator';
-import type { AuthUserProfile, ServerError, User, UserConnection, UserInvite } from '$lib/types';
+import type {
+	AuthUserProfile,
+	ServerError,
+	User,
+	UserConnection,
+	UserInvite,
+	UserInviteWithUserProps
+} from '$lib/types';
 
 import { fromNullableRecord, tryDbTask } from './utils';
 
@@ -95,16 +102,28 @@ export const getPendingSentInvites = (userId: string): TE.TaskEither<ServerError
 		})
 	);
 
-export const getPendingIncomingInvites = (
+export const getPendingReceivedInvites = (
 	friendEmail: string
-): TE.TaskEither<ServerError, UserInvite[]> =>
-	tryDbTask(() =>
-		db.userInvite.findMany({
-			where: {
-				friendEmail,
-				acceptedAt: null
-			}
-		})
+): TE.TaskEither<ServerError, UserInviteWithUserProps[]> =>
+	pipe(
+		tryDbTask(() =>
+			db.userInvite.findMany({
+				where: {
+					friendEmail,
+					acceptedAt: null
+				},
+				include: { user: true }
+			})
+		),
+		TE.map((invites) =>
+			invites.map(({ user, ...rest }) => {
+				const inv: UserInviteWithUserProps = {
+					...rest,
+					user: { email: user.email, name: user.name }
+				};
+				return inv;
+			})
+		)
 	);
 
 interface GetInviteOptions {
@@ -120,8 +139,8 @@ export const getInvite = (
 		TE.flatMap(fromNullableRecord(`User with authId ${id} not found`))
 	);
 
-export const createInvite = (invite: UserInvite): TE.TaskEither<ServerError, UserInvite> =>
-	tryDbTask(() => db.userInvite.create({ data: invite }));
+export const createInvite = (data: UserInvite): TE.TaskEither<ServerError, UserInvite> =>
+	tryDbTask(() => db.userInvite.create({ data }));
 
 export const updateInvite = (invite: UserInvite): TE.TaskEither<ServerError, UserInvite> => {
 	const { id, ...rest } = invite;
