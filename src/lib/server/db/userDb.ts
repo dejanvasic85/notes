@@ -97,7 +97,7 @@ export const getPendingSentInvites = (userId: string): TE.TaskEither<ServerError
 		db.userInvite.findMany({
 			where: {
 				userId,
-				acceptedAt: null
+				status: null
 			}
 		})
 	);
@@ -110,7 +110,7 @@ export const getPendingReceivedInvites = (
 			db.userInvite.findMany({
 				where: {
 					friendEmail,
-					acceptedAt: null
+					status: null
 				},
 				include: { user: true }
 			})

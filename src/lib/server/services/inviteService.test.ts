@@ -41,7 +41,7 @@ describe('acceptInvite', () => {
 
 		const invite: UserInvite = {
 			id: 'invite_123',
-			acceptedAt: null,
+			status: null,
 			friendEmail: 'foo@bar.com',
 			userId: 'uid_234'
 		};
@@ -54,7 +54,7 @@ describe('acceptInvite', () => {
 
 		mockGetInvite.mockReturnValue(TE.right(invite));
 		mockGetUser.mockReturnValue(TE.right(invitedBy));
-		mockUpdateInvite.mockReturnValue(TE.right({ ...invite, acceptedAt: new Date() }));
+		mockUpdateInvite.mockReturnValue(TE.right({ ...invite, status: 'accepted' }));
 		mockCreateConnection.mockReturnValue(TE.right(connection));
 
 		const result = await acceptInvite(inviteId, acceptedBy)();

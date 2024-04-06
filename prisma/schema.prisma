@@ -42,12 +42,12 @@ model UserConnection {
 }
 
 model UserInvite {
-  id          String    @id
+  id          String   @id
   friendEmail String
   userId      String
-  acceptedAt  DateTime?
-  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  status      String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
 
   user User @relation(fields: [userId], references: [id])
 }

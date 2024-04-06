@@ -43,7 +43,7 @@ export const sendInvite = (params: SendInviteParams): TE.TaskEither<ServerError,
 				id: generateId('inv'),
 				userId: params.userId,
 				friendEmail: params.friendEmail,
-				acceptedAt: null
+				status: null
 			})
 		),
 		TE.flatMap(({ params, invite }) => {
@@ -77,7 +77,7 @@ export const acceptInvite = (
 				type: 'connected'
 			})
 		),
-		TE.bind('updateInvite', ({ invite }) => updateInvite({ ...invite, acceptedAt: new Date() })),
+		TE.bind('updateInvite', ({ invite }) => updateInvite({ ...invite, status: 'accepted' })),
 		TE.map(({ connection, invitedBy }) => ({
 			connection,
 			invitedBy
