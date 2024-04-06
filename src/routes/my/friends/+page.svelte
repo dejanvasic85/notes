@@ -48,13 +48,16 @@
 			<div class="mt-8">
 				<h3 class="text-lg">Incoming invites</h3>
 				{#each data.pendingReceivedInvites as invite}
-					<div>
+					<div class="flex gap-4">
 						{invite.user.name}, sent: {invite.createdAt}
-						<form method="post" action="?/acceptInvite" use:enhance>
+						<form method="post" action="?/accept" use:enhance>
 							<input type="hidden" name="inviteId" value={invite.id} />
 							<Button type="submit">Accept</Button>
 						</form>
-						<Button>Ignore</Button>
+						<form method="post" action="?/ignore" use:enhance>
+							<input type="hidden" name="inviteId" value={invite.id} />
+							<Button variant="ghost" type="submit">Ignore</Button>
+						</form>
 					</div>
 				{/each}
 			</div>

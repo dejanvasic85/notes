@@ -5,7 +5,7 @@ import { taskEither as TE } from 'fp-ts';
 
 import { PUBLIC_BASE_URL } from '$env/static/public';
 import { getPendingReceivedInvites, getPendingSentInvites } from '$lib/server/db/userDb';
-import { acceptInvite, sendInvite } from '$lib/server/services/inviteService';
+import { acceptInvite, ignoreInvite, sendInvite } from '$lib/server/services/inviteService';
 import { getFriends } from '$lib/server/services/userService';
 import { mapToApiError } from '$lib/server/mapApi';
 
@@ -34,6 +34,7 @@ export const load = async ({ locals }) => {
 
 type SendInviteResult = Promise<ActionFailure<{ message: string }> | { success: boolean }>;
 type AcceptInviteResult = Promise<ActionFailure<{ message: string }> | { acceptedInvite: boolean }>;
+type IgnoreInviteResult = Promise<ActionFailure<{ message: string }> | { ignoredInvite: boolean }>;
 
 export const actions = {
 	invite: async ({ locals, request }): SendInviteResult => {
@@ -58,7 +59,7 @@ export const actions = {
 		)();
 	},
 
-	acceptInvite: async ({ locals, request }): AcceptInviteResult => {
+	accept: async ({ locals, request }): AcceptInviteResult => {
 		const user = locals.user!;
 		const data = await request.formData();
 		const inviteId = data.get('inviteId') as string;
@@ -70,6 +71,21 @@ export const actions = {
 				// @ts-ignore: fp-ts is expecting the same return types
 				({ status, message }) => fail(status, { message }),
 				() => ({ acceptedInvite: true })
+			)
+		)();
+	},
+
+	ignore: async ({ request }): IgnoreInviteResult => {
+		const data = await request.formData();
+		const inviteId = data.get('inviteId') as string;
+
+		return pipe(
+			ignoreInvite(inviteId),
+			TE.mapLeft(mapToApiError),
+			TE.match(
+				// @ts-ignore: fp-ts is expecting the same return types
+				({ status, message }) => fail(status, { message }),
+				() => ({ ignoredInvite: true })
 			)
 		)();
 	}

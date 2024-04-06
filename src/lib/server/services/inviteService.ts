@@ -1,7 +1,7 @@
 import { taskEither as TE, either as E } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
-import type { ServerError, User, UserConnection } from '$lib/types';
+import type { ServerError, User, UserConnection, UserInvite } from '$lib/types';
 
 import { generateId } from '$lib/identityGenerator';
 import {
@@ -82,5 +82,13 @@ export const acceptInvite = (
 			connection,
 			invitedBy
 		}))
+	);
+};
+
+export const ignoreInvite = (inviteId: string): TE.TaskEither<ServerError, UserInvite> => {
+	return pipe(
+		TE.Do,
+		TE.bind('invite', () => getInvite(inviteId)),
+		TE.flatMap(({ invite }) => updateInvite({ ...invite, status: 'ignored' }))
 	);
 };
