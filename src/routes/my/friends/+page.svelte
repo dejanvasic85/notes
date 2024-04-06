@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import type { ActionData, PageData } from './$types.js';
 
 	import Input from '$components/Input.svelte';
@@ -26,7 +27,7 @@
 			</div>
 			<div class="mt-4">
 				Invite a friend by email.
-				<form method="post">
+				<form method="post" action="?/invite" use:enhance>
 					<Input type="text" name="email" placeholder="Email" />
 					<Button type="submit">Invite</Button>
 				</form>
@@ -48,11 +49,12 @@
 				<h3 class="text-lg">Incoming invites</h3>
 				{#each data.pendingReceivedInvites as invite}
 					<div>
-						<p>
-							{invite.user.name}, sent: {invite.createdAt}
-							<Button>Accept</Button>
-							<Button>Ignore</Button>
-						</p>
+						{invite.user.name}, sent: {invite.createdAt}
+						<form method="post" action="?/acceptInvite" use:enhance>
+							<input type="hidden" name="inviteId" value={invite.id} />
+							<Button type="submit">Accept</Button>
+						</form>
+						<Button>Ignore</Button>
 					</div>
 				{/each}
 			</div>

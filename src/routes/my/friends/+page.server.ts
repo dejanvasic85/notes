@@ -5,7 +5,7 @@ import { taskEither as TE } from 'fp-ts';
 
 import { PUBLIC_BASE_URL } from '$env/static/public';
 import { getPendingReceivedInvites, getPendingSentInvites } from '$lib/server/db/userDb';
-import { sendInvite } from '$lib/server/services/inviteService';
+import { acceptInvite, sendInvite } from '$lib/server/services/inviteService';
 import { getFriends } from '$lib/server/services/userService';
 import { mapToApiError } from '$lib/server/mapApi';
 
@@ -33,9 +33,10 @@ export const load = async ({ locals }) => {
 };
 
 type SendInviteResult = Promise<ActionFailure<{ message: string }> | { success: boolean }>;
+type AcceptInviteResult = Promise<ActionFailure<{ message: string }> | { acceptedInvite: boolean }>;
 
 export const actions = {
-	default: async ({ locals, request }): SendInviteResult => {
+	invite: async ({ locals, request }): SendInviteResult => {
 		const currentUser = locals.user!;
 		const data = await request.formData();
 		const friendEmail = data.get('email') as string;
@@ -53,6 +54,22 @@ export const actions = {
 				// @ts-ignore: fp-ts is expecting the same return types
 				({ status, message }) => fail(status, { message }),
 				() => ({ success: true })
+			)
+		)();
+	},
+
+	acceptInvite: async ({ locals, request }): AcceptInviteResult => {
+		const user = locals.user!;
+		const data = await request.formData();
+		const inviteId = data.get('inviteId') as string;
+
+		return pipe(
+			acceptInvite(inviteId, { id: user.id, email: user.email! }),
+			TE.mapLeft(mapToApiError),
+			TE.match(
+				// @ts-ignore: fp-ts is expecting the same return types
+				({ status, message }) => fail(status, { message }),
+				() => ({ acceptedInvite: true })
 			)
 		)();
 	}
