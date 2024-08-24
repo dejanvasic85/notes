@@ -41,7 +41,7 @@
 <dialog
 	bind:this={dialog}
 	on:close
-	on:click|self={() => dialog.close()}
+	on:click|self={() => null}
 	class="fixed bottom-0 left-0 right-0 top-0 mx-auto my-4 w-full rounded-md sm:w-3/4 lg:my-auto lg:w-1/2 {className}"
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -79,7 +79,7 @@
 		}
 	}
 	dialog[open]::backdrop {
-		animation: fade 0.2s ease-out;
+		animation: fade 0.3s ease-out;
 	}
 	@keyframes fade {
 		from {
