@@ -132,9 +132,11 @@
 
 	<div slot="footer">
 		<div class="flex justify-between px-2 pb-2">
-			<Button on:click={handleSave}>
-				<Icon icon="check" size={32} title="Save note" />
-			</Button>
+			<div class="ml-auto">
+				<Button on:click={handleSave}>
+					<Icon icon="check" size={32} title="Save note" />
+				</Button>
+			</div>
 		</div>
 	</div>
 </Modal>
