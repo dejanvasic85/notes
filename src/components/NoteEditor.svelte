@@ -100,6 +100,17 @@
 				</Button>
 			</div>
 			<div class="flex">
+				{#if enableSharing}
+					<Share
+						collaborators={[
+							{ id: '1', name: 'Alice', selected: false },
+							{ id: '2', name: 'Bob', selected: true }
+						]}
+						isOpen={false}
+						on:add={() => console.log('todo: Add friend!')}
+						on:toggleFriend={({ detail }) => console.log('todo: toggle friend...', detail.id)}
+					/>
+				{/if}
 				<ColourPicker on:colourClick={handleColourPick} />
 				<Button variant="ghost" on:click={handleDeleteClick}>
 					<Icon icon="trash" title="Delete note" />
@@ -121,9 +132,6 @@
 
 	<div slot="footer">
 		<div class="flex justify-between px-2 pb-2">
-			{#if enableSharing}
-				<Share collaborators={[]} />
-			{/if}
 			<Button on:click={handleSave}>
 				<Icon icon="check" size={32} title="Save note" />
 			</Button>

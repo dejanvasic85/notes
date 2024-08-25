@@ -1,52 +1,54 @@
 <script lang="ts">
+	type ComponentEvents = {
+		toggleFriend: { id: string };
+		add: {};
+	};
+
 	import { createEventDispatcher } from 'svelte';
 	import type { User } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
-	import Input from './Input.svelte';
-
-	interface Person extends Pick<User, 'id' | 'email' | 'name'> {}
+	import { slide } from 'svelte/transition';
+	type Person = Pick<User, 'id' | 'name'> & {
+		selected: boolean;
+	};
 
 	// Events
-	const dispatchSave = createEventDispatcher<{ save: { email: string } }>();
+	const dispatch = createEventDispatcher<ComponentEvents>();
 
 	// Props
 	export let collaborators: Person[] = [];
-
-	// Internal state
-	let isEditMode = false;
-	let email = '';
-
-	function handleEditClick() {
-		isEditMode = true;
-	}
-
-	function handleSave() {
-		isEditMode = false;
-		dispatchSave('save', { email });
-		email = '';
-	}
+	export let isOpen = false;
 </script>
 
-<div>
-	{#each collaborators as { email }}<div>{email}</div>{/each}
-	{#if isEditMode}
-		<div class="flex flex-row gap-2">
-			<Input
-				id="email"
-				type="email"
-				label="email"
-				placeholder="email"
-				focusOnMount={true}
-				bind:value={email}
-			/>
-			<Button on:click={() => (isEditMode = false)} variant="ghost"><Icon icon="cross" /></Button>
-			<Button on:click={handleSave}><Icon icon="check" /></Button>
+<div class="share-menu relative">
+	{#if isOpen}
+		<div
+			in:slide={{ duration: 100 }}
+			class="absolute right-0 top-14 z-50 flex w-64 flex-col gap-1 border-2 p-2 dark:bg-slate-800"
+		>
+			<button
+				class="flex items-center bg-white p-2 text-white hover:ring-2 dark:border-slate-200 dark:bg-slate-800"
+				on:click={() => dispatch('add', {})}
+			>
+				<Icon icon="plus" size={30} title="No colour" /> Add friend
+			</button>
+			{#each collaborators as { id, name, selected }}
+				<button
+					class="flex items-center bg-white p-2 text-white hover:ring-2 dark:border-slate-200 dark:bg-slate-800"
+					on:click={() => dispatch('toggleFriend', { id })}
+				>
+					{#if selected}
+						<Icon icon="check" title="Selected" /> &nbsp;
+					{:else}
+						<Icon icon="cross" title="Not selected" /> &nbsp;
+					{/if}
+					{name}
+				</button>{/each}
 		</div>
-	{:else}
-		<Button on:click={handleEditClick}>
-			<Icon icon="personAdd" />
-		</Button>
 	{/if}
+	<Button variant="ghost" on:click={() => (isOpen = !isOpen)}>
+		<Icon icon="personAdd" />
+	</Button>
 </div>
