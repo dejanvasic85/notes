@@ -22,39 +22,40 @@
 	let searchQuery: string;
 
 	// Events
-	const dispatchCreate = createEventDispatcher();
-	const dispatchUpdate = createEventDispatcher<{ updateNote: UpdateProps }>();
-	const dispatchClose = createEventDispatcher();
-	const dispatchSelect = createEventDispatcher<{ select: string }>();
-	const dispatchReorder = createEventDispatcher<{
+	type ComponentEvents = {
+		createNote: {};
+		updateNote: UpdateProps;
+		closeNote: {};
+		select: { id: string };
 		reorder: { fromIndex: number; toIndex: number };
-	}>();
+	};
+	const dispatch = createEventDispatcher<ComponentEvents>();
 
 	function handleModalClose() {
-		dispatchClose('closeNote');
+		dispatch('closeNote', {});
 	}
 
 	function handleSave({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
-		dispatchUpdate('updateNote', { note });
-		dispatchClose('closeNote');
+		dispatch('updateNote', { note });
+		dispatch('closeNote', {});
 	}
 
 	function handleUpdateColour({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
-		dispatchUpdate('updateNote', { note });
+		dispatch('updateNote', { note });
 	}
 
 	function handleCreateClick() {
-		dispatchCreate('createNote');
+		dispatch('createNote', {});
 	}
 
 	function handleEdit(id?: string) {
 		if (id) {
-			dispatchSelect('select', id);
+			dispatch('select', { id });
 		}
 	}
 
 	function handleDrop(toIndex: number, { index }: DraggableData, _: DragEvent) {
-		dispatchReorder('reorder', { fromIndex: index, toIndex });
+		dispatch('reorder', { fromIndex: index, toIndex });
 	}
 
 	$: selectedId = selectedNote?.id;

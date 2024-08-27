@@ -18,7 +18,7 @@
 	$: selectedId = search.get('id');
 	$: selectedNote = localNotes.find((n) => n.id === selectedId);
 
-	function handleSelect({ detail: id }: CustomEvent<string>) {
+	function handleSelect({ detail: { id } }: CustomEvent<{ id: string }>) {
 		goto(`/my/board?id=${id}`);
 	}
 
