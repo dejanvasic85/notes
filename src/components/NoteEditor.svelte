@@ -10,6 +10,14 @@
 	import Modal from './Modal.svelte';
 	import Share from './Share.svelte';
 
+	type ComponentEvents = {
+		close: {};
+		saveNote: { note: NoteOrdered };
+		updateColour: { note: NoteOrdered };
+		deleteNote: { note: NoteOrdered };
+		addFriend: { friendId: string; noteId: string };
+	};
+
 	// Props
 	export let enableSharing: boolean = false;
 	export let note: NoteOrdered;
@@ -21,10 +29,7 @@
 	let noteTextPlain: string = note.textPlain;
 
 	// External events
-	const dispatch = createEventDispatcher();
-	const dispatchNoteSave = createEventDispatcher<{ saveNote: { note: NoteOrdered } }>();
-	const dispatchColourUpdate = createEventDispatcher<{ updateColour: { note: NoteOrdered } }>();
-	const dispatchDeleteNote = createEventDispatcher<{ deleteNote: { note: NoteOrdered } }>();
+	const dispatch = createEventDispatcher<ComponentEvents>();
 
 	// Internal handlers
 	async function handleModalOpen() {
@@ -32,7 +37,7 @@
 	}
 
 	function handleSave() {
-		dispatchNoteSave('saveNote', {
+		dispatch('saveNote', {
 			note: {
 				...note,
 				text: noteText,
@@ -59,12 +64,12 @@
 
 	function handleDeleteClick() {
 		if (confirm('Are you sure you want to delete this note?')) {
-			dispatchDeleteNote('deleteNote', { note });
+			dispatch('deleteNote', { note });
 		}
 	}
 
 	function handleColourPick({ detail }: CustomEvent<{ colour: Colour }>) {
-		dispatchColourUpdate('updateColour', {
+		dispatch('updateColour', {
 			note: {
 				...note,
 				colour: detail.colour
@@ -95,7 +100,7 @@
 	<div slot="header" class="px-2 pt-2">
 		<div class="flex justify-between">
 			<div class="flex-1">
-				<Button variant="ghost" on:click={() => dispatch('close')}>
+				<Button variant="ghost" on:click={() => dispatch('close', {})}>
 					<Icon icon="chevronLeft" title="Cancel note edit" />
 				</Button>
 			</div>
@@ -107,8 +112,9 @@
 							{ id: '2', name: 'Bob', selected: true }
 						]}
 						isOpen={false}
-						on:add={() => console.log('todo: Add friend!')}
-						on:toggleFriend={({ detail }) => console.log('todo: toggle friend...', detail.id)}
+						noteId={note.id}
+						on:toggleFriend={({ detail }) =>
+							dispatch('addFriend', { friendId: detail.id, noteId: note.id })}
 					/>
 				{/if}
 				<ColourPicker on:colourClick={handleColourPick} />

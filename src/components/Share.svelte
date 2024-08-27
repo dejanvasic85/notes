@@ -1,7 +1,6 @@
 <script lang="ts">
 	type ComponentEvents = {
 		toggleFriend: { id: string };
-		add: {};
 	};
 
 	import { createEventDispatcher } from 'svelte';
@@ -20,6 +19,7 @@
 	// Props
 	export let collaborators: Person[] = [];
 	export let isOpen = false;
+	export let noteId: string;
 </script>
 
 <div class="share-menu relative">
@@ -28,12 +28,12 @@
 			in:slide={{ duration: 100 }}
 			class="absolute right-0 top-14 z-50 flex w-64 flex-col gap-1 border-2 p-2 dark:bg-slate-800"
 		>
-			<button
+			<a
 				class="flex items-center bg-white p-2 text-white hover:ring-2 dark:border-slate-200 dark:bg-slate-800"
-				on:click={() => dispatch('add', {})}
+				href={`/my/friends?noteId=${noteId}`}
 			>
 				<Icon icon="plus" size={30} title="No colour" /> Add friend
-			</button>
+			</a>
 			{#each collaborators as { id, name, selected }}
 				<button
 					class="flex items-center bg-white p-2 text-white hover:ring-2 dark:border-slate-200 dark:bg-slate-800"
