@@ -82,6 +82,8 @@ export const UserSchema = EntitySchema.extend({
 
 export type User = z.infer<typeof UserSchema>;
 
+export type Friend = Pick<User, 'email' | 'id' | 'name' | 'picture'>;
+
 export const AuthUserProfileSchema = z.object({
 	sub: z.string(),
 	nickname: z.string(),

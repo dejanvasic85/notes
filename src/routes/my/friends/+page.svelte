@@ -20,7 +20,7 @@
 				{:else}
 					{#each data.friends as friend}
 						<div>
-							<p>{friend.userFirstId}+{friend.userSecondId}:{friend.type}</p>
+							<p>{friend.name}</p>
 						</div>
 					{/each}
 				{/if}

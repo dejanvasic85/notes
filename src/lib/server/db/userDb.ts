@@ -57,6 +57,12 @@ export const getUserByAuthId = (authId: string): TE.TaskEither<ServerError, User
 		}))
 	);
 
+export const getAllUsersById = (ids: string[]): TE.TaskEither<ServerError, User[]> =>
+	pipe(
+		tryDbTask(() => db.user.findMany({ where: { id: { in: ids } } })),
+		TE.map((users) => users.map((user) => ({ ...user, boards: [] })))
+	);
+
 export const createUser = ({
 	authUserProfile
 }: {
