@@ -75,9 +75,10 @@
 		bind:showModal
 		note={selectedNote}
 		{enableSharing}
-		on:close={handleModalClose}
-		on:saveNote={handleSave}
+		on:close
 		on:deleteNote
+		on:toggleFriendShare
+		on:saveNote={handleSave}
 		on:updateColour={handleUpdateColour}
 	/>
 {/if}

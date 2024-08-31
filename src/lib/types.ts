@@ -14,7 +14,7 @@ export const NoteSchema = EntitySchema.extend({
 	text: z.string(),
 	textPlain: z.string(),
 	colour: z.string().nullable(),
-	boardId: z.string().nullable()
+	boardId: z.string().nullable(),
 });
 
 export type Note = z.infer<typeof NoteSchema>;

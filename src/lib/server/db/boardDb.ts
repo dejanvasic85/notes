@@ -21,7 +21,10 @@ export const getBoardByUserId = ({
 }): TE.TaskEither<ServerError, Board> =>
 	pipe(
 		tryDbTask(() =>
-			db.board.findFirstOrThrow({ where: { userId }, include: { notes: includeNotes } })
+			db.board.findFirstOrThrow({
+				where: { userId },
+				include: { notes: includeNotes && { include: { editors: true } } }
+			})
 		),
 		TE.flatMap(fromNullableRecord(`Board for user ${userId} not found`))
 	);

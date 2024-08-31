@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	import type { Note, NoteOrdered, NotePatchInput, BoardPatch } from '$lib/types';
+	import type { Note, NoteOrdered, NotePatchInput, BoardPatch, Friend } from '$lib/types';
 	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes.js';
 	import { generateId } from '$lib/identityGenerator.js';
 	import { tryFetch, MaybeType } from '$lib/fetch.js';
@@ -10,6 +10,8 @@
 	import Board from '$components/Board.svelte';
 
 	export let data;
+	console.log('data', data);
+
 	const boardId = data.board.id;
 	let localNoteOrder = [...data.board.noteOrder];
 	let localNotes = [...getOrderedNotes(data.board.noteOrder, data.board.notes)];
@@ -45,6 +47,12 @@
 
 			// todo: show an error
 		}
+	}
+
+	async function handleToggleFriendShare({
+		detail: { friendId, noteId }
+	}: CustomEvent<{ friendId: string; noteId: string }>) {
+		console.log('todo: handleToggleFriendShare', friendId, noteId);
 	}
 
 	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
@@ -127,6 +135,7 @@
 	on:updateNote={handleUpdate}
 	on:deleteNote={handleDelete}
 	on:reorder={handleReorder}
+	on:toggleFriendShare={handleToggleFriendShare}
 	enableSharing={true}
 	{selectedNote}
 />

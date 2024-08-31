@@ -40,7 +40,8 @@ export const createNote = (note: Note): TE.TaskEither<ServerError, Note> =>
 			return db.note.create({
 				data: {
 					...note,
-					boardId: note.boardId!
+					boardId: note.boardId!,
+					editors: undefined
 				}
 			});
 		},

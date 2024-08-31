@@ -9,11 +9,7 @@ export const prerender = false;
 export const load = async ({ locals }) => {
 	return pipe(
 		TE.Do,
-		TE.bind('board', () =>
-			getBoardByUserId({
-				userId: locals.user!.id
-			})
-		),
+		TE.bind('board', () => getBoardByUserId({ userId: locals.user!.id })),
 		TE.bind('friends', () => getFriends(locals.user!.id)),
 		TE.match(
 			() => {

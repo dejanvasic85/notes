@@ -12,10 +12,10 @@
 
 	type ComponentEvents = {
 		close: {};
-		saveNote: { note: NoteOrdered };
-		updateColour: { note: NoteOrdered };
 		deleteNote: { note: NoteOrdered };
-		addFriend: { friendId: string; noteId: string };
+		saveNote: { note: NoteOrdered };
+		toggleFriendShare: { friendId: string; noteId: string };
+		updateColour: { note: NoteOrdered };
 	};
 
 	// Props
@@ -114,7 +114,7 @@
 						isOpen={false}
 						noteId={note.id}
 						on:toggleFriend={({ detail }) =>
-							dispatch('addFriend', { friendId: detail.id, noteId: note.id })}
+							dispatch('toggleFriendShare', { friendId: detail.id, noteId: note.id })}
 					/>
 				{/if}
 				<ColourPicker on:colourClick={handleColourPick} />

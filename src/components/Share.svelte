@@ -29,14 +29,14 @@
 			class="absolute right-0 top-14 z-50 flex w-64 flex-col gap-1 border-2 p-2 dark:bg-slate-800"
 		>
 			<a
-				class="flex items-center bg-white p-2 text-white hover:ring-2 dark:border-slate-200 dark:bg-slate-800"
+				class="flex items-center bg-white p-2 dark:text-white hover:ring-2 dark:border-slate-200 dark:bg-slate-800"
 				href={`/my/friends?noteId=${noteId}`}
 			>
 				<Icon icon="plus" size={30} title="No colour" /> Add friend
 			</a>
 			{#each collaborators as { id, name, selected }}
 				<button
-					class="flex items-center bg-white p-2 text-white hover:ring-2 dark:border-slate-200 dark:bg-slate-800"
+					class="flex items-center bg-white p-2 dark:text-white hover:ring-2 dark:border-slate-200 dark:bg-slate-800"
 					on:click={() => dispatch('toggleFriend', { id })}
 				>
 					{#if selected}
