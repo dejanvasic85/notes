@@ -3,8 +3,9 @@ import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/server/db';
 import { withError } from '$lib/server/createError';
-import type { ServerError, Note, IdParams } from '$lib/types';
+import type { ServerError, Note, IdParams, NoteEditorInput } from '$lib/types';
 import { fromNullableRecord, tryDbTask } from './utils';
+import { generateId } from '$lib/identityGenerator';
 
 export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> =>
 	pipe(
@@ -47,3 +48,17 @@ export const createNote = (note: Note): TE.TaskEither<ServerError, Note> =>
 		},
 		withError('DatabaseError', 'Failed to create note')
 	);
+
+export const createNoteEditor = (data: NoteEditorInput) => {
+	return TE.tryCatch(
+		() => {
+			return db.noteEditor.create({
+				data: {
+					...data,
+					id: generateId('ned')
+				}
+			});
+		},
+		withError('DatabaseError', 'Failed to create note editor')
+	);
+};

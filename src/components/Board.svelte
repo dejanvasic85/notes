@@ -3,7 +3,7 @@
 
 	import { dropzone, type DraggableData } from '$lib/draggable';
 	import { searchNotes } from '$lib/notes';
-	import type { NoteOrdered } from '$lib/types';
+	import type { Friend, NoteOrdered } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
@@ -19,6 +19,8 @@
 	export let notes: NoteOrdered[];
 	export let selectedNote: NoteOrdered | undefined;
 	export let enableSharing: boolean = false;
+	export let friends: Friend[] = [];
+
 	let searchQuery: string;
 
 	// Events
@@ -61,6 +63,16 @@
 	$: selectedId = selectedNote?.id;
 	$: showModal = !!selectedId;
 	$: notesOrderedFiltered = searchNotes(notes, searchQuery);
+	$: selectedNoteFriends = friends.map((f) => {
+		const selected = (selectedNote as any)?.editors.find((e: any) => e.id === f.id);
+		return {
+			email: f.email,
+			id: f.id,
+			name: f.name,
+			picture: f.picture,
+			selected: !!selected
+		};
+	});
 </script>
 
 <Input
@@ -80,6 +92,7 @@
 		on:toggleFriendShare
 		on:saveNote={handleSave}
 		on:updateColour={handleUpdateColour}
+		friends={selectedNoteFriends}
 	/>
 {/if}
 

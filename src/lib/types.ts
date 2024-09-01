@@ -14,7 +14,7 @@ export const NoteSchema = EntitySchema.extend({
 	text: z.string(),
 	textPlain: z.string(),
 	colour: z.string().nullable(),
-	boardId: z.string().nullable(),
+	boardId: z.string().nullable()
 });
 
 export type Note = z.infer<typeof NoteSchema>;
@@ -26,6 +26,12 @@ export const NotePatchInputSchema = z.object({
 });
 
 export type NotePatchInput = z.infer<typeof NotePatchInputSchema>;
+
+export const NoteEditorInputSchema = z.object({
+	userId: z.string()
+});
+
+export type NoteEditorInput = z.infer<typeof NoteEditorInputSchema> & { noteId: string };
 
 export const BoardSchema = EntitySchema.extend({
 	userId: z.string(),
@@ -83,6 +89,8 @@ export const UserSchema = EntitySchema.extend({
 export type User = z.infer<typeof UserSchema>;
 
 export type Friend = Pick<User, 'email' | 'id' | 'name' | 'picture'>;
+
+export type FriendSelection = { selected: boolean } & Friend;
 
 export const AuthUserProfileSchema = z.object({
 	sub: z.string(),

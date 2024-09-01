@@ -2,7 +2,7 @@
 	import { createEventDispatcher, tick } from 'svelte';
 
 	import { getNoteCssClass, type Colour } from '$lib/colours';
-	import type { NoteOrdered } from '$lib/types';
+	import type { FriendSelection, NoteOrdered } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
@@ -22,6 +22,7 @@
 	export let enableSharing: boolean = false;
 	export let note: NoteOrdered;
 	export let showModal: boolean = false;
+	export let friends: FriendSelection[] = [];
 
 	// Internal state
 	let editor: HTMLDivElement;
@@ -107,10 +108,7 @@
 			<div class="flex">
 				{#if enableSharing}
 					<Share
-						collaborators={[
-							{ id: '1', name: 'Alice', selected: false },
-							{ id: '2', name: 'Bob', selected: true }
-						]}
+						{friends}
 						isOpen={false}
 						noteId={note.id}
 						on:toggleFriend={({ detail }) =>
