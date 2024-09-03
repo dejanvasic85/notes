@@ -87,7 +87,7 @@
 		bind:showModal
 		note={selectedNote}
 		{enableSharing}
-		on:close
+		on:close={handleModalClose}
 		on:deleteNote
 		on:toggleFriendShare
 		on:saveNote={handleSave}

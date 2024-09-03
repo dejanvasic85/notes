@@ -91,6 +91,10 @@
 		}
 	}
 
+	const handleClose = () => {
+		dispatch('close', {});
+	};
+
 	$: className = getNoteCssClass({
 		defaultClass: 'bg-white dark:bg-slate-800 dark:text-white border',
 		variant: note.colour ?? ''
@@ -101,7 +105,7 @@
 	<div slot="header" class="px-2 pt-2">
 		<div class="flex justify-between">
 			<div class="flex-1">
-				<Button variant="ghost" on:click={() => dispatch('close', {})}>
+				<Button variant="ghost" on:click={handleClose}>
 					<Icon icon="chevronLeft" title="Cancel note edit" />
 				</Button>
 			</div>
