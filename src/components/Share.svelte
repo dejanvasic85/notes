@@ -1,14 +1,15 @@
 <script lang="ts">
-	type ComponentEvents = {
-		toggleFriend: { id: string };
-	};
-
 	import { createEventDispatcher } from 'svelte';
 	import type { FriendSelection } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
 	import { slide } from 'svelte/transition';
+
+	// Event types
+	type ComponentEvents = {
+		toggleFriend: { id?: string; friendUserId: string; selected: boolean };
+	};
 
 	// Events
 	const dispatch = createEventDispatcher<ComponentEvents>();
@@ -31,10 +32,11 @@
 			>
 				<Icon icon="plus" size={30} title="No colour" /> Add friend
 			</a>
-			{#each friends as { id, name, selected }}
+			{#each friends as { id, noteEditorId, name, selected }}
 				<button
 					class="flex items-center bg-white p-2 hover:ring-2 dark:border-slate-200 dark:bg-slate-800 dark:text-white"
-					on:click={() => dispatch('toggleFriend', { id })}
+					on:click={() =>
+						dispatch('toggleFriend', { id: noteEditorId, friendUserId: id, selected: !selected })}
 				>
 					{#if selected}
 						<Icon icon="check" title="Selected" /> &nbsp;

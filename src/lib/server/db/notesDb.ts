@@ -5,7 +5,6 @@ import db from '$lib/server/db';
 import { withError } from '$lib/server/createError';
 import type { ServerError, Note, IdParams, NoteEditorInput } from '$lib/types';
 import { fromNullableRecord, tryDbTask } from './utils';
-import { generateId } from '$lib/identityGenerator';
 
 export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> =>
 	pipe(
@@ -14,16 +13,17 @@ export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> 
 	);
 
 export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> =>
-	tryDbTask(() =>
-		db.note.update({
+	tryDbTask(() => {
+		return db.note.update({
 			where: { id: note.id },
 			data: {
 				...note,
 				boardId: note.boardId!,
-				updatedAt: new Date()
+				updatedAt: new Date(),
+				editors: undefined
 			}
-		})
-	);
+		});
+	});
 
 export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, Note> =>
 	TE.tryCatch(
@@ -49,14 +49,13 @@ export const createNote = (note: Note): TE.TaskEither<ServerError, Note> =>
 		withError('DatabaseError', 'Failed to create note')
 	);
 
-export const createNoteEditor = (data: NoteEditorInput) => {
+export const createOrUpdateNote = (data: NoteEditorInput) => {
 	return TE.tryCatch(
 		() => {
-			return db.noteEditor.create({
-				data: {
-					...data,
-					id: generateId('ned')
-				}
+			return db.noteEditor.upsert({
+				where: { id: data.id },
+				update: data,
+				create: data
 			});
 		},
 		withError('DatabaseError', 'Failed to create note editor')

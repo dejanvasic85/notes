@@ -3,9 +3,9 @@
 	import { page } from '$app/stores';
 
 	import type { Note, NoteOrdered, NotePatchInput, BoardPatch } from '$lib/types';
-	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes.js';
-	import { generateId } from '$lib/identityGenerator.js';
-	import { tryFetch, MaybeType } from '$lib/fetch.js';
+	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes';
+	import { generateId } from '$lib/identityGenerator';
+	import { tryFetch, MaybeType } from '$lib/fetch';
 
 	import Board from '$components/Board.svelte';
 
@@ -50,14 +50,47 @@
 	}
 
 	async function handleToggleFriendShare({
-		detail: { friendId, noteId }
-	}: CustomEvent<{ friendId: string; noteId: string }>) {
-		const resp = await tryFetch(`/api/notes/${noteId}/editors`, {
-			method: 'POST',
-			body: JSON.stringify({ userId: friendId })
-		});
+		detail: { id, friendUserId, noteId, selected }
+	}: CustomEvent<{ id?: string; friendUserId: string; noteId: string; selected: boolean }>) {
+		const note = localNotes.find((n) => n.id === noteId);
+		const friend = friends.find((f) => f.id === friendUserId);
 
-		console.log('resp', resp);
+		if (!note || !friend) {
+			console.error('note or friend not found');
+			return;
+		}
+
+		// Update local state first
+		const currentEditors = note.editors ?? [];
+		const currentEditor = currentEditors.find((e) => e.id === id);
+		if (currentEditor) {
+			currentEditor.selected = selected;
+			localNotes = [
+				...localNotes.filter((n) => n.id !== noteId),
+				{
+					...note,
+					editors: [...currentEditors.filter((e) => e.id !== currentEditor.id), currentEditor]
+				}
+			];
+		} else {
+			const newId = generateId('ned');
+			currentEditors.push({ id: newId, userId: friendUserId, selected, noteId });
+			localNotes = [
+				...localNotes.filter((n) => n.id !== noteId),
+				{ ...note, editors: currentEditors }
+			];
+		}
+
+		// Call the API
+		// const resp = await tryFetch(`/api/notes/${noteId}/editors`, {
+		// 	method: 'POST',
+		// 	body: JSON.stringify({ id: id || generateId('ned'), userId: friendUserId, selected })
+		// });
+
+		// console.log('resp', resp);
+		// if (resp.type === MaybeType.Error) {
+		// 	alert('Todo: undo and show the error');
+		// }
 	}
 
 	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
@@ -124,6 +157,10 @@
 			localNotes = [...getOrderedNotes(localNoteOrder, localNotes)];
 			// todo: show an error
 		}
+	}
+
+	$: {
+		console.log('localNotes', localNotes);
 	}
 </script>
 

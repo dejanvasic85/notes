@@ -14,7 +14,7 @@
 		close: {};
 		deleteNote: { note: NoteOrdered };
 		saveNote: { note: NoteOrdered };
-		toggleFriendShare: { friendId: string; noteId: string };
+		toggleFriendShare: { id?: string; friendUserId: string; noteId: string; selected: boolean };
 		updateColour: { note: NoteOrdered };
 	};
 
@@ -116,7 +116,12 @@
 						isOpen={false}
 						noteId={note.id}
 						on:toggleFriend={({ detail }) =>
-							dispatch('toggleFriendShare', { friendId: detail.id, noteId: note.id })}
+							dispatch('toggleFriendShare', {
+								id: detail.id,
+								friendUserId: detail.friendUserId,
+								noteId: note.id,
+								selected: detail.selected
+							})}
 					/>
 				{/if}
 				<ColourPicker on:colourClick={handleColourPick} />

@@ -64,13 +64,14 @@
 	$: showModal = !!selectedId;
 	$: notesOrderedFiltered = searchNotes(notes, searchQuery);
 	$: selectedNoteFriends = friends.map((f) => {
-		const selected = (selectedNote as any)?.editors.find((e: any) => e.id === f.id);
+		const editor = selectedNote?.editors?.find((e) => e.userId === f.id);
 		return {
+			noteEditorId: editor?.id,
+			selected: editor?.selected || false,
 			email: f.email,
 			id: f.id,
 			name: f.name,
-			picture: f.picture,
-			selected: !!selected
+			picture: f.picture
 		};
 	});
 </script>
@@ -85,14 +86,14 @@
 {#if selectedNote}
 	<NoteEditor
 		bind:showModal
-		note={selectedNote}
 		{enableSharing}
+		note={selectedNote}
+		friends={selectedNoteFriends}
 		on:close={handleModalClose}
 		on:deleteNote
 		on:toggleFriendShare
 		on:saveNote={handleSave}
 		on:updateColour={handleUpdateColour}
-		friends={selectedNoteFriends}
 	/>
 {/if}
 
