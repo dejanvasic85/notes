@@ -62,19 +62,20 @@
 
 		// Update local state first
 		const currentEditors = note.editors ?? [];
-		const currentEditor = currentEditors.find((e) => e.id === id);
+		let currentEditor = currentEditors.find((e) => e.id === id);
 		if (currentEditor) {
 			currentEditor.selected = selected;
 			localNotes = [
 				...localNotes.filter((n) => n.id !== noteId),
 				{
 					...note,
-					editors: [...currentEditors.filter((e) => e.id !== currentEditor.id), currentEditor]
+					editors: [...currentEditors.filter((e) => e.id !== currentEditor!.id), currentEditor]
 				}
 			];
 		} else {
 			const newId = generateId('ned');
-			currentEditors.push({ id: newId, userId: friendUserId, selected, noteId });
+			currentEditor = { id: newId, userId: friendUserId, selected, noteId };
+			currentEditors.push(currentEditor);
 			localNotes = [
 				...localNotes.filter((n) => n.id !== noteId),
 				{ ...note, editors: currentEditors }
@@ -82,15 +83,14 @@
 		}
 
 		// Call the API
-		// const resp = await tryFetch(`/api/notes/${noteId}/editors`, {
-		// 	method: 'POST',
-		// 	body: JSON.stringify({ id: id || generateId('ned'), userId: friendUserId, selected })
-		// });
+		const resp = await tryFetch(`/api/notes/${noteId}/editors`, {
+			method: 'POST',
+			body: JSON.stringify(currentEditor)
+		});
 
-		// console.log('resp', resp);
-		// if (resp.type === MaybeType.Error) {
-		// 	alert('Todo: undo and show the error');
-		// }
+		if (resp.type === MaybeType.Error) {
+			alert('Todo: undo and show the error');
+		}
 	}
 
 	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
@@ -157,10 +157,6 @@
 			localNotes = [...getOrderedNotes(localNoteOrder, localNotes)];
 			// todo: show an error
 		}
-	}
-
-	$: {
-		console.log('localNotes', localNotes);
 	}
 </script>
 
