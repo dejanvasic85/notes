@@ -16,6 +16,8 @@ export const NoteEditorSchema = EntitySchema.extend({
 	selected: z.boolean()
 });
 
+export type NoteEditor = z.infer<typeof NoteEditorSchema>;
+
 export const NoteEditorInputSchema = z.object({
 	id: z.string(),
 	userId: z.string(),

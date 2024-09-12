@@ -82,15 +82,16 @@
 			];
 		}
 
-		// Call the API
-		const resp = await tryFetch(`/api/notes/${noteId}/editors`, {
-			method: 'POST',
-			body: JSON.stringify(currentEditor)
-		});
+		const resp = await tryFetch(
+			`/api/notes/${noteId}/editors`,
+			{
+				method: 'POST',
+				body: JSON.stringify(currentEditor)
+			},
+			{ shouldParse: false }
+		);
 
-		if (resp.type === MaybeType.Error) {
-			alert('Todo: undo and show the error');
-		}
+		console.log('resp', resp);
 	}
 
 	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {

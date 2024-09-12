@@ -63,6 +63,18 @@ export const getAllUsersById = (ids: string[]): TE.TaskEither<ServerError, User[
 		TE.map((users) => users.map((user) => ({ ...user, boards: [] })))
 	);
 
+export const getUserByNoteId = (noteId: string): TE.TaskEither<ServerError, User> =>
+	pipe(
+		tryDbTask(() =>
+			db.note.findUniqueOrThrow({
+				where: { id: noteId },
+				include: { board: { include: { user: true } } }
+			})
+		),
+		TE.map((note) => note.board.user),
+		TE.map((user) => ({ ...user, boards: [] }))
+	);
+
 export const createUser = ({
 	authUserProfile
 }: {

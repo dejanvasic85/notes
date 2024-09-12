@@ -6,7 +6,7 @@ import { pipe } from 'fp-ts/lib/function';
 import { parseRequest } from '$lib/server/parseRequest';
 import { NoteEditorInputSchema } from '$lib/types';
 import { mapToApiError } from '$lib/server/mapApi';
-import { createOrUpdateNote } from '$lib/server/db/notesDb';
+import { updateNoteEditor } from '$lib/server/services/noteService';
 
 export const POST: RequestHandler = async ({ request, params }) => {
 	return pipe(
@@ -15,7 +15,7 @@ export const POST: RequestHandler = async ({ request, params }) => {
 			noteId: params.id!,
 			...input
 		})),
-		TE.flatMap((data) => createOrUpdateNote(data)),
+		TE.flatMap((data) => updateNoteEditor(data)),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => json({ message: err.message }, { status: err.status }),
