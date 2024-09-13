@@ -2,7 +2,7 @@
 	import { createEventDispatcher, tick } from 'svelte';
 
 	import { getNoteCssClass, type Colour } from '$lib/colours';
-	import type { NoteOrdered } from '$lib/types';
+	import type { FriendSelection, NoteOrdered } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
@@ -10,10 +10,19 @@
 	import Modal from './Modal.svelte';
 	import Share from './Share.svelte';
 
+	type ComponentEvents = {
+		close: {};
+		deleteNote: { note: NoteOrdered };
+		saveNote: { note: NoteOrdered };
+		toggleFriendShare: { id?: string; friendUserId: string; noteId: string; selected: boolean };
+		updateColour: { note: NoteOrdered };
+	};
+
 	// Props
 	export let enableSharing: boolean = false;
 	export let note: NoteOrdered;
 	export let showModal: boolean = false;
+	export let friends: FriendSelection[] = [];
 
 	// Internal state
 	let editor: HTMLDivElement;
@@ -21,10 +30,7 @@
 	let noteTextPlain: string = note.textPlain;
 
 	// External events
-	const dispatch = createEventDispatcher();
-	const dispatchNoteSave = createEventDispatcher<{ saveNote: { note: NoteOrdered } }>();
-	const dispatchColourUpdate = createEventDispatcher<{ updateColour: { note: NoteOrdered } }>();
-	const dispatchDeleteNote = createEventDispatcher<{ deleteNote: { note: NoteOrdered } }>();
+	const dispatch = createEventDispatcher<ComponentEvents>();
 
 	// Internal handlers
 	async function handleModalOpen() {
@@ -32,7 +38,7 @@
 	}
 
 	function handleSave() {
-		dispatchNoteSave('saveNote', {
+		dispatch('saveNote', {
 			note: {
 				...note,
 				text: noteText,
@@ -59,12 +65,12 @@
 
 	function handleDeleteClick() {
 		if (confirm('Are you sure you want to delete this note?')) {
-			dispatchDeleteNote('deleteNote', { note });
+			dispatch('deleteNote', { note });
 		}
 	}
 
 	function handleColourPick({ detail }: CustomEvent<{ colour: Colour }>) {
-		dispatchColourUpdate('updateColour', {
+		dispatch('updateColour', {
 			note: {
 				...note,
 				colour: detail.colour
@@ -85,6 +91,10 @@
 		}
 	}
 
+	const handleClose = () => {
+		dispatch('close', {});
+	};
+
 	$: className = getNoteCssClass({
 		defaultClass: 'bg-white dark:bg-slate-800 dark:text-white border',
 		variant: note.colour ?? ''
@@ -95,11 +105,25 @@
 	<div slot="header" class="px-2 pt-2">
 		<div class="flex justify-between">
 			<div class="flex-1">
-				<Button variant="ghost" on:click={() => dispatch('close')}>
+				<Button variant="ghost" on:click={handleClose}>
 					<Icon icon="chevronLeft" title="Cancel note edit" />
 				</Button>
 			</div>
 			<div class="flex">
+				{#if enableSharing}
+					<Share
+						{friends}
+						isOpen={false}
+						noteId={note.id}
+						on:toggleFriend={({ detail }) =>
+							dispatch('toggleFriendShare', {
+								id: detail.id,
+								friendUserId: detail.friendUserId,
+								noteId: note.id,
+								selected: detail.selected
+							})}
+					/>
+				{/if}
 				<ColourPicker on:colourClick={handleColourPick} />
 				<Button variant="ghost" on:click={handleDeleteClick}>
 					<Icon icon="trash" title="Delete note" />
@@ -121,12 +145,11 @@
 
 	<div slot="footer">
 		<div class="flex justify-between px-2 pb-2">
-			{#if enableSharing}
-				<Share collaborators={[]} />
-			{/if}
-			<Button on:click={handleSave}>
-				<Icon icon="check" size={32} title="Save note" />
-			</Button>
+			<div class="ml-auto">
+				<Button on:click={handleSave}>
+					<Icon icon="check" size={32} title="Save note" />
+				</Button>
+			</div>
 		</div>
 	</div>
 </Modal>

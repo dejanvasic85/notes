@@ -71,7 +71,7 @@
 		goto('/playground');
 	}
 
-	function handleSelect({ detail: id }: CustomEvent<string>) {
+	function handleSelect({ detail: { id } }: CustomEvent<{ id: string }>) {
 		goto(`/playground?id=${id}`);
 	}
 

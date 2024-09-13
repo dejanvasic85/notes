@@ -3,22 +3,24 @@
 	import { page } from '$app/stores';
 
 	import type { Note, NoteOrdered, NotePatchInput, BoardPatch } from '$lib/types';
-	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes.js';
-	import { generateId } from '$lib/identityGenerator.js';
-	import { tryFetch, MaybeType } from '$lib/fetch.js';
+	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes';
+	import { generateId } from '$lib/identityGenerator';
+	import { tryFetch, MaybeType } from '$lib/fetch';
 
 	import Board from '$components/Board.svelte';
 
 	export let data;
+
 	const boardId = data.board.id;
 	let localNoteOrder = [...data.board.noteOrder];
 	let localNotes = [...getOrderedNotes(data.board.noteOrder, data.board.notes)];
+	let friends = data.friends;
 
 	$: search = new URL($page.url).searchParams;
 	$: selectedId = search.get('id');
 	$: selectedNote = localNotes.find((n) => n.id === selectedId);
 
-	function handleSelect({ detail: id }: CustomEvent<string>) {
+	function handleSelect({ detail: { id } }: CustomEvent<{ id: string }>) {
 		goto(`/my/board?id=${id}`);
 	}
 
@@ -45,6 +47,51 @@
 
 			// todo: show an error
 		}
+	}
+
+	async function handleToggleFriendShare({
+		detail: { id, friendUserId, noteId, selected }
+	}: CustomEvent<{ id?: string; friendUserId: string; noteId: string; selected: boolean }>) {
+		const note = localNotes.find((n) => n.id === noteId);
+		const friend = friends.find((f) => f.id === friendUserId);
+
+		if (!note || !friend) {
+			console.error('note or friend not found');
+			return;
+		}
+
+		// Update local state first
+		const currentEditors = note.editors ?? [];
+		let currentEditor = currentEditors.find((e) => e.id === id);
+		if (currentEditor) {
+			currentEditor.selected = selected;
+			localNotes = [
+				...localNotes.filter((n) => n.id !== noteId),
+				{
+					...note,
+					editors: [...currentEditors.filter((e) => e.id !== currentEditor!.id), currentEditor]
+				}
+			];
+		} else {
+			const newId = generateId('ned');
+			currentEditor = { id: newId, userId: friendUserId, selected, noteId };
+			currentEditors.push(currentEditor);
+			localNotes = [
+				...localNotes.filter((n) => n.id !== noteId),
+				{ ...note, editors: currentEditors }
+			];
+		}
+
+		const resp = await tryFetch(
+			`/api/notes/${noteId}/editors`,
+			{
+				method: 'POST',
+				body: JSON.stringify(currentEditor)
+			},
+			{ shouldParse: false }
+		);
+
+		console.log('resp', resp);
 	}
 
 	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
@@ -121,12 +168,14 @@
 
 <Board
 	notes={localNotes}
+	enableSharing={true}
+	{selectedNote}
+	{friends}
 	on:select={handleSelect}
 	on:closeNote={handleClose}
 	on:createNote={handleCreate}
 	on:updateNote={handleUpdate}
 	on:deleteNote={handleDelete}
 	on:reorder={handleReorder}
-	enableSharing={true}
-	{selectedNote}
+	on:toggleFriendShare={handleToggleFriendShare}
 />

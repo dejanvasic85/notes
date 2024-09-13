@@ -10,11 +10,28 @@ export const EntitySchema = z.object({
 
 export type Entity = z.infer<typeof EntitySchema>;
 
+export const NoteEditorSchema = EntitySchema.extend({
+	userId: z.string(),
+	noteId: z.string(),
+	selected: z.boolean()
+});
+
+export type NoteEditor = z.infer<typeof NoteEditorSchema>;
+
+export const NoteEditorInputSchema = z.object({
+	id: z.string(),
+	userId: z.string(),
+	selected: z.boolean()
+});
+
+export type NoteEditorInput = z.infer<typeof NoteEditorInputSchema> & { noteId: string };
+
 export const NoteSchema = EntitySchema.extend({
 	text: z.string(),
 	textPlain: z.string(),
 	colour: z.string().nullable(),
-	boardId: z.string().nullable()
+	boardId: z.string().nullable(),
+	editors: z.array(NoteEditorSchema).optional()
 });
 
 export type Note = z.infer<typeof NoteSchema>;
@@ -81,6 +98,10 @@ export const UserSchema = EntitySchema.extend({
 });
 
 export type User = z.infer<typeof UserSchema>;
+
+export type Friend = Pick<User, 'email' | 'id' | 'name' | 'picture'>;
+
+export type FriendSelection = { noteEditorId?: string; selected: boolean } & Friend;
 
 export const AuthUserProfileSchema = z.object({
 	sub: z.string(),

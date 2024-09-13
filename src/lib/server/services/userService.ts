@@ -2,9 +2,14 @@ import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
-import { createUser, getUserByAuthId, getConnections } from '$lib/server/db/userDb';
+import {
+	createUser,
+	getAllUsersById,
+	getUserByAuthId,
+	getConnections
+} from '$lib/server/db/userDb';
 import { createError, withError } from '$lib/server/createError';
-import type { AuthUserProfile, Board, Note, ServerError, User } from '$lib/types';
+import type { AuthUserProfile, Board, Friend, Note, ServerError, User } from '$lib/types';
 
 interface IsBoardOwnerParams {
 	user: User;
@@ -104,6 +109,23 @@ export const getCurrentBoardForUserNote = ({
 	return TE.right({ note, user, board });
 };
 
-export const getFriends = (userId: string) => {
-	return pipe(getConnections(userId));
+export const getFriends = (userId: string): TE.TaskEither<ServerError, Friend[]> => {
+	return pipe(
+		getConnections(userId),
+		TE.map((connections) => {
+			return connections.map((c) => (c.userFirstId === userId ? c.userSecondId : c.userFirstId));
+		}),
+		TE.flatMap((friendIds) => getAllUsersById(friendIds)),
+		TE.map((friends) => {
+			return friends.map((friend) => {
+				const data: Friend = {
+					email: friend.email,
+					id: friend.id,
+					name: friend.name,
+					picture: friend.picture
+				};
+				return data;
+			});
+		})
+	);
 };
