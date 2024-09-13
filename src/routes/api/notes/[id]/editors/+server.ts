@@ -1,7 +1,7 @@
 import { type RequestHandler, json } from '@sveltejs/kit';
 
+import { pipe } from 'fp-ts/lib/function.js';
 import { taskEither as TE } from 'fp-ts';
-import { pipe } from 'fp-ts/lib/function';
 
 import { parseRequest } from '$lib/server/parseRequest';
 import { NoteEditorInputSchema } from '$lib/types';
