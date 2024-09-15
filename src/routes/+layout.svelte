@@ -9,7 +9,7 @@
 </script>
 
 <div class="app">
-	<Header isAuthenticated={data.isAuthenticated} />
+	<Header isAuthenticated={data.isAuthenticated} name={data.userData?.name} />
 
 	<main>
 		<slot />
