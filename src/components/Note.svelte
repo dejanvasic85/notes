@@ -1,12 +1,21 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 
 	import { getNoteCssClass } from '$lib/colours';
 	import { draggable } from '$lib/draggable';
-	import type { NoteOrdered } from '$lib/types';
+	import type { NoteOrdered, SharedNote } from '$lib/types';
 
-	export let note: NoteOrdered;
+	export let note: NoteOrdered | SharedNote;
 	export let index: number;
+	export let isDraggable: boolean = true;
+
+	let divElement: HTMLElement;
+
+	onMount(() => {
+		if (isDraggable) {
+			draggable(divElement, { index });
+		}
+	});
 
 	const dispatch = createEventDispatcher();
 	const handleClick = () => {
@@ -24,7 +33,7 @@
 	tabindex={index}
 	role="button"
 	aria-label={`Edit note ${index + 1}`}
-	use:draggable={{ note, index }}
+	bind:this={divElement}
 	on:click={handleClick}
 	on:keypress={handleClick}
 >

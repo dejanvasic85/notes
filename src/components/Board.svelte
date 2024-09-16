@@ -3,7 +3,7 @@
 
 	import { dropzone, type DraggableData } from '$lib/draggable';
 	import { searchNotes } from '$lib/notes';
-	import type { Friend, NoteOrdered } from '$lib/types';
+	import type { Friend, NoteOrdered, SharedNote } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
@@ -20,6 +20,7 @@
 	export let selectedNote: NoteOrdered | undefined;
 	export let enableSharing: boolean = false;
 	export let friends: Friend[] = [];
+	export let sharedNotes: SharedNote[] = [];
 
 	let searchQuery: string;
 
@@ -97,13 +98,19 @@
 	/>
 {/if}
 
+{#if notesOrderedFiltered.length === 0}
+	<div class="mt-8 text-center">
+		<h1 class="text-2xl">Create your first note by clicking the Plus Icon</h1>
+	</div>
+{/if}
+
 <div class="flex flex-wrap items-stretch justify-center gap-2 p-8">
 	{#each notesOrderedFiltered as note, index}
 		<div
 			class="dropzone block h-4 w-full md:h-48 md:w-4"
 			use:dropzone={{ onDropped: (args, evt) => handleDrop(index, args, evt) }}
 		></div>
-		<Note {note} {index} on:click={() => handleEdit(note.id)} />
+		<Note {note} {index} isDraggable={true} on:click={() => handleEdit(note.id)} />
 	{/each}
 	<div class="fixed bottom-0 w-full focus:outline-none">
 		<div class="float-right mx-5 my-5">
@@ -113,6 +120,18 @@
 		</div>
 	</div>
 </div>
+
+{#if sharedNotes.length > 0}
+	<div class="w-full border border-b"></div>
+	<div class="mt-8">
+		<h1 class="text-center text-2xl">Shared notes</h1>
+	</div>
+	<div class="flex flex-wrap items-stretch justify-center gap-2 p-8">
+		{#each sharedNotes as sharedNote, index}
+			<Note note={sharedNote} {index} isDraggable={false} />
+		{/each}
+	</div>
+{/if}
 
 <style type="text/postcss">
 	.dropzone {

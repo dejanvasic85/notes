@@ -171,6 +171,7 @@
 	enableSharing={true}
 	{selectedNote}
 	{friends}
+	sharedNotes={data.sharedNotes}
 	on:select={handleSelect}
 	on:closeNote={handleClose}
 	on:createNote={handleCreate}

@@ -1,7 +1,4 @@
-import type { NoteOrdered } from '$lib/types';
-
 export interface DraggableData {
-	note: NoteOrdered;
 	index: number;
 }
 
