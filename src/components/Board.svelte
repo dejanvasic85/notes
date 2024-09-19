@@ -11,7 +11,6 @@
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
 	import NoteViewer from './NoteViewer.svelte';
-	import { id } from 'fp-ts/lib/Refinement';
 
 	interface UpdateProps {
 		note: NoteOrdered;
@@ -121,24 +120,24 @@
 	<div class="mt-8 text-center">
 		<h1 class="text-2xl">Create your first note by clicking the Plus Icon</h1>
 	</div>
-{/if}
-
-<div class="flex flex-wrap items-stretch justify-center gap-2 p-8">
-	{#each notesOrderedFiltered as note, index}
-		<div
-			class="dropzone block h-4 w-full md:h-48 md:w-4"
-			use:dropzone={{ onDropped: (args, evt) => handleDrop(index, args, evt) }}
-		></div>
-		<Note {note} {index} isDraggable={true} on:click={() => handleEdit(note.id)} />
-	{/each}
-	<div class="fixed bottom-0 w-full focus:outline-none">
-		<div class="float-right mx-5 my-5">
-			<Button on:click={handleCreateClick} rounded>
-				<Icon icon="plus" size={48} title="Add note" />
-			</Button>
+{:else}
+	<div class="flex flex-wrap items-stretch justify-center gap-2 p-8">
+		{#each notesOrderedFiltered as note, index}
+			<div
+				class="dropzone block h-4 w-full md:h-48 md:w-4"
+				use:dropzone={{ onDropped: (args, evt) => handleDrop(index, args, evt) }}
+			></div>
+			<Note {note} {index} isDraggable={true} on:click={() => handleEdit(note.id)} />
+		{/each}
+		<div class="fixed bottom-0 w-full focus:outline-none">
+			<div class="float-right mx-5 my-5">
+				<Button on:click={handleCreateClick} rounded>
+					<Icon icon="plus" size={48} title="Add note" />
+				</Button>
+			</div>
 		</div>
 	</div>
-</div>
+{/if}
 
 {#if sharedNotes.length > 0}
 	<div class="w-full border border-b"></div>
