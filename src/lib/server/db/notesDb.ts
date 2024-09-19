@@ -3,7 +3,14 @@ import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/server/db';
 import { withError } from '$lib/server/createError';
-import type { ServerError, Note, IdParams, NoteEditorInput, NoteEditor } from '$lib/types';
+import type {
+	ServerError,
+	Note,
+	IdParams,
+	NoteEditorInput,
+	NoteEditor,
+	SharedNote
+} from '$lib/types';
 
 import { fromNullableRecord, tryDbTask } from './utils';
 
@@ -64,3 +71,29 @@ export const createOrUpdateNoteEditor = (
 		withError('DatabaseError', 'Failed to create note editor')
 	);
 };
+
+export const getSharedNotes = ({
+	userId
+}: {
+	userId: string;
+}): TE.TaskEither<ServerError, SharedNote[]> =>
+	pipe(
+		tryDbTask(() => {
+			return db.note.findMany({
+				where: {
+					editors: { some: { userId } }
+				},
+				include: { board: { include: { user: { select: { name: true, id: true } } } } }
+			});
+		}),
+		TE.map((data) =>
+			data.map(({ id, colour, text, textPlain, board }) => ({
+				id,
+				colour,
+				text,
+				textPlain,
+				friendUserId: board.user.id,
+				friendName: board.user.name
+			}))
+		)
+	);

@@ -103,6 +103,11 @@ export type Friend = Pick<User, 'email' | 'id' | 'name' | 'picture'>;
 
 export type FriendSelection = { noteEditorId?: string; selected: boolean } & Friend;
 
+export type SharedNote = Pick<Note, 'id' | 'colour' | 'text' | 'textPlain'> & {
+	friendUserId: User['id'];
+	friendName: User['name'];
+};
+
 export const AuthUserProfileSchema = z.object({
 	sub: z.string(),
 	nickname: z.string(),
