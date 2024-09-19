@@ -10,6 +10,8 @@
 	import Input from './Input.svelte';
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
+	import NoteViewer from './NoteViewer.svelte';
+	import { id } from 'fp-ts/lib/Refinement';
 
 	interface UpdateProps {
 		note: NoteOrdered;
@@ -17,7 +19,8 @@
 
 	// Props
 	export let notes: NoteOrdered[];
-	export let selectedNote: NoteOrdered | undefined;
+	export let selectedNote: NoteOrdered | undefined | null;
+	export let selectedSharedNote: SharedNote | undefined | null;
 	export let enableSharing: boolean = false;
 	export let friends: Friend[] = [];
 	export let sharedNotes: SharedNote[] = [];
@@ -57,12 +60,19 @@
 		}
 	}
 
+	function handleSharedNoteSelected(id?: string) {
+		if (id) {
+			dispatch('select', { id });
+		}
+	}
+
 	function handleDrop(toIndex: number, { index }: DraggableData, _: DragEvent) {
 		dispatch('reorder', { fromIndex: index, toIndex });
 	}
 
 	$: selectedId = selectedNote?.id;
-	$: showModal = !!selectedId;
+	$: selectedSharedNoteId = selectedSharedNote?.id;
+	$: showModal = !!selectedId || !!selectedSharedNoteId;
 	$: notesOrderedFiltered = searchNotes(notes, searchQuery);
 	$: selectedNoteFriends = friends.map((f) => {
 		const editor = selectedNote?.editors?.find((e) => e.userId === f.id);
@@ -98,6 +108,15 @@
 	/>
 {/if}
 
+{#if selectedSharedNote}
+	<NoteViewer
+		bind:showModal
+		noteHtmlText={selectedSharedNote.text}
+		noteColour={selectedSharedNote.colour}
+		on:close={handleModalClose}
+	/>
+{/if}
+
 {#if notesOrderedFiltered.length === 0}
 	<div class="mt-8 text-center">
 		<h1 class="text-2xl">Create your first note by clicking the Plus Icon</h1>
@@ -128,7 +147,12 @@
 	</div>
 	<div class="flex flex-wrap items-stretch justify-center gap-2 p-8">
 		{#each sharedNotes as sharedNote, index}
-			<Note note={sharedNote} {index} isDraggable={false} />
+			<Note
+				note={sharedNote}
+				{index}
+				isDraggable={false}
+				on:click={() => handleSharedNoteSelected(sharedNote.id)}
+			/>
 		{/each}
 	</div>
 {/if}

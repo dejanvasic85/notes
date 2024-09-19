@@ -100,6 +100,7 @@
 <Board
 	notes={$orderedNotes}
 	{selectedNote}
+	selectedSharedNote={null}
 	on:createNote={handleCreateNote}
 	on:cancelUpdate={handleClose}
 	on:deleteNote={handleDeleteNote}

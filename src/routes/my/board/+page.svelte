@@ -19,6 +19,7 @@
 	$: search = new URL($page.url).searchParams;
 	$: selectedId = search.get('id');
 	$: selectedNote = localNotes.find((n) => n.id === selectedId);
+	$: selectedSharedNote = data.sharedNotes.find((n) => n.id === selectedId);
 
 	function handleSelect({ detail: { id } }: CustomEvent<{ id: string }>) {
 		goto(`/my/board?id=${id}`);
@@ -170,6 +171,7 @@
 	notes={localNotes}
 	enableSharing={true}
 	{selectedNote}
+	{selectedSharedNote}
 	{friends}
 	sharedNotes={data.sharedNotes}
 	on:select={handleSelect}
