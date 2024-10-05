@@ -2,14 +2,14 @@
 	import { PUBLIC_BUILD } from '$env/static/public';
 	import github from '$lib/images/github.svg';
 
-	import Header from './Header.svelte';
+	//import Header from './Header.svelte';
 	import './app.css';
 
-	export let data;
+	//export let data;
 </script>
 
-<div class="app">
-	<Header isAuthenticated={data.isAuthenticated} name={data.userData?.name} />
+<div class="flex min-h-screen flex-col">
+	<!-- <Header isAuthenticated={data.isAuthenticated} name={data.userData?.name} /> -->
 
 	<main>
 		<slot />
@@ -27,12 +27,6 @@
 </div>
 
 <style>
-	.app {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
-	}
-
 	main {
 		flex: 1;
 		display: flex;

@@ -1,20 +1,16 @@
 <script>
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+	import logo from '$lib/images/notes-main.png';
 </script>
 
 <svelte:head>
 	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<meta name="description" content="Personal note taking application and sharing with family" />
 </svelte:head>
 
-<section class="flex flex-[0.6] flex-col items-center justify-center">
-	<h1 class="w-full">
-		<span class="relative block h-0 w-full">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" class="absolute top-0 block w-full" />
-			</picture>
-		</span>
-	</h1>
-</section>
+<header class="container mx-auto h-20 border border-white">
+	<nav>
+		<img src={logo} alt="Notes" class="size-20" />
+	</nav>
+</header>
+
+<section class="flex w-full flex-col items-center justify-center"></section>
