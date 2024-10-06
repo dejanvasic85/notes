@@ -15,10 +15,29 @@
 	</nav>
 </header>
 
-<section class="flex w-full flex-[0.6] flex-col items-center justify-center">
-	<h1 class="text-6xl">
+<section
+	class="hero-bg flex w-full flex-[0.6] flex-col items-center justify-center gap-8 rounded-xl"
+>
+	<h1 class="text-8xl">
 		Take Notes
 		<span class="block font-bold text-primary">Privately</span>
 	</h1>
-	<p class="mt-8 text-lg">Your Notes, Your Data, Your Peace of Mind</p>
+
+	<p class="text-xl">
+		Your Notes, Your <span class="font-bold text-secondary">Data</span>, Your
+		<span class="font-bold text-tertiary">Peace of Mind</span>.
+	</p>
+
+	<div class="flex gap-2">
+		<a
+			href="/playground"
+			class="rounded-lg border-2 border-secondary px-6 py-3 text-lg text-secondary transition-colors duration-300 hover:bg-secondary/90 hover:text-white"
+			>Try the playground</a
+		>
+		<a
+			href="/api/auth/login?screen_hint=register"
+			class="rounded-lg border-2 border-tertiary px-6 py-3 text-lg text-tertiary transition-colors duration-300 hover:bg-tertiary/90 hover:text-white"
+			>Get started</a
+		>
+	</div>
 </section>

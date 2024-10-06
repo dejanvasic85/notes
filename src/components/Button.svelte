@@ -6,7 +6,7 @@
 	export let type: 'button' | 'submit' | 'reset' = 'button';
 
 	const variantClass = {
-		primary: 'bg-cyan-700 hover:bg-cyan-600 text-white',
+		primary: 'bg-primary hover:bg-secondary text-white',
 		ghost: 'dark:hover:bg-slate-800'
 	};
 
@@ -17,7 +17,7 @@
 	{type}
 	class="{variantClass[
 		variant
-	]} {roundedClass} flex min-h-11 min-w-[44px] items-center justify-center p-2 text-base hover:ring-2"
+	]} {roundedClass}  flex min-h-11 min-w-[44px] items-center justify-center p-2 text-base hover:ring-2"
 	on:click
 >
 	<slot />
