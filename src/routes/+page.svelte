@@ -9,7 +9,7 @@
 	<meta name="description" content="Personal note taking application and sharing with family" />
 </svelte:head>
 
-<header class="borderpx-6 container mx-auto h-20 max-w-6xl border-b-2">
+<header class="borderpx-6 container mx-auto h-20 border-b-2">
 	<nav class="flex w-full items-center justify-between">
 		<img src={logo} alt="Notes" class="size-20" />
 		<Button>Login</Button>
@@ -23,15 +23,14 @@
 	</h1>
 
 	<p class="text-lg md:text-xl">
-		Your Notes, Your <span class="dark:text-secondaryDark font-bold text-secondary">Data</span>,
-		Your
-		<span class="dark:text-tertiaryDark font-bold text-tertiary">Peace of Mind</span>.
+		Your Notes, Your <span class="border-b-2 border-secondary pb-1 font-semibold">Data</span>, Your
+		<span class="border-b-2 border-tertiary pb-1 font-bold">Peace of Mind</span>.
 	</p>
 
 	<div class="flex gap-2">
-		<Link href="/playground">Try the playground</Link>
+		<Link href="/playground" variant="secondary">Try the playground</Link>
 		<Link href="/api/auth/login?screen_hint=register" variant="tertiary">Get started</Link>
 	</div>
 
-	<p class="text-center">Easily create notes and share them with your family and friends.</p>
+	<p class="text-center italic">Easily create notes and share them with your family and friends.</p>
 </section>
