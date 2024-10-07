@@ -1,6 +1,6 @@
 <script>
 	import Button from '$components/Button.svelte';
-	import Link from '$components/Link.svelte';
+	import LinkButton from '$components/LinkButton.svelte';
 	import logo from '$lib/images/notes-main.png';
 </script>
 
@@ -28,8 +28,10 @@
 	</p>
 
 	<div class="flex gap-2">
-		<Link href="/playground" variant="secondary">Try the playground</Link>
-		<Link href="/api/auth/login?screen_hint=register" variant="tertiary">Get started</Link>
+		<LinkButton href="/playground" variant="secondary">Try the playground</LinkButton>
+		<LinkButton href="/api/auth/login?screen_hint=register" variant="tertiary"
+			>Get started</LinkButton
+		>
 	</div>
 
 	<p class="text-center italic">Easily create notes and share them with your family and friends.</p>
