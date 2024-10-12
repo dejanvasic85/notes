@@ -1,6 +1,5 @@
 <script>
 	import { PUBLIC_BUILD } from '$env/static/public';
-	import github from '$lib/images/github.svg';
 
 	//import Header from './Header.svelte';
 	import './app.css';
