@@ -1,6 +1,7 @@
 <script>
 	import LinkButton from '$components/LinkButton.svelte';
 	import logo from '$lib/images/notes-main.png';
+	import github from '$lib/images/github.svg';
 </script>
 
 <svelte:head>
@@ -11,6 +12,11 @@
 <header class="borderpx-6 container mx-auto h-20 border-b-2">
 	<nav class="flex w-full items-center justify-between">
 		<img src={logo} alt="Notes" class="size-20" />
+		<div>
+			<a href="https://github.com/dejanvasic85/notes" target="_blank">
+				<img src={github} alt="Github" class="inline-block size-5" />
+			</a>
+		</div>
 	</nav>
 </header>
 
