@@ -9,5 +9,7 @@ test('edit sample note', async ({ page }) => {
 test('add a new note', async ({ page }) => {
 	await page.goto('/');
 	await page.getByRole('button', { name: 'Add note' }).click();
-	await expect(page.getByText('New note')).toBeVisible();
+	await page.keyboard.type(' hello world');
+	await page.getByRole('button', { name: 'Save note' }).click();
+	await expect(page.getByText('hello world')).toBeVisible();
 });
