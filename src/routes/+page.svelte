@@ -29,7 +29,7 @@
 					text: 'Use the force and edit me by clicking here.',
 					textPlain: 'Use the force and edit me by clicking here.',
 					boardId: $localBoard.id!,
-					colour: 'blue'
+					colour: 'indigo'
 				}
 			]
 		}));
@@ -54,7 +54,6 @@
 	function handleUpdateNote({ detail: { note } }: CustomEvent<{ note: Note }>) {
 		localBoard.update((state) => {
 			const [[noteToUpdate], rest] = partition(state.notes, (n) => n.id === note.id);
-			console.log('noteToUpdate', noteToUpdate, state);
 			return {
 				...state,
 				noteOrder: [...state.noteOrder],
