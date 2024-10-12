@@ -1,5 +1,4 @@
 <script>
-	import Button from '$components/Button.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
 	import logo from '$lib/images/notes-main.png';
 </script>
@@ -12,7 +11,6 @@
 <header class="borderpx-6 container mx-auto h-20 border-b-2">
 	<nav class="flex w-full items-center justify-between">
 		<img src={logo} alt="Notes" class="size-20" />
-		<Button>Login</Button>
 	</nav>
 </header>
 
@@ -28,10 +26,10 @@
 	</p>
 
 	<div class="flex gap-2">
-		<LinkButton href="/playground" variant="secondary">Try the playground</LinkButton>
 		<LinkButton href="/api/auth/login?screen_hint=register" variant="tertiary"
 			>Get started</LinkButton
 		>
+		<LinkButton href="/playground" variant="secondary">Login</LinkButton>
 	</div>
 
 	<p class="text-center italic">Easily create notes and share them with your family and friends.</p>

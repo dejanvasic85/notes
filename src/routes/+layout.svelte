@@ -16,13 +16,11 @@
 	</main>
 
 	<footer class="p-4 text-center">
-		Made with <a href="https://kit.svelte.dev" target="_blank" class="font-bold underline">svelte</a
-		>
-		- Github
-		<a href="https://github.com/dejanvasic85/notes" target="_blank"
-			><img src={github} alt="Github" class="inline h-8 w-8" /></a
-		>
-		Build: {PUBLIC_BUILD}
+		Made with love using <a
+			href="https://kit.svelte.dev"
+			target="_blank"
+			class="font-bold underline">svelte</a
+		>. Build: {PUBLIC_BUILD}
 	</footer>
 </div>
 
