@@ -1,38 +1,29 @@
 <script>
 	import { PUBLIC_BUILD } from '$env/static/public';
-	import github from '$lib/images/github.svg';
 
-	import Header from './Header.svelte';
+	//import Header from './Header.svelte';
 	import './app.css';
 
-	export let data;
+	//export let data;
 </script>
 
-<div class="app">
-	<Header isAuthenticated={data.isAuthenticated} name={data.userData?.name} />
+<div class="flex min-h-screen flex-col">
+	<!-- <Header isAuthenticated={data.isAuthenticated} name={data.userData?.name} /> -->
 
 	<main>
 		<slot />
 	</main>
 
 	<footer class="p-4 text-center">
-		Made with <a href="https://kit.svelte.dev" target="_blank" class="font-bold underline">svelte</a
-		>
-		- Github
-		<a href="https://github.com/dejanvasic85/notes" target="_blank"
-			><img src={github} alt="Github" class="inline h-8 w-8" /></a
-		>
-		Build: {PUBLIC_BUILD}
+		Made with love using <a
+			href="https://kit.svelte.dev"
+			target="_blank"
+			class="font-bold underline">svelte</a
+		>. Build: {PUBLIC_BUILD}
 	</footer>
 </div>
 
 <style>
-	.app {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
-	}
-
 	main {
 		flex: 1;
 		display: flex;

@@ -1,20 +1,159 @@
-<script>
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+<script lang="ts">
+	import { onMount } from 'svelte';
+
+	import partition from 'lodash/partition';
+
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+
+	import LinkButton from '$components/LinkButton.svelte';
+	import Board from '$components/Board.svelte';
+
+	import logo from '$lib/images/notes-main.png';
+	import { generateId } from '$lib/identityGenerator';
+
+	import { reorderNotes } from '$lib/notes';
+	import type { Note } from '$lib/types';
+
+	import { localBoard, orderedNotes } from '$lib/noteStore';
+
+	onMount(() => {
+		const id = generateId('nid');
+		localBoard.update(() => ({
+			id: generateId('bid'),
+			userId: '',
+			noteOrder: [id],
+			notes: [
+				{
+					id,
+					text: 'Use the force and edit me by clicking here.',
+					textPlain: 'Use the force and edit me by clicking here.',
+					boardId: $localBoard.id!,
+					colour: 'blue'
+				}
+			]
+		}));
+	});
+
+	function handleCreateNote() {
+		const id = generateId('nid');
+		localBoard.update((current) => {
+			return {
+				...current,
+				noteOrder: [...current.noteOrder, id],
+				notes: [
+					...current.notes,
+					{ id, text: `New note`, textPlain: `New note`, boardId: $localBoard.id!, colour: null }
+				]
+			};
+		});
+
+		goto(`/?id=${id}`);
+	}
+
+	function handleUpdateNote({ detail: { note } }: CustomEvent<{ note: Note }>) {
+		localBoard.update((state) => {
+			const [[noteToUpdate], rest] = partition(state.notes, (n) => n.id === note.id);
+			console.log('noteToUpdate', noteToUpdate, state);
+			return {
+				...state,
+				noteOrder: [...state.noteOrder],
+				notes: [...rest, { ...note }]
+			};
+		});
+	}
+
+	function handleDeleteNote({ detail }: CustomEvent<{ note: Note }>) {
+		localBoard.update((state) => {
+			return {
+				...state,
+				noteOrder: [...state.noteOrder.filter((id) => id !== detail.note.id)],
+				notes: [...state.notes.filter((n) => n.id !== detail.note.id)]
+			};
+		});
+		handleClose();
+	}
+
+	function handleClose() {
+		goto('/');
+	}
+
+	function handleSelect({ detail: { id } }: CustomEvent<{ id: string }>) {
+		goto(`/?id=${id}`);
+	}
+
+	function handleReorder({
+		detail: { fromIndex, toIndex }
+	}: CustomEvent<{ fromIndex: number; toIndex: number }>) {
+		localBoard.update((state) => {
+			const newOrder = reorderNotes(state.noteOrder, fromIndex, toIndex);
+			return {
+				...state,
+				noteOrder: newOrder
+			};
+		});
+	}
+
+	$: search = new URL($page.url).searchParams;
+	$: selectedId = search.get('id');
+	$: selectedNote = $orderedNotes.find((n) => n.id === selectedId);
 </script>
 
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<title>My Notes - personal note taking application</title>
+	<meta name="description" content="A simple note taking application." />
 </svelte:head>
 
-<section class="flex flex-[0.6] flex-col items-center justify-center">
-	<h1 class="w-full">
-		<span class="relative block h-0 w-full">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" class="absolute top-0 block w-full" />
-			</picture>
-		</span>
+<header class="borderpx-6 container mx-auto h-20 border-b-2">
+	<nav class="flex w-full items-center justify-between">
+		<img src={logo} alt="Notes" class="size-20" />
+		<div>
+			<a href="https://github.com/dejanvasic85/notes" target="_blank" class="inline-block size-5">
+				<svg x="0px" y="0px" viewBox="0 0 98 96" xmlns="http://www.w3.org/2000/svg">
+					<path
+						fill-rule="evenodd"
+						clip-rule="evenodd"
+						d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"
+						fill="currentColor"
+					>
+					</path>
+				</svg>
+			</a>
+		</div>
+	</nav>
+</header>
+
+<section class="flex flex-col items-center justify-center gap-8 rounded-xl pt-20 sm:pt-24 lg:pt-32">
+	<h1 class="text-6xl md:text-8xl">
+		Take Notes
+		<span class="block font-bold text-primary">Privately</span>
 	</h1>
+
+	<p class="text-lg md:text-xl">
+		Your Notes, Your <span class="border-b-2 border-secondary pb-1 font-semibold">Data</span>, Your
+		<span class="border-b-2 border-tertiary pb-1 font-bold">Peace of Mind</span>.
+	</p>
+
+	<div class="flex gap-2">
+		<LinkButton href="/api/auth/login?screen_hint=register" variant="tertiary"
+			>Get started</LinkButton
+		>
+		<LinkButton href="/api/auth/login" variant="secondary">Login</LinkButton>
+	</div>
+
+	<p class="text-center italic">Easily create notes and share them with your family and friends.</p>
 </section>
+
+<div class="mt-8">
+	<Board
+		notes={$orderedNotes}
+		{selectedNote}
+		selectedSharedNote={null}
+		on:createNote={handleCreateNote}
+		on:closeNote={handleClose}
+		on:deleteNote={handleDeleteNote}
+		on:reorder={handleReorder}
+		on:select={handleSelect}
+		on:updateNote={handleUpdateNote}
+	/>
+</div>
