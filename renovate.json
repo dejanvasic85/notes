@@ -14,7 +14,7 @@
 	],
 	"commitMessageAction": "",
 	"labels": ["dependencies"],
-	"prConcurrentLimit": 3,
+	"prConcurrentLimit": 5,
 	"prNotPendingHours": 1,
 	"semanticCommitScope": "",
 	"semanticCommitType": "deps"
