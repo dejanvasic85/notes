@@ -7,7 +7,6 @@
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
-	import Input from './Input.svelte';
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
 	import NoteViewer from './NoteViewer.svelte';
@@ -65,7 +64,7 @@
 		}
 	}
 
-	function handleDrop(toIndex: number, { index }: DraggableData, _: DragEvent) {
+	function handleDrop(toIndex: number, { index }: DraggableData) {
 		dispatch('reorder', { fromIndex: index, toIndex });
 	}
 
@@ -121,7 +120,7 @@
 	{#each notesOrderedFiltered as note, index}
 		<div
 			class="dropzone block h-4 w-full md:h-48 md:w-4"
-			use:dropzone={{ onDropped: (args, evt) => handleDrop(index, args, evt) }}
+			use:dropzone={{ onDropped: (args) => handleDrop(index, args) }}
 		></div>
 		<Note {note} {index} isDraggable={true} on:click={() => handleEdit(note.id)} />
 	{/each}

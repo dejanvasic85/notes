@@ -2,7 +2,6 @@
 	import { createEventDispatcher } from 'svelte';
 
 	import { getNoteCssClass } from '$lib/colours';
-	import type { SharedNote } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
