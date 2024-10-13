@@ -12,6 +12,7 @@
 		"test:unit": "vitest",
 		"test:playwright": "playwright test",
 		"lint": "prettier . --check . && eslint .",
+		"lint-staged": "lint-staged",
 		"format": "prettier . --write .",
 		"prepare": "husky",
 		"postinstall": "prisma generate"
@@ -35,6 +36,7 @@
 		"eslint-plugin-svelte": "^2.34.1",
 		"globals": "^15.11.0",
 		"husky": "^9.0.7",
+		"lint-staged": "^15.2.10",
 		"postcss": "^8.4.28",
 		"prettier": "^3.0.2",
 		"prettier-plugin-svelte": "^3.0.3",
@@ -61,5 +63,11 @@
 		"prisma-field-encryption": "^1.5.0",
 		"tailwind-merge": "^2.2.2",
 		"zod": "^3.22.4"
+	},
+	"lint-staged": {
+		"*": [
+			"prettier . --write",
+			"eslint ."
+		]
 	}
 }
