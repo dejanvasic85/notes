@@ -53,11 +53,11 @@
 
 	function handleUpdateNote({ detail: { note } }: CustomEvent<{ note: Note }>) {
 		localBoard.update((state) => {
-			const [[noteToUpdate], rest] = partition(state.notes, (n) => n.id === note.id);
+			const [, otherNotes] = partition(state.notes, (n) => n.id === note.id);
 			return {
 				...state,
 				noteOrder: [...state.noteOrder],
-				notes: [...rest, { ...note }]
+				notes: [...otherNotes, { ...note }]
 			};
 		});
 	}

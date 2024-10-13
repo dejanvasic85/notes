@@ -1,17 +1,17 @@
 import type { taskEither as TE } from 'fp-ts';
+import { pipe } from 'fp-ts/lib/function';
 import { z } from 'zod';
 
 import { AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET, AUTH0_DOMAIN } from '$env/static/private';
 import { PUBLIC_BASE_URL } from '$env/static/public';
 import type { ServerError } from '$lib/types';
-import { pipe } from 'fp-ts/lib/function';
 import { tryFetchJson } from '$lib/server/serverFetch';
 
 interface GetTokenParams {
 	code: string;
 }
 
-const GetTokenResponseSchema = z.object({
+export const GetTokenResponseSchema = z.object({
 	access_token: z.string(),
 	id_token: z.string(),
 	scope: z.string(),
@@ -21,7 +21,6 @@ const GetTokenResponseSchema = z.object({
 
 export type GetTokenResponse = z.infer<typeof GetTokenResponseSchema>;
 
-// todo: Remove this
 export const getToken = ({
 	code
 }: GetTokenParams): TE.TaskEither<ServerError, GetTokenResponse> => {
