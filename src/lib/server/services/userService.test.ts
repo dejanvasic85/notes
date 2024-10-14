@@ -4,6 +4,7 @@ import { describe, expect, it, vi, type MockedFunction, beforeEach } from 'vites
 import { fetchAuthUser } from '$lib/auth/fetchUser';
 import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
 import type { DatabaseError, RecordNotFoundError } from '$lib/types';
+import { isRightEqual, isLeftEqual } from '$test-utils/assertions';
 
 import { getOrCreateUserByAuth, isNoteOwner } from './userService';
 
@@ -28,7 +29,7 @@ describe('getOrCreateUserByAuth', () => {
 		it('should return a user from the database successfully', async () => {
 			const result = await getOrCreateUserByAuth({ accessToken, authId })();
 
-			expect(result).toBeRightStrictEqual(mockUser);
+			expect(isRightEqual(result, mockUser)).toBe(true);
 			expect(mockFetchAuthUser).not.toHaveBeenCalled();
 		});
 	});
@@ -46,7 +47,7 @@ describe('getOrCreateUserByAuth', () => {
 		it('should return Unexpected database error occurred and not fetch user from Auth0 when the get user fails', async () => {
 			const result = await getOrCreateUserByAuth({ accessToken, authId })();
 
-			expect(result).toBeLeftStrictEqual(databaseError);
+			expect(isLeftEqual(result, databaseError)).toBe(true);
 			expect(mockFetchAuthUser).not.toHaveBeenCalled();
 		});
 	});
@@ -69,11 +70,13 @@ describe('getOrCreateUserByAuth', () => {
 
 			const result = await getOrCreateUserByAuth({ accessToken, authId })();
 
-			expect(result).toBeRightStrictEqual({
-				id: 'uid_123',
-				name: 'George Costanza',
-				boards: []
-			});
+			expect(
+				isRightEqual(result, {
+					id: 'uid_123',
+					name: 'George Costanza',
+					boards: []
+				})
+			).toBe(true);
 			expect(mockFetchAuthUser).toHaveBeenCalledWith({ accessToken });
 		});
 
@@ -82,11 +85,13 @@ describe('getOrCreateUserByAuth', () => {
 
 			const result = await getOrCreateUserByAuth({ accessToken, authId })();
 
-			expect(result).toBeLeftStrictEqual({
-				_tag: 'FetchError',
-				message: 'Failed to fetch user with access token',
-				originalError: new Error('You do not have internet')
-			});
+			expect(
+				isLeftEqual(result, {
+					_tag: 'FetchError',
+					message: 'Failed to fetch user with access token',
+					originalError: new Error('You do not have internet')
+				})
+			).toBe(true);
 		});
 
 		it('should return a Unexpected database error occurred when the create user fails', async () => {
@@ -103,7 +108,7 @@ describe('getOrCreateUserByAuth', () => {
 
 			const result = await getOrCreateUserByAuth({ accessToken, authId })();
 
-			expect(result).toBeLeftStrictEqual(databaseError);
+			expect(isLeftEqual(result, databaseError)).toBe(true);
 			expect(mockFetchAuthUser).toHaveBeenCalledWith({ accessToken });
 		});
 	});
@@ -118,6 +123,6 @@ describe('isNoteOwner', () => {
 		};
 		const result = await isNoteOwner(param as any)();
 
-		expect(result).toBeRightStrictEqual(param);
+		expect(isRightEqual(result, param)).toBe(true);
 	});
 });

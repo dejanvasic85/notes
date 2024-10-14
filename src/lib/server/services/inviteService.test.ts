@@ -19,6 +19,8 @@ import type {
 	ValidationError
 } from '$lib/types';
 
+import { isRightEqual, isLeftEqual, isRight } from '$test-utils/assertions';
+
 import { acceptInvite, sendInvite } from './inviteService';
 
 vi.mock('$lib/server/db/userDb');
@@ -59,10 +61,7 @@ describe('acceptInvite', () => {
 
 		const result = await acceptInvite(inviteId, acceptedBy)();
 
-		expect(result).toBeRightStrictEqual({
-			connection,
-			invitedBy
-		});
+		expect(isRightEqual(result, { connection, invitedBy })).toBe(true);
 	});
 
 	it('should return record not found error when the invite is not found', async () => {
@@ -77,7 +76,7 @@ describe('acceptInvite', () => {
 
 		const result = await acceptInvite(inviteId, acceptedBy)();
 
-		expect(result).toBeLeftStrictEqual(recordNotFound);
+		expect(isLeftEqual(result, recordNotFound)).toBe(true);
 	});
 });
 
@@ -94,7 +93,7 @@ describe('sendInvites', () => {
 			userEmail: 'foo@bar.com'
 		})();
 
-		expect(result).toBeRight();
+		expect(isRight(result)).toBe(true);
 	});
 
 	it('should return an error when the invite creation fails', async () => {
@@ -114,7 +113,7 @@ describe('sendInvites', () => {
 			userEmail: 'foo@bar.com'
 		})();
 
-		expect(result).toBeLeftStrictEqual(databaseError);
+		expect(isLeftEqual(result, databaseError)).toBe(true);
 	});
 
 	it('should return an error when the sendEmail fails', async () => {
@@ -134,13 +133,14 @@ describe('sendInvites', () => {
 			userEmail: 'foo@bar.com'
 		})();
 
-		expect(result).toBeLeftStrictEqual(emailError);
+		expect(isLeftEqual(result, emailError)).toBe(true);
 	});
 
 	it('should return a validation error when the friend email matches the current user email', async () => {
 		const validationError: ValidationError = {
 			_tag: 'ValidationError',
-			message: 'Friend email should be different to current user email'
+			message: 'Friend email should be different to current user email',
+			originalError: undefined
 		};
 
 		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
@@ -154,6 +154,6 @@ describe('sendInvites', () => {
 			userEmail: 'foo@bar.com'
 		})();
 
-		expect(result).toBeLeftStrictEqual(validationError);
+		expect(isLeftEqual(result, validationError)).toBe(true);
 	});
 });

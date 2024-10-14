@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, type Mocked, beforeEach } from 'vitest';
 
 import db from '$lib/server/db';
+import { isLeftEqual, isRightEqual } from '$test-utils/assertions';
 
 import { getNoteById, createNote } from './notesDb';
 
@@ -27,9 +28,11 @@ describe('getNoteById', () => {
 
 		const result = await getNoteById({ id: 'nid_123' })();
 
-		expect(result).toBeRightStrictEqual({
-			id: 'nid_123'
-		});
+		expect(
+			isRightEqual(result, {
+				id: 'nid_123'
+			})
+		).toBe(true);
 	});
 
 	it('should return RecordNotFoundError when the note does not exist', async () => {
@@ -37,10 +40,13 @@ describe('getNoteById', () => {
 
 		const result = await getNoteById({ id: 'nid_123' })();
 
-		expect(result).toBeLeftStrictEqual({
-			_tag: 'RecordNotFound',
-			message: 'Note with id nid_123 not found'
-		});
+		expect(
+			isLeftEqual(result, {
+				_tag: 'RecordNotFound',
+				message: 'Note with id nid_123 not found',
+				originalError: undefined
+			})
+		).toBe(true);
 	});
 
 	it('should return DatabaseError when the db throws an error', async () => {
@@ -48,11 +54,13 @@ describe('getNoteById', () => {
 
 		const result = await getNoteById({ id: 'nid_123' })();
 
-		expect(result).toBeLeftStrictEqual({
-			_tag: 'DatabaseError',
-			message: 'Unexpected database error occurred',
-			originalError: new Error('db error')
-		});
+		expect(
+			isLeftEqual(result, {
+				_tag: 'DatabaseError',
+				message: 'Unexpected database error occurred',
+				originalError: new Error('db error')
+			})
+		).toBe(true);
 	});
 });
 
@@ -74,9 +82,11 @@ describe('createNote', () => {
 			colour: null
 		})();
 
-		expect(result).toBeRightStrictEqual({
-			id: 'nid_123'
-		});
+		expect(
+			isRightEqual(result, {
+				id: 'nid_123'
+			})
+		).toBe(true);
 	});
 
 	it('should return DatabaseError when the db throws an error', async () => {
@@ -90,10 +100,12 @@ describe('createNote', () => {
 			colour: null
 		})();
 
-		expect(result).toBeLeftStrictEqual({
-			_tag: 'DatabaseError',
-			message: 'Failed to create note',
-			originalError: new Error('db error')
-		});
+		expect(
+			isLeftEqual(result, {
+				_tag: 'DatabaseError',
+				message: 'Failed to create note',
+				originalError: new Error('db error')
+			})
+		).toBe(true);
 	});
 });
