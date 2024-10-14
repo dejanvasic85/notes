@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { Note } from '$lib/types';
 import { NoteSchema } from '$lib/types';
+import { isRightEqual, isLeft } from '$test-utils/assertions';
 
 import { parseRequest } from './parseRequest';
 
@@ -25,7 +26,7 @@ describe('parseRequest', () => {
 			'Unable to parse note create input'
 		)();
 
-		expect(result).toBeRightStrictEqual(noteCreateInput);
+		expect(isRightEqual(result, noteCreateInput)).toBe(true);
 	});
 
 	it('should return a return an error when the parsing fails', async () => {
@@ -43,7 +44,7 @@ describe('parseRequest', () => {
 			'Unable to parse note create input'
 		)();
 
-		expect(result).toBeLeft('ValidationError');
+		expect(isLeft(result, 'ValidationError')).toBe(true);
 	});
 
 	it('should return a return an error when the json call rejects', async () => {
@@ -57,6 +58,6 @@ describe('parseRequest', () => {
 			'Unable to parse note create input'
 		)();
 
-		expect(result).toBeLeft('ValidationError');
+		expect(isLeft(result, 'ValidationError')).toBe(true);
 	});
 });
