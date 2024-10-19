@@ -136,10 +136,10 @@
 	</p>
 
 	<div class="flex gap-2">
-		<LinkButton href="/api/auth/login?screen_hint=register" variant="tertiary"
+		<LinkButton href="/api/auth/login?returnUrl=/my/board&signup=true" variant="tertiary"
 			>Get started</LinkButton
 		>
-		<LinkButton href="/api/auth/login" variant="secondary">Login</LinkButton>
+		<LinkButton href="/api/auth/login?returnUrl=/my/board" variant="secondary">Login</LinkButton>
 	</div>
 </section>
 
