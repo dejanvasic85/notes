@@ -18,8 +18,9 @@
 		Made with love using <a
 			href="https://kit.svelte.dev"
 			target="_blank"
-			class="font-bold underline">svelte</a
-		>. Build: {PUBLIC_BUILD}
+			class="cursor-pointer font-bold underline">svelte</a
+		>
+		| Build: {PUBLIC_BUILD} | <a href="/privacy" class="font-bold underline">Privacy policy</a>
 	</footer>
 </div>
 
