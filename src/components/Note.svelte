@@ -29,7 +29,7 @@
 </script>
 
 <div
-	class="h-48 w-full overflow-y-hidden rounded-lg p-4 md:w-60 {className} hover:ring-2"
+	class="h-72 w-full overflow-y-hidden rounded-lg p-4 md:w-64 {className} hover:ring-2"
 	tabindex={index}
 	role="button"
 	aria-label={`Edit note ${index + 1}`}

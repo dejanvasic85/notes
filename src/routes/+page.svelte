@@ -122,7 +122,9 @@
 	</nav>
 </header>
 
-<section class="flex flex-col items-center justify-center gap-8 rounded-xl pt-20 sm:pt-24 lg:pt-32">
+<section
+	class="flex flex-col items-center justify-center gap-14 rounded-xl pt-20 sm:pt-24 lg:pt-32"
+>
 	<h1 class="text-6xl md:text-8xl">
 		Take Notes
 		<span class="block font-bold text-primary">Privately</span>
@@ -134,13 +136,11 @@
 	</p>
 
 	<div class="flex gap-2">
-		<LinkButton href="/api/auth/login?screen_hint=register" variant="tertiary"
+		<LinkButton href="/api/auth/login?returnUrl=/my/board&signup=true" variant="tertiary"
 			>Get started</LinkButton
 		>
-		<LinkButton href="/api/auth/login" variant="secondary">Login</LinkButton>
+		<LinkButton href="/api/auth/login?returnUrl=/my/board" variant="secondary">Login</LinkButton>
 	</div>
-
-	<p class="text-center italic">Easily create notes and share them with your family and friends.</p>
 </section>
 
 <div class="mt-8">

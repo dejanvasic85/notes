@@ -1,4 +1,4 @@
-// eslint-disable-next-line
+/* eslint-disable @typescript-eslint/no-require-imports */
 const colors = require('tailwindcss/colors');
 
 /** @type {import('tailwindcss').Config} */
@@ -21,5 +21,5 @@ export default {
 			})
 		}
 	},
-	plugins: []
+	plugins: [require('@tailwindcss/typography')]
 };

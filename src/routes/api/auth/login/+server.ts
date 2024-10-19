@@ -12,13 +12,15 @@ export const GET: RequestHandler = ({ cookies, url }) => {
 	});
 
 	const returnUrl = encodeURIComponent(url.searchParams.get('returnUrl') || '/');
+	const screenHint = url.searchParams.get('signup') === 'true' || null;
 
 	const query = {
 		scope: 'openid profile email',
 		response_type: 'code',
 		client_id: AUTH0_CLIENT_ID,
 		redirect_uri: `${PUBLIC_BASE_URL}/api/auth/callback?returnUrl=${returnUrl}`,
-		state: csrfState
+		state: csrfState,
+		...(screenHint ? { screen_hint: 'signup' } : null)
 	};
 
 	return new Response(null, {
