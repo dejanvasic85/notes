@@ -20,7 +20,10 @@
 			target="_blank"
 			class="cursor-pointer font-bold underline">svelte</a
 		>
-		| Build: {PUBLIC_BUILD} | <a href="/privacy" class="font-bold underline">Privacy policy</a>
+		<p>
+			Build: {PUBLIC_BUILD} | <a href="/privacy" class="font-bold underline">Privacy policy</a> |
+			<a href="/terms" class="font-bold underline">Terms of service</a>
+		</p>
 	</footer>
 </div>
 
