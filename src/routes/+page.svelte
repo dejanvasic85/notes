@@ -28,8 +28,8 @@
 			notes: [
 				{
 					id,
-					text: 'Use the force and edit me by clicking here.',
-					textPlain: 'Use the force and edit me by clicking here.',
+					text: 'Edit me.',
+					textPlain: 'Edit me.',
 					boardId: $localBoard.id!,
 					colour: 'indigo'
 				}
@@ -128,7 +128,7 @@
 	<div
 		class="flex flex-col items-center justify-between gap-14 rounded-xl pt-14 sm:pt-24 lg:flex-row lg:pt-32"
 	>
-		<h1 class="text-6xl md:text-8xl">
+		<h1 class="text-6xl md:text-7xl">
 			Take Notes
 			<span class="block font-bold text-primary">Privately</span>
 		</h1>

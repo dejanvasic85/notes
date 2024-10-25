@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('edit sample note', async ({ page }) => {
 	await page.goto('/');
-	await expect(page.getByText('Use the force and edit me by clicking here.')).toBeVisible();
+	await expect(page.getByText('Edit me.')).toBeVisible();
 	await page.getByRole('button', { name: 'Edit note 1' }).click();
 });
 
