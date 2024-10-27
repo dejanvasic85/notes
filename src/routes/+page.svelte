@@ -107,7 +107,7 @@
 	<meta name="description" content="A simple note taking application." />
 </svelte:head>
 
-<header class="h-18 container mx-auto border-b-2 py-2">
+<header class="h-18 container mx-auto border-b-2 px-2 py-2 md:px-0">
 	<nav class="flex w-full items-center justify-between">
 		<img src={logo} alt="Notes" class="size-16" />
 		<div>
