@@ -19,6 +19,8 @@
 
 	import { localBoard, orderedNotes } from '$lib/noteStore';
 
+	export let data;
+
 	onMount(() => {
 		const id = generateId('nid');
 		localBoard.update(() => ({
@@ -141,11 +143,23 @@
 			</p>
 
 			<div class="flex justify-end gap-2">
-				<LinkButton href="/api/auth/login?returnUrl=/my/board&signup=true" variant="tertiary"
-					>Sign up</LinkButton
-				>
-				<LinkButton href="/api/auth/login?returnUrl=/my/board" variant="secondary">Login</LinkButton
-				>
+				{#if data.isAuthenticated}
+					<LinkButton variant="tertiary" href="/my/board">
+						<Icon icon="arrow-right-circle" />
+						<span>Go to board</span>
+					</LinkButton>
+					<LinkButton variant="secondary" href="/api/auth/logout">
+						<Icon icon="logout" />
+						<span>Logout</span>
+					</LinkButton>
+				{:else}
+					<LinkButton href="/api/auth/login?returnUrl=/my/board&signup=true" variant="tertiary"
+						>Sign up</LinkButton
+					>
+					<LinkButton href="/api/auth/login?returnUrl=/my/board" variant="secondary"
+						>Login</LinkButton
+					>
+				{/if}
 			</div>
 		</div>
 	</div>
