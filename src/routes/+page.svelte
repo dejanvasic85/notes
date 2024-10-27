@@ -6,8 +6,10 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
-	import LinkButton from '$components/LinkButton.svelte';
 	import Board from '$components/Board.svelte';
+	import Button from '$components/Button.svelte';
+	import Icon from '$components/Icon.svelte';
+	import LinkButton from '$components/LinkButton.svelte';
 
 	import logo from '$lib/images/notes-main.png';
 	import { generateId } from '$lib/identityGenerator';
@@ -16,6 +18,8 @@
 	import type { Note } from '$lib/types';
 
 	import { localBoard, orderedNotes } from '$lib/noteStore';
+
+	export let data;
 
 	onMount(() => {
 		const id = generateId('nid');
@@ -26,8 +30,8 @@
 			notes: [
 				{
 					id,
-					text: 'Use the force and edit me by clicking here.',
-					textPlain: 'Use the force and edit me by clicking here.',
+					text: 'Edit me.',
+					textPlain: 'Edit me.',
 					boardId: $localBoard.id!,
 					colour: 'indigo'
 				}
@@ -103,9 +107,9 @@
 	<meta name="description" content="A simple note taking application." />
 </svelte:head>
 
-<header class="borderpx-6 container mx-auto h-20 border-b-2">
+<header class="h-18 container mx-auto border-b-2 py-2">
 	<nav class="flex w-full items-center justify-between">
-		<img src={logo} alt="Notes" class="size-20" />
+		<img src={logo} alt="Notes" class="size-16" />
 		<div>
 			<a href="https://github.com/dejanvasic85/notes" target="_blank" class="inline-block size-5">
 				<svg x="0px" y="0px" viewBox="0 0 98 96" xmlns="http://www.w3.org/2000/svg">
@@ -122,28 +126,52 @@
 	</nav>
 </header>
 
-<section
-	class="flex flex-col items-center justify-center gap-14 rounded-xl pt-20 sm:pt-24 lg:pt-32"
->
-	<h1 class="text-6xl md:text-8xl">
-		Take Notes
-		<span class="block font-bold text-primary">Privately</span>
-	</h1>
+<section class="container mx-auto px-20">
+	<div
+		class="flex flex-col items-center justify-between gap-14 rounded-xl pt-14 sm:pt-24 lg:flex-row lg:pt-32"
+	>
+		<h1 class="text-6xl md:text-7xl">
+			Take Notes
+			<span class="block font-bold text-primary">Privately</span>
+		</h1>
 
-	<p class="text-lg md:text-xl">
-		Your Notes, Your <span class="border-b-2 border-secondary pb-1 font-semibold">Data</span>, Your
-		<span class="border-b-2 border-tertiary pb-1 font-bold">Peace of Mind</span>.
-	</p>
+		<div class="flex flex-col gap-8">
+			<p class="text-lg md:text-xl">
+				Your Notes, Your <span class="border-b-2 border-secondary pb-1 font-semibold">Data</span>,
+				Your
+				<span class="border-b-2 border-tertiary pb-1 font-bold">Peace of Mind</span>.
+			</p>
 
-	<div class="flex gap-2">
-		<LinkButton href="/api/auth/login?returnUrl=/my/board&signup=true" variant="tertiary"
-			>Get started</LinkButton
-		>
-		<LinkButton href="/api/auth/login?returnUrl=/my/board" variant="secondary">Login</LinkButton>
+			<div class="flex justify-end gap-2">
+				{#if data.isAuthenticated}
+					<LinkButton variant="tertiary" href="/my/board">
+						<Icon icon="arrow-right-circle" />
+						<span>Go to board</span>
+					</LinkButton>
+					<LinkButton variant="secondary" href="/api/auth/logout">
+						<Icon icon="logout" />
+						<span>Logout</span>
+					</LinkButton>
+				{:else}
+					<LinkButton href="/api/auth/login?returnUrl=/my/board&signup=true" variant="tertiary"
+						>Sign up</LinkButton
+					>
+					<LinkButton href="/api/auth/login?returnUrl=/my/board" variant="secondary"
+						>Login</LinkButton
+					>
+				{/if}
+			</div>
+		</div>
 	</div>
 </section>
 
-<div class="mt-8">
+<div class="container mx-auto mt-24 flex flex-col gap-6 px-20 py-12">
+	<div>
+		<Button variant="primary" on:click={handleCreateNote}>
+			<Icon icon="plus" />
+			<span>Create a note</span>
+		</Button>
+	</div>
 	<Board
 		notes={$orderedNotes}
 		{selectedNote}

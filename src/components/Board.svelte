@@ -5,8 +5,6 @@
 	import { searchNotes } from '$lib/notes';
 	import type { Friend, NoteOrdered, SharedNote } from '$lib/types';
 
-	import Button from './Button.svelte';
-	import Icon from './Icon.svelte';
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
 	import NoteViewer from './NoteViewer.svelte';
@@ -27,7 +25,6 @@
 
 	// Events
 	type ComponentEvents = {
-		createNote: {};
 		updateNote: UpdateProps;
 		closeNote: {};
 		select: { id: string };
@@ -46,10 +43,6 @@
 
 	function handleUpdateColour({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
 		dispatch('updateNote', { note });
-	}
-
-	function handleCreateClick() {
-		dispatch('createNote', {});
 	}
 
 	function handleEdit(id?: string) {
@@ -85,14 +78,6 @@
 	});
 </script>
 
-<!-- Should search functionality go outside? -->
-<!-- <Input
-	type="search"
-	placeholder="Search notes"
-	bind:value={searchQuery}
-	class="mx-auto block w-full p-2.5 md:w-1/2"
-/> -->
-
 {#if selectedNote}
 	<NoteEditor
 		bind:showModal
@@ -116,7 +101,7 @@
 	/>
 {/if}
 
-<div class="flex flex-wrap items-stretch justify-center gap-2 p-8">
+<div class="flex flex-wrap items-stretch gap-2">
 	{#each notesOrderedFiltered as note, index}
 		<div
 			class="dropzone block h-4 w-full md:h-48 md:w-4"
@@ -124,13 +109,6 @@
 		></div>
 		<Note {note} {index} isDraggable={true} on:click={() => handleEdit(note.id)} />
 	{/each}
-	<div class="fixed bottom-0 w-full focus:outline-none">
-		<div class="float-right mx-5 my-5">
-			<Button on:click={handleCreateClick} rounded>
-				<Icon icon="plus" size={48} title="Add note" />
-			</Button>
-		</div>
-	</div>
 </div>
 
 {#if sharedNotes.length > 0}
