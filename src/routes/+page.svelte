@@ -9,6 +9,7 @@
 	import Board from '$components/Board.svelte';
 	import Button from '$components/Button.svelte';
 	import Icon from '$components/Icon.svelte';
+	import Header from '$components/Header.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
 
 	import logo from '$lib/images/notes-main.png';
@@ -107,7 +108,7 @@
 	<meta name="description" content="A simple note taking application." />
 </svelte:head>
 
-<header class="h-18 container mx-auto border-b-2 px-2 py-2 md:px-0">
+<Header>
 	<nav class="flex w-full items-center justify-between">
 		<img src={logo} alt="Notes" class="size-16" />
 		<div>
@@ -124,7 +125,7 @@
 			</a>
 		</div>
 	</nav>
-</header>
+</Header>
 
 <section class="container mx-auto px-20">
 	<div
