@@ -21,6 +21,8 @@
 		"@eslint/eslintrc": "^3.1.0",
 		"@eslint/js": "^9.12.0",
 		"@fontsource/fira-mono": "^5.0.8",
+		"@melt-ui/pp": "^0.3.2",
+		"@melt-ui/svelte": "^0.85.0",
 		"@neoconfetti/svelte": "^2.0.0",
 		"@playwright/test": "^1.37.1",
 		"@sveltejs/adapter-auto": "^3.2.0",
