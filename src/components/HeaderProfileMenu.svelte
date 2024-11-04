@@ -24,7 +24,7 @@
 
 {#if $open}
 	<div
-		class="menu mt-2 flex flex-col justify-between rounded-md border bg-background dark:bg-dark"
+		class="menu mt-2 flex w-32 flex-col justify-between rounded-md border bg-background dark:bg-dark"
 		use:melt={$menu}
 		transition:fly={{ duration: 150, y: -10 }}
 	>
@@ -36,7 +36,11 @@
 			<Icon icon="check" />
 			<span>Friends</span>
 		</a>
-		<a class="flex w-full gap-2 p-2" href="/api/auth/logout" use:melt={$item}>
+		<a
+			class="hover:bg-slate flex w-full gap-2 p-2 hover:bg-tertiary"
+			href="/api/auth/logout"
+			use:melt={$item}
+		>
 			<Icon icon="logout" />
 			<span>Logout</span>
 		</a>

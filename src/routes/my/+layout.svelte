@@ -12,7 +12,9 @@
 <div class="flex flex-col gap-8">
 	<Header>
 		<nav class="flex w-full items-center justify-between">
-			<img src={logo} alt="Notes" class="size-16" />
+			<a class="transition-all duration-150 hover:scale-125" href="/my/board"
+				><img src={logo} alt="Notes" class="size-16" /></a
+			>
 			{#if userPicture}
 				<HeaderProfileMenu {userPicture} />
 			{/if}
