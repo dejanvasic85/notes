@@ -112,7 +112,12 @@
 	<nav class="flex w-full items-center justify-between">
 		<img src={logo} alt="Notes" class="size-16" />
 		<div>
-			<a href="https://github.com/dejanvasic85/notes" target="_blank" class="inline-block size-5">
+			<a
+				href="https://github.com/dejanvasic85/notes"
+				target="_blank"
+				class="inline-block size-5"
+				aria-label="Github repository"
+			>
 				<svg x="0px" y="0px" viewBox="0 0 98 96" xmlns="http://www.w3.org/2000/svg">
 					<path
 						fill-rule="evenodd"

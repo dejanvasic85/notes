@@ -141,7 +141,7 @@
 		bind:innerText={noteTextPlain}
 		on:keydown={handleKeydown}
 		on:paste={handlePaste}
-	/>
+	></div>
 
 	<div slot="footer">
 		<div class="flex justify-between px-2 pb-2">
