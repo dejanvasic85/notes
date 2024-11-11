@@ -42,7 +42,7 @@
 						title={name}
 						class="h-12 w-12 rounded-full border-2 border-slate-400 dark:border dark:border-slate-200 {cssClass}"
 						on:click={() => handleColourClick(name)}
-					/>
+					></button>
 				</div>
 			{/each}
 		</div>
