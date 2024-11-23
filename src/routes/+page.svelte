@@ -110,7 +110,7 @@
 
 <Header>
 	<nav class="flex w-full items-center justify-between">
-		<img src={logo} alt="Notes" class="size-16" />
+		<img src={logo} alt="Notes" class="size-14" />
 		<div>
 			<a
 				href="https://github.com/dejanvasic85/notes"

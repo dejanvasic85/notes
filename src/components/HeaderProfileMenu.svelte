@@ -4,7 +4,11 @@
 
 	import Icon from './Icon.svelte';
 
-	export let userPicture: string;
+	type Props = {
+		userPicture: string;
+	};
+
+	let { userPicture }: Props = $props();
 
 	const {
 		elements: { trigger, menu, item },
@@ -33,7 +37,7 @@
 			href="/my/friends"
 			use:melt={$item}
 		>
-			<Icon icon="check" />
+			<Icon icon="users" size={24} fill="none" />
 			<span>Friends</span>
 		</a>
 		<a
@@ -41,7 +45,7 @@
 			href="/api/auth/logout"
 			use:melt={$item}
 		>
-			<Icon icon="logout" />
+			<Icon icon="arrow-left-start-on-rectangle" fill="none" size={24} />
 			<span>Logout</span>
 		</a>
 	</div>
