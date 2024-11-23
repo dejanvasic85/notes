@@ -1,11 +1,16 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import Header from '$components/Header.svelte';
 	import HeaderProfileMenu from '$components/HeaderProfileMenu.svelte';
 	import MobileMenu from '$components/MobileMenu.svelte';
 
 	import logo from '$lib/images/notes-main.png';
 
-	export let data;
+	let { children, data } = $props();
+
+	function handleAddNote() {
+		goto('/my/board?new=true');
+	}
 
 	const userPicture = data.userData?.picture;
 </script>
@@ -22,7 +27,7 @@
 		</nav>
 	</Header>
 
-	<slot />
+	{@render children()}
 
-	<MobileMenu />
+	<MobileMenu onAddNote={handleAddNote} />
 </div>

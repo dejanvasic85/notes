@@ -7,7 +7,7 @@
 		stroke?: 'currentColor' | 'none';
 	};
 
-	let { icon, size, title, fill = 'currentColor', stroke = 'currentColor' }: Props = $props();
+	let { icon, size = 24, title, fill = 'currentColor', stroke = 'currentColor' }: Props = $props();
 
 	const svgPath = {
 		'arrow-left-start-on-rectangle': {

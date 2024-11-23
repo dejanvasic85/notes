@@ -101,7 +101,7 @@
 	/>
 {/if}
 
-<div class="flex flex-wrap items-stretch gap-2">
+<div class="flex flex-wrap items-stretch gap-2 p-8">
 	{#each notesOrderedFiltered as note, index}
 		<div
 			class="dropzone block h-4 w-full md:h-48 md:w-4"

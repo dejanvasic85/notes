@@ -160,6 +160,14 @@
 			// todo: show an error
 		}
 	}
+
+	$: {
+		const search = new URL($page.url).searchParams;
+		const newNote = search.get('new');
+		if (newNote) {
+			handleCreate();
+		}
+	}
 </script>
 
 <svelte:head>
