@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	export let fullWidth = false;
 
 	let scrolled = false;
 	const handlerScroll = () => (scrolled = window.scrollY > 10);
@@ -16,14 +17,17 @@
 </script>
 
 <header
-	class="h-18 container sticky top-0 mx-auto border-b-2 bg-background px-4 py-2 dark:bg-dark {scrolledClass}"
+	class="z-50 h-16 {fullWidth
+		? 'w-full'
+		: 'container'} sticky top-0 mx-auto border-b-2 bg-background p-2 px-4 dark:bg-dark {scrolledClass} "
 >
 	<slot />
 </header>
 
 <style>
 	.header-bg {
+		flex: 0 0 auto;
 		box-shadow: 1px 1px 10px #0006;
-		backdrop-filter: blur(10px);
+		backdrop-filter: blur(100px);
 	}
 </style>

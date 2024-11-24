@@ -4,7 +4,11 @@
 
 	import Icon from './Icon.svelte';
 
-	export let userPicture: string;
+	type Props = {
+		userPicture: string;
+	};
+
+	let { userPicture }: Props = $props();
 
 	const {
 		elements: { trigger, menu, item },
@@ -24,24 +28,16 @@
 
 {#if $open}
 	<div
-		class="menu mt-2 flex w-32 flex-col justify-between rounded-md border bg-background dark:bg-dark"
+		class="menu z-50 flex w-32 flex-col justify-between rounded-md border bg-white dark:bg-dark"
 		use:melt={$menu}
 		transition:fly={{ duration: 150, y: -10 }}
 	>
 		<a
 			class="hover:bg-slate flex w-full gap-2 p-2 hover:bg-tertiary"
-			href="/my/friends"
-			use:melt={$item}
-		>
-			<Icon icon="check" />
-			<span>Friends</span>
-		</a>
-		<a
-			class="hover:bg-slate flex w-full gap-2 p-2 hover:bg-tertiary"
 			href="/api/auth/logout"
 			use:melt={$item}
 		>
-			<Icon icon="logout" />
+			<Icon icon="arrow-left-start-on-rectangle" fill="none" size={24} />
 			<span>Logout</span>
 		</a>
 	</div>

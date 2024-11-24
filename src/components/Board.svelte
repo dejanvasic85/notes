@@ -101,7 +101,7 @@
 	/>
 {/if}
 
-<div class="flex flex-wrap items-stretch gap-2">
+<div class="flex flex-wrap items-stretch gap-2 p-8">
 	{#each notesOrderedFiltered as note, index}
 		<div
 			class="dropzone block h-4 w-full md:h-48 md:w-4"
@@ -116,7 +116,7 @@
 	<div class="mt-8">
 		<h1 class="text-center text-2xl">Shared notes</h1>
 	</div>
-	<div class="flex flex-wrap items-stretch justify-center gap-2 p-8">
+	<div class="flex flex-wrap items-stretch justify-center gap-6 p-8">
 		{#each sharedNotes as sharedNote, index}
 			<Note
 				note={sharedNote}
