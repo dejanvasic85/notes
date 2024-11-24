@@ -172,7 +172,7 @@
 
 <svelte:head>
 	<title>My board with some notes on it</title>
-	<meta name="description" content="My personal whiteboard with secure notes" />
+	<meta name="description" content="My personal whiteboard with notes" />
 </svelte:head>
 
 <Board

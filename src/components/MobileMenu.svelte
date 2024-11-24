@@ -1,5 +1,8 @@
 <script lang="ts">
 	import Icon from './Icon.svelte';
+	import Button from './Button.svelte';
+	import { page } from '$app/stores';
+
 	type Props = {
 		onAddNote: () => void;
 	};
@@ -7,14 +10,25 @@
 	let { onAddNote }: Props = $props();
 </script>
 
-<div class="fixed inset-auto z-50 h-16 bg-white dark:bg-dark">
+<div class="fixed inset-auto z-50 h-16 border-t-2 bg-white dark:bg-dark">
 	<div class="flex h-full flex-grow items-center justify-around">
 		<a href="/my/board" aria-label="My board">
-			<Icon icon="home" size={40} fill="none" />
+			<Icon
+				icon="home"
+				size={40}
+				fill={$page.url.pathname === '/my/board' ? 'currentColor' : 'none'}
+			/>
 		</a>
-		<button onclick={onAddNote}>
+		<Button on:click={onAddNote} variant="primary">
 			<Icon icon="plus-circle" size={40} fill="none" />
-		</button>
+		</Button>
+		<a href="/my/friends" aria-label="My friends">
+			<Icon
+				icon="users"
+				size={40}
+				fill={$page.url.pathname === '/my/friends' ? 'currentColor' : 'none'}
+			/>
+		</a>
 	</div>
 </div>
 

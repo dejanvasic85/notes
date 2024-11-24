@@ -34,14 +34,6 @@
 	>
 		<a
 			class="hover:bg-slate flex w-full gap-2 p-2 hover:bg-tertiary"
-			href="/my/friends"
-			use:melt={$item}
-		>
-			<Icon icon="users" size={24} fill="none" />
-			<span>Friends</span>
-		</a>
-		<a
-			class="hover:bg-slate flex w-full gap-2 p-2 hover:bg-tertiary"
 			href="/api/auth/logout"
 			use:melt={$item}
 		>
