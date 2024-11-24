@@ -88,6 +88,7 @@
 	role="img"
 	{fill}
 	{stroke}
+	stroke-width="1.6"
 	><title>{title}</title>
 
 	{#each paths as path}
