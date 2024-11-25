@@ -8,6 +8,7 @@ export default {
 		extend: {
 			colors: {
 				dark: colors.slate[900],
+				darkHover: colors.slate[700],
 				primary: '#8f5bbd',
 				secondary: '#9E6A88',
 				tertiary: '#5C8D89',
