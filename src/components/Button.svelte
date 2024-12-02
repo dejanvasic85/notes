@@ -10,7 +10,7 @@
 		ghost: 'dark:hover:bg-slate-800'
 	};
 
-	const roundedClass = rounded ? 'rounded-full' : 'rounded-lg';
+	const roundedClass = rounded ? 'rounded-full' : 'rounded-xl';
 </script>
 
 <button

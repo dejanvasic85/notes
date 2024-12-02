@@ -110,8 +110,8 @@
 
 <div class="flex min-h-screen flex-col">
 	<main>
-		<header class="container z-50 mx-auto h-16 border-b-2 bg-background p-2 px-4 dark:bg-dark">
-			<nav class="flex w-full items-center justify-between">
+		<header class="h-20 border-b-2 bg-white px-4 py-2 md:container md:mx-auto dark:bg-dark">
+			<nav class="flex h-full w-full items-center justify-between">
 				<img src={logo} alt="Notes" class="size-14" />
 				<div>
 					<a

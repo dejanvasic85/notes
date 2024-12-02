@@ -14,6 +14,21 @@ export default {
 				tertiary: '#5C8D89',
 				background: '#f5f5f7'
 			},
+			gridTemplateColumns: {
+				layout: '[first-col] 5rem [second-col] auto'
+			},
+			gridTemplateRows: {
+				layout: '[first-row] 5rem [second-row] auto'
+			},
+			gridColumn: {
+				second: 'second-col'
+			},
+			gridRow: {
+				['first-span-2']: 'first-row / span 2'
+			},
+			inset: {
+				'auto-0-0': 'auto 0 0'
+			},
 			fontFamily: {
 				sans: ['Poppins', 'sans-serif']
 			},
