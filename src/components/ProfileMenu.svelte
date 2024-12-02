@@ -28,12 +28,12 @@
 
 {#if $open}
 	<div
-		class="menu z-50 flex w-32 flex-col justify-between rounded-md border bg-white dark:bg-dark"
+		class="menu z-50 flex w-32 flex-col justify-between rounded-lg border bg-white dark:border-darkBorder dark:bg-dark"
 		use:melt={$menu}
 		transition:fly={{ duration: 150, y: -10 }}
 	>
 		<a
-			class="hover:bg-slate flex w-full gap-2 p-2 hover:bg-tertiary"
+			class="hover:bg-slate flex w-full gap-2 rounded-lg p-2 hover:bg-tertiary"
 			href="/api/auth/logout"
 			use:melt={$item}
 		>
