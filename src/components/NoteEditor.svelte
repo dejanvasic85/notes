@@ -96,7 +96,7 @@
 	};
 
 	$: className = getNoteCssClass({
-		defaultClass: 'bg-white dark:bg-slate-800 dark:text-white border',
+		defaultClass: 'bg-white dark:bg-slate-800 dark:text-darkText border',
 		variant: note.colour ?? ''
 	});
 </script>

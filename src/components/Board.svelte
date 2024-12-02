@@ -112,11 +112,10 @@
 </div>
 
 {#if sharedNotes.length > 0}
-	<div class="w-full border border-b"></div>
-	<div class="mt-8">
-		<h1 class="text-center text-2xl">Shared notes</h1>
+	<div class="mt-8 pl-10">
+		<h1 class="text-2xl">Shared notes</h1>
 	</div>
-	<div class="flex flex-wrap items-stretch justify-center gap-6 p-8">
+	<div class="flex flex-wrap items-stretch gap-6 p-8">
 		{#each sharedNotes as sharedNote, index}
 			<Note
 				note={sharedNote}

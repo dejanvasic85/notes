@@ -16,5 +16,5 @@ interface GetNoteCssClass {
 
 export function getNoteCssClass({ defaultClass, variant }: GetNoteCssClass) {
 	const colour = colours.find((c) => c.name === variant);
-	return colour ? `${colour.cssClass} dark:text-white border` : defaultClass;
+	return colour ? `${colour.cssClass} dark:text-darkText border` : defaultClass;
 }
