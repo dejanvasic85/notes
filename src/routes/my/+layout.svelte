@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import Header from '$components/Header.svelte';
-	import HeaderProfileMenu from '$components/HeaderProfileMenu.svelte';
-	import MobileMenu from '$components/MobileMenu.svelte';
+
+	import ProfileMenu from '$components/ProfileMenu.svelte';
+	import Menu from '$components/Menu.svelte';
 
 	import logo from '$lib/images/notes-main.png';
 
@@ -15,19 +15,26 @@
 	const userPicture = data.userData?.picture;
 </script>
 
-<div class="flex flex-col gap-8">
-	<Header fullWidth={true}>
-		<nav class="flex w-full items-center justify-between">
-			<a class="transition-all duration-150 hover:scale-125" href="/my/board"
-				><img src={logo} alt="Notes" class="size-14" /></a
-			>
-			{#if userPicture}
-				<HeaderProfileMenu {userPicture} />
-			{/if}
-		</nav>
-	</Header>
-
-	{@render children()}
-
-	<MobileMenu onAddNote={handleAddNote} />
+<div class="flex min-h-screen flex-col md:grid md:grid-cols-layout md:grid-rows-layout">
+	<header
+		class="sticky top-0 flex h-20 items-center justify-between border-b bg-white px-4 py-2 md:col-second dark:border-b-darkBorder dark:bg-dark"
+	>
+		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
+		{#if userPicture}
+			<ProfileMenu {userPicture} />
+		{/if}
+	</header>
+	<div
+		class="relative mx-auto hidden w-20 border-r md:row-first-span-2 md:flex dark:border-r-darkBorder dark:bg-dark"
+	>
+		<div class="fixed left-0 h-screen p-2">
+			<Menu onAddNote={handleAddNote} layout="vertical" />
+		</div>
+	</div>
+	<div class="mb-20 overflow-y-auto px-4 py-2">{@render children()}</div>
+	<div
+		class="fixed inset-auto-0-0 bottom-0 flex h-20 items-center border-t bg-white p-2 md:hidden dark:bg-dark"
+	>
+		<Menu onAddNote={handleAddNote} layout="horizontal" />
+	</div>
 </div>
