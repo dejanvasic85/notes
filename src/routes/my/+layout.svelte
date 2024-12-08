@@ -16,6 +16,7 @@
 </script>
 
 <div class="flex min-h-screen flex-col md:grid md:grid-cols-layout md:grid-rows-layout">
+	<!-- Header -->
 	<header
 		class="sticky top-0 flex h-20 items-center justify-between border-b bg-white px-4 py-2 md:col-second dark:border-b-darkBorder dark:bg-dark"
 	>
@@ -24,6 +25,8 @@
 			<ProfileMenu {userPicture} />
 		{/if}
 	</header>
+
+	<!-- Side menu -->
 	<div
 		class="relative mx-auto hidden w-20 border-r md:row-first-span-2 md:flex dark:border-r-darkBorder dark:bg-dark"
 	>
@@ -31,9 +34,13 @@
 			<Menu onAddNote={handleAddNote} layout="vertical" />
 		</div>
 	</div>
-	<div class="mb-20 overflow-y-auto px-4 py-2">{@render children()}</div>
+
+	<!-- Main content -->
+	<main class="mb-20 overflow-y-auto p-8">{@render children()}</main>
+
+	<!-- Mobile Menu -->
 	<div
-		class="fixed inset-auto-0-0 bottom-0 flex h-20 items-center border-t bg-white p-2 md:hidden dark:bg-dark"
+		class="fixed inset-auto-0-0 bottom-0 flex h-20 items-center border-t bg-white p-2 md:hidden dark:border-t-darkBorder dark:bg-dark"
 	>
 		<Menu onAddNote={handleAddNote} layout="horizontal" />
 	</div>
