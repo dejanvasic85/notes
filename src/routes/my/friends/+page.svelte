@@ -1,12 +1,10 @@
 <script lang="ts">
-	// import { enhance } from '$app/forms';
 	import { crossfade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 	import type { ActionData, PageData } from './$types';
 
 	import { createTabs, melt } from '@melt-ui/svelte';
 
-	// import Input from '$components/Input.svelte';
 	import Button from '$components/Button.svelte';
 	import Icon from '$components/Icon.svelte';
 
@@ -37,9 +35,37 @@
 			label: 'Invites'
 		}
 	];
+
+	type FriendSnippetProps = {
+		name: string;
+		label: 'Remove friend' | 'Remove invite' | 'Accept';
+		isPending: boolean;
+		picture?: string | null;
+		onclick: () => void;
+	};
 </script>
 
+{#snippet Friend({ label, isPending, onclick, picture, name }: FriendSnippetProps)}
+	<div class="flex h-20 w-full items-center justify-between gap-2 rounded-lg p-4 dark:bg-slate-800">
+		<div class="flex items-center gap-2">
+			{#if picture}
+				<img src={picture} class="h-10 rounded-full" alt="picture of {name}" />
+			{/if}
+
+			<span class={isPending ? 'italic text-gray-400' : ''}
+				>{name} {isPending ? '(pending)' : ''}</span
+			>
+		</div>
+		{#if label === 'Accept'}
+			<Button variant="ghost" {label} on:click={onclick}><Icon icon="check" />Accept</Button>
+		{:else}
+			<Button variant="ghost" {label} on:click={onclick}><Icon icon="cross" /></Button>
+		{/if}
+	</div>
+{/snippet}
+
 <h1 class="text-2xl">Friends</h1>
+<p>Connect with your friends to share notes.</p>
 <div use:melt={$root} class="mt-4">
 	<div use:melt={$list} aria-label="Manage your friends and invites">
 		{#each triggers as triggerItem}
@@ -56,75 +82,47 @@
 		{/each}
 	</div>
 	<div use:melt={$content('friends')} class="mt-4">
-		<div>
+		<div class="flex flex-col gap-4 lg:w-1/2">
+			<Button type="submit" className="self-end">Add friend</Button>
 			{#if data.friends.length === 0}
 				<p>No friends yet</p>
 			{:else}
+				{#each data.pendingSentInvites as invite}
+					{@render Friend({
+						name: invite.friendEmail,
+						label: 'Remove invite',
+						isPending: true,
+						onclick: () => console.log('todo: remove', invite.id)
+					})}
+				{/each}
+
 				{#each data.friends as friend}
-					<div class="flex w-full items-center justify-between gap-2 rounded-lg bg-slate-800 p-4">
-						<span>{friend.name}</span>
-						<Button variant="ghost"><Icon icon="cross" /></Button>
-					</div>
+					{@render Friend({
+						name: friend.name!,
+						label: 'Remove friend',
+						isPending: false,
+						picture: friend.picture,
+						onclick: () => console.log('todo: remove', friend.id)
+					})}
 				{/each}
 			{/if}
 		</div>
 	</div>
-	<!-- <section class="mb-20 flex-1">
-		<div>
-			{#if data.friends.length === 0}
-				<p>No friends yet</p>
+
+	<div use:melt={$content('invites')} class="mt-4">
+		<div class="flex flex-col gap-4 lg:w-1/2">
+			{#if data.pendingReceivedInvites.length === 0}
+				<p>No incoming invites</p>
 			{:else}
-				{#each data.friends as friend}
-					<div>
-						<p>{friend.name}</p>
-					</div>
+				{#each data.pendingReceivedInvites as invite}
+					{@render Friend({
+						name: invite.user.name!,
+						label: 'Accept',
+						isPending: false,
+						onclick: () => console.log('todo: accept', invite.id)
+					})}
 				{/each}
 			{/if}
 		</div>
-		<div class="mt-4">
-			Invite a friend by email.
-			<form method="post" action="?/invite" use:enhance>
-				<Input type="text" name="email" placeholder="Email" />
-				<Button type="submit">Invite</Button>
-			</form>
-		</div>
-	</section>
-
-	<section class="flex-1">
-		<h1 class="text-xl">Invites</h1>
-		<div>
-			<h3 class="text-lg">Sent invites</h3>
-			{#each data.pendingSentInvites as invite}
-				<div>
-					<p>{invite.friendEmail}, sent: {invite.createdAt}</p>
-				</div>
-			{/each}
-		</div>
-
-		<div class="mt-8">
-			<h3 class="text-lg">Incoming invites</h3>
-			{#each data.pendingReceivedInvites as invite}
-				<div class="flex gap-4">
-					{invite.user.name}, sent: {invite.createdAt}
-					<form method="post" action="?/accept" use:enhance>
-						<input type="hidden" name="inviteId" value={invite.id} />
-						<Button type="submit">Accept</Button>
-					</form>
-					<form method="post" action="?/ignore" use:enhance>
-						<input type="hidden" name="inviteId" value={invite.id} />
-						<Button variant="ghost" type="submit">Ignore</Button>
-					</form>
-				</div>
-			{/each}
-		</div>
-
-		<div>
-			{#if form?.success}
-				<p>Invite sent</p>
-			{:else if form?.message}
-				<p>{form.message}</p>
-			{/if}
-			<hr />
-		</div>
-	</section> -->
+	</div>
 </div>
