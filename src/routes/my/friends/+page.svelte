@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { crossfade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 	import type { ActionData, PageData } from './$types';
@@ -8,6 +7,7 @@
 
 	import Button from '$components/Button.svelte';
 	import Icon from '$components/Icon.svelte';
+	import LinkButton from '$components/LinkButton.svelte';
 
 	type Props = {
 		data: PageData;
@@ -84,8 +84,8 @@
 	</div>
 	<div use:melt={$content('friends')} class="mt-4">
 		<div class="flex flex-col gap-4 lg:w-1/2">
-			<Button type="submit" className="self-end" on:click={() => goto('/my/friends/add')}
-				>Add friend</Button
+			<LinkButton variant="primary" className="self-end" href="/my/friends/add"
+				>Add friend</LinkButton
 			>
 			{#if data.friends.length === 0}
 				<p>No friends yet</p>
