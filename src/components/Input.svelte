@@ -8,6 +8,7 @@
 	export let focusOnMount = false;
 	export let type: HTMLInputTypeAttribute = 'text';
 	export let value: any = undefined;
+	export let invalid = false;
 
 	let inputElement: HTMLInputElement;
 
@@ -29,4 +30,6 @@
 	bind:this={inputElement}
 	on:change
 	class={inputClass}
+	class:ring-2={invalid}
+	class:ring-red-500={invalid}
 />

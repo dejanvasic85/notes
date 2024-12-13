@@ -116,6 +116,9 @@ export const getPendingSentInvites = (userId: string): TE.TaskEither<ServerError
 			where: {
 				userId,
 				status: null
+			},
+			orderBy: {
+				createdAt: 'desc'
 			}
 		})
 	);

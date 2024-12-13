@@ -3,9 +3,8 @@ import { fail, error, type ActionFailure } from '@sveltejs/kit';
 import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
 
-import { PUBLIC_BASE_URL } from '$env/static/public';
 import { getPendingReceivedInvites, getPendingSentInvites } from '$lib/server/db/userDb';
-import { acceptInvite, ignoreInvite, sendInvite } from '$lib/server/services/inviteService';
+import { acceptInvite, ignoreInvite } from '$lib/server/services/inviteService';
 import { getFriends } from '$lib/server/services/userService';
 import { mapToApiError } from '$lib/server/mapApi';
 
@@ -32,33 +31,10 @@ export const load = async ({ locals }) => {
 	)();
 };
 
-type SendInviteResult = Promise<ActionFailure<{ message: string }> | { success: boolean }>;
 type AcceptInviteResult = Promise<ActionFailure<{ message: string }> | { acceptedInvite: boolean }>;
 type IgnoreInviteResult = Promise<ActionFailure<{ message: string }> | { ignoredInvite: boolean }>;
 
 export const actions = {
-	invite: async ({ locals, request }): SendInviteResult => {
-		const currentUser = locals.user!;
-		const data = await request.formData();
-		const friendEmail = data.get('email') as string;
-
-		return pipe(
-			sendInvite({
-				baseUrl: PUBLIC_BASE_URL,
-				friendEmail,
-				name: currentUser.name!,
-				userEmail: currentUser.email!,
-				userId: currentUser.id
-			}),
-			TE.mapLeft(mapToApiError),
-			TE.match(
-				// @ts-ignore: fp-ts is expecting the same return types
-				({ status, message }) => fail(status, { message }),
-				() => ({ success: true })
-			)
-		)();
-	},
-
 	accept: async ({ locals, request }): AcceptInviteResult => {
 		const user = locals.user!;
 		const data = await request.formData();

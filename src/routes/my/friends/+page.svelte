@@ -26,7 +26,7 @@
 		easing: cubicInOut
 	});
 
-	const triggers = [
+	const tabTriggers = [
 		{
 			id: 'friends',
 			label: 'Friends'
@@ -39,29 +39,36 @@
 
 	type FriendSnippetProps = {
 		name: string;
-		label: 'Remove friend' | 'Remove invite' | 'Accept';
-		isPending: boolean;
 		picture?: string | null;
-		onclick: () => void;
+		isPending: boolean;
+		onaccept?: () => void;
+		onremove?: () => void;
 	};
 </script>
 
-{#snippet Friend({ label, isPending, onclick, picture, name }: FriendSnippetProps)}
+{#snippet Friend(props: FriendSnippetProps)}
 	<div class="flex h-20 w-full items-center justify-between gap-2 rounded-lg p-4 dark:bg-slate-800">
 		<div class="flex items-center gap-2">
-			{#if picture}
-				<img src={picture} class="h-10 rounded-full" alt="picture of {name}" />
+			{#if props.picture}
+				<img src={props.picture} class="h-10 rounded-full" alt="picture of {props.name}" />
 			{/if}
-
-			<span class={isPending ? 'italic text-gray-400' : ''}
-				>{name} {isPending ? '(pending)' : ''}</span
+			<span class:italic={props.isPending} class:text-gray-400={props.isPending}
+				>{props.name} {props.isPending ? '(pending)' : ''}</span
 			>
 		</div>
-		{#if label === 'Accept'}
-			<Button variant="ghost" {label} on:click={onclick}><Icon icon="check" />Accept</Button>
-		{:else}
-			<Button variant="ghost" {label} on:click={onclick}><Icon icon="cross" /></Button>
-		{/if}
+
+		<div class="flex gap-1">
+			{#if props.onaccept}
+				<Button variant="ghost" label="Accept" on:click={props.onaccept}
+					><Icon icon="check" /></Button
+				>
+			{/if}
+			{#if props.onremove}
+				<Button variant="ghost" label="Remove" on:click={props.onremove}
+					><Icon icon="cross" /></Button
+				>
+			{/if}
+		</div>
 	</div>
 {/snippet}
 
@@ -69,7 +76,7 @@
 <p>Connect with your friends to share notes.</p>
 <div use:melt={$root} class="mt-4">
 	<div use:melt={$list} aria-label="Manage your friends and invites">
-		{#each triggers as triggerItem}
+		{#each tabTriggers as triggerItem}
 			<button use:melt={$trigger(triggerItem.id)} class="trigger relative p-4 text-xl">
 				{triggerItem.label}
 				{#if $value === triggerItem.id}
@@ -93,19 +100,17 @@
 				{#each data.pendingSentInvites as invite}
 					{@render Friend({
 						name: invite.friendEmail,
-						label: 'Remove invite',
 						isPending: true,
-						onclick: () => console.log('todo: remove', invite.id)
+						onremove: () => console.log('todo: remove', invite.id)
 					})}
 				{/each}
 
 				{#each data.friends as friend}
 					{@render Friend({
 						name: friend.name!,
-						label: 'Remove friend',
 						isPending: false,
 						picture: friend.picture,
-						onclick: () => console.log('todo: remove', friend.id)
+						onremove: () => console.log('todo: remove', friend.id)
 					})}
 				{/each}
 			{/if}
@@ -120,9 +125,9 @@
 				{#each data.pendingReceivedInvites as invite}
 					{@render Friend({
 						name: invite.user.name!,
-						label: 'Accept',
 						isPending: false,
-						onclick: () => console.log('todo: accept', invite.id)
+						onaccept: () => console.log('todo: accept', invite.id),
+						onremove: () => console.log('todo: remove', invite.id)
 					})}
 				{/each}
 			{/if}
