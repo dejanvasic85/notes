@@ -1,12 +1,29 @@
 <script lang="ts">
-	export let href: string;
-	export let variant: 'primary' | 'secondary' | 'tertiary';
-	export let className = '';
+	import type { Snippet } from 'svelte';
+
+	type Props = {
+		children: Snippet<[]>;
+		href: string;
+		variant: 'primary' | 'secondary' | 'tertiary';
+		className?: string;
+	};
+
+	let { children, href, variant, className }: Props = $props();
 </script>
 
 <a
 	{href}
-	class="flex gap-2 rounded-lg border-2 bg-{variant} border-{variant} px-6 py-3 transition-all duration-300 hover:scale-105 dark:text-white hover:bg-{variant}/90 md:text-lg {className}"
+	class="flex
+	gap-2
+	rounded-lg
+	border-none
+	bg-{variant}
+	hover:bg-{variant}/90
+	px-6 py-3
+	text-white
+	transition-all
+	duration-300
+	md:text-lg {className}"
 >
-	<slot />
+	{@render children()}
 </a>
