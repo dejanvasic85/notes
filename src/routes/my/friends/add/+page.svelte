@@ -3,9 +3,16 @@
 
 	import Input from '$components/Input.svelte';
 	import Button from '$components/Button.svelte';
+	import Icon from '$components/Icon.svelte';
 
 	const formError = form?.status === 400;
 </script>
+
+<div class="mb-4">
+	<a href="/my/friends" class="mb-4">
+		<Icon icon="arrow-left" />
+	</a>
+</div>
 
 <h1 class="text-2xl">Invite friend</h1>
 <p>Adding a friend allows you select notes for them to see.</p>
