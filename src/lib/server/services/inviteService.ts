@@ -92,3 +92,11 @@ export const ignoreInvite = (inviteId: string): TE.TaskEither<ServerError, UserI
 		TE.flatMap(({ invite }) => updateInvite({ ...invite, status: 'ignored' }))
 	);
 };
+
+export const cancelInvite = (inviteId: string): TE.TaskEither<ServerError, UserInvite> => {
+	return pipe(
+		TE.Do,
+		TE.bind('invite', () => getInvite(inviteId)),
+		TE.flatMap(({ invite }) => updateInvite({ ...invite, status: 'canceled' }))
+	);
+};

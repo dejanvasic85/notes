@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { crossfade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
+	import { enhance } from '$app/forms';
 	import type { ActionData, PageData } from './$types';
 
 	import { createTabs, melt } from '@melt-ui/svelte';
@@ -8,6 +9,8 @@
 	import Button from '$components/Button.svelte';
 	import Icon from '$components/Icon.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
+
+	import { type IconName } from '$lib/icons';
 
 	type Props = {
 		data: PageData;
@@ -41,8 +44,12 @@
 		name: string;
 		picture?: string | null;
 		isPending: boolean;
-		onaccept?: () => void;
-		onremove?: () => void;
+		actions?: Array<{
+			label: string;
+			actionName: string;
+			data: Record<string, unknown>;
+			icon: IconName;
+		}>;
 	};
 </script>
 
@@ -58,15 +65,17 @@
 		</div>
 
 		<div class="flex gap-1">
-			{#if props.onaccept}
-				<Button variant="ghost" label="Accept" on:click={props.onaccept}
-					><Icon icon="check" /></Button
-				>
-			{/if}
-			{#if props.onremove}
-				<Button variant="ghost" label="Remove" on:click={props.onremove}
-					><Icon icon="cross" /></Button
-				>
+			{#if props.actions}
+				{#each props.actions as action}
+					<form method="POST" action={action.actionName} use:enhance>
+						{#each Object.entries(action.data) as [key, value]}
+							<input type="hidden" name={key} {value} />
+						{/each}
+						<Button variant="ghost" type="submit">
+							<Icon icon={action.icon} />
+						</Button>
+					</form>
+				{/each}
 			{/if}
 		</div>
 	</div>
@@ -101,7 +110,14 @@
 					{@render Friend({
 						name: invite.friendEmail,
 						isPending: true,
-						onremove: () => console.log('todo: remove', invite.id)
+						actions: [
+							{
+								actionName: '?/cancel-invite',
+								data: { id: invite.id },
+								icon: 'cross',
+								label: 'Cancel'
+							}
+						]
 					})}
 				{/each}
 
@@ -110,7 +126,14 @@
 						name: friend.name!,
 						isPending: false,
 						picture: friend.picture,
-						onremove: () => console.log('todo: remove', friend.id)
+						actions: [
+							{
+								actionName: '?/remove-friend',
+								data: { id: friend.id },
+								icon: 'cross',
+								label: 'Remove'
+							}
+						]
 					})}
 				{/each}
 			{/if}
@@ -126,8 +149,20 @@
 					{@render Friend({
 						name: invite.user.name!,
 						isPending: false,
-						onaccept: () => console.log('todo: accept', invite.id),
-						onremove: () => console.log('todo: remove', invite.id)
+						actions: [
+							{
+								actionName: '?/accept-invite',
+								data: { id: invite.id },
+								icon: 'check',
+								label: 'Accept'
+							},
+							{
+								actionName: '?/reject-invite',
+								data: { id: invite.id },
+								icon: 'cross',
+								label: 'Reject'
+							}
+						]
 					})}
 				{/each}
 			{/if}

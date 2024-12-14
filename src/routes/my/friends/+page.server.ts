@@ -4,7 +4,7 @@ import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
 
 import { getPendingReceivedInvites, getPendingSentInvites } from '$lib/server/db/userDb';
-import { acceptInvite, ignoreInvite } from '$lib/server/services/inviteService';
+import { acceptInvite, ignoreInvite, cancelInvite } from '$lib/server/services/inviteService';
 import { getFriends } from '$lib/server/services/userService';
 import { mapToApiError } from '$lib/server/mapApi';
 
@@ -35,7 +35,7 @@ type AcceptInviteResult = Promise<ActionFailure<{ message: string }> | { accepte
 type IgnoreInviteResult = Promise<ActionFailure<{ message: string }> | { ignoredInvite: boolean }>;
 
 export const actions = {
-	accept: async ({ locals, request }): AcceptInviteResult => {
+	['accept-invite']: async ({ locals, request }): AcceptInviteResult => {
 		const user = locals.user!;
 		const data = await request.formData();
 		const inviteId = data.get('inviteId') as string;
@@ -51,9 +51,26 @@ export const actions = {
 		)();
 	},
 
-	ignore: async ({ request }): IgnoreInviteResult => {
+	// todo: authorization (does the invite id belong to the user?)
+	['cancel-invite']: async ({ request }) => {
 		const data = await request.formData();
-		const inviteId = data.get('inviteId') as string;
+		const inviteId = data.get('id') as string;
+
+		return pipe(
+			cancelInvite(inviteId),
+			TE.mapLeft(mapToApiError),
+			TE.match(
+				// @ts-ignore: fp-ts is expecting the same return types
+				({ status, message }) => fail(status, { message }),
+				() => ({ canceledInvite: true })
+			)
+		)();
+	},
+
+	// todo: authorization (does the invite id belong to the user?)
+	['reject-invite']: async ({ request }): IgnoreInviteResult => {
+		const data = await request.formData();
+		const inviteId = data.get('id') as string;
 
 		return pipe(
 			ignoreInvite(inviteId),
@@ -64,5 +81,11 @@ export const actions = {
 				() => ({ ignoredInvite: true })
 			)
 		)();
+	},
+
+	['remove-friend']: async ({ locals }) => {
+		const user = locals.user!;
+		console.log('todo', user);
+		return { removedFriend: true };
 	}
 };
