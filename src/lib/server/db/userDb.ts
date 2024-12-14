@@ -27,7 +27,7 @@ export const getUser = ({
 }: GetUserByIdTaskParams): TE.TaskEither<ServerError, User> =>
 	pipe(
 		tryDbTask(() =>
-			db.user.findUnique({
+			db.user.findFirst({
 				where: { id },
 				include: {
 					boards: {
@@ -66,7 +66,7 @@ export const getAllUsersById = (ids: string[]): TE.TaskEither<ServerError, User[
 export const getUserByNoteId = (noteId: string): TE.TaskEither<ServerError, User> =>
 	pipe(
 		tryDbTask(() =>
-			db.note.findUniqueOrThrow({
+			db.note.findFirst({
 				where: { id: noteId },
 				include: { board: { include: { user: true } } }
 			})
@@ -156,7 +156,7 @@ export const getInvite = (
 	{ friendEmail }: GetInviteOptions = {}
 ): TE.TaskEither<ServerError, UserInvite> =>
 	pipe(
-		tryDbTask(() => db.userInvite.findUnique({ where: { id, friendEmail } })),
+		tryDbTask(() => db.userInvite.findFirst({ where: { id, friendEmail } })),
 		TE.flatMap(fromNullableRecord(`User with authId ${id} not found`))
 	);
 
