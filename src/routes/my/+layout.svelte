@@ -28,7 +28,7 @@
 
 	<!-- Side menu -->
 	<div
-		class="relative mx-auto hidden w-20 border-r md:row-first-span-2 md:flex dark:border-r-darkBorder dark:bg-dark"
+		class="relative mx-auto hidden w-20 border-r bg-white md:row-first-span-2 md:flex dark:border-r-darkBorder dark:bg-dark"
 	>
 		<div class="fixed left-0 h-screen p-2">
 			<Menu onAddNote={handleAddNote} layout="vertical" />
