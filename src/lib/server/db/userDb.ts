@@ -66,7 +66,7 @@ export const getAllUsersById = (ids: string[]): TE.TaskEither<ServerError, User[
 export const getUserByNoteId = (noteId: string): TE.TaskEither<ServerError, User> =>
 	pipe(
 		tryDbTask(() =>
-			db.note.findFirst({
+			db.note.findUniqueOrThrow({
 				where: { id: noteId },
 				include: { board: { include: { user: true } } }
 			})
@@ -188,3 +188,41 @@ export const getConnections = (userId: string) =>
 			}
 		})
 	);
+
+export const getConnection = (
+	userId: string,
+	friendUserId: string
+): TE.TaskEither<ServerError, UserConnection> =>
+	pipe(
+		tryDbTask(() =>
+			db.userConnection.findFirst({
+				where: {
+					OR: [
+						{
+							userFirstId: userId,
+							userSecondId: friendUserId
+						},
+						{
+							userFirstId: friendUserId,
+							userSecondId: userId
+						}
+					]
+				}
+			})
+		),
+		TE.flatMap(fromNullableRecord(`User connection not found for ${userId} and ${friendUserId}`))
+	);
+
+export const updateConnection = (connection: UserConnection) => {
+	return tryDbTask(() =>
+		db.userConnection.update({
+			where: {
+				userFirstId_userSecondId: {
+					userFirstId: connection.userFirstId,
+					userSecondId: connection.userSecondId
+				}
+			},
+			data: connection
+		})
+	);
+};
