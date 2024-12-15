@@ -25,7 +25,7 @@
 
 	const variantClass = {
 		primary: 'bg-primary hover:bg-primary/90 text-white',
-		ghost: 'dark:hover:bg-slate-800'
+		ghost: 'dark:hover:bg-slate-800 dark:hover:ring-2 dark:hover:ring-primary'
 	};
 
 	const roundedClass = rounded ? 'rounded-full' : 'rounded-xl';
