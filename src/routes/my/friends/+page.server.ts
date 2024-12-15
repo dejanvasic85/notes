@@ -43,7 +43,7 @@ export const actions = {
 	['accept-invite']: async ({ locals, request }): AcceptInviteResult => {
 		const user = locals.user!;
 		const data = await request.formData();
-		const inviteId = data.get('inviteId') as string;
+		const inviteId = data.get('id') as string;
 
 		return pipe(
 			acceptInvite(inviteId, { id: user.id, email: user.email! }),
