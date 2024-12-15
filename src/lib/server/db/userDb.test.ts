@@ -8,6 +8,7 @@ vi.mock('$lib/server/db', () => ({
 	default: {
 		user: {
 			findUnique: vi.fn(),
+			findFirst: vi.fn(),
 			create: vi.fn()
 		}
 	}
@@ -21,7 +22,7 @@ describe('getUser', () => {
 	});
 
 	it('should return a user successfully', async () => {
-		dbUserMock.findUnique.mockResolvedValue({
+		dbUserMock.findFirst.mockResolvedValue({
 			id: 'hello world',
 			name: 'Goerge Costanza',
 			boards: [
@@ -44,7 +45,7 @@ describe('getUser', () => {
 	});
 
 	it('should return a user with boards successfully', async () => {
-		dbUserMock.findUnique.mockResolvedValue({
+		dbUserMock.findFirst.mockResolvedValue({
 			id: 'hello world',
 			name: 'Goerge Costanza',
 			boards: [
@@ -71,7 +72,7 @@ describe('getUser', () => {
 	});
 
 	it('should return RecordNotFoundError when the user is null', async () => {
-		dbUserMock.findUnique.mockResolvedValue(null as any);
+		dbUserMock.findFirst.mockResolvedValue(null as any);
 
 		const result = await getUser({ id: 'uid_123' })();
 
@@ -85,7 +86,7 @@ describe('getUser', () => {
 	});
 
 	it('should return a DatabaseError when the db throws an error', async () => {
-		dbUserMock.findUnique.mockRejectedValue(new Error('Something went wrong'));
+		dbUserMock.findFirst.mockRejectedValue(new Error('Something went wrong'));
 
 		const result = await getUser({ id: 'uid_123' })();
 		expect(
