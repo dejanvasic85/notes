@@ -113,7 +113,9 @@ export const getFriends = (userId: string): TE.TaskEither<ServerError, Friend[]>
 	return pipe(
 		getConnections(userId),
 		TE.map((connections) => {
-			return connections.map((c) => (c.userFirstId === userId ? c.userSecondId : c.userFirstId));
+			return connections
+				.filter((c) => c.type === 'connected')
+				.map((c) => (c.userFirstId === userId ? c.userSecondId : c.userFirstId));
 		}),
 		TE.flatMap((friendIds) => getAllUsersById(friendIds)),
 		TE.map((friends) => {

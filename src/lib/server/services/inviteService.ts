@@ -8,8 +8,10 @@ import {
 	createInvite,
 	createConnection,
 	getInvite,
+	getConnection,
 	getUser,
-	updateInvite
+	updateInvite,
+	updateConnection
 } from '$lib/server/db/userDb';
 import { sendEmail } from '$lib/server/services/emailService';
 import { createError } from '../createError';
@@ -98,5 +100,18 @@ export const cancelInvite = (inviteId: string): TE.TaskEither<ServerError, UserI
 		TE.Do,
 		TE.bind('invite', () => getInvite(inviteId)),
 		TE.flatMap(({ invite }) => updateInvite({ ...invite, status: 'canceled' }))
+	);
+};
+
+export const removeConnection = (
+	userId: string,
+	friendUserId: string
+): TE.TaskEither<ServerError, UserConnection> => {
+	return pipe(
+		TE.Do,
+		TE.bind('connection', () => getConnection(userId, friendUserId)),
+		TE.flatMap(({ connection }) =>
+			updateConnection({ ...connection, type: 'removed', updatedAt: new Date() })
+		)
 	);
 };

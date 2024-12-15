@@ -103,40 +103,41 @@
 			<LinkButton variant="primary" className="self-end" href="/my/friends/add"
 				>Add friend</LinkButton
 			>
-			{#if data.friends.length === 0}
-				<p>No friends yet</p>
-			{:else}
-				{#each data.pendingSentInvites as invite}
-					{@render Friend({
-						name: invite.friendEmail,
-						isPending: true,
-						actions: [
-							{
-								actionName: '?/cancel-invite',
-								data: { id: invite.id },
-								icon: 'cross',
-								label: 'Cancel'
-							}
-						]
-					})}
-				{/each}
 
-				{#each data.friends as friend}
-					{@render Friend({
-						name: friend.name!,
-						isPending: false,
-						picture: friend.picture,
-						actions: [
-							{
-								actionName: '?/remove-friend',
-								data: { id: friend.id },
-								icon: 'cross',
-								label: 'Remove'
-							}
-						]
-					})}
-				{/each}
+			{#if data.friends.length && data.pendingSentInvites.length === 0}
+				<p>No friends yet</p>
 			{/if}
+
+			{#each data.pendingSentInvites as invite}
+				{@render Friend({
+					name: invite.friendEmail,
+					isPending: true,
+					actions: [
+						{
+							actionName: '?/cancel-invite',
+							data: { id: invite.id },
+							icon: 'cross',
+							label: 'Cancel'
+						}
+					]
+				})}
+			{/each}
+
+			{#each data.friends as friend}
+				{@render Friend({
+					name: friend.name!,
+					isPending: false,
+					picture: friend.picture,
+					actions: [
+						{
+							actionName: '?/remove-friend',
+							data: { id: friend.id },
+							icon: 'cross',
+							label: 'Remove'
+						}
+					]
+				})}
+			{/each}
 		</div>
 	</div>
 
