@@ -18,7 +18,7 @@
 </script>
 
 <div class="relative">
-	<Button variant="ghost" on:click={() => (isOpen = !isOpen)}>
+	<Button variant="ghost" onclick={() => (isOpen = !isOpen)}>
 		<Icon icon="paintBrush" title="Choose colour" />
 	</Button>
 	{#if isOpen}

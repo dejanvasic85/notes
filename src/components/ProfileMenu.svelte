@@ -33,7 +33,7 @@
 		transition:fly={{ duration: 150, y: -10 }}
 	>
 		<a
-			class="hover:bg-slate flex w-full gap-2 rounded-lg p-2 hover:bg-tertiary"
+			class="hover:bg-slate flex w-full gap-2 rounded-lg p-2 hover:bg-background"
 			href="/api/auth/logout"
 			use:melt={$item}
 		>

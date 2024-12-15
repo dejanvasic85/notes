@@ -177,7 +177,7 @@
 
 		<div class="container mx-auto mt-24 flex flex-col gap-6 px-20 py-12">
 			<div>
-				<Button variant="primary" on:click={handleCreateNote}>
+				<Button variant="primary" onclick={handleCreateNote}>
 					<Icon icon="plus" />
 					<span>Create a note</span>
 				</Button>
