@@ -1,10 +1,14 @@
 <script lang="ts">
-	let { form } = $props();
+	import { createLabel, melt } from '@melt-ui/svelte';
 
 	import Input from '$components/Input.svelte';
 	import Button from '$components/Button.svelte';
 	import Icon from '$components/Icon.svelte';
 
+	let { form } = $props();
+	const {
+		elements: { root }
+	} = createLabel();
 	const formError = form?.status === 400;
 </script>
 
@@ -18,7 +22,7 @@
 <p>Adding a friend allows you select notes for them to see.</p>
 <form method="POST">
 	<div class="mt-4 flex w-full flex-col gap-2 lg:w-1/2">
-		<label for="email" class:text-red-500={formError}>Email</label>
+		<label for="email" class:text-red-500={formError} use:melt={$root}>Email</label>
 		<Input id="email" type="text" class="flex-1" invalid={formError} name="email" />
 		{#if formError}
 			<p class="mt-2 text-sm text-red-600 dark:text-red-500">Email is required</p>

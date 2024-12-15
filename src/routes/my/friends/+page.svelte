@@ -19,7 +19,7 @@
 	let { data }: Props = $props();
 
 	const {
-		elements: { root, list, content, trigger },
+		elements: { root: tabRoot, list, content, trigger },
 		states: { value }
 	} = createTabs({ defaultValue: 'friends' });
 
@@ -84,7 +84,7 @@
 
 <h1 class="text-2xl">Friends</h1>
 <p>Connect with your friends to share notes.</p>
-<div use:melt={$root} class="mt-4">
+<div use:melt={$tabRoot} class="mt-4">
 	<div use:melt={$list} aria-label="Manage your friends and invites">
 		{#each tabTriggers as triggerItem}
 			<button use:melt={$trigger(triggerItem.id)} class="trigger relative p-4 text-xl">
