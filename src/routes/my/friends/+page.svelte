@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { crossfade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-	import { enhance } from '$app/forms';
 	import type { ActionData, PageData } from './$types';
 
 	import { createTabs, melt } from '@melt-ui/svelte';
@@ -69,7 +68,7 @@
 		<div class="flex gap-1">
 			{#if props.actions}
 				{#each props.actions as action}
-					<form method="POST" action={action.actionName} use:enhance>
+					<form method="POST" action={action.actionName}>
 						{#each Object.entries(action.data) as [key, value]}
 							<input type="hidden" name={key} {value} />
 						{/each}
