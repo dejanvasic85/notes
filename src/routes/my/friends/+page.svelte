@@ -54,7 +54,9 @@
 </script>
 
 {#snippet Friend(props: FriendSnippetProps)}
-	<div class="flex h-20 w-full items-center justify-between gap-2 rounded-lg p-4 dark:bg-slate-800">
+	<div
+		class="flex h-20 w-full items-center justify-between gap-2 rounded-lg bg-white p-4 dark:bg-slate-800"
+	>
 		<div class="flex items-center gap-2">
 			{#if props.picture}
 				<img src={props.picture} class="h-10 rounded-full" alt="picture of {props.name}" />
