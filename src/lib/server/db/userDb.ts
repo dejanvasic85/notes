@@ -27,7 +27,7 @@ export const getUser = ({
 }: GetUserByIdTaskParams): TE.TaskEither<ServerError, User> =>
 	pipe(
 		tryDbTask(() =>
-			db.user.findUnique({
+			db.user.findFirst({
 				where: { id },
 				include: {
 					boards: {
@@ -116,6 +116,9 @@ export const getPendingSentInvites = (userId: string): TE.TaskEither<ServerError
 			where: {
 				userId,
 				status: null
+			},
+			orderBy: {
+				createdAt: 'desc'
 			}
 		})
 	);
@@ -153,7 +156,7 @@ export const getInvite = (
 	{ friendEmail }: GetInviteOptions = {}
 ): TE.TaskEither<ServerError, UserInvite> =>
 	pipe(
-		tryDbTask(() => db.userInvite.findUnique({ where: { id, friendEmail } })),
+		tryDbTask(() => db.userInvite.findFirst({ where: { id, friendEmail } })),
 		TE.flatMap(fromNullableRecord(`User with authId ${id} not found`))
 	);
 
@@ -185,3 +188,41 @@ export const getConnections = (userId: string) =>
 			}
 		})
 	);
+
+export const getConnection = (
+	userId: string,
+	friendUserId: string
+): TE.TaskEither<ServerError, UserConnection> =>
+	pipe(
+		tryDbTask(() =>
+			db.userConnection.findFirst({
+				where: {
+					OR: [
+						{
+							userFirstId: userId,
+							userSecondId: friendUserId
+						},
+						{
+							userFirstId: friendUserId,
+							userSecondId: userId
+						}
+					]
+				}
+			})
+		),
+		TE.flatMap(fromNullableRecord(`User connection not found for ${userId} and ${friendUserId}`))
+	);
+
+export const updateConnection = (connection: UserConnection) => {
+	return tryDbTask(() =>
+		db.userConnection.update({
+			where: {
+				userFirstId_userSecondId: {
+					userFirstId: connection.userFirstId,
+					userSecondId: connection.userSecondId
+				}
+			},
+			data: connection
+		})
+	);
+};

@@ -24,7 +24,7 @@
 			fill={$page.url.pathname === '/my/board' ? 'currentColor' : 'none'}
 		/>
 	</a>
-	<Button on:click={onAddNote} variant="primary">
+	<Button onclick={onAddNote} variant="primary">
 		<Icon icon="plus-circle" size={iconSize} fill="none" />
 	</Button>
 	<a

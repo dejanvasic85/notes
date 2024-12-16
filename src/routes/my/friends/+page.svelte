@@ -1,75 +1,173 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import type { ActionData, PageData } from './$types.js';
+	import { crossfade } from 'svelte/transition';
+	import { cubicInOut } from 'svelte/easing';
+	import type { ActionData, PageData } from './$types';
 
-	import Input from '$components/Input.svelte';
+	import { createTabs, melt } from '@melt-ui/svelte';
+
 	import Button from '$components/Button.svelte';
+	import Icon from '$components/Icon.svelte';
+	import LinkButton from '$components/LinkButton.svelte';
 
-	export let data: PageData;
-	export let form: ActionData;
+	import { type IconName } from '$lib/icons';
+
+	type Props = {
+		data: PageData;
+		form: ActionData;
+	};
+
+	let { data }: Props = $props();
+
+	const {
+		elements: { root: tabRoot, list, content, trigger },
+		states: { value }
+	} = createTabs({ defaultValue: 'friends' });
+
+	const [send, receive] = crossfade({
+		duration: 250,
+		easing: cubicInOut
+	});
+
+	const tabTriggers = [
+		{
+			id: 'friends',
+			label: 'Friends'
+		},
+		{
+			id: 'invites',
+			label: 'Invites'
+		}
+	];
+
+	type FriendSnippetProps = {
+		name: string;
+		picture?: string | null;
+		isPending: boolean;
+		actions?: Array<{
+			label: string;
+			actionName: string;
+			data: Record<string, unknown>;
+			icon: IconName;
+		}>;
+	};
 </script>
 
-<div class="container mx-auto">
-	<div class="flex">
-		<section class="mb-20 flex-1">
-			<h1 class="text-2xl">Friends</h1>
-			<p>Having friends allows you to share notes with one another.</p>
-			<div>
-				{#if data.friends.length === 0}
-					<p>No friends yet</p>
-				{:else}
-					{#each data.friends as friend}
-						<div>
-							<p>{friend.name}</p>
-						</div>
-					{/each}
-				{/if}
-			</div>
-			<div class="mt-4">
-				Invite a friend by email.
-				<form method="post" action="?/invite" use:enhance>
-					<Input type="text" name="email" placeholder="Email" />
-					<Button type="submit">Invite</Button>
-				</form>
-			</div>
-		</section>
+{#snippet Friend(props: FriendSnippetProps)}
+	<div
+		class="flex h-20 w-full items-center justify-between gap-2 rounded-lg bg-white p-4 dark:bg-slate-800"
+	>
+		<div class="flex items-center gap-2">
+			{#if props.picture}
+				<img src={props.picture} class="h-10 rounded-full" alt="picture of {props.name}" />
+			{/if}
+			<span class:italic={props.isPending} class:text-gray-400={props.isPending}
+				>{props.name} {props.isPending ? '(pending)' : ''}</span
+			>
+		</div>
 
-		<section class="flex-1">
-			<h1 class="text-xl">Invites</h1>
-			<div>
-				<h3 class="text-lg">Sent invites</h3>
-				{#each data.pendingSentInvites as invite}
-					<div>
-						<p>{invite.friendEmail}, sent: {invite.createdAt}</p>
-					</div>
+		<div class="flex gap-1">
+			{#if props.actions}
+				{#each props.actions as action}
+					<form method="POST" action={action.actionName}>
+						{#each Object.entries(action.data) as [key, value]}
+							<input type="hidden" name={key} {value} />
+						{/each}
+						<Button variant="ghost" type="submit">
+							<Icon icon={action.icon} />
+						</Button>
+					</form>
 				{/each}
-			</div>
+			{/if}
+		</div>
+	</div>
+{/snippet}
 
-			<div class="mt-8">
-				<h3 class="text-lg">Incoming invites</h3>
+<h1 class="text-2xl">Friends</h1>
+<p>Connect with your friends to share notes.</p>
+<div use:melt={$tabRoot} class="mt-4">
+	<div use:melt={$list} aria-label="Manage your friends and invites">
+		{#each tabTriggers as triggerItem}
+			<button use:melt={$trigger(triggerItem.id)} class="trigger relative p-4 text-xl">
+				{triggerItem.label}
+				{#if $value === triggerItem.id}
+					<div
+						in:send={{ key: 'trigger' }}
+						out:receive={{ key: 'trigger' }}
+						class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-tertiary"
+					></div>
+				{/if}
+			</button>
+		{/each}
+	</div>
+	<div use:melt={$content('friends')} class="mt-4">
+		<div class="flex flex-col gap-4 lg:w-1/2">
+			<LinkButton variant="primary" className="self-end" href="/my/friends/add"
+				>Add friend</LinkButton
+			>
+
+			{#if data.friends.length && data.pendingSentInvites.length === 0}
+				<p>No friends yet</p>
+			{/if}
+
+			{#each data.pendingSentInvites as invite}
+				{@render Friend({
+					name: invite.friendEmail,
+					isPending: true,
+					actions: [
+						{
+							actionName: '?/cancel-invite',
+							data: { id: invite.id },
+							icon: 'cross',
+							label: 'Cancel'
+						}
+					]
+				})}
+			{/each}
+
+			{#each data.friends as friend}
+				{@render Friend({
+					name: friend.name!,
+					isPending: false,
+					picture: friend.picture,
+					actions: [
+						{
+							actionName: '?/remove-friend',
+							data: { id: friend.id },
+							icon: 'cross',
+							label: 'Remove'
+						}
+					]
+				})}
+			{/each}
+		</div>
+	</div>
+
+	<div use:melt={$content('invites')} class="mt-4">
+		<div class="flex flex-col gap-4 lg:w-1/2">
+			{#if data.pendingReceivedInvites.length === 0}
+				<p>No incoming invites</p>
+			{:else}
 				{#each data.pendingReceivedInvites as invite}
-					<div class="flex gap-4">
-						{invite.user.name}, sent: {invite.createdAt}
-						<form method="post" action="?/accept" use:enhance>
-							<input type="hidden" name="inviteId" value={invite.id} />
-							<Button type="submit">Accept</Button>
-						</form>
-						<form method="post" action="?/ignore" use:enhance>
-							<input type="hidden" name="inviteId" value={invite.id} />
-							<Button variant="ghost" type="submit">Ignore</Button>
-						</form>
-					</div>
+					{@render Friend({
+						name: invite.user.name!,
+						isPending: false,
+						actions: [
+							{
+								actionName: '?/accept-invite',
+								data: { id: invite.id },
+								icon: 'check',
+								label: 'Accept'
+							},
+							{
+								actionName: '?/reject-invite',
+								data: { id: invite.id },
+								icon: 'cross',
+								label: 'Reject'
+							}
+						]
+					})}
 				{/each}
-			</div>
-
-			<div>
-				{#if form?.success}
-					<p>Invite sent</p>
-				{:else if form?.message}
-					<p>{form.message}</p>
-				{/if}
-				<hr />
-			</div>
-		</section>
+			{/if}
+		</div>
 	</div>
 </div>

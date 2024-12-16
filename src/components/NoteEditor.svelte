@@ -96,7 +96,7 @@
 	};
 
 	$: className = getNoteCssClass({
-		defaultClass: 'bg-white dark:bg-slate-800 dark:text-white border',
+		defaultClass: 'bg-white dark:bg-slate-800 dark:text-darkText border',
 		variant: note.colour ?? ''
 	});
 </script>
@@ -105,7 +105,7 @@
 	<div slot="header" class="px-2 pt-2">
 		<div class="flex justify-between">
 			<div class="flex-1">
-				<Button variant="ghost" on:click={handleClose}>
+				<Button variant="ghost" onclick={handleClose}>
 					<Icon icon="chevronLeft" title="Cancel note edit" />
 				</Button>
 			</div>
@@ -125,7 +125,7 @@
 					/>
 				{/if}
 				<ColourPicker on:colourClick={handleColourPick} />
-				<Button variant="ghost" on:click={handleDeleteClick}>
+				<Button variant="ghost" onclick={handleDeleteClick}>
 					<Icon icon="trash" title="Delete note" />
 				</Button>
 			</div>
@@ -146,7 +146,7 @@
 	<div slot="footer">
 		<div class="flex justify-between px-2 pb-2">
 			<div class="ml-auto">
-				<Button on:click={handleSave}>
+				<Button onclick={handleSave}>
 					<Icon icon="check" size={32} title="Save note" />
 				</Button>
 			</div>

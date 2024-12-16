@@ -47,7 +47,7 @@
 				</button>{/each}
 		</div>
 	{/if}
-	<Button variant="ghost" on:click={() => (isOpen = !isOpen)}>
+	<Button variant="ghost" onclick={() => (isOpen = !isOpen)}>
 		<Icon icon="personAdd" />
 	</Button>
 </div>
