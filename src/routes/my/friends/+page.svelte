@@ -92,7 +92,11 @@
 				<div class="relative p-2">
 					{triggerItem.label}
 					{#if triggerItem.showStatus}
-						<div class="absolute right-0 top-0 h-3 w-3 rounded-full bg-tertiary"></div>
+						<span
+							role="status"
+							aria-label="You have pending invites"
+							class="absolute right-0 top-0 h-3 w-3 rounded-full bg-tertiary"
+						></span>
 					{/if}
 				</div>
 				{#if $value === triggerItem.id}
