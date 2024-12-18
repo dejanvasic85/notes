@@ -35,7 +35,8 @@
 		},
 		{
 			id: 'invites',
-			label: 'Invites'
+			label: 'Invites',
+			showStatus: data.pendingReceivedInvites.length > 0
 		}
 	];
 
@@ -88,7 +89,12 @@
 	<div use:melt={$list} aria-label="Manage your friends and invites">
 		{#each tabTriggers as triggerItem}
 			<button use:melt={$trigger(triggerItem.id)} class="trigger relative p-4 text-xl">
-				{triggerItem.label}
+				<div class="relative p-2">
+					{triggerItem.label}
+					{#if triggerItem.showStatus}
+						<div class="absolute right-0 top-0 h-3 w-3 rounded-full bg-tertiary"></div>
+					{/if}
+				</div>
 				{#if $value === triggerItem.id}
 					<div
 						in:send={{ key: 'trigger' }}
