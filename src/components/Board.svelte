@@ -21,7 +21,7 @@
 	export let friends: Friend[] = [];
 	export let sharedNotes: SharedNote[] = [];
 
-	let searchQuery: string;
+	let searchQuery: string = '';
 
 	// Events
 	type ComponentEvents = {
