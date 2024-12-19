@@ -4,7 +4,7 @@ import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
 
 import { PUBLIC_BASE_URL } from '$env/static/public';
-import { sendInvite } from '$lib/server/services/inviteService';
+import { sendInvite } from '$lib/server/services/friendService';
 import { mapToApiError } from '$lib/server/mapApi';
 
 export const actions = {

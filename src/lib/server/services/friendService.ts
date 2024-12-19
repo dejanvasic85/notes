@@ -99,7 +99,7 @@ export const cancelInvite = (inviteId: string): TE.TaskEither<ServerError, UserI
 	return pipe(
 		TE.Do,
 		TE.bind('invite', () => getInvite(inviteId)),
-		TE.flatMap(({ invite }) => updateInvite({ ...invite, status: 'canceled' }))
+		TE.flatMap(({ invite }) => updateInvite({ ...invite, status: 'cancelled' }))
 	);
 };
 

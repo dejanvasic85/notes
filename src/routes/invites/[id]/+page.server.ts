@@ -4,7 +4,7 @@ import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
 
 import { mapToApiError } from '$lib/server/mapApi';
-import { acceptInvite } from '$lib/server/services/inviteService';
+import { acceptInvite } from '$lib/server/services/friendService';
 
 export const load = async ({ params, locals }) => {
 	const inviteId = params.id;

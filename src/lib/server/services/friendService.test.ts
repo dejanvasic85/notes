@@ -19,9 +19,7 @@ import type {
 	ValidationError
 } from '$lib/types';
 
-import { isRightEqual, isLeftEqual, isRight } from '$test-utils/assertions';
-
-import { acceptInvite, sendInvite } from './inviteService';
+import { acceptInvite, sendInvite, cancelInvite } from './friendService';
 
 vi.mock('$lib/server/db/userDb');
 vi.mock('$lib/server/services/emailService');
@@ -59,9 +57,10 @@ describe('acceptInvite', () => {
 		mockUpdateInvite.mockReturnValue(TE.right({ ...invite, status: 'accepted' }));
 		mockCreateConnection.mockReturnValue(TE.right(connection));
 
-		const result = await acceptInvite(inviteId, acceptedBy)();
+		const result: any = await acceptInvite(inviteId, acceptedBy)();
 
-		expect(isRightEqual(result, { connection, invitedBy })).toBe(true);
+		expect(result._tag).toBe('Right');
+		expect(result.right).toEqual({ connection, invitedBy });
 	});
 
 	it('should return record not found error when the invite is not found', async () => {
@@ -74,9 +73,10 @@ describe('acceptInvite', () => {
 
 		mockGetInvite.mockReturnValue(TE.left(recordNotFound));
 
-		const result = await acceptInvite(inviteId, acceptedBy)();
+		const result: any = await acceptInvite(inviteId, acceptedBy)();
 
-		expect(isLeftEqual(result, recordNotFound)).toBe(true);
+		expect(result._tag).toBe('Left');
+		expect(result.left).toEqual(recordNotFound);
 	});
 });
 
@@ -85,7 +85,7 @@ describe('sendInvites', () => {
 		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
 		mockSendEmail.mockReturnValue(TE.right({} as any));
 
-		const result = await sendInvite({
+		const result: any = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'bob@foo.com',
 			name: 'foo bar',
@@ -93,7 +93,7 @@ describe('sendInvites', () => {
 			userEmail: 'foo@bar.com'
 		})();
 
-		expect(isRight(result)).toBe(true);
+		expect(result._tag).toBe('Right');
 	});
 
 	it('should return an error when the invite creation fails', async () => {
@@ -105,7 +105,7 @@ describe('sendInvites', () => {
 
 		mockCreateInvite.mockReturnValue(TE.left(databaseError));
 
-		const result = await sendInvite({
+		const result: any = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'bob@foo.com',
 			name: 'foo bar',
@@ -113,7 +113,8 @@ describe('sendInvites', () => {
 			userEmail: 'foo@bar.com'
 		})();
 
-		expect(isLeftEqual(result, databaseError)).toBe(true);
+		expect(result._tag).toBe('Left');
+		expect(result.left).toEqual(databaseError);
 	});
 
 	it('should return an error when the sendEmail fails', async () => {
@@ -125,7 +126,7 @@ describe('sendInvites', () => {
 		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
 		mockSendEmail.mockReturnValue(TE.left(emailError));
 
-		const result = await sendInvite({
+		const result: any = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'bob@foo.com',
 			name: 'foo bar',
@@ -133,7 +134,8 @@ describe('sendInvites', () => {
 			userEmail: 'foo@bar.com'
 		})();
 
-		expect(isLeftEqual(result, emailError)).toBe(true);
+		expect(result._tag).toBe('Left');
+		expect(result.left).toEqual(emailError);
 	});
 
 	it('should return a validation error when the friend email matches the current user email', async () => {
@@ -146,7 +148,7 @@ describe('sendInvites', () => {
 		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
 		mockSendEmail.mockReturnValue(TE.right({} as any));
 
-		const result = await sendInvite({
+		const result: any = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'foo@bar.com',
 			name: 'foo bar',
@@ -154,6 +156,35 @@ describe('sendInvites', () => {
 			userEmail: 'foo@bar.com'
 		})();
 
-		expect(isLeftEqual(result, validationError)).toBe(true);
+		expect(result._tag).toBe('Left');
+		expect(result.left).toEqual(validationError);
+	});
+});
+
+describe('cancelInvite', () => {
+	it('should update the invite status to cancelled', async () => {
+		const inviteId = 'invite_123';
+
+		mockGetInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
+		mockUpdateInvite.mockReturnValue(TE.right({ id: 'invite_123', status: 'cancelled' } as any));
+
+		const result: any = await cancelInvite(inviteId)();
+		expect(result._tag).toBe('Right');
+		expect(mockUpdateInvite).toHaveBeenCalledWith({ id: 'invite_123', status: 'cancelled' });
+	});
+
+	it('should return a record not found error when the invite is not found', async () => {
+		const inviteId = 'invite_123';
+		const recordNotFound: RecordNotFoundError = {
+			_tag: 'RecordNotFound',
+			message: 'Invite not found'
+		};
+
+		mockGetInvite.mockReturnValue(TE.left(recordNotFound));
+
+		const result: any = await cancelInvite(inviteId)();
+
+		expect(result._tag).toBe('Left');
+		expect(result.left).toEqual(recordNotFound);
 	});
 });

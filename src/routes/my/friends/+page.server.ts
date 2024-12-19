@@ -9,7 +9,7 @@ import {
 	ignoreInvite,
 	cancelInvite,
 	removeConnection
-} from '$lib/server/services/inviteService';
+} from '$lib/server/services/friendService';
 import { getFriends } from '$lib/server/services/userService';
 import { mapToApiError } from '$lib/server/mapApi';
 
