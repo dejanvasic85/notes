@@ -8,6 +8,7 @@
 	import Button from '$components/Button.svelte';
 	import Icon from '$components/Icon.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
+	import Skeleton from '$components/Skeleton.svelte';
 
 	import { type IconName } from '$lib/icons';
 
@@ -21,24 +22,17 @@
 	const {
 		elements: { root: tabRoot, list, content, trigger },
 		states: { value }
-	} = createTabs({ defaultValue: 'friends' });
+	} = createTabs({ defaultValue: 'Friends' });
 
 	const [send, receive] = crossfade({
 		duration: 250,
 		easing: cubicInOut
 	});
 
-	const tabTriggers = [
-		{
-			id: 'friends',
-			label: 'Friends'
-		},
-		{
-			id: 'invites',
-			label: 'Invites',
-			showStatus: data.pendingReceivedInvites.length > 0
-		}
-	];
+	const tabs = {
+		friends: 'Friends',
+		invites: 'Invites'
+	} as const;
 
 	type FriendSnippetProps = {
 		name: string;
@@ -55,7 +49,7 @@
 
 {#snippet Friend(props: FriendSnippetProps)}
 	<div
-		class="flex h-20 w-full items-center justify-between gap-2 rounded-lg bg-white p-4 dark:bg-slate-800"
+		class="flex h-friend w-full items-center justify-between gap-2 rounded-lg bg-white p-4 dark:bg-slate-800"
 	>
 		<div class="flex items-center gap-2">
 			{#if props.picture}
@@ -85,99 +79,121 @@
 
 <h1 class="text-2xl">Friends</h1>
 <p>Connect with your friends to share notes.</p>
-<div use:melt={$tabRoot} class="mt-4">
-	<div use:melt={$list} aria-label="Manage your friends and invites">
-		{#each tabTriggers as triggerItem}
-			<button use:melt={$trigger(triggerItem.id)} class="trigger relative p-4 text-xl">
-				<div class="relative p-2">
-					{triggerItem.label}
-					{#if triggerItem.showStatus}
-						<span
-							role="status"
-							aria-label="You have pending invites"
-							class="absolute right-0 top-0 h-3 w-3 rounded-full bg-tertiary"
-						></span>
+
+<div class="mt-4">
+	{#await data.friendsPageModel}
+		<div class="grid gap-4">
+			<Skeleton height="h-friend" />
+			<Skeleton height="h-friend" />
+			<Skeleton height="h-friend" />
+			<Skeleton height="h-friend" />
+		</div>
+	{:then data}
+		<div use:melt={$tabRoot}>
+			<div use:melt={$list} aria-label="Manage your friends and invites">
+				<button use:melt={$trigger(tabs.friends)} class="trigger relative p-4 text-xl">
+					<div class="relative p-2">Friends</div>
+					{#if $value === tabs.friends}
+						<div
+							in:send={{ key: 'trigger' }}
+							out:receive={{ key: 'trigger' }}
+							class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-tertiary"
+						></div>
+					{/if}
+				</button>
+				<button use:melt={$trigger(tabs.invites)} class="trigger relative p-4 text-xl">
+					<div class="relative p-2">
+						Invites
+						{#if data.pendingReceivedInvites.length > 0}
+							<span
+								role="status"
+								aria-label="You have pending invites"
+								class="absolute right-0 top-0 h-3 w-3 rounded-full bg-tertiary"
+							></span>
+						{/if}
+					</div>
+					{#if $value === tabs.invites}
+						<div
+							in:send={{ key: 'trigger' }}
+							out:receive={{ key: 'trigger' }}
+							class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-tertiary"
+						></div>
+					{/if}
+				</button>
+			</div>
+			<div use:melt={$content(tabs.friends)} class="mt-4">
+				<div class="flex flex-col gap-4 xl:w-1/2">
+					<LinkButton variant="primary" className="self-end" href="/my/friends/add"
+						>Add friend</LinkButton
+					>
+
+					{#if data.friends.length && data.pendingSentInvites.length === 0}
+						<p>No friends yet</p>
+					{/if}
+
+					{#each data.pendingSentInvites as invite}
+						{@render Friend({
+							name: invite.friendEmail,
+							isPending: true,
+							actions: [
+								{
+									actionName: '?/cancel-invite',
+									data: { id: invite.id },
+									icon: 'cross',
+									label: 'Cancel'
+								}
+							]
+						})}
+					{/each}
+
+					{#each data.friends as friend}
+						{@render Friend({
+							name: friend.name!,
+							isPending: false,
+							picture: friend.picture,
+							actions: [
+								{
+									actionName: '?/remove-friend',
+									data: { id: friend.id },
+									icon: 'cross',
+									label: 'Remove'
+								}
+							]
+						})}
+					{/each}
+				</div>
+			</div>
+
+			<div use:melt={$content(tabs.invites)} class="mt-4">
+				<div class="flex flex-col gap-4 lg:w-1/2">
+					{#if data.pendingReceivedInvites.length === 0}
+						<p>No incoming invites</p>
+					{:else}
+						{#each data.pendingReceivedInvites as invite}
+							{@render Friend({
+								name: invite.user.name!,
+								isPending: false,
+								actions: [
+									{
+										actionName: '?/accept-invite',
+										data: { id: invite.id },
+										icon: 'check',
+										label: 'Accept'
+									},
+									{
+										actionName: '?/reject-invite',
+										data: { id: invite.id },
+										icon: 'cross',
+										label: 'Reject'
+									}
+								]
+							})}
+						{/each}
 					{/if}
 				</div>
-				{#if $value === triggerItem.id}
-					<div
-						in:send={{ key: 'trigger' }}
-						out:receive={{ key: 'trigger' }}
-						class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-tertiary"
-					></div>
-				{/if}
-			</button>
-		{/each}
-	</div>
-	<div use:melt={$content('friends')} class="mt-4">
-		<div class="flex flex-col gap-4 lg:w-1/2">
-			<LinkButton variant="primary" className="self-end" href="/my/friends/add"
-				>Add friend</LinkButton
-			>
-
-			{#if data.friends.length && data.pendingSentInvites.length === 0}
-				<p>No friends yet</p>
-			{/if}
-
-			{#each data.pendingSentInvites as invite}
-				{@render Friend({
-					name: invite.friendEmail,
-					isPending: true,
-					actions: [
-						{
-							actionName: '?/cancel-invite',
-							data: { id: invite.id },
-							icon: 'cross',
-							label: 'Cancel'
-						}
-					]
-				})}
-			{/each}
-
-			{#each data.friends as friend}
-				{@render Friend({
-					name: friend.name!,
-					isPending: false,
-					picture: friend.picture,
-					actions: [
-						{
-							actionName: '?/remove-friend',
-							data: { id: friend.id },
-							icon: 'cross',
-							label: 'Remove'
-						}
-					]
-				})}
-			{/each}
+			</div>
 		</div>
-	</div>
-
-	<div use:melt={$content('invites')} class="mt-4">
-		<div class="flex flex-col gap-4 lg:w-1/2">
-			{#if data.pendingReceivedInvites.length === 0}
-				<p>No incoming invites</p>
-			{:else}
-				{#each data.pendingReceivedInvites as invite}
-					{@render Friend({
-						name: invite.user.name!,
-						isPending: false,
-						actions: [
-							{
-								actionName: '?/accept-invite',
-								data: { id: invite.id },
-								icon: 'check',
-								label: 'Accept'
-							},
-							{
-								actionName: '?/reject-invite',
-								data: { id: invite.id },
-								icon: 'cross',
-								label: 'Reject'
-							}
-						]
-					})}
-				{/each}
-			{/if}
-		</div>
-	</div>
+	{:catch error}
+		<p class="text-red-500">{error.message}</p>
+	{/await}
 </div>
