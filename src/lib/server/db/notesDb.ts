@@ -16,7 +16,7 @@ import { fromNullableRecord, tryDbTask } from './utils';
 
 export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> =>
 	pipe(
-		tryDbTask(() => db.note.findUnique({ where: { id } })),
+		tryDbTask(() => db.note.findFirst({ where: { id } })),
 		TE.flatMap(fromNullableRecord(`Note with id ${id} not found`))
 	);
 
@@ -34,27 +34,21 @@ export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> =>
 	});
 
 export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, Note> =>
-	TE.tryCatch(
-		() => {
-			return db.note.delete({
-				where: { id }
-			});
-		},
-		withError('DatabaseError', 'Failed to delete note')
+	tryDbTask(() =>
+		db.note.delete({
+			where: { id }
+		})
 	);
 
 export const createNote = (note: Note): TE.TaskEither<ServerError, Note> =>
-	TE.tryCatch(
-		() => {
-			return db.note.create({
-				data: {
-					...note,
-					boardId: note.boardId!,
-					editors: undefined
-				}
-			});
-		},
-		withError('DatabaseError', 'Failed to create note')
+	tryDbTask(() =>
+		db.note.create({
+			data: {
+				...note,
+				boardId: note.boardId!,
+				editors: undefined
+			}
+		})
 	);
 
 export const createOrUpdateNoteEditor = (

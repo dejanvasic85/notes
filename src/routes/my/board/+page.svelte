@@ -45,7 +45,6 @@
 		if (resp.type === MaybeType.Error) {
 			localNotes = [...localNotes.filter((n) => n.id !== id)];
 			goto('/my/board');
-
 			// todo: show an error
 		}
 	}
@@ -83,7 +82,7 @@
 			];
 		}
 
-		const resp = await tryFetch(
+		await tryFetch(
 			`/api/notes/${noteId}/editors`,
 			{
 				method: 'POST',
@@ -91,8 +90,6 @@
 			},
 			{ shouldParse: false }
 		);
-
-		console.log('resp', resp);
 	}
 
 	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {

@@ -9,15 +9,15 @@ import {
 	ignoreInvite,
 	cancelInvite,
 	removeConnection
-} from '$lib/server/services/inviteService';
+} from '$lib/server/services/friendService';
 import { getFriends } from '$lib/server/services/userService';
 import { mapToApiError } from '$lib/server/mapApi';
 
 export const prerender = false;
 
-export const load = async ({ locals }) => {
+export const load = ({ locals }) => {
 	const user = locals.user!;
-	return pipe(
+	const friendsPageModel = pipe(
 		TE.Do,
 		TE.bind('pendingSentInvites', () => getPendingSentInvites(user.id)),
 		TE.bind('pendingReceivedInvites', () => getPendingReceivedInvites(user.email!)),
@@ -34,6 +34,10 @@ export const load = async ({ locals }) => {
 			})
 		)
 	)();
+
+	return {
+		friendsPageModel
+	};
 };
 
 type AcceptInviteResult = Promise<ActionFailure<{ message: string }> | { acceptedInvite: boolean }>;

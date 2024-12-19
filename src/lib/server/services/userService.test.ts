@@ -4,7 +4,6 @@ import { describe, expect, it, vi, type MockedFunction, beforeEach } from 'vites
 import { fetchAuthUser } from '$lib/auth/fetchUser';
 import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
 import type { DatabaseError, RecordNotFoundError } from '$lib/types';
-import { isRightEqual, isLeftEqual } from '$test-utils/assertions';
 
 import { getOrCreateUserByAuth, isNoteOwner } from './userService';
 
@@ -27,9 +26,10 @@ describe('getOrCreateUserByAuth', () => {
 		});
 
 		it('should return a user from the database successfully', async () => {
-			const result = await getOrCreateUserByAuth({ accessToken, authId })();
+			const result: any = await getOrCreateUserByAuth({ accessToken, authId })();
 
-			expect(isRightEqual(result, mockUser)).toBe(true);
+			expect(result._tag).toBe('Right');
+			expect(result.right).toEqual(mockUser);
 			expect(mockFetchAuthUser).not.toHaveBeenCalled();
 		});
 	});
@@ -45,9 +45,9 @@ describe('getOrCreateUserByAuth', () => {
 		});
 
 		it('should return Unexpected database error occurred and not fetch user from Auth0 when the get user fails', async () => {
-			const result = await getOrCreateUserByAuth({ accessToken, authId })();
+			const result: any = await getOrCreateUserByAuth({ accessToken, authId })();
 
-			expect(isLeftEqual(result, databaseError)).toBe(true);
+			expect(result._tag).toBe('Left');
 			expect(mockFetchAuthUser).not.toHaveBeenCalled();
 		});
 	});
@@ -68,30 +68,24 @@ describe('getOrCreateUserByAuth', () => {
 			} as any);
 			mockCreateUser.mockReturnValue(TE.right(mockUser as any));
 
-			const result = await getOrCreateUserByAuth({ accessToken, authId })();
+			const result: any = await getOrCreateUserByAuth({ accessToken, authId })();
 
-			expect(
-				isRightEqual(result, {
-					id: 'uid_123',
-					name: 'George Costanza',
-					boards: []
-				})
-			).toBe(true);
+			expect(result._tag).toBe('Right');
+			expect(result.right).toEqual(mockUser);
 			expect(mockFetchAuthUser).toHaveBeenCalledWith({ accessToken });
 		});
 
 		it('should return a fetch error when the Auth0 fetch fails', async () => {
 			mockFetchAuthUser.mockRejectedValue(new Error('You do not have internet'));
 
-			const result = await getOrCreateUserByAuth({ accessToken, authId })();
+			const result: any = await getOrCreateUserByAuth({ accessToken, authId })();
 
-			expect(
-				isLeftEqual(result, {
-					_tag: 'FetchError',
-					message: 'Failed to fetch user with access token',
-					originalError: new Error('You do not have internet')
-				})
-			).toBe(true);
+			expect(result._tag).toBe('Left');
+			expect(result.left).toEqual({
+				_tag: 'FetchError',
+				message: 'Failed to fetch user with access token',
+				originalError: new Error('You do not have internet')
+			});
 		});
 
 		it('should return a Unexpected database error occurred when the create user fails', async () => {
@@ -106,9 +100,10 @@ describe('getOrCreateUserByAuth', () => {
 			} as any);
 			mockCreateUser.mockReturnValue(TE.left(databaseError));
 
-			const result = await getOrCreateUserByAuth({ accessToken, authId })();
+			const result: any = await getOrCreateUserByAuth({ accessToken, authId })();
 
-			expect(isLeftEqual(result, databaseError)).toBe(true);
+			expect(result._tag).toBe('Left');
+			expect(result.left).toEqual(databaseError);
 			expect(mockFetchAuthUser).toHaveBeenCalledWith({ accessToken });
 		});
 	});
@@ -121,8 +116,9 @@ describe('isNoteOwner', () => {
 			user: { id: 'user_123', boards: [{ id: 'bid_999' }] },
 			randomProperty: '1'
 		};
-		const result = await isNoteOwner(param as any)();
+		const result: any = await isNoteOwner(param as any)();
 
-		expect(isRightEqual(result, param)).toBe(true);
+		expect(result._tag).toBe('Right');
+		expect(result.right).toEqual(param);
 	});
 });

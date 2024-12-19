@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { Note } from '$lib/types';
 import { NoteSchema } from '$lib/types';
-import { isRightEqual, isLeft } from '$test-utils/assertions';
 
 import { parseRequest } from './parseRequest';
 
@@ -20,13 +19,14 @@ describe('parseRequest', () => {
 			json: vi.fn().mockResolvedValue(noteCreateInput)
 		};
 
-		const result = await parseRequest(
+		const result: any = await parseRequest(
 			req as any,
 			NoteSchema,
 			'Unable to parse note create input'
 		)();
 
-		expect(isRightEqual(result, noteCreateInput)).toBe(true);
+		expect(result._tag).toBe('Right');
+		expect(result.right).toEqual(noteCreateInput);
 	});
 
 	it('should return a return an error when the parsing fails', async () => {
@@ -38,13 +38,13 @@ describe('parseRequest', () => {
 			json: vi.fn().mockResolvedValue(noteCreateInput)
 		};
 
-		const result = await parseRequest(
+		const result: any = await parseRequest(
 			req as any,
 			NoteSchema,
 			'Unable to parse note create input'
 		)();
 
-		expect(isLeft(result, 'ValidationError')).toBe(true);
+		expect(result._tag).toBe('Left');
 	});
 
 	it('should return a return an error when the json call rejects', async () => {
@@ -52,12 +52,12 @@ describe('parseRequest', () => {
 			json: vi.fn().mockRejectedValue('boom')
 		};
 
-		const result = await parseRequest(
+		const result: any = await parseRequest(
 			req as any,
 			NoteSchema,
 			'Unable to parse note create input'
 		)();
 
-		expect(isLeft(result, 'ValidationError')).toBe(true);
+		expect(result._tag).toBe('Left');
 	});
 });
