@@ -30,7 +30,7 @@
 				class="flex items-center bg-white p-2 hover:ring-2 dark:border-slate-200 dark:bg-slate-800 dark:text-white"
 				href={`/my/friends?noteId=${noteId}`}
 			>
-				<Icon icon="plus" size={30} title="No colour" /> Add friend
+				<Icon icon="plus-circle" size={30} title="No colour" fill="none" /> Add friend
 			</a>
 			{#each friends as { id, noteEditorId, name, selected }}
 				<button
@@ -39,15 +39,15 @@
 						dispatch('toggleFriend', { id: noteEditorId, friendUserId: id, selected: !selected })}
 				>
 					{#if selected}
-						<Icon icon="check" title="Selected" /> &nbsp;
+						<Icon icon="check" title="Selected" fill="none" /> &nbsp;
 					{:else}
-						<Icon icon="cross" title="Not selected" /> &nbsp;
+						<Icon icon="minus" title="Not selected" fill="none" /> &nbsp;
 					{/if}
 					{name}
 				</button>{/each}
 		</div>
 	{/if}
 	<Button variant="ghost" onclick={() => (isOpen = !isOpen)}>
-		<Icon icon="personAdd" />
+		<Icon icon="user-plus" fill="none" />
 	</Button>
 </div>

@@ -17,7 +17,6 @@
 </script>
 
 <svg
-	viewBox={icons[icon].viewBox}
 	height={size}
 	width={size}
 	focusable="false"
@@ -25,6 +24,7 @@
 	{fill}
 	{stroke}
 	stroke-width="1.6"
+	viewBox="0 0 24 24"
 	><title>{title}</title>
 
 	{#each paths as path}

@@ -106,10 +106,10 @@
 		<div class="flex justify-between">
 			<div class="flex-1">
 				<Button variant="ghost" onclick={handleClose}>
-					<Icon icon="chevronLeft" title="Cancel note edit" />
+					<Icon icon="arrow-left" title="Cancel note edit" />
 				</Button>
 			</div>
-			<div class="flex">
+			<div class="flex gap-2">
 				{#if enableSharing}
 					<Share
 						{friends}
@@ -126,7 +126,7 @@
 				{/if}
 				<ColourPicker on:colourClick={handleColourPick} />
 				<Button variant="ghost" onclick={handleDeleteClick}>
-					<Icon icon="trash" title="Delete note" />
+					<Icon icon="trash" title="Delete note" fill="none" />
 				</Button>
 			</div>
 		</div>
@@ -147,7 +147,7 @@
 		<div class="flex justify-between px-2 pb-2">
 			<div class="ml-auto">
 				<Button onclick={handleSave}>
-					<Icon icon="check" size={32} title="Save note" />
+					<Icon icon="check" title="Save note" fill="none" />
 				</Button>
 			</div>
 		</div>

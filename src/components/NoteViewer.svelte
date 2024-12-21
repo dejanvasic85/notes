@@ -34,7 +34,7 @@
 		<div class="flex justify-between">
 			<div class="flex-1">
 				<Button variant="ghost" onclick={handleClose}>
-					<Icon icon="chevronLeft" title="Cancel note edit" />
+					<Icon icon="arrow-left" title="Cancel note edit" />
 				</Button>
 			</div>
 		</div>

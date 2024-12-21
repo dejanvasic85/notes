@@ -152,14 +152,14 @@
 						<span class="border-b-2 border-tertiary pb-1 font-bold">Peace of Mind</span>.
 					</p>
 
-					<div class="flex justify-end gap-2">
+					<div class="flex flex-col justify-end gap-2 md:flex-row">
 						{#if data.isAuthenticated}
 							<LinkButton variant="tertiary" href="/my/board">
-								<Icon icon="arrow-right-circle" />
+								<Icon icon="arrow-right-circle" fill="none" />
 								<span>Go to board</span>
 							</LinkButton>
-							<LinkButton variant="secondary" href="/api/auth/logout">
-								<Icon icon="logout" />
+							<LinkButton variant="ghost" href="/api/auth/logout">
+								<Icon icon="logout" fill="none" />
 								<span>Logout</span>
 							</LinkButton>
 						{:else}
@@ -178,7 +178,7 @@
 		<div class="container mx-auto mt-24 flex flex-col gap-6 px-20 py-12">
 			<div>
 				<Button variant="primary" onclick={handleCreateNote}>
-					<Icon icon="plus" />
+					<Icon icon="plus-circle" fill="none" />
 					<span>Create a note</span>
 				</Button>
 			</div>
