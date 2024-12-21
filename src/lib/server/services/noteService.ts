@@ -21,7 +21,7 @@ export const updateNoteEditor = (input: NoteEditorInput): TE.TaskEither<ServerEr
 			}
 			const html = `Hello, ${fromUser.name} has given you access to 
 				<a href="${PUBLIC_BASE_URL}/my/board?id=${input.noteId}" target="_blank">
-				view and edit their note!</a>.`;
+				view their note!</a>.`;
 
 			return sendEmail({
 				html,
