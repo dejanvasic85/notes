@@ -19,7 +19,7 @@
 
 <div class="relative">
 	<Button variant="ghost" onclick={() => (isOpen = !isOpen)}>
-		<Icon icon="paintBrush" title="Choose colour" />
+		<Icon icon="paintBrush" title="Choose colour" fill="none" />
 	</Button>
 	{#if isOpen}
 		<div
@@ -32,7 +32,7 @@
 					class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200 dark:bg-slate-800"
 					on:click={() => handleColourClick(null)}
 				>
-					<Icon icon="cross" size={30} title="No colour" />
+					<Icon icon="minus" size={30} fill="none" title="No colour" />
 				</button>
 			</div>
 			{#each colours as { cssClass, name }}
