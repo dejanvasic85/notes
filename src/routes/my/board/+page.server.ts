@@ -8,7 +8,7 @@ import { getFriends } from '$lib/server/services/userService';
 export const prerender = false;
 
 export const load = async ({ locals }) => {
-	return pipe(
+	const boardPromise = pipe(
 		TE.Do,
 		TE.bind('board', () => getBoardByUserId({ userId: locals.user!.id })),
 		TE.bind('friends', () => getFriends(locals.user!.id)),
@@ -24,4 +24,8 @@ export const load = async ({ locals }) => {
 			})
 		)
 	)();
+
+	return {
+		boardPromise
+	};
 };

@@ -1,25 +1,43 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
-	import type { Note, NoteOrdered, NotePatchInput, BoardPatch } from '$lib/types';
+	import type {
+		Note,
+		NoteOrdered,
+		NotePatchInput,
+		BoardPatch,
+		Friend,
+		SharedNote
+	} from '$lib/types';
 	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes';
 	import { generateId } from '$lib/identityGenerator';
 	import { tryFetch, MaybeType } from '$lib/fetch';
 
 	import Board from '$components/Board.svelte';
+	import Skeleton from '$components/Skeleton.svelte';
 
 	export let data;
+	let boardId: string;
+	let localNoteOrder: string[] = [];
+	let localNotes: NoteOrdered[] = [];
+	let localSharedNotes: SharedNote[] = [];
+	let friends: Friend[] = [];
 
-	const boardId = data.board.id;
-	let localNoteOrder = [...data.board.noteOrder];
-	let localNotes = [...getOrderedNotes(data.board.noteOrder, data.board.notes)];
-	let friends = data.friends;
+	onMount(async () => {
+		const result = await data.boardPromise;
+		boardId = result.board.id;
+		localNoteOrder = [...result.board.noteOrder];
+		localNotes = [...getOrderedNotes(result.board.noteOrder, result.board.notes)];
+		localSharedNotes = result.sharedNotes;
+		friends = result.friends;
+	});
 
 	$: search = new URL($page.url).searchParams;
 	$: selectedId = search.get('id');
 	$: selectedNote = localNotes.find((n) => n.id === selectedId);
-	$: selectedSharedNote = data.sharedNotes.find((n) => n.id === selectedId);
+	$: selectedSharedNote = localSharedNotes.find((n) => n.id === selectedId);
 
 	function handleSelect({ detail: { id } }: CustomEvent<{ id: string }>) {
 		goto(`/my/board?id=${id}`);
@@ -172,18 +190,30 @@
 	<meta name="description" content="My personal whiteboard with notes" />
 </svelte:head>
 
-<Board
-	notes={localNotes}
-	enableSharing={true}
-	{selectedNote}
-	{selectedSharedNote}
-	{friends}
-	sharedNotes={data.sharedNotes}
-	on:select={handleSelect}
-	on:closeNote={handleClose}
-	on:createNote={handleCreate}
-	on:updateNote={handleUpdate}
-	on:deleteNote={handleDelete}
-	on:reorder={handleReorder}
-	on:toggleFriendShare={handleToggleFriendShare}
-/>
+<div>
+	{#await data.boardPromise}
+		<div class="grid gap-4">
+			<Skeleton height="h-note" />
+			<Skeleton height="h-note" />
+			<Skeleton height="h-note" />
+		</div>
+	{:then}
+		<Board
+			notes={localNotes}
+			enableSharing={true}
+			{selectedNote}
+			{selectedSharedNote}
+			{friends}
+			sharedNotes={localSharedNotes}
+			on:select={handleSelect}
+			on:closeNote={handleClose}
+			on:createNote={handleCreate}
+			on:updateNote={handleUpdate}
+			on:deleteNote={handleDelete}
+			on:reorder={handleReorder}
+			on:toggleFriendShare={handleToggleFriendShare}
+		/>
+	{:catch error}
+		<p class="text-red-500">{error.message}</p>
+	{/await}
+</div>
