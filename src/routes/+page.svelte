@@ -152,7 +152,7 @@
 						<span class="border-b-2 border-tertiary pb-1 font-bold">Peace of Mind</span>.
 					</p>
 
-					<div class="flex justify-end gap-2">
+					<div class="flex flex-col justify-end gap-2 md:flex-row">
 						{#if data.isAuthenticated}
 							<LinkButton variant="tertiary" href="/my/board">
 								<Icon icon="arrow-right-circle" />

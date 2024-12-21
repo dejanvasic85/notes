@@ -8,7 +8,7 @@
 		className?: string;
 	};
 
-	let { children, href, variant, className }: Props = $props();
+	const { children, href, variant = 'primary', className }: Props = $props();
 </script>
 
 <a
