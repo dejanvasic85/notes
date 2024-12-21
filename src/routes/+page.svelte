@@ -158,7 +158,7 @@
 								<Icon icon="arrow-right-circle" fill="none" />
 								<span>Go to board</span>
 							</LinkButton>
-							<LinkButton variant="secondary" href="/api/auth/logout">
+							<LinkButton variant="ghost" href="/api/auth/logout">
 								<Icon icon="logout" fill="none" />
 								<span>Logout</span>
 							</LinkButton>

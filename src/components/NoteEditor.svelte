@@ -109,7 +109,7 @@
 					<Icon icon="arrow-left" title="Cancel note edit" />
 				</Button>
 			</div>
-			<div class="flex">
+			<div class="flex gap-2">
 				{#if enableSharing}
 					<Share
 						{friends}
