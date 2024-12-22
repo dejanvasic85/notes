@@ -1,29 +1,19 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
+	import { type Variant, buildButtonClass } from '$lib/button';
+
 	type Props = {
 		children: Snippet<[]>;
 		href: string;
-		variant: 'primary' | 'secondary' | 'tertiary' | 'ghost';
+		variant: Variant;
 		className?: string;
 	};
 
 	const { children, href, variant = 'primary', className }: Props = $props();
-	const variantClass =
-		variant === 'ghost'
-			? 'dark:hover:bg-slate-800 hover:ring-2'
-			: `bg-${variant} hover:bg-${variant}/90 text-white border-none`;
+	const buttonClass = buildButtonClass(variant, false);
 </script>
 
-<a
-	{href}
-	class="flex
-	gap-2
-	rounded-lg
-	px-6 py-3
-	transition-all
-	duration-300
-	md:text-lg {className} {variantClass}"
->
+<a {href} class="{buttonClass} {className}">
 	{@render children()}
 </a>
