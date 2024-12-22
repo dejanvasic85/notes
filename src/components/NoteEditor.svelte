@@ -95,7 +95,7 @@
 		dispatch('close', {});
 	};
 
-	$: className = getNoteCssClass({
+	const className = getNoteCssClass({
 		defaultClass: 'bg-white dark:bg-slate-800 dark:text-darkText border',
 		variant: note.colour ?? ''
 	});
