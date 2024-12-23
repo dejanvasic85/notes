@@ -30,7 +30,8 @@
 		states: { open }
 	} = createDialog({
 		preventScroll: true,
-		escapeBehavior: 'ignore'
+		escapeBehavior: 'ignore',
+		closeOnOutsideClick: false
 	});
 
 	$effect(() => {
