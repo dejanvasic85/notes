@@ -109,14 +109,13 @@
 					{#if enableSharing}
 						<Share
 							{friends}
-							isOpen={false}
 							noteId={note.id}
-							on:toggleFriend={({ detail }) =>
+							ontogglefriend={({ id, friendUserId, selected }) =>
 								dispatch('toggleFriendShare', {
-									id: detail.id,
-									friendUserId: detail.friendUserId,
+									id,
+									friendUserId,
 									noteId: note.id,
-									selected: detail.selected
+									selected
 								})}
 						/>
 					{/if}

@@ -1,53 +1,70 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import type { FriendSelection } from '$lib/types';
+	import { createDropdownMenu, melt } from '@melt-ui/svelte';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
 	import { slide } from 'svelte/transition';
 
-	// Event types
-	type ComponentEvents = {
-		toggleFriend: { id?: string; friendUserId: string; selected: boolean };
+	type ToggleFriendEvent = {
+		id?: string;
+		friendUserId: string;
+		selected: boolean;
 	};
 
-	// Events
-	const dispatch = createEventDispatcher<ComponentEvents>();
+	type Props = {
+		friends: FriendSelection[];
+		noteId: string;
+		ontogglefriend: (event: ToggleFriendEvent) => void;
+	};
 
-	// Props
-	export let friends: FriendSelection[] = [];
-	export let isOpen = false;
-	export let noteId: string;
+	let { friends, noteId, ontogglefriend }: Props = $props();
+
+	const {
+		elements: { trigger, menu, item },
+		states: { open }
+	} = createDropdownMenu({
+		closeOnItemClick: false,
+		forceVisible: true,
+		loop: true,
+		preventScroll: true,
+		positioning: { placement: 'bottom' },
+		onOutsideClick: () => {
+			$open = false;
+		}
+	});
 </script>
 
-<div class="share-menu relative">
-	{#if isOpen}
-		<div
-			in:slide={{ duration: 100 }}
-			class="absolute right-0 top-14 flex w-80 flex-col gap-1 border-2 p-2 md:w-96 dark:bg-slate-800"
-		>
-			<a
-				class="flex items-center bg-white p-2 hover:ring-2 dark:border-slate-200 dark:bg-slate-800 dark:text-white"
-				href={`/my/friends?noteId=${noteId}`}
-			>
-				<Icon icon="plus-circle" size={30} title="No colour" fill="none" /> Add friend
-			</a>
-			{#each friends as { id, noteEditorId, name, selected }}
-				<button
-					class="flex items-center bg-white p-2 hover:ring-2 dark:border-slate-200 dark:bg-slate-800 dark:text-white"
-					on:click={() =>
-						dispatch('toggleFriend', { id: noteEditorId, friendUserId: id, selected: !selected })}
-				>
-					{#if selected}
-						<Icon icon="check" title="Selected" fill="none" /> &nbsp;
-					{:else}
-						<Icon icon="minus" title="Not selected" fill="none" /> &nbsp;
-					{/if}
-					{name}
-				</button>{/each}
-		</div>
-	{/if}
-	<Button variant="ghost" onclick={() => (isOpen = !isOpen)}>
+<div use:melt={$trigger}>
+	<Button variant="ghost">
 		<Icon icon="user-plus" fill="none" />
 	</Button>
 </div>
+{#if $open}
+	<div
+		use:melt={$menu}
+		in:slide={{ duration: 100 }}
+		class="flex w-80 flex-col gap-1 rounded-lg border bg-white p-2 md:w-96 dark:bg-dark"
+	>
+		<a
+			class="flex items-center rounded-lg bg-white p-2 hover:ring-2 dark:bg-dark"
+			href={`/my/friends?noteId=${noteId}`}
+			use:melt={$item}
+		>
+			<Icon icon="plus-circle" size={30} title="No colour" fill="none" /> &nbsp; Add friend
+		</a>
+		{#each friends as { id, noteEditorId, name, selected }}
+			<button
+				class="flex items-center rounded-lg bg-white p-2 hover:ring-2 dark:bg-dark"
+				onclick={() => ontogglefriend({ id: noteEditorId, friendUserId: id, selected: !selected })}
+				use:melt={$item}
+			>
+				{#if selected}
+					<Icon icon="check" title="Selected" fill="none" /> &nbsp;
+				{:else}
+					<Icon icon="minus" title="Not selected" fill="none" /> &nbsp;
+				{/if}
+				{name}
+			</button>{/each}
+	</div>
+{/if}

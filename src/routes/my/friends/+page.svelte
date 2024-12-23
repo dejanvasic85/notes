@@ -49,7 +49,7 @@
 
 {#snippet Friend(props: FriendSnippetProps)}
 	<div
-		class="flex h-friend w-full items-center justify-between gap-2 rounded-lg bg-white p-4 dark:bg-slate-800"
+		class="flex h-friend w-full items-center justify-between gap-2 rounded-lg bg-white p-4 dark:bg-dark"
 	>
 		<div class="flex items-center gap-2">
 			{#if props.picture}

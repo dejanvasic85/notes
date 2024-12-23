@@ -44,7 +44,7 @@
 	$effect(() => {
 		className =
 			colours.find((c) => c.name === colour)?.cssClass ??
-			'bg-white dark:bg-slate-800 dark:text-darkText border';
+			'bg-white dark:bg-dark dark:text-darkText border';
 	});
 
 	let modalHeight = $state<number | null>(0);
