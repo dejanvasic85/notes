@@ -82,13 +82,13 @@
 			transition:fade={{
 				duration: 100
 			}}
-			class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+			class="fixed inset-0 bg-black/50 backdrop-blur-sm"
 		></div>
 		<div
 			use:melt={$content}
 			transition:scale={{ duration: 100, start: 0.1 }}
 			class="fixed
-      left-1/2 top-1/2 z-50
+      left-1/2 top-1/2
       mx-auto flex w-10/12
       -translate-x-1/2 -translate-y-1/2
       flex-col rounded-lg shadow-lg sm:w-3/4 lg:my-auto lg:w-1/2

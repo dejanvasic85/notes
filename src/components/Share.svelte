@@ -24,7 +24,7 @@
 	{#if isOpen}
 		<div
 			in:slide={{ duration: 100 }}
-			class="absolute right-0 top-14 z-50 flex w-80 flex-col gap-1 border-2 p-2 md:w-96 dark:bg-slate-800"
+			class="absolute right-0 top-14 flex w-80 flex-col gap-1 border-2 p-2 md:w-96 dark:bg-slate-800"
 		>
 			<a
 				class="flex items-center bg-white p-2 hover:ring-2 dark:border-slate-200 dark:bg-slate-800 dark:text-white"

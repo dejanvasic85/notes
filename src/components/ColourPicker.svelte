@@ -1,50 +1,59 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { createEventDispatcher } from 'svelte';
+	import { createDropdownMenu, melt } from '@melt-ui/svelte';
 
 	import { colours, type Colour } from '$lib/colours';
 
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
 
-	let isOpen = false;
+	type Props = {
+		onselect: (colour: Colour | null) => void;
+	};
 
-	const dispatch = createEventDispatcher();
+	let { onselect }: Props = $props();
+
+	const {
+		elements: { trigger, menu, item },
+		states: { open }
+	} = createDropdownMenu({
+		forceVisible: true,
+		loop: true,
+		preventScroll: true,
+		closeOnOutsideClick: true,
+		positioning: { placement: 'bottom' }
+	});
 
 	function handleColourClick(colour: Colour | null) {
-		dispatch('colourClick', { colour });
-		isOpen = false;
+		onselect(colour);
 	}
 </script>
 
-<div class="relative">
-	<Button variant="ghost" onclick={() => (isOpen = !isOpen)}>
+<div use:melt={$trigger}>
+	<Button variant="ghost">
 		<Icon icon="paintBrush" title="Choose colour" fill="none" />
 	</Button>
-	{#if isOpen}
-		<div
-			class="absolute left-0 top-14 flex flex-col gap-1 bg-transparent"
-			in:slide={{ duration: 100 }}
-		>
-			<div class="block text-gray-800">
-				<button
-					aria-label="No colour"
-					class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200 dark:bg-slate-800"
-					on:click={() => handleColourClick(null)}
-				>
-					<Icon icon="minus" size={30} fill="none" title="No colour" />
-				</button>
-			</div>
-			{#each colours as { cssClass, name }}
-				<div class="block text-gray-800">
-					<button
-						aria-label={name}
-						title={name}
-						class="h-12 w-12 rounded-full border-2 border-slate-400 dark:border dark:border-slate-200 {cssClass}"
-						on:click={() => handleColourClick(name)}
-					></button>
-				</div>
-			{/each}
-		</div>
-	{/if}
 </div>
+{#if $open}
+	<div class="flex flex-col gap-1 bg-transparent" in:slide={{ duration: 100 }} use:melt={$menu}>
+		<div class="block" use:melt={$item}>
+			<button
+				aria-label="No colour"
+				class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200 dark:bg-slate-800"
+				onclick={() => handleColourClick(null)}
+			>
+				<Icon icon="minus" size={30} fill="none" title="No colour" />
+			</button>
+		</div>
+		{#each colours as { cssClass, name }}
+			<div class="block" use:melt={$item}>
+				<button
+					aria-label={name}
+					title={name}
+					class="h-12 w-12 rounded-full border-2 border-slate-400 dark:border dark:border-slate-200 {cssClass}"
+					onclick={() => handleColourClick(name)}
+				></button>
+			</div>
+		{/each}
+	</div>
+{/if}

@@ -69,11 +69,11 @@
 		}
 	}
 
-	function handleColourPick({ detail }: CustomEvent<{ colour: Colour }>) {
+	function handleColourPick(colour: Colour | null) {
 		dispatch('updateColour', {
 			note: {
 				...note,
-				colour: detail.colour
+				colour
 			}
 		});
 	}
@@ -120,7 +120,7 @@
 								})}
 						/>
 					{/if}
-					<ColourPicker on:colourClick={handleColourPick} />
+					<ColourPicker onselect={handleColourPick} />
 					<Button variant="ghost" onclick={handleDeleteClick}>
 						<Icon icon="trash" title="Delete note" fill="none" />
 					</Button>
