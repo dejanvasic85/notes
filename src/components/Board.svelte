@@ -97,7 +97,7 @@
 		bind:showModal
 		noteHtmlText={selectedSharedNote.text}
 		noteColour={selectedSharedNote.colour}
-		on:close={handleModalClose}
+		onclose={handleModalClose}
 	/>
 {/if}
 

@@ -3,30 +3,48 @@
 	import { scale, fade } from 'svelte/transition';
 	import type { Snippet } from 'svelte';
 
+	import { type Colour, colours } from '$lib/colours';
+
+	type Props = {
+		header: Snippet<[]>;
+		body: Snippet<[]>;
+		footer?: Snippet<[]>;
+		show: boolean;
+		colour?: Colour | null;
+		onopen?: () => void;
+	};
+
+	const {
+		header,
+		body,
+		footer,
+		show = $bindable(false),
+		colour = $bindable(null),
+		onopen
+	}: Props = $props();
+
+	let className = $state('');
+
 	const {
 		elements: { portalled, overlay, content },
 		states: { open }
-	} = createDialog({ preventScroll: true, closeOnOutsideClick: false });
-
-	type Props = {
-		className?: string;
-		header: Snippet<[]>;
-		body: Snippet<[]>;
-		footer: Snippet<[]>;
-		show: boolean;
-		onclose: () => void;
-	};
-
-	let { className = '', show = $bindable(false), header, body, footer, onclose }: Props = $props();
-
-	$effect(() => {
-		$open = show;
+	} = createDialog({
+		preventScroll: true,
+		closeOnOutsideClick: false,
+		escapeBehavior: 'ignore'
 	});
 
 	$effect(() => {
-		if (!$open) {
-			onclose();
+		$open = show;
+		if (show) {
+			onopen?.();
 		}
+	});
+
+	$effect(() => {
+		className =
+			colours.find((c) => c.name === colour)?.cssClass ??
+			'bg-white dark:bg-slate-800 dark:text-darkText border';
 	});
 
 	let modalHeight = $state<number | null>(0);
@@ -69,7 +87,12 @@
 		<div
 			use:melt={$content}
 			transition:scale={{ duration: 100, start: 0.1 }}
-			class="fixed left-1/2 top-1/2 z-50 mx-auto my-4 flex w-10/12 -translate-x-1/2 -translate-y-1/2 flex-col rounded-lg bg-white p-6 shadow-lg sm:w-3/4 lg:my-auto lg:w-1/2 {className}"
+			class="fixed
+      left-1/2 top-1/2 z-50
+      mx-auto flex w-10/12
+      -translate-x-1/2 -translate-y-1/2
+      flex-col rounded-lg shadow-lg sm:w-3/4 lg:my-auto lg:w-1/2
+      {className}"
 			style="height: {modalHeight ? modalHeight + 'px' : '60vh'}"
 		>
 			<!-- header -->
@@ -83,9 +106,11 @@
 			</div>
 
 			<!-- footer -->
-			<div>
-				{@render footer()}
-			</div>
+			{#if footer}
+				<div>
+					{@render footer()}
+				</div>
+			{/if}
 		</div>
 	</div>
 {/if}
