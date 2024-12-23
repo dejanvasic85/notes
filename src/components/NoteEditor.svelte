@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { createEventDispatcher, tick } from 'svelte';
 
-	import { getNoteCssClass, type Colour } from '$lib/colours';
+	import { type Colour } from '$lib/colours';
 	import type { FriendSelection, NoteOrdered } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
+	import Dialog from './Dialog.svelte';
 	import Icon from './Icon.svelte';
-	import Modal from './Modal.svelte';
 	import Share from './Share.svelte';
 
 	type ComponentEvents = {
@@ -55,6 +55,10 @@
 		if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
 			handleSave();
 		}
+
+		if (event.key === 'Escape') {
+			handleClose();
+		}
 	}
 
 	function handlePaste(event: ClipboardEvent) {
@@ -69,11 +73,11 @@
 		}
 	}
 
-	function handleColourPick({ detail }: CustomEvent<{ colour: Colour }>) {
+	function handleColourPick(colour: Colour | null) {
 		dispatch('updateColour', {
 			note: {
 				...note,
-				colour: detail.colour
+				colour
 			}
 		});
 	}
@@ -94,56 +98,54 @@
 	const handleClose = () => {
 		dispatch('close', {});
 	};
-
-	$: className = getNoteCssClass({
-		defaultClass: 'bg-white dark:bg-slate-800 dark:text-darkText border',
-		variant: note.colour ?? ''
-	});
 </script>
 
-<Modal bind:show={showModal} on:close on:open={handleModalOpen} {className}>
-	<div slot="header" class="px-2 pt-2">
-		<div class="flex justify-between">
-			<div class="flex-1">
-				<Button variant="ghost" onclick={handleClose}>
-					<Icon icon="arrow-left" title="Cancel note edit" />
-				</Button>
-			</div>
-			<div class="flex gap-2">
-				{#if enableSharing}
-					<Share
-						{friends}
-						isOpen={false}
-						noteId={note.id}
-						on:toggleFriend={({ detail }) =>
-							dispatch('toggleFriendShare', {
-								id: detail.id,
-								friendUserId: detail.friendUserId,
-								noteId: note.id,
-								selected: detail.selected
-							})}
-					/>
-				{/if}
-				<ColourPicker on:colourClick={handleColourPick} />
-				<Button variant="ghost" onclick={handleDeleteClick}>
-					<Icon icon="trash" title="Delete note" fill="none" />
-				</Button>
+<Dialog show={showModal} colour={note.colour} onopen={handleModalOpen}>
+	{#snippet header()}
+		<div class="px-2 pt-2">
+			<div class="flex justify-between">
+				<div class="flex-1">
+					<Button variant="ghost" onclick={handleClose}>
+						<Icon icon="arrow-left" title="Cancel note edit" />
+					</Button>
+				</div>
+				<div class="flex gap-2">
+					{#if enableSharing}
+						<Share
+							{friends}
+							noteId={note.id}
+							ontogglefriend={({ id, friendUserId, selected }) =>
+								dispatch('toggleFriendShare', {
+									id,
+									friendUserId,
+									noteId: note.id,
+									selected
+								})}
+						/>
+					{/if}
+					<ColourPicker onselect={handleColourPick} />
+					<Button variant="ghost" onclick={handleDeleteClick}>
+						<Icon icon="trash" title="Delete note" fill="none" />
+					</Button>
+				</div>
 			</div>
 		</div>
-	</div>
+	{/snippet}
 
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div
-		contenteditable="true"
-		class="h-full w-full p-4 outline-none"
-		bind:this={editor}
-		bind:innerHTML={noteText}
-		bind:innerText={noteTextPlain}
-		on:keydown={handleKeydown}
-		on:paste={handlePaste}
-	></div>
+	{#snippet body()}
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<div
+			contenteditable="true"
+			class="h-full w-full p-4 outline-none"
+			bind:this={editor}
+			bind:innerHTML={noteText}
+			bind:innerText={noteTextPlain}
+			on:keydown={handleKeydown}
+			on:paste={handlePaste}
+		></div>
+	{/snippet}
 
-	<div slot="footer">
+	{#snippet footer()}
 		<div class="flex justify-between px-2 pb-2">
 			<div class="ml-auto">
 				<Button onclick={handleSave}>
@@ -151,5 +153,5 @@
 				</Button>
 			</div>
 		</div>
-	</div>
-</Modal>
+	{/snippet}
+</Dialog>

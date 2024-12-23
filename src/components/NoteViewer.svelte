@@ -1,46 +1,46 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
-
-	import { getNoteCssClass } from '$lib/colours';
-
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
-	import Modal from './Modal.svelte';
+	import Dialog from './Dialog.svelte';
 
-	type ComponentEvents = {
-		close: {};
+	type Props = {
+		noteHtmlText: string;
+		noteColour: string | null;
+		showModal: boolean;
+		onclose: () => void;
 	};
 
-	// Props
-	export let noteHtmlText: string;
-	export let noteColour: string | null;
-	export let showModal: boolean = false;
-
-	// External events
-	const dispatch = createEventDispatcher<ComponentEvents>();
+	let { noteHtmlText, noteColour, showModal = $bindable(false), onclose }: Props = $props();
 
 	const handleClose = () => {
-		dispatch('close', {});
+		onclose();
 	};
 
-	$: className = getNoteCssClass({
-		defaultClass: 'bg-white dark:bg-slate-800 dark:text-white border',
-		variant: noteColour ?? ''
-	});
+	function handleKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			handleClose();
+		}
+	}
 </script>
 
-<Modal bind:show={showModal} on:close {className}>
-	<div slot="header" class="px-2 pt-2">
-		<div class="flex justify-between">
-			<div class="flex-1">
-				<Button variant="ghost" onclick={handleClose}>
-					<Icon icon="arrow-left" title="Cancel note edit" />
-				</Button>
+<svelte:window on:keydown={handleKeyDown} />
+
+<Dialog bind:show={showModal} colour={noteColour}>
+	{#snippet header()}
+		<div class="px-2 pt-2">
+			<div class="flex justify-between">
+				<div class="flex-1">
+					<Button variant="ghost" onclick={handleClose}>
+						<Icon icon="arrow-left" title="Cancel note edit" />
+					</Button>
+				</div>
 			</div>
 		</div>
-	</div>
+	{/snippet}
 
-	<div class="h-full w-full p-4 outline-none">
-		{@html noteHtmlText}
-	</div>
-</Modal>
+	{#snippet body()}
+		<div class="h-full w-full p-4 outline-none">
+			{@html noteHtmlText}
+		</div>
+	{/snippet}
+</Dialog>

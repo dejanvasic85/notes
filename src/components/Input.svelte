@@ -19,7 +19,7 @@
 	});
 
 	const defaultClass =
-		'rounded-md border border-gray-300 bg-gray-50 p-2 text-gray-900 dark:border-gray-600 dark:bg-slate-800 dark:text-white dark:placeholder-gray-400';
+		'rounded-md border border-gray-300 bg-gray-50 p-2 text-gray-900 dark:border-gray-600 dark:bg-dark dark:text-white dark:placeholder-gray-400';
 	$: inputClass = twMerge(defaultClass, $$restProps.class);
 </script>
 

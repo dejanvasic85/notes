@@ -32,6 +32,7 @@
 	class="h-note w-full overflow-y-hidden rounded-lg p-4 md:w-64 {className} hover:ring-2 dark:hover:ring-darkText"
 	tabindex={index}
 	role="button"
+	id={note.id}
 	aria-label={`Edit note ${index + 1}`}
 	bind:this={divElement}
 	on:click={handleClick}

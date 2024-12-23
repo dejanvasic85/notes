@@ -32,13 +32,20 @@
 	};
 	const dispatch = createEventDispatcher<ComponentEvents>();
 
-	function handleModalClose() {
+	function handleModalClose(noteId: string) {
 		dispatch('closeNote', {});
+		setTimeout(() => {
+			const noteElement = document.getElementById(noteId);
+			if (noteElement) {
+				noteElement.scrollIntoView({ behavior: 'instant', block: 'center' });
+				noteElement.focus();
+			}
+		}, 50);
 	}
 
 	function handleSave({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
 		dispatch('updateNote', { note });
-		dispatch('closeNote', {});
+		handleModalClose(note.id);
 	}
 
 	function handleUpdateColour({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
@@ -84,7 +91,7 @@
 		{enableSharing}
 		note={selectedNote}
 		friends={selectedNoteFriends}
-		on:close={handleModalClose}
+		on:close={() => handleModalClose(selectedNote.id)}
 		on:deleteNote
 		on:toggleFriendShare
 		on:saveNote={handleSave}
@@ -97,7 +104,7 @@
 		bind:showModal
 		noteHtmlText={selectedSharedNote.text}
 		noteColour={selectedSharedNote.colour}
-		on:close={handleModalClose}
+		onclose={() => handleModalClose(selectedSharedNote.id)}
 	/>
 {/if}
 
