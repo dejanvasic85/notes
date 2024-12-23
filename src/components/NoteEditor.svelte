@@ -55,6 +55,10 @@
 		if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
 			handleSave();
 		}
+
+		if (event.key === 'Escape') {
+			handleClose();
+		}
 	}
 
 	function handlePaste(event: ClipboardEvent) {

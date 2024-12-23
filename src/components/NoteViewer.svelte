@@ -15,7 +15,15 @@
 	const handleClose = () => {
 		onclose();
 	};
+
+	function handleKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			handleClose();
+		}
+	}
 </script>
+
+<svelte:window on:keydown={handleKeyDown} />
 
 <Dialog bind:show={showModal} colour={noteColour}>
 	{#snippet header()}

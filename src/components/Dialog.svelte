@@ -30,7 +30,6 @@
 		states: { open }
 	} = createDialog({
 		preventScroll: true,
-		closeOnOutsideClick: false,
 		escapeBehavior: 'ignore'
 	});
 
