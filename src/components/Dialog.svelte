@@ -25,14 +25,16 @@
 
 	let className = $state('');
 
-	const {
-		elements: { portalled, overlay, content },
-		states: { open }
-	} = createDialog({
+	const dialog = createDialog({
 		preventScroll: true,
 		escapeBehavior: 'ignore',
 		closeOnOutsideClick: false
 	});
+
+	const {
+		elements: { portalled, overlay, content },
+		states: { open }
+	} = dialog;
 
 	$effect(() => {
 		$open = show;
@@ -88,10 +90,10 @@
 			use:melt={$content}
 			transition:scale={{ duration: 100, start: 0.1 }}
 			class="fixed
-      left-1/2 top-1/2
-      mx-auto flex w-10/12
-      -translate-x-1/2 -translate-y-1/2
-      flex-col rounded-lg shadow-lg sm:w-3/4 lg:my-auto lg:w-1/2
+      left-1/2 top-8 mx-auto
+      flex w-10/12 -translate-x-1/2
+      flex-col rounded-lg
+      shadow-lg sm:w-3/4 lg:top-1/2 lg:my-auto lg:w-1/2 lg:-translate-y-1/2
       {className}"
 			style="height: {modalHeight ? modalHeight + 'px' : '60vh'}"
 		>

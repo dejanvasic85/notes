@@ -17,6 +17,7 @@
 
 	import Board from '$components/Board.svelte';
 	import Skeleton from '$components/Skeleton.svelte';
+	import Button from '$components/Button.svelte';
 
 	export let data;
 	let boardId: string;
@@ -169,7 +170,7 @@
 		});
 
 		if (result.type === MaybeType.Error) {
-			// revert the local change
+			// revert the local state
 			localNoteOrder = [...reorderNotes(noteOrder, toIndex, fromIndex)];
 			localNotes = [...getOrderedNotes(localNoteOrder, localNotes)];
 			// todo: show an error
@@ -213,7 +214,8 @@
 			on:reorder={handleReorder}
 			on:toggleFriendShare={handleToggleFriendShare}
 		/>
-	{:catch error}
-		<p class="text-red-500">{error.message}</p>
+	{:catch}
+		<p class="text-red-500" role="alert">There was a problem loading your board</p>
+		<Button onclick={() => window.location.reload()}>Retry</Button>
 	{/await}
 </div>
