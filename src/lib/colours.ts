@@ -15,5 +15,5 @@ interface GetNoteCssClass {
 
 export function getNoteCssClass({ colour }: GetNoteCssClass) {
 	const colourValue = colours.find((c) => c.name === colour);
-	return `dark:bg-dark dark:text-darkText border ${colourValue?.cssClass ?? 'bg-white dark:bg-dark'}`;
+	return `dark:text-darkText border ${colourValue?.cssClass ?? 'bg-white dark:bg-dark'}`;
 }

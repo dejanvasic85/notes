@@ -11,9 +11,11 @@
 	};
 
 	const { note, index, isDraggable = true, onclick }: Props = $props();
-	const className = getNoteCssClass({
-		colour: note.colour ?? ''
-	});
+	const className = $derived(
+		getNoteCssClass({
+			colour: note.colour ?? ''
+		})
+	);
 
 	let divElement: HTMLElement;
 

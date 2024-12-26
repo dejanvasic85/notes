@@ -167,3 +167,10 @@ export interface ApiError {
 export interface IdParams {
 	id: string;
 }
+
+export type ToggleFriendShare = {
+	id?: string;
+	friendUserId: string;
+	noteId: string;
+	selected: boolean;
+};

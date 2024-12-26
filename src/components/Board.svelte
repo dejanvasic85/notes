@@ -1,39 +1,43 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
-
 	import { dropzone, type DraggableData } from '$lib/draggable';
-	import { searchNotes } from '$lib/notes';
-	import type { Friend, NoteOrdered, SharedNote } from '$lib/types';
+	import type { Friend, NoteOrdered, SharedNote, ToggleFriendShare } from '$lib/types';
 
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
 	import NoteViewer from './NoteViewer.svelte';
 
-	interface UpdateProps {
-		note: NoteOrdered;
-	}
-
-	// Props
-	export let notes: NoteOrdered[];
-	export let selectedNote: NoteOrdered | undefined | null;
-	export let selectedSharedNote: SharedNote | undefined | null;
-	export let enableSharing: boolean = false;
-	export let friends: Friend[] = [];
-	export let sharedNotes: SharedNote[] = [];
-
-	let searchQuery: string = '';
-
-	// Events
-	type ComponentEvents = {
-		updateNote: UpdateProps;
-		closeNote: {};
-		select: { id: string };
-		reorder: { fromIndex: number; toIndex: number };
+	type Props = {
+		notes: NoteOrdered[];
+		selectedNote?: NoteOrdered | null;
+		selectedSharedNote?: SharedNote | null;
+		enableSharing?: boolean;
+		friends?: Friend[];
+		sharedNotes?: SharedNote[];
+		onclosenote: () => void;
+		onupdatenote: (params: { note: NoteOrdered }) => void;
+		onselect: (params: { id: string }) => void;
+		onreorder: (params: { fromIndex: number; toIndex: number }) => void;
+		ondeletenote: (params: { note: NoteOrdered }) => void;
+		ontogglefriend?: (params: ToggleFriendShare) => void;
 	};
-	const dispatch = createEventDispatcher<ComponentEvents>();
+
+	let {
+		notes,
+		selectedNote,
+		selectedSharedNote,
+		enableSharing = false,
+		friends = [],
+		sharedNotes = [],
+		onupdatenote,
+		onclosenote,
+		onselect,
+		onreorder,
+		ondeletenote,
+		ontogglefriend
+	}: Props = $props();
 
 	function handleModalClose(noteId: string) {
-		dispatch('closeNote', {});
+		onclosenote();
 		setTimeout(() => {
 			const noteElement = document.getElementById(noteId);
 			if (noteElement) {
@@ -44,56 +48,55 @@
 	}
 
 	function handleSave({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
-		dispatch('updateNote', { note });
+		onupdatenote({ note });
 		handleModalClose(note.id);
 	}
 
 	function handleUpdateColour({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
-		dispatch('updateNote', { note });
+		onupdatenote({ note });
 	}
 
 	function handleEdit(id?: string) {
 		if (id) {
-			dispatch('select', { id });
+			onselect({ id });
 		}
 	}
 
 	function handleSharedNoteSelected(id?: string) {
 		if (id) {
-			dispatch('select', { id });
+			onselect({ id });
 		}
 	}
 
 	function handleDrop(toIndex: number, { index }: DraggableData) {
-		dispatch('reorder', { fromIndex: index, toIndex });
+		onreorder({ fromIndex: index, toIndex });
 	}
 
-	$: selectedId = selectedNote?.id;
-	$: selectedSharedNoteId = selectedSharedNote?.id;
-	$: showModal = !!selectedId || !!selectedSharedNoteId;
-	$: notesOrderedFiltered = searchNotes(notes, searchQuery);
-	$: selectedNoteFriends = friends.map((f) => {
-		const editor = selectedNote?.editors?.find((e) => e.userId === f.id);
-		return {
-			noteEditorId: editor?.id,
-			selected: editor?.selected || false,
-			email: f.email,
-			id: f.id,
-			name: f.name,
-			picture: f.picture
-		};
-	});
+	let showModal = $derived(!!selectedNote?.id || !!selectedSharedNote?.id);
+	let selectedNoteFriends = $derived(
+		friends.map((f) => {
+			const editor = selectedNote?.editors?.find((e) => e.userId === f.id);
+			return {
+				noteEditorId: editor?.id,
+				selected: editor?.selected || false,
+				email: f.email,
+				id: f.id,
+				name: f.name,
+				picture: f.picture
+			};
+		})
+	);
 </script>
 
 {#if selectedNote}
 	<NoteEditor
-		bind:showModal
+		{showModal}
 		{enableSharing}
 		note={selectedNote}
 		friends={selectedNoteFriends}
 		on:close={() => handleModalClose(selectedNote.id)}
-		on:deleteNote
-		on:toggleFriendShare
+		on:deleteNote={({ detail: { note } }) => ondeletenote({ note })}
+		on:toggleFriendShare={({ detail: friendShare }) => ontogglefriend?.(friendShare)}
 		on:saveNote={handleSave}
 		on:updateColour={handleUpdateColour}
 	/>
@@ -101,7 +104,7 @@
 
 {#if selectedSharedNote}
 	<NoteViewer
-		bind:showModal
+		{showModal}
 		noteHtmlText={selectedSharedNote.text}
 		noteColour={selectedSharedNote.colour}
 		onclose={() => handleModalClose(selectedSharedNote.id)}
@@ -109,7 +112,7 @@
 {/if}
 
 <div class="flex flex-wrap items-stretch gap-2">
-	{#each notesOrderedFiltered as note, index}
+	{#each notes as note, index}
 		<div
 			class="dropzone block h-4 w-full md:h-note md:w-4"
 			use:dropzone={{ onDropped: (args) => handleDrop(index, args) }}

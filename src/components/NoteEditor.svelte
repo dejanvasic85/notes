@@ -2,7 +2,7 @@
 	import { createEventDispatcher, tick } from 'svelte';
 
 	import { type Colour } from '$lib/colours';
-	import type { FriendSelection, NoteOrdered } from '$lib/types';
+	import type { FriendSelection, NoteOrdered, ToggleFriendShare } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
@@ -14,7 +14,7 @@
 		close: {};
 		deleteNote: { note: NoteOrdered };
 		saveNote: { note: NoteOrdered };
-		toggleFriendShare: { id?: string; friendUserId: string; noteId: string; selected: boolean };
+		toggleFriendShare: ToggleFriendShare;
 		updateColour: { note: NoteOrdered };
 	};
 

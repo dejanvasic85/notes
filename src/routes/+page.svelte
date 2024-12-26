@@ -3,7 +3,7 @@
 
 	import partition from 'lodash/partition';
 
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
 	import Board from '$components/Board.svelte';
@@ -16,7 +16,7 @@
 	import { generateId } from '$lib/identityGenerator';
 
 	import { reorderNotes } from '$lib/notes';
-	import type { Note } from '$lib/types';
+	import type { Note, NoteOrdered } from '$lib/types';
 
 	import { localBoard, orderedNotes } from '$lib/noteStore';
 
@@ -56,7 +56,7 @@
 		goto(`/?id=${id}`);
 	}
 
-	function handleUpdateNote({ detail: { note } }: CustomEvent<{ note: Note }>) {
+	function handleUpdateNote({ note }: { note: NoteOrdered }) {
 		localBoard.update((state) => {
 			const [, otherNotes] = partition(state.notes, (n) => n.id === note.id);
 			return {
@@ -67,12 +67,12 @@
 		});
 	}
 
-	function handleDeleteNote({ detail }: CustomEvent<{ note: Note }>) {
+	function handleDeleteNote({ note }: { note: Note }) {
 		localBoard.update((state) => {
 			return {
 				...state,
-				noteOrder: [...state.noteOrder.filter((id) => id !== detail.note.id)],
-				notes: [...state.notes.filter((n) => n.id !== detail.note.id)]
+				noteOrder: [...state.noteOrder.filter((id) => id !== note.id)],
+				notes: [...state.notes.filter((n) => n.id !== note.id)]
 			};
 		});
 		handleClose();
@@ -82,13 +82,11 @@
 		goto('/');
 	}
 
-	function handleSelect({ detail: { id } }: CustomEvent<{ id: string }>) {
+	function handleSelect({ id }: { id: string }) {
 		goto(`/?id=${id}`);
 	}
 
-	function handleReorder({
-		detail: { fromIndex, toIndex }
-	}: CustomEvent<{ fromIndex: number; toIndex: number }>) {
+	function handleReorder({ fromIndex, toIndex }: { fromIndex: number; toIndex: number }) {
 		localBoard.update((state) => {
 			const newOrder = reorderNotes(state.noteOrder, fromIndex, toIndex);
 			return {
@@ -98,7 +96,7 @@
 		});
 	}
 
-	let search = $derived(new URL($page.url).searchParams);
+	let search = $derived(new URL(page.url).searchParams);
 	let selectedId = $derived(search.get('id'));
 	let selectedNote = $derived($orderedNotes.find((n) => n.id === selectedId));
 </script>
@@ -186,12 +184,11 @@
 				notes={$orderedNotes}
 				{selectedNote}
 				selectedSharedNote={null}
-				on:createNote={handleCreateNote}
-				on:closeNote={handleClose}
-				on:deleteNote={handleDeleteNote}
-				on:reorder={handleReorder}
-				on:select={handleSelect}
-				on:updateNote={handleUpdateNote}
+				onclosenote={handleClose}
+				ondeletenote={handleDeleteNote}
+				onreorder={handleReorder}
+				onselect={handleSelect}
+				onupdatenote={handleUpdateNote}
 			/>
 		</div>
 	</main>

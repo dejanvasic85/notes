@@ -9,7 +9,8 @@
 		NotePatchInput,
 		BoardPatch,
 		Friend,
-		SharedNote
+		SharedNote,
+		ToggleFriendShare
 	} from '$lib/types';
 	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes';
 	import { generateId } from '$lib/identityGenerator';
@@ -25,23 +26,12 @@
 	let localNotes: NoteOrdered[] = $state([]);
 	let localSharedNotes: SharedNote[] = $state([]);
 	let friends: Friend[] = $state([]);
+	let selectedNote: NoteOrdered | null = $state(null);
+	let selectedSharedNote: SharedNote | null = $state(null);
 
 	let search = $derived(new URL(page.url).searchParams);
 	let selectedId = $derived(search.get('id'));
-	let selectedNote = $derived(localNotes.find((n) => n.id === selectedId));
-	let selectedSharedNote = $derived(localSharedNotes.find((n) => n.id === selectedId));
 	let isCreating = $derived(search.get('new'));
-
-	$effect(() => {
-		const runCreate = async () => {
-			const id = await untrack(() => handleCreate());
-			goto(`/my/board?id=${id}`);
-		};
-
-		if (isCreating) {
-			runCreate();
-		}
-	});
 
 	$effect(() => {
 		const loadData = async () => {
@@ -58,7 +48,28 @@
 		}
 	});
 
-	function handleSelect({ detail: { id } }: CustomEvent<{ id: string }>) {
+	$effect(() => {
+		if (selectedId) {
+			selectedNote = localNotes.find((n) => n.id === selectedId) ?? null;
+			selectedSharedNote = localSharedNotes.find((n) => n.id === selectedId) ?? null;
+		} else {
+			selectedNote = null;
+			selectedSharedNote = null;
+		}
+	});
+
+	$effect(() => {
+		const runCreate = async () => {
+			const id = await untrack(() => handleCreate());
+			goto(`/my/board?id=${id}`);
+		};
+
+		if (isCreating) {
+			runCreate();
+		}
+	});
+
+	function handleSelect({ id }: { id: string }) {
 		goto(`/my/board?id=${id}`);
 	}
 
@@ -86,8 +97,11 @@
 	}
 
 	async function handleToggleFriendShare({
-		detail: { id, friendUserId, noteId, selected }
-	}: CustomEvent<{ id?: string; friendUserId: string; noteId: string; selected: boolean }>) {
+		id,
+		friendUserId,
+		noteId,
+		selected
+	}: ToggleFriendShare) {
 		const note = localNotes.find((n) => n.id === noteId);
 		const friend = friends.find((f) => f.id === friendUserId);
 
@@ -128,7 +142,7 @@
 		);
 	}
 
-	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
+	async function handleUpdate({ note }: { note: NoteOrdered }) {
 		const original = localNotes.find((n) => n.id === note.id);
 		if (!original) {
 			// todo: show an error
@@ -153,10 +167,9 @@
 		}
 	}
 
-	async function handleDelete({ detail }: CustomEvent<{ note: NoteOrdered }>) {
-		const { note } = detail;
-		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
-		localNoteOrder = [...localNoteOrder.filter((id) => id !== detail.note.id)];
+	async function handleDelete({ note }: { note: NoteOrdered }) {
+		localNotes = [...localNotes.filter((n) => n.id !== note.id)];
+		localNoteOrder = [...localNoteOrder.filter((id) => id !== note.id)];
 
 		const resp = await tryFetch(
 			`/api/notes/${note.id}`,
@@ -173,9 +186,7 @@
 		}
 	}
 
-	async function handleReorder({
-		detail: { fromIndex, toIndex }
-	}: CustomEvent<{ fromIndex: number; toIndex: number }>) {
+	async function handleReorder({ fromIndex, toIndex }: { fromIndex: number; toIndex: number }) {
 		const noteOrder = reorderNotes(localNoteOrder, fromIndex, toIndex);
 		localNoteOrder = [...noteOrder];
 		localNotes = [...getOrderedNotes(noteOrder, localNotes)];
@@ -209,19 +220,18 @@
 		</div>
 	{:then}
 		<Board
-			notes={localNotes}
-			enableSharing={true}
 			{selectedNote}
 			{selectedSharedNote}
 			{friends}
+			notes={localNotes}
+			enableSharing={true}
 			sharedNotes={localSharedNotes}
-			on:select={handleSelect}
-			on:closeNote={handleClose}
-			on:createNote={() => goto('/my/board?new=true')}
-			on:updateNote={handleUpdate}
-			on:deleteNote={handleDelete}
-			on:reorder={handleReorder}
-			on:toggleFriendShare={handleToggleFriendShare}
+			onselect={handleSelect}
+			onclosenote={handleClose}
+			onupdatenote={handleUpdate}
+			ondeletenote={handleDelete}
+			onreorder={handleReorder}
+			ontogglefriend={handleToggleFriendShare}
 		/>
 	{:catch}
 		<p class="text-red-500" role="alert">There was a problem loading your board</p>
