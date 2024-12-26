@@ -111,10 +111,10 @@
 <div class="flex flex-wrap items-stretch gap-2">
 	{#each notesOrderedFiltered as note, index}
 		<div
-			class="dropzone block h-4 w-full md:h-48 md:w-4"
+			class="dropzone block h-4 w-full md:h-note md:w-4"
 			use:dropzone={{ onDropped: (args) => handleDrop(index, args) }}
 		></div>
-		<Note {note} {index} isDraggable={true} on:click={() => handleEdit(note.id)} />
+		<Note {note} {index} isDraggable={true} onclick={() => handleEdit(note.id)} />
 	{/each}
 </div>
 
@@ -128,7 +128,7 @@
 				note={sharedNote}
 				{index}
 				isDraggable={false}
-				on:click={() => handleSharedNoteSelected(sharedNote.id)}
+				onclick={() => handleSharedNoteSelected(sharedNote.id)}
 			/>
 		{/each}
 	</div>

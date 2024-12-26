@@ -1,30 +1,26 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
-
 	import { getNoteCssClass } from '$lib/colours';
 	import { draggable } from '$lib/draggable';
 	import type { NoteOrdered, SharedNote } from '$lib/types';
 
-	export let note: NoteOrdered | SharedNote;
-	export let index: number;
-	export let isDraggable: boolean = true;
+	type Props = {
+		note: NoteOrdered | SharedNote;
+		index: number;
+		isDraggable?: boolean;
+		onclick: () => void;
+	};
+
+	const { note, index, isDraggable = true, onclick }: Props = $props();
+	const className = getNoteCssClass({
+		colour: note.colour ?? ''
+	});
 
 	let divElement: HTMLElement;
 
-	onMount(() => {
+	$effect(() => {
 		if (isDraggable) {
 			draggable(divElement, { index });
 		}
-	});
-
-	const dispatch = createEventDispatcher();
-	const handleClick = () => {
-		dispatch('click');
-	};
-
-	$: className = getNoteCssClass({
-		defaultClass: 'text-base border',
-		variant: note.colour ?? ''
 	});
 </script>
 
@@ -35,8 +31,8 @@
 	id={note.id}
 	aria-label={`Edit note ${index + 1}`}
 	bind:this={divElement}
-	on:click={handleClick}
-	on:keypress={handleClick}
+	{onclick}
+	onkeypress={onclick}
 >
 	{@html note.text}
 </div>

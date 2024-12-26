@@ -10,11 +10,10 @@ export const colours = [
 export type Colour = (typeof colours)[number]['name'];
 
 interface GetNoteCssClass {
-	variant?: Colour;
-	defaultClass: string;
+	colour?: Colour;
 }
 
-export function getNoteCssClass({ defaultClass, variant }: GetNoteCssClass) {
-	const colour = colours.find((c) => c.name === variant);
-	return colour ? `${colour.cssClass} dark:text-darkText border` : defaultClass;
+export function getNoteCssClass({ colour }: GetNoteCssClass) {
+	const colourValue = colours.find((c) => c.name === colour);
+	return `dark:bg-dark dark:text-darkText border ${colourValue?.cssClass ?? 'bg-white dark:bg-dark'}`;
 }
