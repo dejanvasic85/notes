@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
+	import { page } from '$app/state';
+	import { untrack } from 'svelte';
 
 	import type {
 		Note,
@@ -19,26 +19,44 @@
 	import Skeleton from '$components/Skeleton.svelte';
 	import Button from '$components/Button.svelte';
 
-	export let data;
-	let boardId: string;
-	let localNoteOrder: string[] = [];
-	let localNotes: NoteOrdered[] = [];
-	let localSharedNotes: SharedNote[] = [];
-	let friends: Friend[] = [];
+	let { data } = $props();
+	let boardId: string = $state('');
+	let localNoteOrder: string[] = $state([]);
+	let localNotes: NoteOrdered[] = $state([]);
+	let localSharedNotes: SharedNote[] = $state([]);
+	let friends: Friend[] = $state([]);
 
-	onMount(async () => {
-		const result = await data.boardPromise;
-		boardId = result.board.id;
-		localNoteOrder = [...result.board.noteOrder];
-		localNotes = [...getOrderedNotes(result.board.noteOrder, result.board.notes)];
-		localSharedNotes = result.sharedNotes;
-		friends = result.friends;
+	let search = $derived(new URL(page.url).searchParams);
+	let selectedId = $derived(search.get('id'));
+	let selectedNote = $derived(localNotes.find((n) => n.id === selectedId));
+	let selectedSharedNote = $derived(localSharedNotes.find((n) => n.id === selectedId));
+	let isCreating = $derived(search.get('new'));
+
+	$effect(() => {
+		const runCreate = async () => {
+			const id = await untrack(() => handleCreate());
+			goto(`/my/board?id=${id}`);
+		};
+
+		if (isCreating) {
+			runCreate();
+		}
 	});
 
-	$: search = new URL($page.url).searchParams;
-	$: selectedId = search.get('id');
-	$: selectedNote = localNotes.find((n) => n.id === selectedId);
-	$: selectedSharedNote = localSharedNotes.find((n) => n.id === selectedId);
+	$effect(() => {
+		const loadData = async () => {
+			const result = await data.boardPromise;
+			boardId = result.board.id;
+			localNoteOrder = [...result.board.noteOrder];
+			localNotes = [...getOrderedNotes(result.board.noteOrder, result.board.notes)];
+			localSharedNotes = result.sharedNotes;
+			friends = result.friends;
+		};
+
+		if (!boardId) {
+			loadData();
+		}
+	});
 
 	function handleSelect({ detail: { id } }: CustomEvent<{ id: string }>) {
 		goto(`/my/board?id=${id}`);
@@ -54,18 +72,17 @@
 		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
 		localNoteOrder = [...localNoteOrder, id];
 
-		goto(`/my/board?id=${id}`);
-
 		const resp = await tryFetch<Note>('/api/notes', {
 			method: 'POST',
 			body: JSON.stringify(newNote)
 		});
-
 		if (resp.type === MaybeType.Error) {
 			localNotes = [...localNotes.filter((n) => n.id !== id)];
 			goto('/my/board');
 			// todo: show an error
 		}
+
+		return id;
 	}
 
 	async function handleToggleFriendShare({
@@ -176,19 +193,11 @@
 			// todo: show an error
 		}
 	}
-
-	$: {
-		const search = new URL($page.url).searchParams;
-		const newNote = search.get('new');
-		if (newNote) {
-			handleCreate();
-		}
-	}
 </script>
 
 <svelte:head>
 	<title>My board with some notes on it</title>
-	<meta name="description" content="My personal whiteboard with notes" />
+	<meta name="description" content="My personal note board" />
 </svelte:head>
 
 <div>
@@ -208,7 +217,7 @@
 			sharedNotes={localSharedNotes}
 			on:select={handleSelect}
 			on:closeNote={handleClose}
-			on:createNote={handleCreate}
+			on:createNote={() => goto('/my/board?new=true')}
 			on:updateNote={handleUpdate}
 			on:deleteNote={handleDelete}
 			on:reorder={handleReorder}

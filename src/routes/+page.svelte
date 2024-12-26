@@ -20,7 +20,7 @@
 
 	import { localBoard, orderedNotes } from '$lib/noteStore';
 
-	export let data;
+	let { data } = $props();
 
 	onMount(() => {
 		const id = generateId('nid');
@@ -98,9 +98,9 @@
 		});
 	}
 
-	$: search = new URL($page.url).searchParams;
-	$: selectedId = search.get('id');
-	$: selectedNote = $orderedNotes.find((n) => n.id === selectedId);
+	let search = $derived(new URL($page.url).searchParams);
+	let selectedId = $derived(search.get('id'));
+	let selectedNote = $derived($orderedNotes.find((n) => n.id === selectedId));
 </script>
 
 <svelte:head>
