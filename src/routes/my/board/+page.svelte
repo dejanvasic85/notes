@@ -49,23 +49,20 @@
 	});
 
 	$effect(() => {
-		if (selectedId) {
-			selectedNote = localNotes.find((n) => n.id === selectedId) ?? null;
-			selectedSharedNote = localSharedNotes.find((n) => n.id === selectedId) ?? null;
-		} else {
-			selectedNote = null;
-			selectedSharedNote = null;
-		}
+		selectedNote = selectedId ? localNotes.find((n) => n.id === selectedId) || null : null;
+		selectedSharedNote = selectedId
+			? localSharedNotes.find((n) => n.id === selectedId) || null
+			: null;
 	});
 
 	$effect(() => {
-		const runCreate = async () => {
+		const createNote = async () => {
 			const id = await untrack(() => handleCreate());
 			goto(`/my/board?id=${id}`);
 		};
 
 		if (isCreating) {
-			runCreate();
+			createNote();
 		}
 	});
 
