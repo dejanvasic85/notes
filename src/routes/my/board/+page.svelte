@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
+	import { page } from '$app/state';
+	import { untrack } from 'svelte';
 
 	import type {
 		Note,
@@ -9,7 +9,8 @@
 		NotePatchInput,
 		BoardPatch,
 		Friend,
-		SharedNote
+		SharedNote,
+		ToggleFriendShare
 	} from '$lib/types';
 	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes';
 	import { generateId } from '$lib/identityGenerator';
@@ -19,28 +20,53 @@
 	import Skeleton from '$components/Skeleton.svelte';
 	import Button from '$components/Button.svelte';
 
-	export let data;
-	let boardId: string;
-	let localNoteOrder: string[] = [];
-	let localNotes: NoteOrdered[] = [];
-	let localSharedNotes: SharedNote[] = [];
-	let friends: Friend[] = [];
+	let { data } = $props();
+	let boardId: string = $state('');
+	let localNoteOrder: string[] = $state([]);
+	let localNotes: NoteOrdered[] = $state([]);
+	let localSharedNotes: SharedNote[] = $state([]);
+	let friends: Friend[] = $state([]);
+	let selectedNote: NoteOrdered | null = $state(null);
+	let selectedSharedNote: SharedNote | null = $state(null);
 
-	onMount(async () => {
-		const result = await data.boardPromise;
-		boardId = result.board.id;
-		localNoteOrder = [...result.board.noteOrder];
-		localNotes = [...getOrderedNotes(result.board.noteOrder, result.board.notes)];
-		localSharedNotes = result.sharedNotes;
-		friends = result.friends;
+	let search = $derived(new URL(page.url).searchParams);
+	let selectedId = $derived(search.get('id'));
+	let isCreating = $derived(search.get('new'));
+
+	$effect(() => {
+		const loadData = async () => {
+			const result = await data.boardPromise;
+			boardId = result.board.id;
+			localNoteOrder = [...result.board.noteOrder];
+			localNotes = [...getOrderedNotes(result.board.noteOrder, result.board.notes)];
+			localSharedNotes = result.sharedNotes;
+			friends = result.friends;
+		};
+
+		if (!boardId) {
+			loadData();
+		}
 	});
 
-	$: search = new URL($page.url).searchParams;
-	$: selectedId = search.get('id');
-	$: selectedNote = localNotes.find((n) => n.id === selectedId);
-	$: selectedSharedNote = localSharedNotes.find((n) => n.id === selectedId);
+	$effect(() => {
+		selectedNote = selectedId ? localNotes.find((n) => n.id === selectedId) || null : null;
+		selectedSharedNote = selectedId
+			? localSharedNotes.find((n) => n.id === selectedId) || null
+			: null;
+	});
 
-	function handleSelect({ detail: { id } }: CustomEvent<{ id: string }>) {
+	$effect(() => {
+		const createNote = async () => {
+			const id = await untrack(() => handleCreate());
+			goto(`/my/board?id=${id}`);
+		};
+
+		if (isCreating) {
+			createNote();
+		}
+	});
+
+	function handleSelect({ id }: { id: string }) {
 		goto(`/my/board?id=${id}`);
 	}
 
@@ -54,23 +80,25 @@
 		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
 		localNoteOrder = [...localNoteOrder, id];
 
-		goto(`/my/board?id=${id}`);
-
 		const resp = await tryFetch<Note>('/api/notes', {
 			method: 'POST',
 			body: JSON.stringify(newNote)
 		});
-
 		if (resp.type === MaybeType.Error) {
 			localNotes = [...localNotes.filter((n) => n.id !== id)];
 			goto('/my/board');
 			// todo: show an error
 		}
+
+		return id;
 	}
 
 	async function handleToggleFriendShare({
-		detail: { id, friendUserId, noteId, selected }
-	}: CustomEvent<{ id?: string; friendUserId: string; noteId: string; selected: boolean }>) {
+		id,
+		friendUserId,
+		noteId,
+		selected
+	}: ToggleFriendShare) {
 		const note = localNotes.find((n) => n.id === noteId);
 		const friend = friends.find((f) => f.id === friendUserId);
 
@@ -111,7 +139,7 @@
 		);
 	}
 
-	async function handleUpdate({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
+	async function handleUpdate({ note }: { note: NoteOrdered }) {
 		const original = localNotes.find((n) => n.id === note.id);
 		if (!original) {
 			// todo: show an error
@@ -136,10 +164,9 @@
 		}
 	}
 
-	async function handleDelete({ detail }: CustomEvent<{ note: NoteOrdered }>) {
-		const { note } = detail;
-		localNotes = [...localNotes.filter((n) => n.id !== detail.note.id)];
-		localNoteOrder = [...localNoteOrder.filter((id) => id !== detail.note.id)];
+	async function handleDelete({ note }: { note: NoteOrdered }) {
+		localNotes = [...localNotes.filter((n) => n.id !== note.id)];
+		localNoteOrder = [...localNoteOrder.filter((id) => id !== note.id)];
 
 		const resp = await tryFetch(
 			`/api/notes/${note.id}`,
@@ -156,9 +183,7 @@
 		}
 	}
 
-	async function handleReorder({
-		detail: { fromIndex, toIndex }
-	}: CustomEvent<{ fromIndex: number; toIndex: number }>) {
+	async function handleReorder({ fromIndex, toIndex }: { fromIndex: number; toIndex: number }) {
 		const noteOrder = reorderNotes(localNoteOrder, fromIndex, toIndex);
 		localNoteOrder = [...noteOrder];
 		localNotes = [...getOrderedNotes(noteOrder, localNotes)];
@@ -176,19 +201,11 @@
 			// todo: show an error
 		}
 	}
-
-	$: {
-		const search = new URL($page.url).searchParams;
-		const newNote = search.get('new');
-		if (newNote) {
-			handleCreate();
-		}
-	}
 </script>
 
 <svelte:head>
 	<title>My board with some notes on it</title>
-	<meta name="description" content="My personal whiteboard with notes" />
+	<meta name="description" content="My personal note board" />
 </svelte:head>
 
 <div>
@@ -200,19 +217,18 @@
 		</div>
 	{:then}
 		<Board
-			notes={localNotes}
-			enableSharing={true}
 			{selectedNote}
 			{selectedSharedNote}
 			{friends}
+			notes={localNotes}
+			enableSharing={true}
 			sharedNotes={localSharedNotes}
-			on:select={handleSelect}
-			on:closeNote={handleClose}
-			on:createNote={handleCreate}
-			on:updateNote={handleUpdate}
-			on:deleteNote={handleDelete}
-			on:reorder={handleReorder}
-			on:toggleFriendShare={handleToggleFriendShare}
+			onselect={handleSelect}
+			onclosenote={handleClose}
+			onupdatenote={handleUpdate}
+			ondeletenote={handleDelete}
+			onreorder={handleReorder}
+			ontogglefriend={handleToggleFriendShare}
 		/>
 	{:catch}
 		<p class="text-red-500" role="alert">There was a problem loading your board</p>

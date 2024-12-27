@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { createEventDispatcher, tick } from 'svelte';
+	import { tick } from 'svelte';
 
 	import { type Colour } from '$lib/colours';
-	import type { FriendSelection, NoteOrdered } from '$lib/types';
+	import type { FriendSelection, NoteOrdered, ToggleFriendShare } from '$lib/types';
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
@@ -10,27 +10,34 @@
 	import Icon from './Icon.svelte';
 	import Share from './Share.svelte';
 
-	type ComponentEvents = {
-		close: {};
-		deleteNote: { note: NoteOrdered };
-		saveNote: { note: NoteOrdered };
-		toggleFriendShare: { id?: string; friendUserId: string; noteId: string; selected: boolean };
-		updateColour: { note: NoteOrdered };
+	type Props = {
+		enableSharing?: boolean;
+		note: NoteOrdered;
+		showModal: boolean;
+		friends: FriendSelection[];
+		onclose: () => void;
+		ondeletenote: (params: { note: NoteOrdered }) => void;
+		onsavenote: (params: { note: NoteOrdered }) => void;
+		ontogglefriendshare: (params: ToggleFriendShare) => void;
+		onupdateColour: (params: { note: NoteOrdered }) => void;
 	};
 
-	// Props
-	export let enableSharing: boolean = false;
-	export let note: NoteOrdered;
-	export let showModal: boolean = false;
-	export let friends: FriendSelection[] = [];
+	let {
+		enableSharing = false,
+		note,
+		showModal = false,
+		friends = [],
+		onclose,
+		ondeletenote,
+		onsavenote,
+		ontogglefriendshare,
+		onupdateColour
+	}: Props = $props();
 
 	// Internal state
 	let editor: HTMLDivElement;
-	let noteText: string = note.text;
-	let noteTextPlain: string = note.textPlain;
-
-	// External events
-	const dispatch = createEventDispatcher<ComponentEvents>();
+	let noteText: string = $state(note.text);
+	let noteTextPlain: string = $state(note.textPlain);
 
 	// Internal handlers
 	async function handleModalOpen() {
@@ -38,7 +45,7 @@
 	}
 
 	function handleSave() {
-		dispatch('saveNote', {
+		onsavenote({
 			note: {
 				...note,
 				text: noteText,
@@ -69,12 +76,12 @@
 
 	function handleDeleteClick() {
 		if (confirm('Are you sure you want to delete this note?')) {
-			dispatch('deleteNote', { note });
+			ondeletenote({ note });
 		}
 	}
 
 	function handleColourPick(colour: Colour | null) {
-		dispatch('updateColour', {
+		onupdateColour({
 			note: {
 				...note,
 				colour
@@ -96,7 +103,7 @@
 	}
 
 	const handleClose = () => {
-		dispatch('close', {});
+		onclose();
 	};
 </script>
 
@@ -115,7 +122,7 @@
 							{friends}
 							noteId={note.id}
 							ontogglefriend={({ id, friendUserId, selected }) =>
-								dispatch('toggleFriendShare', {
+								ontogglefriendshare({
 									id,
 									friendUserId,
 									noteId: note.id,
@@ -133,15 +140,15 @@
 	{/snippet}
 
 	{#snippet body()}
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
 			contenteditable="true"
 			class="h-full w-full p-4 outline-none"
 			bind:this={editor}
 			bind:innerHTML={noteText}
 			bind:innerText={noteTextPlain}
-			on:keydown={handleKeydown}
-			on:paste={handlePaste}
+			onkeydown={handleKeydown}
+			onpaste={handlePaste}
 		></div>
 	{/snippet}
 
