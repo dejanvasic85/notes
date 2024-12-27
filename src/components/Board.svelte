@@ -47,12 +47,12 @@
 		}, 50);
 	}
 
-	function handleSave({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
+	function handleSave({ note }: { note: NoteOrdered }) {
 		onupdatenote({ note });
 		handleModalClose(note.id);
 	}
 
-	function handleUpdateColour({ detail: { note } }: CustomEvent<{ note: NoteOrdered }>) {
+	function handleUpdateColour({ note }: { note: NoteOrdered }) {
 		onupdatenote({ note });
 	}
 
@@ -92,13 +92,13 @@
 	<NoteEditor
 		{showModal}
 		{enableSharing}
+		{ondeletenote}
 		note={selectedNote}
 		friends={selectedNoteFriends}
-		on:close={() => handleModalClose(selectedNote.id)}
-		on:deleteNote={({ detail: { note } }) => ondeletenote({ note })}
-		on:toggleFriendShare={({ detail: friendShare }) => ontogglefriend?.(friendShare)}
-		on:saveNote={handleSave}
-		on:updateColour={handleUpdateColour}
+		onclose={() => handleModalClose(selectedNote.id)}
+		ontogglefriendshare={(params) => ontogglefriend?.(params)}
+		onsavenote={handleSave}
+		onupdateColour={handleUpdateColour}
 	/>
 {/if}
 
