@@ -57,10 +57,8 @@
 
 	$effect(() => {
 		const createNote = async () => {
-			const id = await untrack(() => handleCreate());
-			goto(`/my/board?id=${id}`);
+			await untrack(() => handleCreate((id) => goto(`/my/board?id=${id}`)));
 		};
-
 		if (isCreating) {
 			createNote();
 		}
@@ -74,11 +72,12 @@
 		goto('/my/board');
 	}
 
-	async function handleCreate() {
+	async function handleCreate(onCreated: (id: string) => void) {
 		const id = generateId('nid');
 		const newNote: Note = { id, text: '', textPlain: '', boardId, colour: null };
 		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
 		localNoteOrder = [...localNoteOrder, id];
+		onCreated(id);
 
 		const resp = await tryFetch<Note>('/api/notes', {
 			method: 'POST',
