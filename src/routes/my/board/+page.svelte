@@ -210,10 +210,10 @@
 
 <div>
 	{#await data.boardPromise}
-		<div class="grid gap-4">
-			<Skeleton height="h-note" />
-			<Skeleton height="h-note" />
-			<Skeleton height="h-note" />
+		<div class="flex gap-6">
+			<Skeleton height="h-note" width="w-note" />
+			<Skeleton height="h-note" width="w-note" />
+			<Skeleton height="h-note" width="w-note" />
 		</div>
 	{:then}
 		<Board
@@ -231,7 +231,7 @@
 			ontogglefriend={handleToggleFriendShare}
 		/>
 	{:catch}
-		<p class="text-red-500" role="alert">There was a problem loading your board</p>
+		<p class="text-error" role="alert">There was a problem loading your board</p>
 		<Button onclick={() => window.location.reload()}>Retry</Button>
 	{/await}
 </div>

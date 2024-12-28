@@ -22,12 +22,12 @@
 <p>Adding a friend allows you select notes for them to see.</p>
 <form method="POST">
 	<div class="mt-4 flex w-full flex-col gap-2 lg:w-1/2">
-		<label for="email" class:text-red-500={formError} use:melt={$root}>Email</label>
+		<label for="email" class:text-error={formError} use:melt={$root}>Email</label>
 		<div class="flex-1">
 			<Input id="email" type="text" invalid={formError} name="email" />
 		</div>
 		{#if formError}
-			<p class="mt-2 text-sm text-red-600 dark:text-red-500">Email is required</p>
+			<p class="mt-2 text-sm text-error">Email is required</p>
 		{/if}
 		<div class="flex justify-end">
 			<Button type="submit">Send invite</Button>

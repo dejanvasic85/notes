@@ -17,7 +17,8 @@ export default {
 				secondary: '#9E6A88',
 				tertiary: '#5C8D89',
 				background: '#f5f5f7',
-				loading: '#e0e0e2'
+				loading: '#e0e0e2',
+				error: colors.red[500]
 			},
 			gridTemplateColumns: {
 				layout: '[first-col] 5rem [second-col] auto'
@@ -43,6 +44,9 @@ export default {
 			height: {
 				note: spacing[72],
 				friend: spacing[20]
+			},
+			width: {
+				note: spacing[64]
 			}
 		}
 	},

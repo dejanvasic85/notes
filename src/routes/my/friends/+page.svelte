@@ -193,7 +193,8 @@
 				</div>
 			</div>
 		</div>
-	{:catch error}
-		<p class="text-red-500">{error.message}</p>
+	{:catch}
+		<p class="text-error" role="alert">There was a problem loading your friends.</p>
+		<Button onclick={() => window.location.reload()}>Retry</Button>
 	{/await}
 </div>
