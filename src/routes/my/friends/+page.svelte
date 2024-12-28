@@ -123,9 +123,9 @@
 			</div>
 			<div use:melt={$content(tabs.friends)} class="mt-4">
 				<div class="flex flex-col gap-4 xl:w-1/2">
-					<LinkButton variant="primary" className="self-end" href="/my/friends/add"
-						>Add friend</LinkButton
-					>
+					<div class="flex justify-end">
+						<LinkButton variant="primary" href="/my/friends/add">Add friend</LinkButton>
+					</div>
 
 					{#if data.friends.length && data.pendingSentInvites.length === 0}
 						<p>No friends yet</p>

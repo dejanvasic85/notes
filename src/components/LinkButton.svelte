@@ -7,13 +7,12 @@
 		children: Snippet<[]>;
 		href: string;
 		variant: Variant;
-		className?: string;
 	};
 
-	const { children, href, variant = 'primary', className }: Props = $props();
+	const { children, href, variant = 'primary' }: Props = $props();
 	const buttonClass = buildButtonClass(variant, false);
 </script>
 
-<a {href} class="{buttonClass} {className}">
+<a {href} class={buttonClass}>
 	{@render children()}
 </a>

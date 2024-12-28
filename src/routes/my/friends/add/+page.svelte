@@ -29,6 +29,8 @@
 		{#if formError}
 			<p class="mt-2 text-sm text-red-600 dark:text-red-500">Email is required</p>
 		{/if}
-		<Button type="submit" className="self-end">Send invite</Button>
+		<div class="flex justify-end">
+			<Button type="submit">Send invite</Button>
+		</div>
 	</div>
 </form>

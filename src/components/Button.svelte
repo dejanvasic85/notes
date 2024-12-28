@@ -7,7 +7,6 @@
 		children: Snippet<[]>;
 		variant?: Variant;
 		rounded?: boolean;
-		className?: string;
 		type?: 'button' | 'submit' | 'reset';
 		label?: string;
 		onclick?: () => void;
@@ -17,7 +16,6 @@
 		children,
 		variant = 'primary',
 		rounded,
-		className,
 		type = 'button',
 		label = '',
 		onclick
@@ -26,6 +24,6 @@
 	const buttonClass = buildButtonClass(variant, rounded);
 </script>
 
-<button {type} class="{buttonClass} {className}" {onclick} aria-label={label}>
+<button {type} class={buttonClass} {onclick} aria-label={label}>
 	{@render children()}
 </button>
