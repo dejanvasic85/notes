@@ -67,12 +67,15 @@
 	ondragenter={handleDragEnter}
 	ondragleave={handleDragLeave}
 >
-	<div class="rounded-lg bg-slate-500" class:hidden={isDraggable && dragOverDepth === 0}></div>
+	<div
+		class="rounded-lg bg-slate-400 dark:bg-darkHover"
+		class:hidden={isDraggable && dragOverDepth === 0}
+	></div>
 	<div
 		id={note.id}
 		aria-label={`Edit note ${index + 1}`}
 		class="h-note w-full overflow-hidden rounded-lg p-4 lg:w-note {className} select-none hover:ring-2 dark:hover:ring-darkText"
-		class:rotate-6={isDragging}
+		class:rotate-3={isDragging}
 		tabindex={index}
 		role="button"
 		draggable={isDraggable}

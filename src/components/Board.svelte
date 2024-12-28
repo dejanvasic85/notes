@@ -112,17 +112,22 @@
 	/>
 {/if}
 
-<div class="flex flex-wrap items-stretch gap-6" role="list">
-	{#each notes as note, index}
-		<Note
-			{note}
-			{index}
-			isDraggable={true}
-			onclick={() => handleEdit(note.id)}
-			ondropped={handleDrop}
-		/>
-	{/each}
-</div>
+{#if notes.length === 0}
+	<p>Nothing to see here yet! Go on, create a note.</p>
+{:else}
+	<div class="flex flex-wrap items-stretch gap-6" role="list">
+		{#each notes as note, index}
+			<Note
+				{note}
+				{index}
+				isDraggable={true}
+				onclick={() => handleEdit(note.id)}
+				ondropped={handleDrop}
+			/>
+		{/each}
+		<!-- <div class="h-note w-note rounded-lg bg-slate-400 dark:bg-darkHover"></div> -->
+	</div>
+{/if}
 
 {#if sharedNotes.length > 0}
 	<div class="mt-8 pl-10">
