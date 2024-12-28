@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { dropzone, type DraggableData } from '$lib/draggable';
 	import type { Friend, NoteOrdered, SharedNote, ToggleFriendShare } from '$lib/types';
 
 	import Note from './Note.svelte';
@@ -68,8 +67,10 @@
 		}
 	}
 
-	function handleDrop(toIndex: number, { index }: DraggableData) {
-		onreorder({ fromIndex: index, toIndex });
+	function handleDrop(toIndex: number, sourceIndex: number) {
+		if (sourceIndex !== toIndex) {
+			onreorder({ fromIndex: sourceIndex, toIndex });
+		}
 	}
 
 	let showModal = $derived(!!selectedNote?.id || !!selectedSharedNote?.id);
@@ -111,13 +112,15 @@
 	/>
 {/if}
 
-<div class="flex flex-wrap items-stretch gap-2">
+<div class="flex flex-wrap items-stretch gap-6" role="list">
 	{#each notes as note, index}
-		<div
-			class="dropzone block h-4 w-full lg:h-note lg:w-4"
-			use:dropzone={{ onDropped: (args) => handleDrop(index, args) }}
-		></div>
-		<Note {note} {index} isDraggable={true} onclick={() => handleEdit(note.id)} />
+		<Note
+			{note}
+			{index}
+			isDraggable={true}
+			onclick={() => handleEdit(note.id)}
+			ondropped={handleDrop}
+		/>
 	{/each}
 </div>
 
@@ -136,13 +139,3 @@
 		{/each}
 	</div>
 {/if}
-
-<style type="text/postcss">
-	.dropzone {
-		content: '';
-	}
-
-	:global(.droppable) {
-		@apply rounded-md bg-pink-500;
-	}
-</style>
