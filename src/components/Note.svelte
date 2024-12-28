@@ -60,14 +60,14 @@
 </script>
 
 <div
-	class="grid {dragOverDepth > 0 ? 'grid-rows-2' : ''} w-full gap-2 lg:w-note"
+	class="grid {isDraggable && dragOverDepth > 0 ? 'grid-rows-2' : ''} w-full gap-2 lg:w-note"
 	role="listitem"
 	ondragover={handleDragOver}
 	ondrop={handleDrop}
 	ondragenter={handleDragEnter}
 	ondragleave={handleDragLeave}
 >
-	<div class="rounded-lg bg-slate-500" class:hidden={dragOverDepth === 0}></div>
+	<div class="rounded-lg bg-slate-500" class:hidden={isDraggable && dragOverDepth === 0}></div>
 	<div
 		id={note.id}
 		aria-label={`Edit note ${index + 1}`}
