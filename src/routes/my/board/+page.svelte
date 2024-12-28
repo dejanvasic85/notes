@@ -210,7 +210,7 @@
 
 <div>
 	{#await data.boardPromise}
-		<div class="flex gap-6">
+		<div class="flex flex-col gap-6 lg:flex-row">
 			<Skeleton height="h-note" width="w-note" />
 			<Skeleton height="h-note" width="w-note" />
 			<Skeleton height="h-note" width="w-note" />

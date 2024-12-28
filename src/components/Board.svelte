@@ -114,7 +114,7 @@
 <div class="flex flex-wrap items-stretch gap-2">
 	{#each notes as note, index}
 		<div
-			class="dropzone block h-4 w-full md:h-note md:w-4"
+			class="dropzone block h-4 w-full lg:h-note lg:w-4"
 			use:dropzone={{ onDropped: (args) => handleDrop(index, args) }}
 		></div>
 		<Note {note} {index} isDraggable={true} onclick={() => handleEdit(note.id)} />
