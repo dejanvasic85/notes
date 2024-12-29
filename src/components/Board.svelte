@@ -6,6 +6,7 @@
 	import NoteViewer from './NoteViewer.svelte';
 	import NoteDropzone from './NoteDropzone.svelte';
 	import NoteContainer from './NoteContainer.svelte';
+	import NoteList from './NoteList.svelte';
 
 	type Props = {
 		notes: NoteOrdered[];
@@ -117,7 +118,7 @@
 {#if notes.length === 0}
 	<p>Nothing to see here yet! Go on, create a note.</p>
 {:else}
-	<div class="flex flex-wrap items-stretch gap-6" role="list">
+	<NoteList>
 		{#each notes as note, index}
 			<NoteContainer>
 				<NoteDropzone {index} ondropped={handleDrop}>
@@ -125,14 +126,14 @@
 				</NoteDropzone>
 			</NoteContainer>
 		{/each}
-	</div>
+	</NoteList>
 {/if}
 
 {#if sharedNotes.length > 0}
 	<div class="mt-8 pl-10">
 		<h1 class="text-2xl">Shared notes</h1>
 	</div>
-	<div class="flex flex-wrap items-stretch gap-6">
+	<NoteList>
 		{#each sharedNotes as sharedNote, index}
 			<NoteContainer>
 				<Note
@@ -143,5 +144,5 @@
 				/>
 			</NoteContainer>
 		{/each}
-	</div>
+	</NoteList>
 {/if}
