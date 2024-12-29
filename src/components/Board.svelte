@@ -4,6 +4,8 @@
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
 	import NoteViewer from './NoteViewer.svelte';
+	import NoteDropzone from './NoteDropzone.svelte';
+	import NoteContainer from './NoteContainer.svelte';
 
 	type Props = {
 		notes: NoteOrdered[];
@@ -117,15 +119,12 @@
 {:else}
 	<div class="flex flex-wrap items-stretch gap-6" role="list">
 		{#each notes as note, index}
-			<Note
-				{note}
-				{index}
-				isDraggable={true}
-				onclick={() => handleEdit(note.id)}
-				ondropped={handleDrop}
-			/>
+			<NoteContainer>
+				<NoteDropzone {index} ondropped={handleDrop}>
+					<Note {note} {index} isDraggable={true} onclick={() => handleEdit(note.id)} />
+				</NoteDropzone>
+			</NoteContainer>
 		{/each}
-		<!-- <div class="h-note w-note rounded-lg bg-slate-400 dark:bg-darkHover"></div> -->
 	</div>
 {/if}
 
@@ -135,12 +134,14 @@
 	</div>
 	<div class="flex flex-wrap items-stretch gap-6">
 		{#each sharedNotes as sharedNote, index}
-			<Note
-				note={sharedNote}
-				{index}
-				isDraggable={false}
-				onclick={() => handleSharedNoteSelected(sharedNote.id)}
-			/>
+			<NoteContainer>
+				<Note
+					note={sharedNote}
+					{index}
+					isDraggable={false}
+					onclick={() => handleSharedNoteSelected(sharedNote.id)}
+				/>
+			</NoteContainer>
 		{/each}
 	</div>
 {/if}
