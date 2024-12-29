@@ -75,7 +75,7 @@
 	}
 </script>
 
-<svelte:window on:resize={handleResize} />
+<svelte:window onresize={handleResize} />
 
 {#if $open}
 	<div use:melt={$portalled} class="mx-4">

@@ -23,7 +23,7 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeyDown} />
+<svelte:window onkeydown={handleKeyDown} />
 
 <Dialog bind:show={showModal} colour={noteColour}>
 	{#snippet header()}
