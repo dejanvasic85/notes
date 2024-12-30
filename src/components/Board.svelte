@@ -76,7 +76,6 @@
 		}
 	}
 
-	let showModal = $derived(!!selectedNote?.id || !!selectedSharedNote?.id);
 	let selectedNoteFriends = $derived(
 		friends.map((f) => {
 			const editor = selectedNote?.editors?.find((e) => e.userId === f.id);
@@ -94,7 +93,6 @@
 
 {#if selectedNote}
 	<NoteEditor
-		{showModal}
 		{enableSharing}
 		{ondeletenote}
 		note={selectedNote}
@@ -108,7 +106,6 @@
 
 {#if selectedSharedNote}
 	<NoteViewer
-		{showModal}
 		noteHtmlText={selectedSharedNote.text}
 		noteColour={selectedSharedNote.colour}
 		onclose={() => handleModalClose(selectedSharedNote.id)}

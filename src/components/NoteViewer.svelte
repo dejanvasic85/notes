@@ -6,11 +6,10 @@
 	type Props = {
 		noteHtmlText: string;
 		noteColour: string | null;
-		showModal: boolean;
 		onclose: () => void;
 	};
 
-	let { noteHtmlText, noteColour, showModal = $bindable(false), onclose }: Props = $props();
+	let { noteHtmlText, noteColour, onclose }: Props = $props();
 
 	const handleClose = () => {
 		onclose();
@@ -25,7 +24,7 @@
 
 <svelte:window onkeydown={handleKeyDown} />
 
-<Dialog bind:show={showModal} colour={noteColour}>
+<Dialog show={true} colour={noteColour}>
 	{#snippet header()}
 		<div class="px-2 pt-2">
 			<div class="flex justify-between">

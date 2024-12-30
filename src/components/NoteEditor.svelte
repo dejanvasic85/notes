@@ -13,7 +13,6 @@
 	type Props = {
 		enableSharing?: boolean;
 		note: NoteOrdered;
-		showModal: boolean;
 		friends: FriendSelection[];
 		onclose: () => void;
 		ondeletenote: (params: { note: NoteOrdered }) => void;
@@ -25,7 +24,6 @@
 	let {
 		enableSharing = false,
 		note,
-		showModal = false,
 		friends = [],
 		onclose,
 		ondeletenote,
@@ -107,7 +105,7 @@
 	};
 </script>
 
-<Dialog show={showModal} colour={note.colour} onopen={handleModalOpen}>
+<Dialog show={true} colour={note.colour} onopen={handleModalOpen}>
 	{#snippet header()}
 		<div class="px-2 pt-2">
 			<div class="flex justify-between">
