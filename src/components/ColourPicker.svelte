@@ -34,7 +34,7 @@
 
 <div use:melt={$trigger}>
 	<Button variant="ghost">
-		<Icon icon="paintBrush" title="Choose colour" fill="none" />
+		<Icon icon="paint-brush" title="Choose colour" fill="none" />
 	</Button>
 </div>
 {#if $open}

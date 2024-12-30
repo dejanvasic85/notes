@@ -17,8 +17,10 @@
 	import { tryFetch, MaybeType } from '$lib/fetch';
 
 	import Board from '$components/Board.svelte';
-	import Skeleton from '$components/Skeleton.svelte';
 	import Button from '$components/Button.svelte';
+	import NoteList from '$components/NoteList.svelte';
+	import NoteContainer from '$components/NoteContainer.svelte';
+	import Skeleton from '$components/Skeleton.svelte';
 
 	let { data } = $props();
 	let boardId: string = $state('');
@@ -57,10 +59,8 @@
 
 	$effect(() => {
 		const createNote = async () => {
-			const id = await untrack(() => handleCreate());
-			goto(`/my/board?id=${id}`);
+			await untrack(() => handleCreate((id) => goto(`/my/board?id=${id}`)));
 		};
-
 		if (isCreating) {
 			createNote();
 		}
@@ -74,11 +74,12 @@
 		goto('/my/board');
 	}
 
-	async function handleCreate() {
+	async function handleCreate(onCreated: (id: string) => void) {
 		const id = generateId('nid');
 		const newNote: Note = { id, text: '', textPlain: '', boardId, colour: null };
 		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
 		localNoteOrder = [...localNoteOrder, id];
+		onCreated(id);
 
 		const resp = await tryFetch<Note>('/api/notes', {
 			method: 'POST',
@@ -201,6 +202,7 @@
 			// todo: show an error
 		}
 	}
+	const numberOfSkeletons = 4;
 </script>
 
 <svelte:head>
@@ -210,11 +212,14 @@
 
 <div>
 	{#await data.boardPromise}
-		<div class="grid gap-4">
-			<Skeleton height="h-note" />
-			<Skeleton height="h-note" />
-			<Skeleton height="h-note" />
-		</div>
+		<NoteList>
+			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+			{#each Array.from({ length: numberOfSkeletons }) as _}
+				<NoteContainer>
+					<Skeleton />
+				</NoteContainer>
+			{/each}
+		</NoteList>
 	{:then}
 		<Board
 			{selectedNote}
@@ -231,7 +236,7 @@
 			ontogglefriend={handleToggleFriendShare}
 		/>
 	{:catch}
-		<p class="text-red-500" role="alert">There was a problem loading your board</p>
+		<p class="text-error" role="alert">There was a problem loading your board</p>
 		<Button onclick={() => window.location.reload()}>Retry</Button>
 	{/await}
 </div>

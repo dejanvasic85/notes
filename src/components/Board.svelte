@@ -1,10 +1,12 @@
 <script lang="ts">
-	import { dropzone, type DraggableData } from '$lib/draggable';
 	import type { Friend, NoteOrdered, SharedNote, ToggleFriendShare } from '$lib/types';
 
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
 	import NoteViewer from './NoteViewer.svelte';
+	import NoteDropzone from './NoteDropzone.svelte';
+	import NoteContainer from './NoteContainer.svelte';
+	import NoteList from './NoteList.svelte';
 
 	type Props = {
 		notes: NoteOrdered[];
@@ -68,11 +70,12 @@
 		}
 	}
 
-	function handleDrop(toIndex: number, { index }: DraggableData) {
-		onreorder({ fromIndex: index, toIndex });
+	function handleDrop(toIndex: number, sourceIndex: number) {
+		if (sourceIndex !== toIndex) {
+			onreorder({ fromIndex: sourceIndex, toIndex });
+		}
 	}
 
-	let showModal = $derived(!!selectedNote?.id || !!selectedSharedNote?.id);
 	let selectedNoteFriends = $derived(
 		friends.map((f) => {
 			const editor = selectedNote?.editors?.find((e) => e.userId === f.id);
@@ -90,7 +93,6 @@
 
 {#if selectedNote}
 	<NoteEditor
-		{showModal}
 		{enableSharing}
 		{ondeletenote}
 		note={selectedNote}
@@ -104,45 +106,40 @@
 
 {#if selectedSharedNote}
 	<NoteViewer
-		{showModal}
 		noteHtmlText={selectedSharedNote.text}
 		noteColour={selectedSharedNote.colour}
 		onclose={() => handleModalClose(selectedSharedNote.id)}
 	/>
 {/if}
 
-<div class="flex flex-wrap items-stretch gap-2">
-	{#each notes as note, index}
-		<div
-			class="dropzone block h-4 w-full md:h-note md:w-4"
-			use:dropzone={{ onDropped: (args) => handleDrop(index, args) }}
-		></div>
-		<Note {note} {index} isDraggable={true} onclick={() => handleEdit(note.id)} />
-	{/each}
-</div>
-
-{#if sharedNotes.length > 0}
-	<div class="mt-8 pl-10">
-		<h1 class="text-2xl">Shared notes</h1>
-	</div>
-	<div class="flex flex-wrap items-stretch gap-6">
-		{#each sharedNotes as sharedNote, index}
-			<Note
-				note={sharedNote}
-				{index}
-				isDraggable={false}
-				onclick={() => handleSharedNoteSelected(sharedNote.id)}
-			/>
+{#if notes.length === 0}
+	<p>Nothing to see here yet! Go on, create a note.</p>
+{:else}
+	<NoteList>
+		{#each notes as note, index}
+			<NoteContainer>
+				<NoteDropzone {index} ondropped={handleDrop}>
+					<Note {note} {index} isDraggable={true} onclick={() => handleEdit(note.id)} />
+				</NoteDropzone>
+			</NoteContainer>
 		{/each}
-	</div>
+	</NoteList>
 {/if}
 
-<style type="text/postcss">
-	.dropzone {
-		content: '';
-	}
-
-	:global(.droppable) {
-		@apply rounded-md bg-pink-500;
-	}
-</style>
+{#if sharedNotes.length > 0}
+	<div class="my-6">
+		<h1 class="text-2xl">Shared notes</h1>
+	</div>
+	<NoteList>
+		{#each sharedNotes as sharedNote, index}
+			<NoteContainer>
+				<Note
+					note={sharedNote}
+					{index}
+					isDraggable={false}
+					onclick={() => handleSharedNoteSelected(sharedNote.id)}
+				/>
+			</NoteContainer>
+		{/each}
+	</NoteList>
+{/if}

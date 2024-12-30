@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { createDialog, melt } from '@melt-ui/svelte';
 	import { scale, fade } from 'svelte/transition';
-	import type { Snippet } from 'svelte';
+	import { type Snippet, onMount } from 'svelte';
 
 	import { type Colour, colours } from '$lib/colours';
+	import { getDialogState } from '$lib/state/dialogState.svelte';
 
 	type Props = {
 		header: Snippet<[]>;
@@ -36,11 +37,17 @@
 		states: { open }
 	} = dialog;
 
-	$effect(() => {
+	const dialogState = getDialogState();
+
+	onMount(() => {
 		$open = show;
-		if (show) {
-			onopen?.();
-		}
+		onopen?.();
+		dialogState.showDialog();
+
+		return () => {
+			console.log('cleanup');
+			dialogState.closeDialog();
+		};
 	});
 
 	$effect(() => {
@@ -75,7 +82,7 @@
 	}
 </script>
 
-<svelte:window on:resize={handleResize} />
+<svelte:window onresize={handleResize} />
 
 {#if $open}
 	<div use:melt={$portalled} class="mx-4">

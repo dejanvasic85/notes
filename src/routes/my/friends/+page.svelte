@@ -83,10 +83,18 @@
 <div class="mt-4">
 	{#await data.friendsPageModel}
 		<div class="grid gap-4">
-			<Skeleton height="h-friend" />
-			<Skeleton height="h-friend" />
-			<Skeleton height="h-friend" />
-			<Skeleton height="h-friend" />
+			<div class="h-friend w-full">
+				<Skeleton />
+			</div>
+			<div class="h-friend w-full">
+				<Skeleton />
+			</div>
+			<div class="h-friend w-full">
+				<Skeleton />
+			</div>
+			<div class="h-friend w-full">
+				<Skeleton />
+			</div>
 		</div>
 	{:then data}
 		<div use:melt={$tabRoot}>
@@ -123,9 +131,9 @@
 			</div>
 			<div use:melt={$content(tabs.friends)} class="mt-4">
 				<div class="flex flex-col gap-4 xl:w-1/2">
-					<LinkButton variant="primary" className="self-end" href="/my/friends/add"
-						>Add friend</LinkButton
-					>
+					<div class="flex justify-end">
+						<LinkButton variant="primary" href="/my/friends/add">Add friend</LinkButton>
+					</div>
 
 					{#if data.friends.length && data.pendingSentInvites.length === 0}
 						<p>No friends yet</p>
@@ -193,7 +201,8 @@
 				</div>
 			</div>
 		</div>
-	{:catch error}
-		<p class="text-red-500">{error.message}</p>
+	{:catch}
+		<p class="text-error" role="alert">There was a problem loading your friends.</p>
+		<Button onclick={() => window.location.reload()}>Retry</Button>
 	{/await}
 </div>
