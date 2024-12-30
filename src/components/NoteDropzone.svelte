@@ -40,7 +40,7 @@
 </script>
 
 <div
-	class="grid h-full w-full gap-2 lg:w-note"
+	class="h-full w-full lg:w-note"
 	role="listitem"
 	ondragover={handleDragOver}
 	ondrop={handleDrop}
