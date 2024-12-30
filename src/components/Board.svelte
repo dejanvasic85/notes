@@ -130,7 +130,7 @@
 {/if}
 
 {#if sharedNotes.length > 0}
-	<div class="mt-8 pl-10">
+	<div class="my-6">
 		<h1 class="text-2xl">Shared notes</h1>
 	</div>
 	<NoteList>
