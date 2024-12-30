@@ -17,8 +17,10 @@
 	import { tryFetch, MaybeType } from '$lib/fetch';
 
 	import Board from '$components/Board.svelte';
-	import Skeleton from '$components/Skeleton.svelte';
 	import Button from '$components/Button.svelte';
+	import NoteList from '$components/NoteList.svelte';
+	import NoteContainer from '$components/NoteContainer.svelte';
+	import Skeleton from '$components/Skeleton.svelte';
 
 	let { data } = $props();
 	let boardId: string = $state('');
@@ -200,6 +202,7 @@
 			// todo: show an error
 		}
 	}
+	const numberOfSkeletons = 4;
 </script>
 
 <svelte:head>
@@ -209,11 +212,14 @@
 
 <div>
 	{#await data.boardPromise}
-		<div class="flex flex-col gap-6 lg:flex-row">
-			<Skeleton height="h-note" width="w-note" />
-			<Skeleton height="h-note" width="w-note" />
-			<Skeleton height="h-note" width="w-note" />
-		</div>
+		<NoteList>
+			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+			{#each Array.from({ length: numberOfSkeletons }) as _}
+				<NoteContainer>
+					<Skeleton />
+				</NoteContainer>
+			{/each}
+		</NoteList>
 	{:then}
 		<Board
 			{selectedNote}

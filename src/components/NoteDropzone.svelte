@@ -51,6 +51,6 @@
 		{@render children()}
 	{:else}
 		<!-- Drop -->
-		<div class="h-full w-full rounded-lg bg-slate-400 dark:bg-darkHover"></div>
+		<div class="h-full w-full rounded-lg bg-slate-300 dark:bg-darkHover"></div>
 	{/if}
 </div>

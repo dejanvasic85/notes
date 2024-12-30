@@ -18,7 +18,7 @@
 <div class="flex min-h-screen flex-col md:grid md:grid-cols-layout md:grid-rows-layout">
 	<!-- Header -->
 	<header
-		class="sticky top-0 flex h-20 items-center justify-between border-b bg-white px-4 py-2 md:col-second dark:border-b-darkBorder dark:bg-dark"
+		class="sticky top-0 z-10 flex h-20 items-center justify-between border-b bg-white px-4 py-2 md:col-second dark:border-b-darkBorder dark:bg-dark"
 	>
 		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
 		{#if userPicture}

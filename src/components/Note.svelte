@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Icon from './Icon.svelte';
 	import { getNoteCssClass } from '$lib/colours';
 	import type { NoteOrdered, SharedNote } from '$lib/types';
 
@@ -11,6 +12,7 @@
 
 	let { note, index, isDraggable = true, onclick }: Props = $props();
 	let isDragging = $state(false);
+	let isHovering = $state(false);
 
 	const className = $derived(
 		getNoteCssClass({
@@ -31,7 +33,7 @@
 <div
 	id={note.id}
 	aria-label={`Edit note ${index + 1}`}
-	class="h-full w-full overflow-hidden rounded-lg p-4 {className} select-none hover:ring-2 dark:hover:ring-darkText"
+	class="h-full w-full overflow-hidden rounded-lg p-4 {className} relative select-none hover:ring-2 dark:hover:ring-darkText"
 	class:rotate-3={isDragging}
 	tabindex={index}
 	role="button"
@@ -40,6 +42,11 @@
 	onkeypress={onclick}
 	ondragstart={handleDragStart}
 	ondragend={handleDragEnd}
+	onmouseenter={() => (isHovering = true)}
+	onmouseleave={() => (isHovering = false)}
 >
+	<div class="absolute right-2 top-2 text-gray-700 {isHovering ? '' : 'lg:hidden'}">
+		<Icon icon="squares-box" size={20} fill="none" title="Drag to reorder" />
+	</div>
 	{@html note.text}
 </div>

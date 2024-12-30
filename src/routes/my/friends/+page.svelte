@@ -83,10 +83,18 @@
 <div class="mt-4">
 	{#await data.friendsPageModel}
 		<div class="grid gap-4">
-			<Skeleton height="h-friend" />
-			<Skeleton height="h-friend" />
-			<Skeleton height="h-friend" />
-			<Skeleton height="h-friend" />
+			<div class="h-friend w-full">
+				<Skeleton />
+			</div>
+			<div class="h-friend w-full">
+				<Skeleton />
+			</div>
+			<div class="h-friend w-full">
+				<Skeleton />
+			</div>
+			<div class="h-friend w-full">
+				<Skeleton />
+			</div>
 		</div>
 	{:then data}
 		<div use:melt={$tabRoot}>
