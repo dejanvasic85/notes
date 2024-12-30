@@ -45,8 +45,10 @@
 	onmouseenter={() => (isHovering = true)}
 	onmouseleave={() => (isHovering = false)}
 >
-	<div class="absolute right-2 top-2 text-gray-700 {isHovering ? '' : 'lg:hidden'}">
-		<Icon icon="squares-box" size={20} fill="none" title="Drag to reorder" />
-	</div>
+	{#if isDraggable}
+		<div class="absolute right-2 top-2 text-gray-700 {isHovering ? '' : 'lg:hidden'}">
+			<Icon icon="squares-box" size={20} fill="none" title="Drag to reorder" />
+		</div>
+	{/if}
 	{@html note.text}
 </div>

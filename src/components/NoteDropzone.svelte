@@ -50,7 +50,7 @@
 	{#if children && dragOverDepth === 0}
 		{@render children()}
 	{:else}
-		<!-- Drop -->
-		<div class="h-full w-full rounded-lg bg-slate-300 dark:bg-darkHover"></div>
+		<!-- Drop guide -->
+		<div class="h-full w-full rounded-lg border-2 border-dashed"></div>
 	{/if}
 </div>
