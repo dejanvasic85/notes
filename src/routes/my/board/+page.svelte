@@ -15,6 +15,7 @@
 	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes';
 	import { generateId } from '$lib/identityGenerator';
 	import { tryFetch, MaybeType } from '$lib/fetch';
+	import { getCreatingState } from '$lib/state/createState.svelte';
 
 	import Board from '$components/Board.svelte';
 	import Button from '$components/Button.svelte';
@@ -22,6 +23,7 @@
 	import NoteContainer from '$components/NoteContainer.svelte';
 	import Skeleton from '$components/Skeleton.svelte';
 
+	const numberOfSkeletons = 4;
 	let { data } = $props();
 	let boardId: string = $state('');
 	let localNoteOrder: string[] = $state([]);
@@ -33,7 +35,6 @@
 
 	let search = $derived(new URL(page.url).searchParams);
 	let selectedId = $derived(search.get('id'));
-	let isCreating = $derived(search.get('new'));
 
 	$effect(() => {
 		const loadData = async () => {
@@ -57,12 +58,14 @@
 			: null;
 	});
 
+	const creatingState = getCreatingState();
 	$effect(() => {
 		const createNote = async () => {
 			await untrack(() => handleCreate((id) => goto(`/my/board?id=${id}`)));
 		};
-		if (isCreating) {
+		if (creatingState.isCreating) {
 			createNote();
+			creatingState.setIsCreating(false);
 		}
 	});
 
@@ -202,7 +205,6 @@
 			// todo: show an error
 		}
 	}
-	const numberOfSkeletons = 4;
 </script>
 
 <svelte:head>

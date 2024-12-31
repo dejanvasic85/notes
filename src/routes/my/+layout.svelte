@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-
 	import ProfileMenu from '$components/ProfileMenu.svelte';
 	import Menu from '$components/Menu.svelte';
 	import logo from '$lib/images/notes-main.png';
 	import { getDialogState } from '$lib/state/dialogState.svelte';
+	import { getCreatingState } from '$lib/state/createState.svelte';
 
 	let { children, data } = $props();
 	const layoutState = getDialogState();
+	const creatingState = getCreatingState();
 
 	function handleAddNote() {
-		goto('/my/board?new=true');
+		creatingState.setIsCreating(true);
 	}
 
 	const userPicture = data.userData?.picture;
