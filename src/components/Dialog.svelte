@@ -45,7 +45,6 @@
 		dialogState.showDialog();
 
 		return () => {
-			console.log('cleanup');
 			dialogState.closeDialog();
 		};
 	});

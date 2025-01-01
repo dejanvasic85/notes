@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	import partition from 'lodash/partition';
-
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
@@ -11,70 +9,29 @@
 	import Icon from '$components/Icon.svelte';
 	import Footer from '$components/Footer.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
-
 	import logo from '$lib/images/notes-main.png';
-	import { generateId } from '$lib/identityGenerator';
-
-	import { reorderNotes } from '$lib/notes';
 	import type { Note, NoteOrdered } from '$lib/types';
-
-	import { localBoard, orderedNotes } from '$lib/noteStore';
+	import { getBoardState } from '$lib/state/boardState.svelte';
 
 	let { data } = $props();
+	const boardState = getBoardState();
 
 	onMount(() => {
-		const id = generateId('nid');
-		localBoard.update(() => ({
-			id: generateId('bid'),
-			userId: '',
-			noteOrder: [id],
-			notes: [
-				{
-					id,
-					text: 'Edit me.',
-					textPlain: 'Edit me.',
-					boardId: $localBoard.id!,
-					colour: 'indigo'
-				}
-			]
-		}));
+		boardState.reset();
+		boardState.createNewNote('Click here to edit me! You can also drag to reorder 😊');
 	});
 
 	function handleCreateNote() {
-		const id = generateId('nid');
-		localBoard.update((current) => {
-			return {
-				...current,
-				noteOrder: [...current.noteOrder, id],
-				notes: [
-					...current.notes,
-					{ id, text: `New note`, textPlain: `New note`, boardId: $localBoard.id!, colour: null }
-				]
-			};
-		});
-
-		goto(`/?id=${id}`);
+		const newNote = boardState.createNewNote();
+		goto(`/?id=${newNote.id}`);
 	}
 
 	function handleUpdateNote({ note }: { note: NoteOrdered }) {
-		localBoard.update((state) => {
-			const [, otherNotes] = partition(state.notes, (n) => n.id === note.id);
-			return {
-				...state,
-				noteOrder: [...state.noteOrder],
-				notes: [...otherNotes, { ...note }]
-			};
-		});
+		boardState.updateNote(note);
 	}
 
 	function handleDeleteNote({ note }: { note: Note }) {
-		localBoard.update((state) => {
-			return {
-				...state,
-				noteOrder: [...state.noteOrder.filter((id) => id !== note.id)],
-				notes: [...state.notes.filter((n) => n.id !== note.id)]
-			};
-		});
+		boardState.deleteNoteById(note.id);
 		handleClose();
 	}
 
@@ -87,18 +44,12 @@
 	}
 
 	function handleReorder({ fromIndex, toIndex }: { fromIndex: number; toIndex: number }) {
-		localBoard.update((state) => {
-			const newOrder = reorderNotes(state.noteOrder, fromIndex, toIndex);
-			return {
-				...state,
-				noteOrder: newOrder
-			};
-		});
+		boardState.reorderNotes(fromIndex, toIndex);
 	}
 
 	let search = $derived(new URL(page.url).searchParams);
 	let selectedId = $derived(search.get('id'));
-	let selectedNote = $derived($orderedNotes.find((n) => n.id === selectedId));
+	let selectedNote = $derived(boardState.notes.find((n) => n.id === selectedId));
 </script>
 
 <svelte:head>
@@ -181,7 +132,7 @@
 				</Button>
 			</div>
 			<Board
-				notes={$orderedNotes}
+				notes={boardState.notes}
 				{selectedNote}
 				selectedSharedNote={null}
 				onclosenote={handleClose}

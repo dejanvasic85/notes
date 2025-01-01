@@ -4,11 +4,11 @@
 	import { page } from '$app/stores';
 
 	type Props = {
-		onAddNote: () => void;
+		oncreatenote: () => void;
 		layout: 'horizontal' | 'vertical';
 	};
 
-	let { onAddNote, layout }: Props = $props();
+	let { oncreatenote, layout }: Props = $props();
 	const iconSize = layout === 'horizontal' ? 36 : 32;
 </script>
 
@@ -24,7 +24,7 @@
 			fill={$page.url.pathname === '/my/board' ? 'currentColor' : 'none'}
 		/>
 	</a>
-	<Button onclick={onAddNote} variant="primary">
+	<Button onclick={oncreatenote} variant="primary">
 		<Icon icon="plus-circle" size={iconSize} fill="none" />
 	</Button>
 	<a
