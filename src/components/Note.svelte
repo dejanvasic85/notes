@@ -33,8 +33,9 @@
 <div
 	id={note.id}
 	aria-label={`Edit note ${index + 1}`}
-	class="h-full w-full overflow-hidden rounded-lg p-6 {className} relative select-none hover:ring-2 dark:hover:ring-darkText"
-	class:rotate-3={isDragging}
+	class="h-full w-full overflow-hidden rounded-lg p-6 {className} relative select-none hover:cursor-pointer hover:ring-2 dark:hover:ring-darkText {isDragging
+		? 'opacity-50'
+		: ''}"
 	tabindex={index}
 	role="button"
 	draggable={isDraggable}
@@ -46,7 +47,7 @@
 	onmouseleave={() => (isHovering = false)}
 >
 	{#if isDraggable}
-		<div class="absolute right-2 top-2 text-gray-700 {isHovering ? '' : 'lg:hidden'}">
+		<div class="absolute right-2 top-2 text-gray-700 {isHovering ? '' : 'md:hidden'}">
 			<Icon icon="squares-box" size={20} fill="none" title="Drag to reorder" />
 		</div>
 	{/if}
