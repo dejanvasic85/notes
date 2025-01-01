@@ -3,13 +3,11 @@
 	import Menu from '$components/Menu.svelte';
 	import logo from '$lib/images/notes-main.png';
 	import { MaybeType, tryFetch } from '$lib/fetch';
-	import { getDialogState } from '$lib/state/dialogState.svelte';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { goto } from '$app/navigation';
 	import Note from '$components/Note.svelte';
 
 	let { children, data } = $props();
-	const layoutState = getDialogState();
 	const boardState = getBoardState();
 
 	async function handleCreateNote() {
@@ -33,9 +31,7 @@
 <div class="flex min-h-screen flex-col md:grid md:grid-cols-layout md:grid-rows-layout">
 	<!-- Header -->
 	<header
-		class="sticky top-0 {layoutState.isDialogOpen
-			? ''
-			: 'z-10'} flex h-20 items-center justify-between border-b bg-white px-4 py-2 md:col-second dark:border-b-darkBorder dark:bg-dark"
+		class="sticky top-0 z-menu flex h-20 items-center justify-between border-b bg-white px-4 py-2 md:col-second dark:border-b-darkBorder dark:bg-dark"
 	>
 		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
 		{#if userPicture}

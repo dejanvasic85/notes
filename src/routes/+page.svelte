@@ -124,7 +124,7 @@
 			</div>
 		</section>
 
-		<div class="container mx-auto mt-24 flex flex-col gap-6 px-20 py-12">
+		<div class="container mx-auto mt-24 flex flex-col gap-6 px-8 py-12">
 			<div>
 				<Button variant="primary" onclick={handleCreateNote}>
 					<Icon icon="plus-circle" fill="none" />

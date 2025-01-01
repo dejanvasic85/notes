@@ -94,12 +94,12 @@ export class BoardState {
 
 const BoardStateKey = Symbol('BoardState');
 
-export function setState() {
+export function setBoardState() {
 	return setContext(BoardStateKey, new BoardState());
 }
 
 export function getBoardState() {
-	return getContext<ReturnType<typeof setState>>(BoardStateKey);
+	return getContext<ReturnType<typeof setBoardState>>(BoardStateKey);
 }
 
 function mapToOrderedNotes(noteOrder: string[], notes: Note[]): NoteOrdered[] {

@@ -2,7 +2,7 @@
 	import { type Snippet } from 'svelte';
 
 	type Props = {
-		children?: Snippet<[]>;
+		children: Snippet<[]>;
 		index: number;
 		ondropped: (toIndex: number, sourceIndex: number) => void;
 	};
@@ -27,7 +27,7 @@
 		event.preventDefault();
 		const sourceIndex = parseInt(event.dataTransfer?.getData('text/plain') ?? '');
 		if (sourceIndex !== index) {
-			dragOverDepth = 0;
+			dragOverDepth -= 1;
 		}
 	}
 
@@ -47,10 +47,13 @@
 	ondragenter={handleDragEnter}
 	ondragleave={handleDragLeave}
 >
-	{#if children && dragOverDepth === 0}
+	<div class="h-full w-full {dragOverDepth > 0 ? 'hidden' : 'block'}">
 		{@render children()}
-	{:else}
-		<!-- Drop guide -->
-		<div class="h-full w-full rounded-lg border-2 border-dashed"></div>
-	{/if}
+	</div>
+	<!-- Drop guide -->
+	<div
+		class="h-full w-full rounded-lg border-2 border-dashed {dragOverDepth === 0
+			? 'hidden'
+			: 'block'}"
+	></div>
 </div>

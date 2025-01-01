@@ -97,8 +97,6 @@
 			boardState.reorderNotes(toIndex, fromIndex);
 		}
 	}
-
-	$inspect(boardState.notes);
 </script>
 
 <svelte:head>
