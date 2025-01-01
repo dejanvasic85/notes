@@ -1,21 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { untrack } from 'svelte';
+	import { onMount } from 'svelte';
 
-	import type {
-		Note,
-		NoteOrdered,
-		NotePatchInput,
-		BoardPatch,
-		Friend,
-		SharedNote,
-		ToggleFriendShare
-	} from '$lib/types';
-	import { getOrderedNotes, updateNote, reorderNotes } from '$lib/notes';
-	import { generateId } from '$lib/identityGenerator';
+	import type { Note, NoteOrdered, SharedNote, ToggleFriendShare } from '$lib/types';
 	import { tryFetch, MaybeType } from '$lib/fetch';
-	import { getCreatingState } from '$lib/state/createState.svelte';
+	import { getBoardState } from '$lib/state/boardState.svelte';
 
 	import Board from '$components/Board.svelte';
 	import Button from '$components/Button.svelte';
@@ -24,49 +14,25 @@
 	import Skeleton from '$components/Skeleton.svelte';
 
 	const numberOfSkeletons = 4;
+	const boardState = getBoardState();
 	let { data } = $props();
-	let boardId: string = $state('');
-	let localNoteOrder: string[] = $state([]);
-	let localNotes: NoteOrdered[] = $state([]);
-	let localSharedNotes: SharedNote[] = $state([]);
-	let friends: Friend[] = $state([]);
 	let selectedNote: NoteOrdered | null = $state(null);
 	let selectedSharedNote: SharedNote | null = $state(null);
 
 	let search = $derived(new URL(page.url).searchParams);
 	let selectedId = $derived(search.get('id'));
 
-	$effect(() => {
-		const loadData = async () => {
-			const result = await data.boardPromise;
-			boardId = result.board.id;
-			localNoteOrder = [...result.board.noteOrder];
-			localNotes = [...getOrderedNotes(result.board.noteOrder, result.board.notes)];
-			localSharedNotes = result.sharedNotes;
-			friends = result.friends;
-		};
-
-		if (!boardId) {
-			loadData();
-		}
+	onMount(() => {
+		data.boardPromise.then((data) => {
+			boardState.setBoard(data.board, data.friends, data.sharedNotes);
+		});
 	});
 
 	$effect(() => {
-		selectedNote = selectedId ? localNotes.find((n) => n.id === selectedId) || null : null;
+		selectedNote = selectedId ? boardState.notes.find((n) => n.id === selectedId) || null : null;
 		selectedSharedNote = selectedId
-			? localSharedNotes.find((n) => n.id === selectedId) || null
+			? boardState.sharedNotes.find((n) => n.id === selectedId) || null
 			: null;
-	});
-
-	const creatingState = getCreatingState();
-	$effect(() => {
-		const createNote = async () => {
-			await untrack(() => handleCreate((id) => goto(`/my/board?id=${id}`)));
-		};
-		if (creatingState.isCreating) {
-			createNote();
-			creatingState.setIsCreating(false);
-		}
 	});
 
 	function handleSelect({ id }: { id: string }) {
@@ -77,134 +43,62 @@
 		goto('/my/board');
 	}
 
-	async function handleCreate(onCreated: (id: string) => void) {
-		const id = generateId('nid');
-		const newNote: Note = { id, text: '', textPlain: '', boardId, colour: null };
-		localNotes = [...localNotes, { ...newNote, order: localNotes.length }];
-		localNoteOrder = [...localNoteOrder, id];
-		onCreated(id);
-
-		const resp = await tryFetch<Note>('/api/notes', {
-			method: 'POST',
-			body: JSON.stringify(newNote)
-		});
-		if (resp.type === MaybeType.Error) {
-			localNotes = [...localNotes.filter((n) => n.id !== id)];
-			goto('/my/board');
-			// todo: show an error
-		}
-
-		return id;
-	}
-
 	async function handleToggleFriendShare({
 		id,
 		friendUserId,
 		noteId,
 		selected
 	}: ToggleFriendShare) {
-		const note = localNotes.find((n) => n.id === noteId);
-		const friend = friends.find((f) => f.id === friendUserId);
-
-		if (!note || !friend) {
-			console.error('note or friend not found');
-			return;
-		}
-
-		// Update local state first
-		const currentEditors = note.editors ?? [];
-		let currentEditor = currentEditors.find((e) => e.id === id);
-		if (currentEditor) {
-			currentEditor.selected = selected;
-			localNotes = [
-				...localNotes.filter((n) => n.id !== noteId),
-				{
-					...note,
-					editors: [...currentEditors.filter((e) => e.id !== currentEditor!.id), currentEditor]
-				}
-			];
-		} else {
-			const newId = generateId('ned');
-			currentEditor = { id: newId, userId: friendUserId, selected, noteId };
-			currentEditors.push(currentEditor);
-			localNotes = [
-				...localNotes.filter((n) => n.id !== noteId),
-				{ ...note, editors: currentEditors }
-			];
-		}
-
+		const noteEditor = boardState.toggleFriendShare({ id, friendUserId, noteId, selected });
 		await tryFetch(
 			`/api/notes/${noteId}/editors`,
 			{
 				method: 'POST',
-				body: JSON.stringify(currentEditor)
+				body: JSON.stringify(noteEditor)
 			},
 			{ shouldParse: false }
 		);
 	}
 
 	async function handleUpdate({ note }: { note: NoteOrdered }) {
-		const original = localNotes.find((n) => n.id === note.id);
-		if (!original) {
-			// todo: show an error
-			return;
-		}
-
-		localNotes = [...updateNote(localNotes, note)];
-		const notePatch: NotePatchInput = {
-			colour: note.colour,
-			text: note.text,
-			textPlain: note.textPlain
-		};
-
+		const [updatedNote, original] = boardState.updateNote(note);
 		const { type } = await tryFetch<Note>(`/api/notes/${note.id}`, {
 			method: 'PATCH',
-			body: JSON.stringify(notePatch)
+			body: JSON.stringify(updatedNote)
 		});
-
 		if (type === MaybeType.Error) {
-			// todo: show an error
-			localNotes = [...updateNote(localNotes, original)];
+			boardState.updateNote(original);
 		}
 	}
 
 	async function handleDelete({ note }: { note: NoteOrdered }) {
-		localNotes = [...localNotes.filter((n) => n.id !== note.id)];
-		localNoteOrder = [...localNoteOrder.filter((id) => id !== note.id)];
-
+		const [deletedNote, index] = boardState.deleteNoteById(note.id);
 		const resp = await tryFetch(
 			`/api/notes/${note.id}`,
 			{ method: 'DELETE' },
 			{ shouldParse: false }
 		);
-
 		if (resp.type === MaybeType.Error) {
-			localNotes = [...localNotes, note];
-			localNoteOrder = [...localNoteOrder, note.id!];
-			// todo: show an error
+			boardState.createNoteAtIndex(index, deletedNote);
 		} else {
 			goto('/my/board');
 		}
 	}
 
 	async function handleReorder({ fromIndex, toIndex }: { fromIndex: number; toIndex: number }) {
-		const noteOrder = reorderNotes(localNoteOrder, fromIndex, toIndex);
-		localNoteOrder = [...noteOrder];
-		localNotes = [...getOrderedNotes(noteOrder, localNotes)];
-		const boardPatch: BoardPatch = { noteOrder };
-
-		const result = await tryFetch<Board>(`/api/board/${boardId}`, {
+		const [noteOrder] = boardState.reorderNotes(fromIndex, toIndex);
+		const boardPatch = { noteOrder };
+		const result = await tryFetch<Board>(`/api/board/${boardState.boardId}`, {
 			method: 'PATCH',
 			body: JSON.stringify(boardPatch)
 		});
-
 		if (result.type === MaybeType.Error) {
-			// revert the local state
-			localNoteOrder = [...reorderNotes(noteOrder, toIndex, fromIndex)];
-			localNotes = [...getOrderedNotes(localNoteOrder, localNotes)];
-			// todo: show an error
+			console.log('Error reordering notes');
+			boardState.reorderNotes(toIndex, fromIndex);
 		}
 	}
+
+	$inspect(boardState.notes);
 </script>
 
 <svelte:head>
@@ -226,10 +120,10 @@
 		<Board
 			{selectedNote}
 			{selectedSharedNote}
-			{friends}
-			notes={localNotes}
+			friends={boardState.friends}
+			notes={boardState.notes}
 			enableSharing={true}
-			sharedNotes={localSharedNotes}
+			sharedNotes={boardState.sharedNotes}
 			onselect={handleSelect}
 			onclosenote={handleClose}
 			onupdatenote={handleUpdate}

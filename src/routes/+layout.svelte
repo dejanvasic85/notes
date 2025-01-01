@@ -1,11 +1,11 @@
 <script lang="ts">
 	import './app.css';
 	import { setDialogState } from '$lib/state/dialogState.svelte';
-	import { setCreatingState } from '$lib/state/createState.svelte';
+	import { setState } from '$lib/state/boardState.svelte';
 
 	let { children } = $props();
 	setDialogState();
-	setCreatingState();
+	setState();
 </script>
 
 {@render children()}
