@@ -38,7 +38,11 @@
 	</Button>
 </div>
 {#if $open}
-	<div class="flex flex-col gap-1 bg-transparent" in:slide={{ duration: 100 }} use:melt={$menu}>
+	<div
+		class="z-dropdown flex flex-col gap-1 bg-transparent"
+		in:slide={{ duration: 100 }}
+		use:melt={$menu}
+	>
 		<div class="block" use:melt={$item}>
 			<button
 				aria-label="No colour"

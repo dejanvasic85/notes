@@ -44,7 +44,7 @@
 	<div
 		use:melt={$menu}
 		in:slide={{ duration: 100 }}
-		class="flex w-80 flex-col gap-1 rounded-lg border bg-white p-2 md:w-96 dark:bg-dark"
+		class="z-dropdown flex w-8 flex-col gap-1 rounded-lg border bg-white p-2 md:w-96 dark:bg-dark"
 	>
 		<a
 			class="flex items-center rounded-lg bg-white p-2 hover:ring-2 dark:bg-dark"

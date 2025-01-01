@@ -47,6 +47,12 @@ export default {
 			},
 			width: {
 				note: spacing[64]
+			},
+			zIndex: {
+				menu: 10,
+				overlay: 20,
+				dialog: 25,
+				dropdown: 30
 			}
 		}
 	},

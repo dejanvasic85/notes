@@ -28,7 +28,7 @@
 
 {#if $open}
 	<div
-		class="menu flex w-32 flex-col justify-between rounded-lg border bg-white dark:border-darkBorder dark:bg-dark"
+		class="menu z-dropdown flex w-32 flex-col justify-between rounded-lg border bg-white dark:border-darkBorder dark:bg-dark"
 		use:melt={$menu}
 		transition:fly={{ duration: 150, y: -10 }}
 	>
