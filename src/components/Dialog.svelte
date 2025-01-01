@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createDialog, melt } from '@melt-ui/svelte';
 	import { scale, fade } from 'svelte/transition';
-	import { type Snippet, onMount } from 'svelte';
+	import { type Snippet } from 'svelte';
 
 	import { type Colour, colours } from '$lib/colours';
 
@@ -36,7 +36,7 @@
 		states: { open }
 	} = dialog;
 
-	onMount(() => {
+	$effect(() => {
 		$open = show;
 		onopen?.();
 	});
@@ -107,11 +107,10 @@
 			</div>
 
 			<!-- footer -->
-			{#if footer}
-				<div>
-					{@render footer()}
-				</div>
-			{/if}
+
+			<div>
+				{@render footer?.()}
+			</div>
 		</div>
 	</div>
 {/if}

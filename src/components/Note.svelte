@@ -33,7 +33,7 @@
 <div
 	id={note.id}
 	aria-label={`Edit note ${index + 1}`}
-	class="h-full w-full overflow-hidden rounded-lg p-6 {className} relative select-none hover:cursor-pointer hover:ring-2 dark:hover:ring-darkText {isDragging
+	class="h-full w-full overflow-hidden rounded-lg p-6 {className} relative select-none hover:cursor-grab hover:ring-2 dark:hover:ring-darkText {isDragging
 		? 'opacity-50'
 		: ''}"
 	tabindex={index}
