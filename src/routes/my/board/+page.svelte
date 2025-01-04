@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 
 	import type { Note, NoteOrdered, SharedNote, ToggleFriendShare } from '$lib/types';
-	import { tryFetch, MaybeType } from '$lib/fetch';
+	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 
 	import Board from '$components/Board.svelte';
@@ -66,7 +66,7 @@
 			method: 'PATCH',
 			body: JSON.stringify(updatedNote)
 		});
-		if (type === MaybeType.Error) {
+		if (type === 'error') {
 			boardState.updateNote(original);
 		}
 	}
@@ -78,7 +78,7 @@
 			{ method: 'DELETE' },
 			{ shouldParse: false }
 		);
-		if (resp.type === MaybeType.Error) {
+		if (resp.type === 'error') {
 			boardState.createNoteAtIndex(index, deletedNote);
 		} else {
 			goto('/my/board');
@@ -92,7 +92,7 @@
 			method: 'PATCH',
 			body: JSON.stringify(boardPatch)
 		});
-		if (result.type === MaybeType.Error) {
+		if (result.type === 'error') {
 			console.log('Error reordering notes');
 			boardState.reorderNotes(toIndex, fromIndex);
 		}
