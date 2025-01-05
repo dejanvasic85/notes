@@ -10,7 +10,7 @@
 
 	let { oncreatenote, layout }: Props = $props();
 	let iconPress = $state<null | 'home' | 'friends'>(null);
-	const iconSize = layout === 'horizontal' ? 36 : 32;
+	const iconSize = 32;
 
 	function handleIconPress(name: 'home' | 'friends') {
 		iconPress = name;
