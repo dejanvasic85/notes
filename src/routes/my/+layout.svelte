@@ -59,7 +59,7 @@
 
 	<!-- Mobile Menu -->
 	<div
-		class="fixed inset-auto-0-0 bottom-0 flex h-20 items-center border-t bg-white p-2 md:hidden dark:border-t-darkBorder dark:bg-dark"
+		class="fixed inset-auto-0-0 bottom-0 flex h-16 items-center border-t bg-white p-2 md:hidden dark:border-t-darkBorder dark:bg-dark"
 	>
 		<Menu oncreatenote={handleCreateNote} layout="horizontal" />
 	</div>
