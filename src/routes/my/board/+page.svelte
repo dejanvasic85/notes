@@ -6,6 +6,7 @@
 	import type { Note, NoteOrdered, SharedNote, ToggleFriendShare } from '$lib/types';
 	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
+	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 
 	import Board from '$components/Board.svelte';
 	import Button from '$components/Button.svelte';
@@ -15,6 +16,8 @@
 
 	const numberOfSkeletons = 4;
 	const boardState = getBoardState();
+	const toastMessages = getToastMessages();
+
 	let { data } = $props();
 	let selectedNote: NoteOrdered | null = $state(null);
 	let selectedSharedNote: SharedNote | null = $state(null);
@@ -68,6 +71,7 @@
 		});
 		if (type === 'error') {
 			boardState.updateNote(original);
+			toastMessages.addMessage({ message: 'Failed to update note. Try again.', type: 'error' });
 		}
 	}
 
@@ -80,6 +84,7 @@
 		);
 		if (resp.type === 'error') {
 			boardState.createNoteAtIndex(index, deletedNote);
+			toastMessages.addMessage({ message: 'Failed to delete note. Try again.', type: 'error' });
 		} else {
 			goto('/my/board');
 		}
@@ -93,8 +98,8 @@
 			body: JSON.stringify(boardPatch)
 		});
 		if (result.type === 'error') {
-			console.log('Error reordering notes');
 			boardState.reorderNotes(toIndex, fromIndex);
+			toastMessages.addMessage({ message: 'Failed to reorder notes. Try again.', type: 'error' });
 		}
 	}
 </script>
