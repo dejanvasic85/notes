@@ -62,7 +62,7 @@
 			transform: scale(1);
 		}
 		50% {
-			transform: scale(0.8); /* Adjust the scale value to control how small the icon gets */
+			transform: scale(0.8);
 		}
 		100% {
 			transform: scale(1);
@@ -70,6 +70,6 @@
 	}
 
 	.pressed {
-		animation: shrink 0.3s ease; /* Adjust duration and easing to your preference */
+		animation: shrink 0.3s ease;
 	}
 </style>
