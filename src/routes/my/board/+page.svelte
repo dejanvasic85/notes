@@ -4,8 +4,9 @@
 	import { onMount } from 'svelte';
 
 	import type { Note, NoteOrdered, SharedNote, ToggleFriendShare } from '$lib/types';
-	import { tryFetch, MaybeType } from '$lib/fetch';
+	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
+	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 
 	import Board from '$components/Board.svelte';
 	import Button from '$components/Button.svelte';
@@ -15,6 +16,8 @@
 
 	const numberOfSkeletons = 4;
 	const boardState = getBoardState();
+	const toastMessages = getToastMessages();
+
 	let { data } = $props();
 	let selectedNote: NoteOrdered | null = $state(null);
 	let selectedSharedNote: SharedNote | null = $state(null);
@@ -66,8 +69,9 @@
 			method: 'PATCH',
 			body: JSON.stringify(updatedNote)
 		});
-		if (type === MaybeType.Error) {
+		if (type === 'error') {
 			boardState.updateNote(original);
+			toastMessages.addMessage({ message: 'Failed to update note. Try again.', type: 'error' });
 		}
 	}
 
@@ -78,8 +82,9 @@
 			{ method: 'DELETE' },
 			{ shouldParse: false }
 		);
-		if (resp.type === MaybeType.Error) {
+		if (resp.type === 'error') {
 			boardState.createNoteAtIndex(index, deletedNote);
+			toastMessages.addMessage({ message: 'Failed to delete note. Try again.', type: 'error' });
 		} else {
 			goto('/my/board');
 		}
@@ -92,9 +97,9 @@
 			method: 'PATCH',
 			body: JSON.stringify(boardPatch)
 		});
-		if (result.type === MaybeType.Error) {
-			console.log('Error reordering notes');
+		if (result.type === 'error') {
 			boardState.reorderNotes(toIndex, fromIndex);
+			toastMessages.addMessage({ message: 'Failed to reorder notes. Try again.', type: 'error' });
 		}
 	}
 </script>

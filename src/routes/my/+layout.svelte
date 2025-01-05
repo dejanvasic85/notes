@@ -1,14 +1,16 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import ProfileMenu from '$components/ProfileMenu.svelte';
 	import Menu from '$components/Menu.svelte';
-	import logo from '$lib/images/notes-main.png';
-	import { MaybeType, tryFetch } from '$lib/fetch';
-	import { getBoardState } from '$lib/state/boardState.svelte';
-	import { goto } from '$app/navigation';
 	import Note from '$components/Note.svelte';
+	import logo from '$lib/images/notes-main.png';
+	import { tryFetch } from '$lib/browserFetch';
+	import { getBoardState } from '$lib/state/boardState.svelte';
+	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 
 	let { children, data } = $props();
 	const boardState = getBoardState();
+	const toastMessages = getToastMessages();
 
 	async function handleCreateNote() {
 		const newNote = boardState.createNewNote();
@@ -17,9 +19,13 @@
 			body: JSON.stringify(newNote)
 		});
 
-		if (resp.type === MaybeType.Error) {
+		if (resp.type === 'error') {
 			boardState.deleteNoteById(newNote.id);
 			goto('/my/board');
+			toastMessages.addMessage({
+				type: 'error',
+				message: 'There was a problem creating a note. Try again.'
+			});
 		} else {
 			goto(`/my/board?id=${newNote.id}`);
 		}

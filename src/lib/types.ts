@@ -174,3 +174,8 @@ export type ToggleFriendShare = {
 	noteId: string;
 	selected: boolean;
 };
+
+export type ToastMessage = {
+	message: string;
+	type: 'success' | 'error';
+};

@@ -147,7 +147,7 @@
 								{
 									actionName: '?/cancel-invite',
 									data: { id: invite.id },
-									icon: 'minus',
+									icon: 'x-mark',
 									label: 'Cancel'
 								}
 							]
@@ -163,7 +163,7 @@
 								{
 									actionName: '?/remove-friend',
 									data: { id: friend.id },
-									icon: 'minus',
+									icon: 'x-mark',
 									label: 'Remove'
 								}
 							]
@@ -191,7 +191,7 @@
 									{
 										actionName: '?/reject-invite',
 										data: { id: invite.id },
-										icon: 'minus',
+										icon: 'x-mark',
 										label: 'Reject'
 									}
 								]

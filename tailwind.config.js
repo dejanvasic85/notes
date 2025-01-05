@@ -52,7 +52,8 @@ export default {
 				menu: 10,
 				overlay: 20,
 				dialog: 25,
-				dropdown: 30
+				dropdown: 30,
+				toaster: 40
 			}
 		}
 	},
