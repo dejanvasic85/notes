@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 	import { createLabel, melt } from '@melt-ui/svelte';
 
 	import Input from '$components/Input.svelte';
@@ -26,10 +27,14 @@
 	method="POST"
 	use:enhance={() => {
 		loading = true;
-		return async ({ result }) => {
+		return async ({ result, update }) => {
+			await update();
 			loading = false;
 			if (result.type === 'failure') {
 				error = result.data?.message as string;
+			}
+			if (result.type === 'redirect') {
+				goto(result.location);
 			}
 		};
 	}}

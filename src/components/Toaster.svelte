@@ -31,18 +31,14 @@
 			<div
 				in:slide={{ duration: 200 }}
 				out:slide={{ duration: 200 }}
-				class="relative mb-2 flex flex-col items-start justify-between rounded-lg border border-gray-200 bg-white px-8 py-4 text-sm shadow-lg"
+				class="mb-2 flex items-center justify-between rounded-lg p-4 text-sm shadow-lg"
 				class:bg-red-300={data.type === 'error'}
 				class:bg-green-300={data.type === 'success'}
 			>
 				<div use:melt={$description(id)}>
 					{data.message}
 				</div>
-				<button
-					use:melt={$close(id)}
-					aria-label="close notification"
-					class="absolute right-0 top-0 p-2"
-				>
+				<button use:melt={$close(id)} aria-label="close notification">
 					<Icon icon="x-mark" />
 				</button>
 			</div>
