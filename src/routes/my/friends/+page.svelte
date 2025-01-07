@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { crossfade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
+	import { enhance } from '$app/forms';
 	import type { ActionData, PageData } from './$types';
 
 	import { createTabs, melt } from '@melt-ui/svelte';
@@ -9,6 +10,7 @@
 	import Icon from '$components/Icon.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
 	import Skeleton from '$components/Skeleton.svelte';
+	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 
 	import { type IconName } from '$lib/icons';
 
@@ -18,6 +20,8 @@
 	};
 
 	let { data }: Props = $props();
+	let itemsInProgress = $state<string[]>([]);
+	const toastMessages = getToastMessages();
 
 	const {
 		elements: { root: tabRoot, list, content, trigger },
@@ -39,9 +43,9 @@
 		picture?: string | null;
 		isPending: boolean;
 		actions?: Array<{
+			id: string;
 			label: string;
 			actionName: string;
-			data: Record<string, unknown>;
 			icon: IconName;
 		}>;
 	};
@@ -63,11 +67,25 @@
 		<div class="flex gap-1">
 			{#if props.actions}
 				{#each props.actions as action}
-					<form method="POST" action={action.actionName}>
-						{#each Object.entries(action.data) as [key, value]}
-							<input type="hidden" name={key} {value} />
-						{/each}
-						<Button variant="ghost" type="submit">
+					<form
+						method="POST"
+						action={action.actionName}
+						use:enhance={() => {
+							itemsInProgress.push(action.id);
+							return async ({ result, update }) => {
+								await update();
+								itemsInProgress = itemsInProgress.filter((id) => id !== action.id);
+								if (result.type === 'failure') {
+									toastMessages.addMessage({
+										type: 'error',
+										message: result.data?.message as string
+									});
+								}
+							};
+						}}
+					>
+						<input type="hidden" name="id" value={action.id} />
+						<Button variant="ghost" type="submit" loading={itemsInProgress.includes(action.id)}>
 							<Icon icon={action.icon} />
 						</Button>
 					</form>
@@ -82,8 +100,8 @@
 
 <div class="mt-4">
 	{#await data.friendsPageModel}
-		<div class="grid gap-4">
-			<div class="h-friend w-full">
+		<div class="grid gap-4 xl:w-1/2">
+			<div class="h-friend">
 				<Skeleton />
 			</div>
 			<div class="h-friend w-full">
@@ -146,7 +164,7 @@
 							actions: [
 								{
 									actionName: '?/cancel-invite',
-									data: { id: invite.id },
+									id: invite.id,
 									icon: 'x-mark',
 									label: 'Cancel'
 								}
@@ -162,7 +180,7 @@
 							actions: [
 								{
 									actionName: '?/remove-friend',
-									data: { id: friend.id },
+									id: friend.id,
 									icon: 'x-mark',
 									label: 'Remove'
 								}
@@ -184,13 +202,13 @@
 								actions: [
 									{
 										actionName: '?/accept-invite',
-										data: { id: invite.id },
+										id: invite.id,
 										icon: 'check',
 										label: 'Accept'
 									},
 									{
 										actionName: '?/reject-invite',
-										data: { id: invite.id },
+										id: invite.id,
 										icon: 'x-mark',
 										label: 'Reject'
 									}
