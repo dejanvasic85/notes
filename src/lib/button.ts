@@ -1,16 +1,6 @@
 export type Variant = 'primary' | 'secondary' | 'tertiary' | 'ghost';
 
-const baseClasses = `flex
-	min-h-11
-	min-w-[44px]
-	items-center
-	justify-center
-	gap-2
-	px-4 py-2
-	transition-all
-	duration-150
-	hover:scale-105
-	focus:outline-none`;
+const baseClasses = `flex min-h-11 min-w-[44px] items-center justify-center gap-2 px-4 py-2 transition-all duration-150 hover:scale-105 focus:outline-none`;
 
 const variantClasses = {
 	primary: 'bg-primary hover:bg-primary/90 text-white border-none',
@@ -19,7 +9,8 @@ const variantClasses = {
 	ghost: 'dark:hover:bg-slate-800 hover:ring-2'
 } as const;
 
-export const buildButtonClass = (variant: Variant, round = false) => {
+export const buildButtonClass = (variant: Variant, round = false, loading = false) => {
 	const roundedClass = round ? 'rounded-full' : 'rounded-xl';
-	return `${baseClasses} ${variantClasses[variant]} ${roundedClass}`;
+	const loadingClass = loading ? 'opacity-50 pointer-events-none' : '';
+	return `${loadingClass} ${baseClasses} ${variantClasses[variant]} ${roundedClass}`;
 };
