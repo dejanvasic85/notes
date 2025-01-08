@@ -85,7 +85,7 @@
 						}}
 					>
 						<input type="hidden" name="id" value={action.id} />
-						<Button variant="ghost" type="submit" loading={itemsInProgress.includes(action.id)}>
+						<Button variant="ghost" type="submit" disabled={itemsInProgress.includes(action.id)}>
 							<Icon icon={action.icon} />
 						</Button>
 					</form>

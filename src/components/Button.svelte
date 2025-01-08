@@ -10,6 +10,7 @@
 		type?: 'button' | 'submit' | 'reset';
 		label?: string;
 		loading?: boolean;
+		disabled?: boolean;
 		onclick?: () => void;
 	};
 
@@ -20,13 +21,14 @@
 		type = 'button',
 		label = '',
 		loading = false,
+		disabled = false,
 		onclick
 	}: Props = $props();
 
-	const buttonClass = $derived(buildButtonClass(variant, rounded, loading));
+	const buttonClass = $derived(buildButtonClass(variant, rounded, loading || disabled));
 </script>
 
-<button {type} class={buttonClass} {onclick} aria-label={label} disabled={loading}>
+<button {type} class={buttonClass} {onclick} aria-label={label} disabled={loading || disabled}>
 	{#if loading}
 		<svg
 			class="-ml-1 mr-3 h-5 w-5 animate-spin dark:text-white"

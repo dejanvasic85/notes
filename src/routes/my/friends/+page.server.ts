@@ -64,6 +64,7 @@ export const actions = {
 	['cancel-invite']: async ({ request }) => {
 		const data = await request.formData();
 		const inviteId = data.get('id') as string;
+		await new Promise((resolve) => setTimeout(resolve, 2000));
 
 		return pipe(
 			cancelInvite(inviteId),

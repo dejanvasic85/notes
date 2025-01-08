@@ -166,7 +166,9 @@ export const createInvite = (data: UserInvite): TE.TaskEither<ServerError, UserI
 
 export const updateInvite = (invite: UserInvite): TE.TaskEither<ServerError, UserInvite> => {
 	const { id, ...rest } = invite;
-	return tryDbTask(() => db.userInvite.update({ where: { id }, data: rest }));
+	return tryDbTask(() =>
+		db.userInvite.update({ where: { id }, data: { ...rest, updatedAt: new Date() } })
+	);
 };
 
 export const createConnection = (
