@@ -18,7 +18,7 @@
 		children,
 		variant = 'primary',
 		rounded,
-		type = 'button',
+		type,
 		label = '',
 		loading = false,
 		disabled = false,

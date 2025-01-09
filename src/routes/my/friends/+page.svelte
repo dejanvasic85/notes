@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { crossfade } from 'svelte/transition';
+	import { crossfade, slide } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 	import { enhance } from '$app/forms';
 	import type { ActionData, PageData } from './$types';
@@ -54,6 +54,8 @@
 {#snippet Friend(props: FriendSnippetProps)}
 	<div
 		class="flex h-friend w-full items-center justify-between gap-2 rounded-lg bg-white p-4 dark:bg-dark"
+		role="listitem"
+		out:slide
 	>
 		<div class="flex items-center gap-2">
 			{#if props.picture}
@@ -71,9 +73,9 @@
 						method="POST"
 						action={action.actionName}
 						use:enhance={() => {
-							itemsInProgress.push(action.id);
+							itemsInProgress = [...itemsInProgress, action.id];
 							return async ({ result, update }) => {
-								await update();
+								update();
 								itemsInProgress = itemsInProgress.filter((id) => id !== action.id);
 								if (result.type === 'failure') {
 									toastMessages.addMessage({
@@ -85,7 +87,11 @@
 						}}
 					>
 						<input type="hidden" name="id" value={action.id} />
-						<Button variant="ghost" type="submit" disabled={itemsInProgress.includes(action.id)}>
+						<Button
+							variant="ghost"
+							disabled={itemsInProgress.includes(action.id)}
+							label={action.label}
+						>
 							<Icon icon={action.icon} />
 						</Button>
 					</form>
@@ -104,13 +110,13 @@
 			<div class="h-friend">
 				<Skeleton />
 			</div>
-			<div class="h-friend w-full">
+			<div class="h-friend">
 				<Skeleton />
 			</div>
-			<div class="h-friend w-full">
+			<div class="h-friend">
 				<Skeleton />
 			</div>
-			<div class="h-friend w-full">
+			<div class="h-friend">
 				<Skeleton />
 			</div>
 		</div>
@@ -154,10 +160,10 @@
 					</div>
 
 					{#if data.friends.length && data.pendingSentInvites.length === 0}
-						<p>No friends yet</p>
+						<p>No friends yet. Add a friend to invite someone to share your notes with.</p>
 					{/if}
 
-					{#each data.pendingSentInvites as invite}
+					{#each data.pendingSentInvites.filter((i) => !itemsInProgress.includes(i.id)) as invite (invite.id)}
 						{@render Friend({
 							name: invite.friendEmail,
 							isPending: true,
