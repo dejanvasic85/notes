@@ -17,7 +17,7 @@ export const prerender = false;
 
 export const load = ({ locals }) => {
 	const user = locals.user!;
-	const friendsPageModel = pipe(
+	return pipe(
 		TE.Do,
 		TE.bind('pendingSentInvites', () => getPendingSentInvites(user.id)),
 		TE.bind('pendingReceivedInvites', () => getPendingReceivedInvites(user.email!)),
@@ -34,10 +34,6 @@ export const load = ({ locals }) => {
 			})
 		)
 	)();
-
-	return {
-		friendsPageModel
-	};
 };
 
 type AcceptInviteResult = Promise<ActionFailure<{ message: string }> | { acceptedInvite: boolean }>;
