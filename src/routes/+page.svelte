@@ -18,7 +18,7 @@
 
 	onMount(() => {
 		boardState.reset();
-		boardState.createNewNote('Click here to edit me! You can also drag to reorder 😊');
+		boardState.createNewNote('<p>Click here to edit me! You can also drag to reorder 😊</p>');
 	});
 
 	function handleCreateNote() {
