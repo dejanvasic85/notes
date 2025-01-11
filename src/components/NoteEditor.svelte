@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { tick } from 'svelte';
-
 	import { type Colour } from '$lib/colours';
 	import type { FriendSelection, NoteOrdered, ToggleFriendShare } from '$lib/types';
 
@@ -9,6 +7,7 @@
 	import Dialog from './Dialog.svelte';
 	import Icon from './Icon.svelte';
 	import Share from './Share.svelte';
+	import HtmlEditor from './HtmlEditor.svelte';
 
 	type Props = {
 		enableSharing?: boolean;
@@ -32,15 +31,8 @@
 		onupdateColour
 	}: Props = $props();
 
-	// Internal state
-	let editor: HTMLDivElement;
 	let noteText: string = $state(note.text);
 	let noteTextPlain: string = $state(note.textPlain);
-
-	// Internal handlers
-	async function handleModalOpen() {
-		await moveCursorToEnd();
-	}
 
 	function handleSave() {
 		onsavenote({
@@ -50,26 +42,6 @@
 				textPlain: noteTextPlain
 			}
 		});
-	}
-
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.repeat) {
-			return;
-		}
-
-		if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
-			handleSave();
-		}
-
-		if (event.key === 'Escape') {
-			handleClose();
-		}
-	}
-
-	function handlePaste(event: ClipboardEvent) {
-		event.preventDefault();
-		const text = event.clipboardData?.getData('text/plain') ?? '';
-		document.execCommand('insertHTML', false, text);
 	}
 
 	function handleDeleteClick() {
@@ -87,25 +59,17 @@
 		});
 	}
 
-	async function moveCursorToEnd() {
-		await tick();
-		const selection = window.getSelection();
-		const range = document.createRange();
-		selection?.removeAllRanges();
-		if (editor) {
-			range.selectNodeContents(editor);
-			range.collapse(false);
-			selection?.addRange(range);
-			editor.focus();
-		}
-	}
-
 	const handleClose = () => {
 		onclose();
 	};
+
+	const handleContentUpdate = (html: string, plaintext: string) => {
+		noteText = html;
+		noteTextPlain = plaintext;
+	};
 </script>
 
-<Dialog show={true} colour={note.colour} onopen={handleModalOpen}>
+<Dialog show={true} colour={note.colour}>
 	{#snippet header()}
 		<div class="px-2 pt-2">
 			<div class="flex justify-between">
@@ -138,16 +102,7 @@
 	{/snippet}
 
 	{#snippet body()}
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div
-			contenteditable="true"
-			class="h-full w-full p-4 outline-none"
-			bind:this={editor}
-			bind:innerHTML={noteText}
-			bind:innerText={noteTextPlain}
-			onkeydown={handleKeydown}
-			onpaste={handlePaste}
-		></div>
+		<HtmlEditor initialContent={noteText} onupdate={handleContentUpdate} />
 	{/snippet}
 
 	{#snippet footer()}
