@@ -6,7 +6,9 @@ import {
 	createConnection,
 	getInvite,
 	getUser,
-	updateInvite
+	updateInvite,
+	getConnectionOrNull,
+	updateConnection
 } from '$lib/server/db/userDb';
 import { sendEmail } from '$lib/server/services/emailService';
 import type {
@@ -30,9 +32,11 @@ const mockGetInvite = getInvite as MockedFunction<typeof getInvite>;
 const mockGetUser = getUser as MockedFunction<typeof getUser>;
 const mockUpdateInvite = updateInvite as MockedFunction<typeof updateInvite>;
 const mockCreateConnection = createConnection as MockedFunction<typeof createConnection>;
+const mockGetConnectionOrNull = getConnectionOrNull as MockedFunction<typeof getConnectionOrNull>;
+const mockUpdateConnection = updateConnection as MockedFunction<typeof updateConnection>;
 
 describe('acceptInvite', () => {
-	it('should update the invice to accepted and create a new connection', async () => {
+	it('should update the invite to accepted and create a new connection', async () => {
 		const inviteId = 'invite_123';
 		const acceptedBy = { id: 'uid_123', email: 'foo@bar.com' };
 		const invitedBy = {
@@ -56,11 +60,45 @@ describe('acceptInvite', () => {
 		mockGetUser.mockReturnValue(TE.right(invitedBy));
 		mockUpdateInvite.mockReturnValue(TE.right({ ...invite, status: 'accepted' }));
 		mockCreateConnection.mockReturnValue(TE.right(connection));
+		mockGetConnectionOrNull.mockReturnValue(TE.right(null));
 
 		const result: any = await acceptInvite(inviteId, acceptedBy)();
 
 		expect(result._tag).toBe('Right');
 		expect(result.right).toEqual({ connection, invitedBy });
+	});
+
+	it('should update the invite to accepted and update an existing connection when exists', async () => {
+		const inviteId = 'invite_123';
+		const acceptedBy = { id: 'uid_123', email: 'foo@bar.com' };
+		const invitedBy = {
+			id: 'uid_234'
+		} as User;
+
+		const invite: UserInvite = {
+			id: 'invite_123',
+			status: null,
+			friendEmail: 'foo@bar.com',
+			userId: 'uid_234'
+		};
+
+		const connection: UserConnection = {
+			type: 'removed',
+			userFirstId: 'uid_123',
+			userSecondId: 'uid_234'
+		};
+
+		mockGetInvite.mockReturnValue(TE.right(invite));
+		mockGetUser.mockReturnValue(TE.right(invitedBy));
+		mockUpdateInvite.mockReturnValue(TE.right({ ...invite, status: 'accepted' }));
+		mockGetConnectionOrNull.mockReturnValue(TE.right(connection));
+		mockUpdateConnection.mockReturnValue(TE.right({ ...connection, type: 'connected' }));
+
+		const result: any = await acceptInvite(inviteId, acceptedBy)();
+
+		expect(result._tag).toBe('Right');
+		expect(result.right).toEqual({ connection: { ...connection, type: 'connected' }, invitedBy });
+		expect(mockCreateConnection).not.toHaveBeenCalled();
 	});
 
 	it('should return record not found error when the invite is not found', async () => {

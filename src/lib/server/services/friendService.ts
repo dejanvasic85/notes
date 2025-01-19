@@ -11,7 +11,8 @@ import {
 	getConnection,
 	getUser,
 	updateInvite,
-	updateConnection
+	updateConnection,
+	getConnectionOrNull
 } from '$lib/server/db/userDb';
 import { sendEmail } from '$lib/server/services/emailService';
 import { createError } from '../createError';
@@ -72,12 +73,17 @@ export const acceptInvite = (
 		TE.bind('invitedBy', ({ invite }) =>
 			getUser({ id: invite.userId, includeBoards: false, includeNotes: false })
 		),
-		TE.bind('connection', ({ invite }) =>
-			createConnection({
-				userFirstId: invite.userId,
-				userSecondId: acceptedBy.id,
-				type: 'connected'
-			})
+		TE.bind('existingConnection', ({ invite }) =>
+			getConnectionOrNull(invite.userId, acceptedBy.id)
+		),
+		TE.bind('connection', ({ invite, existingConnection }) =>
+			existingConnection
+				? updateConnection({ ...existingConnection, type: 'connected' })
+				: createConnection({
+						userFirstId: invite.userId,
+						userSecondId: acceptedBy.id,
+						type: 'connected'
+					})
 		),
 		TE.bind('updateInvite', ({ invite }) => updateInvite({ ...invite, status: 'accepted' })),
 		TE.map(({ connection, invitedBy }) => ({
