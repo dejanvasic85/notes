@@ -141,7 +141,7 @@ export const getPendingReceivedInvites = (
 			invites.map(({ user, ...rest }) => {
 				const inv: UserInviteWithUserProps = {
 					...rest,
-					user: { email: user.email, name: user.name }
+					user: { email: user.email, name: user.name, picture: user.picture }
 				};
 				return inv;
 			})

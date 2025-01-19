@@ -73,7 +73,7 @@ export const UserInviteSchema = EntitySchema.extend({
 export type UserInvite = z.infer<typeof UserInviteSchema>;
 
 export interface UserInviteWithUserProps extends UserInvite {
-	user: Pick<User, 'email' | 'name'>;
+	user: Pick<User, 'email' | 'name' | 'picture'>;
 }
 
 export const UserConnectionSchema = z.object({
