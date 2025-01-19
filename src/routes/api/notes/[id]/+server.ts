@@ -1,4 +1,4 @@
-import { json, type RequestHandler } from '@sveltejs/kit';
+import { json, error, type RequestHandler } from '@sveltejs/kit';
 
 import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
@@ -19,7 +19,7 @@ export const GET: RequestHandler = ({ locals, params }) => {
 		TE.flatMap(({ user, note }) => isNoteOwner({ user, note })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
-			(err) => json({ message: err.message }, { status: err.status }),
+			(err) => error(err.status, { message: err.message }),
 			(note) => json(note)
 		)
 	)();
@@ -37,7 +37,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 		TE.flatMap(({ noteInput, note }) => updateNote({ ...note, ...noteInput })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
-			(err) => json({ message: err.message }, { status: err.status }),
+			(err) => error(err.status, { message: err.message }),
 			(note) => json(note)
 		)
 	)();
@@ -64,7 +64,7 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
 		),
 		TE.mapLeft(mapToApiError),
 		TE.match(
-			(err) => json({ message: err.message }, { status: err.status }),
+			(err) => error(err.status, { message: err.message }),
 			() => new Response(null, { status: 204 })
 		)
 	)();

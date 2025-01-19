@@ -43,7 +43,7 @@ export async function tryFetch<T>(
 		});
 
 		if (response.ok) {
-			const shouldParse = options?.shouldParse ?? true;
+			const shouldParse = options?.shouldParse ?? false;
 			if (shouldParse) {
 				const data = await response.json();
 				return some(data) as Maybe<T>;

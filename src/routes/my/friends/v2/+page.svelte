@@ -50,7 +50,7 @@
 
 	async function handleCancelInvite(id: string) {
 		const [index, invite] = friendsState.cancelInvite(id);
-		const result = await tryFetch(`/api/friends/invite/${id}`, { method: 'DELETE' });
+		const result = await tryFetch(`/api/invites/${id}`, { method: 'DELETE' });
 		if (result.type === 'error') {
 			toastMessages.addMessage({
 				type: 'error',
@@ -74,7 +74,12 @@
 
 	async function handleAcceptInvite(id: string) {
 		const [index, invite] = friendsState.acceptInvite(id);
-		const result = await tryFetch(`/api/friends/accept/${id}`, { method: 'POST' });
+		const result = await tryFetch(`/api/connections`, {
+			method: 'POST',
+			body: JSON.stringify({
+				inviteId: id
+			})
+		});
 		if (result.type === 'error') {
 			toastMessages.addMessage({
 				type: 'error',
@@ -82,6 +87,8 @@
 			});
 			friendsState.addReceivedInviteAtIndex(index, invite);
 			friendsState.removeFriend(invite.userId);
+		} else {
+			console.log('accepted invite', result.value);
 		}
 	}
 

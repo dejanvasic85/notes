@@ -18,9 +18,7 @@ export const GET: RequestHandler = ({ locals }) => {
 		TE.bind('friends', () => getFriends(user.id)),
 		TE.mapLeft(mapToApiError),
 		TE.match(
-			(err) => {
-				throw error(err.status, err.message);
-			},
+			(err) => error(err.status, { message: err.message }),
 			({ friends, pendingReceivedInvites, pendingSentInvites }) =>
 				json({
 					friends,
