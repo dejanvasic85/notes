@@ -7,10 +7,14 @@
 	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
+	import { setFriendsState } from '$lib/state/friendsState.svelte';
 
 	let { children, data } = $props();
 	const boardState = getBoardState();
 	const toastMessages = getToastMessages();
+	if (data.userData?.id) {
+		setFriendsState(data.userData.id);
+	}
 
 	async function handleCreateNote() {
 		const newNote = boardState.createNewNote();
