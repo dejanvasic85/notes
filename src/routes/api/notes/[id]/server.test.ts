@@ -59,14 +59,15 @@ describe('GET', () => {
 		mockIsNoteOwner.mockReturnValue(TE.right(mockNote) as any);
 
 		const locals = { user: { id: 'uid_123' } };
-		const result = await GET({
-			locals,
-			params: { id: 'nid_123' }
-		} as any);
-
-		expect(result.status).toBe(404);
-		const data = await result.json();
-		expect(data).toStrictEqual({ message: 'User not found' });
+		expect(
+			GET({
+				locals,
+				params: { id: 'nid_123' }
+			} as any)
+		).rejects.toEqual({
+			status: 404,
+			body: { message: 'User not found' }
+		});
 	});
 
 	it('should return a 404 when note is not found', async () => {
@@ -75,14 +76,15 @@ describe('GET', () => {
 		mockIsNoteOwner.mockReturnValue(TE.right(mockNote) as any);
 
 		const locals = { user: { id: 'uid_123' } };
-		const result = await GET({
-			locals,
-			params: { id: 'nid_123' }
-		} as any);
-
-		expect(result.status).toBe(404);
-		const data = await result.json();
-		expect(data).toStrictEqual({ message: 'Note not found' });
+		expect(
+			GET({
+				locals,
+				params: { id: 'nid_123' }
+			} as any)
+		).rejects.toEqual({
+			status: 404,
+			body: { message: 'Note not found' }
+		});
 	});
 
 	it('should return a 403 when note does belong to the user', async () => {
@@ -92,14 +94,15 @@ describe('GET', () => {
 		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
 
 		const locals = { user: { id: 'uid_123' } };
-		const result = await GET({
-			locals,
-			params: { id: 'nid_123' }
-		} as any);
-
-		expect(result.status).toBe(403);
-		const data = await result.json();
-		expect(data).toStrictEqual({ message: 'Unauthorized' });
+		await expect(
+			GET({
+				locals,
+				params: { id: 'nid_123' }
+			} as any)
+		).rejects.toEqual({
+			status: 403,
+			body: { message: 'Unauthorized' }
+		});
 	});
 });
 
