@@ -1,26 +1,19 @@
 <script lang="ts">
-	import { crossfade, slide } from 'svelte/transition';
+	import { onMount } from 'svelte';
+	import { crossfade, slide, fade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-	import { enhance } from '$app/forms';
-	import type { ActionData, PageData } from './$types';
 
 	import { createTabs, melt } from '@melt-ui/svelte';
 
+	import Skeleton from '$components/Skeleton.svelte';
 	import Button from '$components/Button.svelte';
-	import Icon from '$components/Icon.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
+	import Icon from '$components/Icon.svelte';
+
+	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
-
-	import { type IconName } from '$lib/icons';
-
-	type Props = {
-		data: PageData;
-		form: ActionData;
-	};
-
-	let { data }: Props = $props();
-	let itemsInProgress = $state<string[]>([]);
-	const toastMessages = getToastMessages();
+	import type { IconName } from '$lib/icons';
+	import { tryFetch } from '$lib/browserFetch';
 
 	const {
 		elements: { root: tabRoot, list, content, trigger },
@@ -37,63 +30,115 @@
 		invites: 'Invites'
 	} as const;
 
+	const numberOfSkeletons = 4;
+	const friendsState = getFriendsState();
+	const toastMessages = getToastMessages();
+	let loading = $state(true);
+	let loadingError = $state('');
+
+	onMount(() => {
+		fetch('/api/friends')
+			.then((data) => data.json())
+			.then((data) => {
+				loading = false;
+				friendsState.setState(data.friends, data.pendingSentInvites, data.pendingReceivedInvites);
+			})
+			.catch((err) => {
+				loadingError = err.message;
+			});
+	});
+
+	async function handleCancelInvite(id: string) {
+		const [index, invite] = friendsState.cancelInvite(id);
+		const result = await tryFetch(`/api/invites/${id}`, { method: 'DELETE' });
+		if (result.type === 'error') {
+			toastMessages.addMessage({
+				type: 'error',
+				message: 'There was a problem canceling the invite. Try again.'
+			});
+			friendsState.addInviteAtIndex(index, invite);
+		}
+	}
+
+	async function handleRemoveFriend(id: string) {
+		const [index, friend] = friendsState.removeFriend(id);
+		const result = await tryFetch(`/api/friends/${id}`, { method: 'DELETE' });
+		if (result.type === 'error') {
+			toastMessages.addMessage({
+				type: 'error',
+				message: 'There was a problem removing the friend. Try again.'
+			});
+			friendsState.addFriendAtIndex(index, friend);
+		}
+	}
+
+	async function handleAcceptInvite(id: string) {
+		const [index, invite] = friendsState.acceptInvite(id);
+		const result = await tryFetch(`/api/connections`, {
+			method: 'POST',
+			body: JSON.stringify({
+				inviteId: id
+			})
+		});
+		if (result.type === 'error') {
+			toastMessages.addMessage({
+				type: 'error',
+				message: 'There was a problem removing the friend. Try again.'
+			});
+			friendsState.addReceivedInviteAtIndex(index, invite);
+			friendsState.removeFriend(invite.userId);
+		} else {
+			console.log('accepted invite', result.value);
+		}
+	}
+
+	async function handleRejectInvite(id: string) {
+		const [index, invite] = friendsState.rejectInvite(id);
+		const result = await tryFetch(`/api/friends/accept/${id}`, { method: 'POST' });
+		if (result.type === 'error') {
+			toastMessages.addMessage({
+				type: 'error',
+				message: 'There was a problem removing the friend. Try again.'
+			});
+			friendsState.addReceivedInviteAtIndex(index, invite);
+		}
+	}
+
 	type FriendSnippetProps = {
 		name: string;
 		picture?: string | null;
-		isPending: boolean;
+		showPending: boolean;
 		actions?: Array<{
 			id: string;
 			label: string;
-			actionName: string;
 			icon: IconName;
+			onclick: (id: string) => void;
 		}>;
 	};
 </script>
 
 {#snippet Friend(props: FriendSnippetProps)}
 	<div
-		class="flex h-friend w-full items-center justify-between gap-2 rounded-lg bg-white p-4 dark:bg-dark"
+		class="flex h-friend w-full items-center justify-between gap-2 p-4 dark:bg-dark"
 		role="listitem"
-		out:slide={{ duration: 100 }}
+		in:fade
+		out:slide={{ duration: 250 }}
 	>
 		<div class="flex items-center gap-2">
 			{#if props.picture}
 				<img src={props.picture} class="h-10 rounded-full" alt="picture of {props.name}" />
 			{/if}
-			<span class:italic={props.isPending} class:text-gray-400={props.isPending}
-				>{props.name} {props.isPending ? '(pending)' : ''}</span
+			<span class:italic={props.showPending} class:text-gray-400={props.showPending}
+				>{props.name} {props.showPending ? '(pending)' : ''}</span
 			>
 		</div>
 
 		<div class="flex gap-1">
 			{#if props.actions}
 				{#each props.actions as action}
-					<form
-						method="POST"
-						action={action.actionName}
-						use:enhance={() => {
-							itemsInProgress = [...itemsInProgress, action.id];
-							return async ({ result, update }) => {
-								update();
-								itemsInProgress = itemsInProgress.filter((id) => id !== action.id);
-								if (result.type === 'failure') {
-									toastMessages.addMessage({
-										type: 'error',
-										message: result.data?.message as string
-									});
-								}
-							};
-						}}
-					>
-						<input type="hidden" name="id" value={action.id} />
-						<Button
-							variant="ghost"
-							disabled={itemsInProgress.includes(action.id)}
-							label={action.label}
-						>
-							<Icon icon={action.icon} />
-						</Button>
-					</form>
+					<Button variant="ghost" label={action.label} onclick={() => action.onclick(action.id)}>
+						<Icon icon={action.icon} />
+					</Button>
 				{/each}
 			{/if}
 		</div>
@@ -103,7 +148,21 @@
 <h1 class="text-2xl">Friends</h1>
 <p>Connect with your friends to share notes.</p>
 
-<div class="mt-4">
+{#if loading}
+	<div class="mt-16">
+		<div class="grid gap-2">
+			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+			{#each Array(numberOfSkeletons) as _, i}
+				<div class="h-friend w-full">
+					<Skeleton />
+				</div>
+			{/each}
+		</div>
+	</div>
+{:else if loadingError}
+	<p class="text-error" role="alert">There was a problem loading your friends.</p>
+	<Button onclick={() => window.location.reload()}>Retry</Button>
+{:else}
 	<div use:melt={$tabRoot}>
 		<div use:melt={$list} aria-label="Manage your friends and invites">
 			<button use:melt={$trigger(tabs.friends)} class="trigger relative p-4 text-xl">
@@ -119,7 +178,7 @@
 			<button use:melt={$trigger(tabs.invites)} class="trigger relative p-4 text-xl">
 				<div class="relative p-2">
 					Invites
-					{#if data.pendingReceivedInvites.length > 0}
+					{#if friendsState.pendingReceivedInvites.length > 0}
 						<span
 							role="status"
 							aria-label="You have pending invites"
@@ -137,41 +196,41 @@
 			</button>
 		</div>
 		<div use:melt={$content(tabs.friends)} class="mt-4">
-			<div class="flex flex-col gap-4 xl:w-1/2">
-				<div class="flex justify-end">
-					<LinkButton variant="primary" href="/my/friends/add">Add friend</LinkButton>
-				</div>
-
-				{#if data.friends.length === 0 && data.pendingSentInvites.length === 0}
-					<p>No friends yet. Add a friend to invite someone to share your notes with.</p>
+			<div class="flex justify-end">
+				<LinkButton variant="primary" href="/my/friends/add">Add friend</LinkButton>
+			</div>
+			<div class="mt-4 flex flex-col rounded-lg bg-white xl:w-1/2">
+				{#if friendsState.friends.length === 0 && friendsState.pendingSentInvites.length === 0}
+					<p class="p-4">
+						No friends yet. Add a friend to invite someone to share your notes with.
+					</p>
 				{/if}
-
-				{#each data.pendingSentInvites as invite (invite.id)}
+				{#each friendsState.pendingSentInvites as invite (invite.id)}
 					{@render Friend({
 						name: invite.friendEmail,
-						isPending: true,
+						showPending: true,
 						actions: [
 							{
-								actionName: '?/cancel-invite',
 								id: invite.id,
 								icon: 'x-mark',
-								label: 'Cancel'
+								label: 'Cancel',
+								onclick: handleCancelInvite
 							}
 						]
 					})}
 				{/each}
 
-				{#each data.friends as friend}
+				{#each friendsState.friends as friend}
 					{@render Friend({
 						name: friend.name!,
-						isPending: false,
+						showPending: false,
 						picture: friend.picture,
 						actions: [
 							{
-								actionName: '?/remove-friend',
 								id: friend.id,
 								icon: 'x-mark',
-								label: 'Remove'
+								label: 'Remove',
+								onclick: handleRemoveFriend
 							}
 						]
 					})}
@@ -180,26 +239,27 @@
 		</div>
 
 		<div use:melt={$content(tabs.invites)} class="mt-4">
-			<div class="flex flex-col gap-4 lg:w-1/2">
-				{#if data.pendingReceivedInvites.length === 0}
-					<p>No incoming invites</p>
+			<div class="mt-4 flex flex-col rounded-lg bg-white xl:w-1/2">
+				{#if friendsState.pendingReceivedInvites.length === 0}
+					<p class="p-4">No incoming invites</p>
 				{:else}
-					{#each data.pendingReceivedInvites as invite}
+					{#each friendsState.pendingReceivedInvites as invite}
 						{@render Friend({
 							name: invite.user.name!,
-							isPending: false,
+							picture: invite.user.picture,
+							showPending: false,
 							actions: [
 								{
-									actionName: '?/accept-invite',
 									id: invite.id,
 									icon: 'check',
-									label: 'Accept'
+									label: 'Accept',
+									onclick: handleAcceptInvite
 								},
 								{
-									actionName: '?/reject-invite',
 									id: invite.id,
 									icon: 'x-mark',
-									label: 'Reject'
+									label: 'Reject',
+									onclick: handleRejectInvite
 								}
 							]
 						})}
@@ -208,4 +268,4 @@
 			</div>
 		</div>
 	</div>
-</div>
+{/if}
