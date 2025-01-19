@@ -37,8 +37,9 @@ export const sendEmail = ({
 	subject,
 	html
 }: SendEmailParams): TE.TaskEither<ServerError, void> => {
+	console.log('Sending email ...', { to, subject, html });
+
 	if (isLocal()) {
-		console.log('Sending email ...', { to, subject, html });
 		return TE.right(undefined);
 	}
 
@@ -62,7 +63,7 @@ export const sendEmail = ({
 							Data: subject
 						}
 					},
-					Source: 'Notes App <info@dejanvasic.me>'
+					Source: 'no-reply@dejanvasic.me'
 				})
 			);
 		},

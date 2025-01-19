@@ -75,12 +75,12 @@ model Note {
 }
 
 model NoteEditor {
-  id         String   @id
-  noteId     String
-  userId     String
-  selected Boolean
-  createdAt  DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt  DateTime @updatedAt @db.Timestamptz(6)
-  note       Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id
+  noteId    String
+  userId    String
+  selected  Boolean
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
