@@ -141,7 +141,7 @@ export const getPendingReceivedInvites = (
 			invites.map(({ user, ...rest }) => {
 				const inv: UserInviteWithUserProps = {
 					...rest,
-					user: { email: user.email, name: user.name }
+					user: { email: user.email, name: user.name, picture: user.picture }
 				};
 				return inv;
 			})
@@ -197,24 +197,31 @@ export const getConnection = (
 	friendUserId: string
 ): TE.TaskEither<ServerError, UserConnection> =>
 	pipe(
-		tryDbTask(() =>
-			db.userConnection.findFirst({
-				where: {
-					OR: [
-						{
-							userFirstId: userId,
-							userSecondId: friendUserId
-						},
-						{
-							userFirstId: friendUserId,
-							userSecondId: userId
-						}
-					]
-				}
-			})
-		),
+		getConnectionOrNull(userId, friendUserId),
 		TE.flatMap(fromNullableRecord(`User connection not found for ${userId} and ${friendUserId}`))
 	);
+
+export const getConnectionOrNull = (
+	userId: string,
+	friendUserId: string
+): TE.TaskEither<ServerError, UserConnection | null> => {
+	return tryDbTask(() =>
+		db.userConnection.findFirst({
+			where: {
+				OR: [
+					{
+						userFirstId: userId,
+						userSecondId: friendUserId
+					},
+					{
+						userFirstId: friendUserId,
+						userSecondId: userId
+					}
+				]
+			}
+		})
+	);
+};
 
 export const updateConnection = (
 	connection: UserConnection
@@ -227,7 +234,10 @@ export const updateConnection = (
 					userSecondId: connection.userSecondId
 				}
 			},
-			data: connection
+			data: {
+				...connection,
+				updatedAt: new Date()
+			}
 		})
 	);
 };

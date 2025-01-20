@@ -1,4 +1,4 @@
-import { type RequestHandler, json } from '@sveltejs/kit';
+import { type RequestHandler, json, error } from '@sveltejs/kit';
 
 import { pipe } from 'fp-ts/lib/function.js';
 import { taskEither as TE } from 'fp-ts';
@@ -18,7 +18,7 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		TE.flatMap((data) => updateNoteEditor(data)),
 		TE.mapLeft(mapToApiError),
 		TE.match(
-			(err) => json({ message: err.message }, { status: err.status }),
+			(err) => error(err.status, { message: err.message }),
 			(data) => json(data)
 		)
 	)();

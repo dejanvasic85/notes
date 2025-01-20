@@ -68,14 +68,15 @@ describe('POST', () => {
 			json: vi.fn().mockResolvedValue({ bad: 'data' })
 		};
 
-		const resp = await POST({
-			locals: { user: { id: 'uid_123' } },
-			request
-		} as any);
-
-		expect(resp.status).toBe(400);
-		const data = await resp.json();
-		expect(data).toEqual({ message: 'Unable to parse Note', status: 400 });
+		await expect(
+			POST({
+				locals: { user: { id: 'uid_123' } },
+				request
+			} as any)
+		).rejects.toEqual({
+			status: 400,
+			body: { message: 'Unable to parse Note' }
+		});
 	});
 
 	it('should return a 403 when the user is not the owner of the note', async () => {
@@ -83,16 +84,14 @@ describe('POST', () => {
 			json: vi.fn().mockResolvedValue({ ...mockNoteInput, boardId: 'board_456' })
 		};
 
-		const resp = await POST({
-			locals: { user: { id: 'uid_123' } },
-			request
-		} as any);
-
-		expect(resp.status).toBe(403);
-		const data = await resp.json();
-		expect(data).toEqual({
-			message: 'User uid_hello is not the owner of note note_123',
-			status: 403
+		await expect(
+			POST({
+				locals: { user: { id: 'uid_123' } },
+				request
+			} as any)
+		).rejects.toEqual({
+			status: 403,
+			body: { message: 'User uid_hello is not the owner of note note_123' }
 		});
 	});
 
@@ -105,14 +104,15 @@ describe('POST', () => {
 			TE.left(createError('DatabaseError', 'Failed to update board'))
 		);
 
-		const resp = await POST({
-			locals: { user: { id: 'uid_123' } },
-			request
-		} as any);
-
-		expect(resp.status).toBe(500);
-		const data = await resp.json();
-		expect(data).toEqual({ message: 'Failed to update board', status: 500 });
+		await expect(
+			POST({
+				locals: { user: { id: 'uid_123' } },
+				request
+			} as any)
+		).rejects.toEqual({
+			status: 500,
+			body: { message: 'Failed to update board' }
+		});
 	});
 
 	it('should return a 500 when the user db throws an error', async () => {
@@ -122,13 +122,14 @@ describe('POST', () => {
 
 		mockGetUser.mockReturnValue(TE.left(createError('DatabaseError', 'Failed to fetch user')));
 
-		const resp = await POST({
-			locals: { user: { id: 'uid_123' } },
-			request
-		} as any);
-
-		expect(resp.status).toBe(500);
-		const data = await resp.json();
-		expect(data).toEqual({ message: 'Failed to fetch user', status: 500 });
+		await expect(
+			POST({
+				locals: { user: { id: 'uid_123' } },
+				request
+			} as any)
+		).rejects.toEqual({
+			status: 500,
+			body: { message: 'Failed to fetch user' }
+		});
 	});
 });

@@ -1,6 +1,7 @@
 import type { ApiError, ServerError } from '$lib/types';
 
 export const mapToApiError = <T extends ServerError>(err: T): ApiError => {
+	console.error(err);
 	switch (err._tag) {
 		case 'DatabaseError':
 		case 'SendEmailError':

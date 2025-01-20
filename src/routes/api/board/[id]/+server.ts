@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 
 import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
@@ -25,7 +25,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 		TE.flatMap(({ changes, board }) => updateBoard({ ...board, ...changes })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
-			(err) => json({ message: err.message }, { status: err.status }),
+			(err) => error(err.status, { message: err.message }),
 			(board) => json(board)
 		)
 	)();
