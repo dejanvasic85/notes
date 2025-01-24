@@ -137,7 +137,7 @@
 			{#if props.actions}
 				{#each props.actions as action}
 					<Button variant="ghost" label={action.label} onclick={() => action.onclick(action.id)}>
-						<Icon icon={action.icon} />
+						<Icon icon={action.icon} fill="none" />
 					</Button>
 				{/each}
 			{/if}
@@ -148,124 +148,126 @@
 <h1 class="text-2xl">Friends</h1>
 <p>Connect with your friends to share notes.</p>
 
-{#if loading}
-	<div class="mt-16">
-		<div class="grid gap-2">
-			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-			{#each Array(numberOfSkeletons) as _, i}
-				<div class="h-friend w-full">
-					<Skeleton />
-				</div>
-			{/each}
+<div class="xl:w-1/2">
+	{#if loading}
+		<div class="mt-16">
+			<div class="grid gap-2">
+				<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+				{#each Array(numberOfSkeletons) as _, i}
+					<div class="h-friend w-full">
+						<Skeleton />
+					</div>
+				{/each}
+			</div>
 		</div>
-	</div>
-{:else if loadingError}
-	<p class="text-error" role="alert">There was a problem loading your friends.</p>
-	<Button onclick={() => window.location.reload()}>Retry</Button>
-{:else}
-	<div use:melt={$tabRoot}>
-		<div use:melt={$list} aria-label="Manage your friends and invites">
-			<button use:melt={$trigger(tabs.friends)} class="trigger relative p-4 text-xl">
-				<div class="relative p-2">Friends</div>
-				{#if $value === tabs.friends}
-					<div
-						in:send={{ key: 'trigger' }}
-						out:receive={{ key: 'trigger' }}
-						class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-tertiary"
-					></div>
-				{/if}
-			</button>
-			<button use:melt={$trigger(tabs.invites)} class="trigger relative p-4 text-xl">
-				<div class="relative p-2">
-					Invites
-					{#if friendsState.pendingReceivedInvites.length > 0}
-						<span
-							role="status"
-							aria-label="You have pending invites"
-							class="absolute right-0 top-0 h-3 w-3 rounded-full bg-tertiary"
-						></span>
+	{:else if loadingError}
+		<p class="text-error" role="alert">There was a problem loading your friends.</p>
+		<Button onclick={() => window.location.reload()}>Retry</Button>
+	{:else}
+		<div use:melt={$tabRoot}>
+			<div use:melt={$list} aria-label="Manage your friends and invites">
+				<button use:melt={$trigger(tabs.friends)} class="trigger relative p-4 text-xl">
+					<div class="relative p-2">Friends</div>
+					{#if $value === tabs.friends}
+						<div
+							in:send={{ key: 'trigger' }}
+							out:receive={{ key: 'trigger' }}
+							class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-tertiary"
+						></div>
 					{/if}
+				</button>
+				<button use:melt={$trigger(tabs.invites)} class="trigger relative p-4 text-xl">
+					<div class="relative p-2">
+						Invites
+						{#if friendsState.pendingReceivedInvites.length > 0}
+							<span
+								role="status"
+								aria-label="You have pending invites"
+								class="absolute right-0 top-0 h-3 w-3 rounded-full bg-tertiary"
+							></span>
+						{/if}
+					</div>
+					{#if $value === tabs.invites}
+						<div
+							in:send={{ key: 'trigger' }}
+							out:receive={{ key: 'trigger' }}
+							class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-tertiary"
+						></div>
+					{/if}
+				</button>
+			</div>
+			<div use:melt={$content(tabs.friends)} class="mt-4">
+				<div class="flex justify-end">
+					<LinkButton variant="primary" href="/my/friends/add">Add friend</LinkButton>
 				</div>
-				{#if $value === tabs.invites}
-					<div
-						in:send={{ key: 'trigger' }}
-						out:receive={{ key: 'trigger' }}
-						class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-tertiary"
-					></div>
-				{/if}
-			</button>
-		</div>
-		<div use:melt={$content(tabs.friends)} class="mt-4">
-			<div class="flex justify-end">
-				<LinkButton variant="primary" href="/my/friends/add">Add friend</LinkButton>
-			</div>
-			<div class="mt-4 flex flex-col rounded-lg bg-white xl:w-1/2">
-				{#if friendsState.friends.length === 0 && friendsState.pendingSentInvites.length === 0}
-					<p class="p-4">
-						No friends yet. Add a friend to invite someone to share your notes with.
-					</p>
-				{/if}
-				{#each friendsState.pendingSentInvites as invite (invite.id)}
-					{@render Friend({
-						name: invite.friendEmail,
-						showPending: true,
-						actions: [
-							{
-								id: invite.id,
-								icon: 'x-mark',
-								label: 'Cancel',
-								onclick: handleCancelInvite
-							}
-						]
-					})}
-				{/each}
-
-				{#each friendsState.friends as friend}
-					{@render Friend({
-						name: friend.name!,
-						showPending: false,
-						picture: friend.picture,
-						actions: [
-							{
-								id: friend.id,
-								icon: 'x-mark',
-								label: 'Remove',
-								onclick: handleRemoveFriend
-							}
-						]
-					})}
-				{/each}
-			</div>
-		</div>
-
-		<div use:melt={$content(tabs.invites)} class="mt-4">
-			<div class="mt-4 flex flex-col rounded-lg bg-white xl:w-1/2">
-				{#if friendsState.pendingReceivedInvites.length === 0}
-					<p class="p-4">No incoming invites</p>
-				{:else}
-					{#each friendsState.pendingReceivedInvites as invite}
+				<div class="mt-4 flex flex-col rounded-lg">
+					{#if friendsState.friends.length === 0 && friendsState.pendingSentInvites.length === 0}
+						<p class="p-4">
+							No friends yet. Add a friend to invite someone to share your notes with.
+						</p>
+					{/if}
+					{#each friendsState.pendingSentInvites as invite (invite.id)}
 						{@render Friend({
-							name: invite.user.name!,
-							picture: invite.user.picture,
-							showPending: false,
+							name: invite.friendEmail,
+							showPending: true,
 							actions: [
 								{
 									id: invite.id,
-									icon: 'check',
-									label: 'Accept',
-									onclick: handleAcceptInvite
-								},
-								{
-									id: invite.id,
 									icon: 'x-mark',
-									label: 'Reject',
-									onclick: handleRejectInvite
+									label: 'Cancel',
+									onclick: handleCancelInvite
 								}
 							]
 						})}
 					{/each}
-				{/if}
+
+					{#each friendsState.friends as friend}
+						{@render Friend({
+							name: friend.name!,
+							showPending: false,
+							picture: friend.picture,
+							actions: [
+								{
+									id: friend.id,
+									icon: 'x-mark',
+									label: 'Remove',
+									onclick: handleRemoveFriend
+								}
+							]
+						})}
+					{/each}
+				</div>
+			</div>
+
+			<div use:melt={$content(tabs.invites)} class="mt-4">
+				<div class="mt-4 flex flex-col rounded-lg">
+					{#if friendsState.pendingReceivedInvites.length === 0}
+						<p class="p-4">No incoming invites</p>
+					{:else}
+						{#each friendsState.pendingReceivedInvites as invite}
+							{@render Friend({
+								name: invite.user.name!,
+								picture: invite.user.picture,
+								showPending: false,
+								actions: [
+									{
+										id: invite.id,
+										icon: 'check',
+										label: 'Accept',
+										onclick: handleAcceptInvite
+									},
+									{
+										id: invite.id,
+										icon: 'x-mark',
+										label: 'Reject',
+										onclick: handleRejectInvite
+									}
+								]
+							})}
+						{/each}
+					{/if}
+				</div>
 			</div>
 		</div>
-	</div>
-{/if}
+	{/if}
+</div>

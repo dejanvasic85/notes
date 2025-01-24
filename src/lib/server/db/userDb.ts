@@ -161,6 +161,16 @@ export const getInvite = (
 		TE.flatMap(fromNullableRecord(`User with authId ${id} not found`))
 	);
 
+export const getInvitesByUser = (userId: string): TE.TaskEither<ServerError, UserInvite[]> => {
+	return tryDbTask(() =>
+		db.userInvite.findMany({
+			where: {
+				userId
+			}
+		})
+	);
+};
+
 export const createInvite = (data: UserInvite): TE.TaskEither<ServerError, UserInvite> =>
 	tryDbTask(() => db.userInvite.create({ data }));
 

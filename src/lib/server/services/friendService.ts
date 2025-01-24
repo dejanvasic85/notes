@@ -8,6 +8,7 @@ import {
 	createInvite,
 	createConnection,
 	getInvite,
+	getInvitesByUser,
 	getConnection,
 	getUser,
 	updateInvite,
@@ -25,11 +26,12 @@ interface SendInviteParams {
 	userEmail: string;
 }
 
-const validateSendInvite = (params: SendInviteParams): E.Either<ServerError, SendInviteParams> => {
+const validateSendInviteParams = (
+	params: SendInviteParams
+): E.Either<ServerError, SendInviteParams> => {
 	if (!params.friendEmail) {
 		return E.left(createError('ValidationError', 'Friend email is required'));
 	}
-
 	return params.friendEmail === params.userEmail
 		? E.left(
 				createError('ValidationError', 'Friend email should be different to current user email')
@@ -37,11 +39,26 @@ const validateSendInvite = (params: SendInviteParams): E.Either<ServerError, Sen
 		: E.right(params);
 };
 
+const validateExistingInvite = (params: SendInviteParams): TE.TaskEither<ServerError, void> => {
+	return pipe(
+		getInvitesByUser(params.userId),
+		TE.flatMap((invites) => {
+			const existingInvites = invites.filter(
+				(invite) => invite.friendEmail === params.friendEmail && invite.status !== 'cancelled'
+			);
+			return existingInvites.length > 0
+				? TE.left(createError('ValidationError', 'Friend is already invited'))
+				: TE.right(void 0);
+		})
+	);
+};
+
 export const sendInvite = (params: SendInviteParams): TE.TaskEither<ServerError, void> => {
 	return pipe(
-		TE.Do,
-		TE.bind('params', () => TE.fromEither(validateSendInvite(params))),
-		TE.bind('invite', ({ params }) =>
+		validateSendInviteParams(params),
+		TE.fromEither,
+		TE.flatMap(() => validateExistingInvite(params)),
+		TE.flatMap(() =>
 			createInvite({
 				id: generateId('inv'),
 				userId: params.userId,
@@ -49,7 +66,7 @@ export const sendInvite = (params: SendInviteParams): TE.TaskEither<ServerError,
 				status: null
 			})
 		),
-		TE.flatMap(({ params, invite }) => {
+		TE.flatMap((invite) => {
 			const inviteLink = `${params.baseUrl}/invite/${invite.id}`;
 			const html = `Hello ${params.friendEmail}. 
 			<p>You have been invited by ${params.name} to join them in collaborating on Notes.</p> 
