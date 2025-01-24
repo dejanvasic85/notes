@@ -203,6 +203,31 @@ describe('sendInvites', () => {
 		expect(result._tag).toBe('Left');
 		expect(result.left).toEqual(validationError);
 	});
+
+	it('should return a validation error when the friend email is already invited', async () => {
+		const validationError: ValidationError = {
+			_tag: 'ValidationError',
+			message: 'Friend is already invited',
+			originalError: undefined
+		};
+
+		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
+		mockSendEmail.mockReturnValue(TE.right({} as any));
+		mockGetInvitesByUser.mockReturnValue(
+			TE.right([{ friendEmail: 'friend@bar.com', status: null } as any])
+		);
+
+		const result: any = await sendInvite({
+			baseUrl: 'localhost:1000',
+			friendEmail: 'friend@bar.com',
+			name: 'foo bar',
+			userId: 'uid_123',
+			userEmail: 'foo@bar.com'
+		})();
+
+		expect(result._tag).toBe('Left');
+		expect(result.left).toEqual(validationError);
+	});
 });
 
 describe('cancelInvite', () => {

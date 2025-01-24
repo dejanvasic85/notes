@@ -47,7 +47,7 @@ const validateExistingInvite = (params: SendInviteParams): TE.TaskEither<ServerE
 				(invite) => invite.friendEmail === params.friendEmail && invite.status !== 'cancelled'
 			);
 			return existingInvites.length > 0
-				? TE.left(createError('ValidationError', 'Invite already exists'))
+				? TE.left(createError('ValidationError', 'Friend is already invited'))
 				: TE.right(void 0);
 		})
 	);
