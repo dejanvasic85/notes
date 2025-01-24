@@ -6,6 +6,7 @@ import {
 	createConnection,
 	getInvite,
 	getUser,
+	getInvitesByUser,
 	updateInvite,
 	getConnectionOrNull,
 	updateConnection
@@ -34,6 +35,7 @@ const mockUpdateInvite = updateInvite as MockedFunction<typeof updateInvite>;
 const mockCreateConnection = createConnection as MockedFunction<typeof createConnection>;
 const mockGetConnectionOrNull = getConnectionOrNull as MockedFunction<typeof getConnectionOrNull>;
 const mockUpdateConnection = updateConnection as MockedFunction<typeof updateConnection>;
+const mockGetInvitesByUser = getInvitesByUser as MockedFunction<typeof getInvitesByUser>;
 
 describe('acceptInvite', () => {
 	it('should update the invite to accepted and create a new connection', async () => {
@@ -122,6 +124,7 @@ describe('sendInvites', () => {
 	it('should create an invite and send an email to the friend', async () => {
 		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
 		mockSendEmail.mockReturnValue(TE.right({} as any));
+		mockGetInvitesByUser.mockReturnValue(TE.right([]));
 
 		const result: any = await sendInvite({
 			baseUrl: 'localhost:1000',
@@ -142,6 +145,7 @@ describe('sendInvites', () => {
 		};
 
 		mockCreateInvite.mockReturnValue(TE.left(databaseError));
+		mockGetInvitesByUser.mockReturnValue(TE.right([]));
 
 		const result: any = await sendInvite({
 			baseUrl: 'localhost:1000',
@@ -163,6 +167,7 @@ describe('sendInvites', () => {
 
 		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
 		mockSendEmail.mockReturnValue(TE.left(emailError));
+		mockGetInvitesByUser.mockReturnValue(TE.right([]));
 
 		const result: any = await sendInvite({
 			baseUrl: 'localhost:1000',
@@ -185,6 +190,7 @@ describe('sendInvites', () => {
 
 		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
 		mockSendEmail.mockReturnValue(TE.right({} as any));
+		mockGetInvitesByUser.mockReturnValue(TE.right([]));
 
 		const result: any = await sendInvite({
 			baseUrl: 'localhost:1000',
