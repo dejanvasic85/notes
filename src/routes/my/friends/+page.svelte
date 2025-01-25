@@ -12,6 +12,7 @@
 
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
+	import { getFetchState } from '$lib/state/fetchState.svelte';
 	import type { IconName } from '$lib/icons';
 	import { tryFetch } from '$lib/browserFetch';
 
@@ -30,22 +31,28 @@
 		invites: 'Invites'
 	} as const;
 
-	const numberOfSkeletons = 4;
 	const friendsState = getFriendsState();
 	const toastMessages = getToastMessages();
-	let loading = $state(true);
+	const fetchState = getFetchState();
+	const numberOfSkeletons = 4;
+
+	let loading = $state(false);
 	let loadingError = $state('');
 
 	onMount(() => {
-		fetch('/api/friends')
-			.then((data) => data.json())
-			.then((data) => {
-				loading = false;
-				friendsState.setState(data.friends, data.pendingSentInvites, data.pendingReceivedInvites);
-			})
-			.catch((err) => {
-				loadingError = err.message;
-			});
+		if (fetchState.shouldFetch('friends')) {
+			loading = true;
+			fetch('/api/friends')
+				.then((data) => data.json())
+				.then((data) => {
+					loading = false;
+					friendsState.setState(data.friends, data.pendingSentInvites, data.pendingReceivedInvites);
+					fetchState.setFetched('friends');
+				})
+				.catch((err) => {
+					loadingError = err.message;
+				});
+		}
 	});
 
 	async function handleCancelInvite(id: string) {
