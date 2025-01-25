@@ -22,8 +22,8 @@ export class FetchState {
 		this.fetchState.set(type, new Date());
 	}
 
-	reset() {
-		this.fetchState.clear();
+	reset(type: FetchStateType) {
+		this.fetchState.delete(type);
 	}
 }
 
