@@ -6,6 +6,7 @@
 	import type { Note, NoteOrdered, SharedNote, ToggleFriendShare } from '$lib/types';
 	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
+	import { getFetchState } from '$lib/state/fetchState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 
 	import Board from '$components/Board.svelte';
@@ -17,6 +18,7 @@
 	const numberOfSkeletons = 4;
 	const boardState = getBoardState();
 	const toastMessages = getToastMessages();
+	const fetchState = getFetchState();
 
 	let { data } = $props();
 	let selectedNote: NoteOrdered | null = $state(null);
@@ -26,9 +28,12 @@
 	let selectedId = $derived(search.get('id'));
 
 	onMount(() => {
-		data.boardPromise.then((data) => {
-			boardState.setBoard(data.board, data.friends, data.sharedNotes);
-		});
+		if (fetchState.shouldFetch('board')) {
+			data.boardPromise.then((data) => {
+				boardState.setBoard(data.board, data.friends, data.sharedNotes);
+				fetchState.setFetched('board');
+			});
+		}
 	});
 
 	$effect(() => {

@@ -18,6 +18,7 @@
 
 	async function handleCreateNote() {
 		const newNote = boardState.createNewNote();
+		goto(`/my/board?id=${newNote.id}`);
 		const resp = await tryFetch<Note>('/api/notes', {
 			method: 'POST',
 			body: JSON.stringify(newNote)
@@ -30,8 +31,6 @@
 				type: 'error',
 				message: 'There was a problem creating a note. Try again.'
 			});
-		} else {
-			goto(`/my/board?id=${newNote.id}`);
 		}
 	}
 
