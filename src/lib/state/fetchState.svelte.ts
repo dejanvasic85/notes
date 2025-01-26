@@ -14,7 +14,6 @@ export class FetchState {
 
 		const now = new Date();
 		const diff = now.getTime() - lastFetch.getTime();
-		// Should fetch if last fetch was more than 60 mins ago
 		return diff > EXPIRY;
 	}
 

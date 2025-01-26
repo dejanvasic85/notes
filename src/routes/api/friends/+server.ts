@@ -19,12 +19,7 @@ export const GET: RequestHandler = ({ locals }) => {
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => error(err.status, { message: err.message }),
-			({ friends, pendingReceivedInvites, pendingSentInvites }) =>
-				json({
-					friends,
-					pendingReceivedInvites,
-					pendingSentInvites
-				})
+			(data) => json(data)
 		)
 	)();
 };
