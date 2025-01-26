@@ -20,19 +20,28 @@
 	const toastMessages = getToastMessages();
 	const fetchState = getFetchState();
 
-	let { data } = $props();
 	let selectedNote: NoteOrdered | null = $state(null);
 	let selectedSharedNote: SharedNote | null = $state(null);
+	let loading = $state(false);
+	let loadingError = $state('');
 
 	let search = $derived(new URL(page.url).searchParams);
 	let selectedId = $derived(search.get('id'));
 
 	onMount(() => {
 		if (fetchState.shouldFetch('board')) {
-			data.boardPromise.then((data) => {
-				boardState.setBoard(data.board, data.friends, data.sharedNotes);
-				fetchState.setFetched('board');
-			});
+			Promise.all([fetch('/api/user/board'), fetch('/api/friends')])
+				.then(async ([boardResp, friendsResp]) => {
+					const { board, sharedNotes } = await boardResp.json();
+					const { friends } = await friendsResp.json();
+					boardState.setBoard(board, friends, sharedNotes);
+					fetchState.setFetched('board');
+					loading = false;
+				})
+				.catch((err) => {
+					console.error(err);
+					loadingError = err.message;
+				});
 		}
 	});
 
@@ -115,7 +124,7 @@
 </svelte:head>
 
 <div>
-	{#await data.boardPromise}
+	{#if loading}
 		<NoteList>
 			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
 			{#each Array.from({ length: numberOfSkeletons }) as _}
@@ -124,7 +133,10 @@
 				</NoteContainer>
 			{/each}
 		</NoteList>
-	{:then}
+	{:else if loadingError}
+		<p class="text-error" role="alert">There was a problem loading your board</p>
+		<Button onclick={() => window.location.reload()}>Retry</Button>
+	{:else}
 		<Board
 			{selectedNote}
 			{selectedSharedNote}
@@ -139,8 +151,5 @@
 			onreorder={handleReorder}
 			ontogglefriend={handleToggleFriendShare}
 		/>
-	{:catch}
-		<p class="text-error" role="alert">There was a problem loading your board</p>
-		<Button onclick={() => window.location.reload()}>Retry</Button>
-	{/await}
+	{/if}
 </div>
