@@ -12,13 +12,16 @@
 	import logo from '$lib/images/notes-main.png';
 	import type { Note, NoteOrdered } from '$lib/types';
 	import { getBoardState } from '$lib/state/boardState.svelte';
+	import { getFetchState } from '$lib/state/fetchState.svelte';
 
 	let { data } = $props();
 	const boardState = getBoardState();
+	const fetchState = getFetchState();
 
 	onMount(() => {
 		boardState.reset();
 		boardState.createNewNote('<p>Click here to edit me! You can also drag to reorder 😊</p>');
+		fetchState.reset('board');
 	});
 
 	function handleCreateNote() {
