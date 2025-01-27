@@ -33,8 +33,6 @@
 			});
 		}
 	}
-
-	const userPicture = data.userData?.picture;
 </script>
 
 <div class="flex min-h-screen flex-col md:grid md:grid-cols-layout md:grid-rows-layout">
@@ -43,8 +41,12 @@
 		class="sticky top-0 z-menu flex h-20 items-center justify-between border-b bg-white px-4 py-2 md:col-second dark:border-b-darkBorder dark:bg-dark"
 	>
 		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
-		{#if userPicture}
-			<ProfileMenu {userPicture} />
+		{#if data.userData}
+			<ProfileMenu
+				userPicture={data.userData.picture!}
+				email={data.userData.email!}
+				name={data.userData.name!}
+			/>
 		{/if}
 	</header>
 
