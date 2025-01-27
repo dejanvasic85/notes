@@ -7,6 +7,7 @@
 	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { getFetchState } from '$lib/state/fetchState.svelte';
+	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 
 	import Board from '$components/Board.svelte';
@@ -19,6 +20,7 @@
 	const boardState = getBoardState();
 	const toastMessages = getToastMessages();
 	const fetchState = getFetchState();
+	const friendsState = getFriendsState();
 
 	let selectedNote: NoteOrdered | null = $state(null);
 	let selectedSharedNote: SharedNote | null = $state(null);
@@ -30,12 +32,15 @@
 
 	onMount(() => {
 		if (fetchState.shouldFetch('board')) {
+			loading = true;
 			Promise.all([fetch('/api/user/board'), fetch('/api/friends')])
 				.then(async ([boardResp, friendsResp]) => {
 					const { board, sharedNotes } = await boardResp.json();
-					const { friends } = await friendsResp.json();
+					const { friends, pendingSentInvites, pendingReceivedInvites } = await friendsResp.json();
 					boardState.setBoard(board, friends, sharedNotes);
+					friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);
 					fetchState.setFetched('board');
+					fetchState.setFetched('friends');
 					loading = false;
 				})
 				.catch((err) => {
