@@ -31,7 +31,7 @@
 			<div
 				in:slide={{ duration: 200 }}
 				out:slide={{ duration: 200 }}
-				class="mb-2 flex items-center justify-between rounded-lg p-4 text-sm shadow-lg"
+				class="mb-2 flex items-center justify-between rounded-lg p-4 text-sm shadow-lg dark:text-gray-900"
 				class:bg-red-300={data.type === 'error'}
 				class:bg-green-300={data.type === 'success'}
 			>
