@@ -65,8 +65,9 @@ export default [
 		}
 	},
 	{
-		files: ['**/*.svelte'],
+		files: ['**/*.svelte', '**/*.svelte.ts'],
 		rules: {
+			'prefer-const': 'off',
 			'svelte/no-at-html-tags': 'off',
 			'@typescript-eslint/no-empty-object-type': 'off'
 		},
