@@ -2,6 +2,7 @@ import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
+import { updateAuthUser, type UpdateAuthUserParams } from '$lib/auth/updateAuthUser';
 import {
 	createUser,
 	getAllUsersById,
@@ -50,6 +51,12 @@ const tryFetchAuthUser = ({
 }): TE.TaskEither<ServerError, AuthUserProfile> =>
 	TE.tryCatch(
 		() => fetchAuthUser({ accessToken }),
+		withError('FetchError', 'Failed to fetch user with access token')
+	);
+
+export const tryUpdateAuthUser = (params: UpdateAuthUserParams): TE.TaskEither<ServerError, void> =>
+	TE.tryCatch(
+		() => updateAuthUser(params),
 		withError('FetchError', 'Failed to fetch user with access token')
 	);
 

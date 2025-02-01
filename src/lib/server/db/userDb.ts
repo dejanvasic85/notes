@@ -251,3 +251,22 @@ export const updateConnection = (
 		})
 	);
 };
+
+type UpdateUserParams = {
+	id: string;
+	name: string;
+};
+
+export const updateUser = ({ id, name }: UpdateUserParams): TE.TaskEither<ServerError, User> => {
+	return pipe(
+		tryDbTask(() =>
+			db.user.update({
+				where: { id },
+				data: {
+					name
+				}
+			})
+		),
+		TE.map((user) => ({ ...user, boards: [] }))
+	);
+};

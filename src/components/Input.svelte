@@ -10,7 +10,7 @@
 		onchange?: ChangeEventHandler<HTMLInputElement> | undefined | null;
 	};
 
-	let { id, name, value, invalid, type = 'text', onchange }: Props = $props();
+	let { id, name, value = $bindable(), invalid, type = 'text', onchange }: Props = $props();
 </script>
 
 <input
