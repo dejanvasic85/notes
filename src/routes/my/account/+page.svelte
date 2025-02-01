@@ -9,10 +9,10 @@
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 
 	type Props = {
-		data: { displayName: string };
+		data: { name: string };
 		form?: {
 			errors: {
-				displayName: string;
+				name: string;
 			};
 		};
 	};
@@ -55,20 +55,20 @@
 	}}
 >
 	<div class="mt-4 flex w-full flex-col gap-2 lg:w-1/2">
-		<label for="displayName" class:text-error={!!props.form?.errors?.displayName} use:melt={$root}
+		<label for="name" class:text-error={!!props.form?.errors?.name} use:melt={$root}
 			>Display name</label
 		>
 		<div class="flex-1">
 			<Input
-				id="displayName"
+				id="name"
 				type="text"
-				name="displayName"
-				invalid={!!props.form?.errors?.displayName}
-				value={props.data.displayName}
+				name="name"
+				invalid={!!props.form?.errors?.name}
+				value={props.data.name}
 			/>
 		</div>
-		{#if props.form?.errors?.displayName}
-			<p class="mt-2 text-sm text-error">{props.form?.errors?.displayName}</p>
+		{#if props.form?.errors?.name}
+			<p class="mt-2 text-sm text-error">{props.form?.errors?.name}</p>
 		{/if}
 		<div class="flex justify-end">
 			<Button type="submit" {loading}>Update</Button>
