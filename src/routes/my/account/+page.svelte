@@ -28,7 +28,7 @@
 </script>
 
 <div class="mb-4">
-	<a href="/my/friends" class="mb-4">
+	<a href="/my/board" class="mb-4">
 		<Icon icon="arrow-left" />
 	</a>
 </div>
