@@ -67,7 +67,7 @@ export const sendInvite = (params: SendInviteParams): TE.TaskEither<ServerError,
 			})
 		),
 		TE.flatMap((invite) => {
-			const inviteLink = `${params.baseUrl}/invite/${invite.id}`;
+			const inviteLink = `${params.baseUrl}/invites/${invite.id}`;
 			const html = `Hello ${params.friendEmail}. 
 			<p>You have been invited by ${params.name} to join them in collaborating on Notes.</p> 
 			<p>Accept <a href="${inviteLink}">invite</a> to get started now.</p>`;
