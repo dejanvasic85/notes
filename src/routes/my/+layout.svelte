@@ -60,7 +60,7 @@
 	</div>
 
 	<!-- Main content -->
-	<main class="mb-20 overflow-y-auto p-8">{@render children()}</main>
+	<main class="mb-20 overflow-y-auto p-4 lg:p-8">{@render children()}</main>
 
 	<!-- Mobile Menu -->
 	<div
