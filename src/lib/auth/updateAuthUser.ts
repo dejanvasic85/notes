@@ -4,6 +4,8 @@ let cachedToken: string | undefined = undefined;
 const getToken = async () => {
 	if (cachedToken) return cachedToken;
 
+	console.log('Fetching token ...', { AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET });
+
 	const resp = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
 		method: 'POST',
 		headers: {
