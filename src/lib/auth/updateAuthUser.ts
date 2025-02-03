@@ -33,6 +33,11 @@ export type UpdateAuthUserParams = {
 };
 
 export const updateAuthUser = async ({ authId, name }: UpdateAuthUserParams) => {
+	if (!authId.startsWith('auth0|')) {
+		// We can only update the user if it's not a social login
+		return;
+	}
+
 	const token = await getToken();
 	const resp = await fetch(`https://${AUTH0_DOMAIN}/api/v2/users/${authId}`, {
 		method: 'PATCH',
