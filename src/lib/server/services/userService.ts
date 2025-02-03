@@ -55,10 +55,7 @@ const tryFetchAuthUser = ({
 	);
 
 export const tryUpdateAuthUser = (params: UpdateAuthUserParams): TE.TaskEither<ServerError, void> =>
-	TE.tryCatch(
-		() => updateAuthUser(params),
-		withError('FetchError', 'Failed to fetch user with access token')
-	);
+	TE.tryCatch(() => updateAuthUser(params), withError('FetchError', 'Failed to update user'));
 
 interface GetOrCreateUserParams {
 	authId: string;

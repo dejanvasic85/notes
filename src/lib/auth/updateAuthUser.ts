@@ -4,8 +4,6 @@ let cachedToken: string | undefined = undefined;
 const getToken = async () => {
 	if (cachedToken) return cachedToken;
 
-	console.log('Fetching token ...', { AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET });
-
 	const resp = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
 		method: 'POST',
 		headers: {
@@ -20,7 +18,8 @@ const getToken = async () => {
 	});
 
 	if (!resp.ok) {
-		throw new Error(`Failed to fetch token. Status: ${resp.status}`);
+		const responseText = await resp.text();
+		throw new Error(`Failed to fetch token. Status: ${resp.status}. Response: ${responseText}`);
 	}
 
 	const { access_token } = await resp.json();
@@ -47,6 +46,7 @@ export const updateAuthUser = async ({ authId, name }: UpdateAuthUserParams) => 
 	});
 
 	if (!resp.ok) {
-		throw new Error(`Failed to update user. Status: ${resp.status}`);
+		const responseText = await resp.text();
+		throw new Error(`Failed to update user. Status: ${resp.status}. Response: ${responseText}`);
 	}
 };
