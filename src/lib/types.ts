@@ -67,7 +67,8 @@ export type NoteOrdered = z.infer<typeof NoteOrderedSchema>;
 export const UserInviteSchema = EntitySchema.extend({
 	friendEmail: z.string(),
 	userId: z.string(),
-	status: z.string().nullable()
+	status: z.string().nullable(),
+	invitedToNoteId: z.string().nullable().optional()
 });
 
 export type UserInvite = z.infer<typeof UserInviteSchema>;

@@ -11,6 +11,7 @@ export const actions = {
 	default: async ({ request, locals }) => {
 		const formData = await request.formData();
 		const friendEmail = formData.get('email') as string;
+		const invitedToNoteId = formData.get('invitedToNoteId') as string;
 		const currentUser = locals.user!;
 
 		return pipe(
@@ -19,7 +20,8 @@ export const actions = {
 				friendEmail,
 				name: currentUser.name!,
 				userEmail: currentUser.email!,
-				userId: currentUser.id
+				userId: currentUser.id,
+				invitedToNoteId: invitedToNoteId || null
 			}),
 			TE.mapLeft(mapToApiError),
 			TE.match(

@@ -24,6 +24,7 @@ interface SendInviteParams {
 	friendEmail: string;
 	userId: string;
 	userEmail: string;
+	invitedToNoteId: string | null;
 }
 
 const validateSendInviteParams = (
@@ -63,7 +64,8 @@ export const sendInvite = (params: SendInviteParams): TE.TaskEither<ServerError,
 				id: generateId('inv'),
 				userId: params.userId,
 				friendEmail: params.friendEmail,
-				status: null
+				status: null,
+				invitedToNoteId: params.invitedToNoteId
 			})
 		),
 		TE.flatMap((invite) => {

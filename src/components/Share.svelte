@@ -48,10 +48,10 @@
 	>
 		<a
 			class="flex items-center rounded-lg bg-white p-2 hover:ring-2 dark:bg-dark"
-			href={`/my/friends?noteId=${noteId}`}
+			href={`/my/friends/add?noteId=${noteId}`}
 			use:melt={$item}
 		>
-			<Icon icon="plus-circle" size={30} title="No colour" fill="none" /> &nbsp; Add friend
+			<Icon icon="plus-circle" size={30} title="No colour" fill="none" /> &nbsp; Invite friend
 		</a>
 		{#each friends as { id, noteEditorId, name, selected }}
 			<button
