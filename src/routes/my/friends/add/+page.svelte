@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { createLabel, melt } from '@melt-ui/svelte';
 
 	import { getFetchState } from '$lib/state/fetchState.svelte';
@@ -10,6 +11,7 @@
 
 	let loading = $state(false);
 	let error = $state('');
+	const invitedToNoteId = page.url.searchParams.get('noteId');
 	const fetchState = getFetchState();
 
 	const {
@@ -42,6 +44,7 @@
 		};
 	}}
 >
+	<input type="hidden" value={invitedToNoteId} name="invitedToNoteId" />
 	<div class="mt-4 flex w-full flex-col gap-2 lg:w-1/2">
 		<label for="email" class:text-error={!!error} use:melt={$root}>Email</label>
 		<div class="flex-1">

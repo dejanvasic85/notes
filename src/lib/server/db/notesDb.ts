@@ -2,7 +2,6 @@ import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/server/db';
-import { withError } from '$lib/server/createError';
 import type {
 	ServerError,
 	Note,
@@ -51,20 +50,30 @@ export const createNote = (note: Note): TE.TaskEither<ServerError, Note> =>
 		})
 	);
 
+export const createNoteEditor = (noteEditor: NoteEditor): TE.TaskEither<ServerError, NoteEditor> =>
+	tryDbTask(() => db.noteEditor.create({ data: noteEditor }));
+
 export const createOrUpdateNoteEditor = (
 	data: NoteEditorInput
 ): TE.TaskEither<ServerError, NoteEditor> => {
-	return TE.tryCatch(
-		() => {
-			return db.noteEditor.upsert({
-				where: { id: data.id },
-				update: data,
-				create: data
-			});
-		},
-		withError('DatabaseError', 'Failed to create note editor')
-	);
+	return tryDbTask(() => {
+		return db.noteEditor.upsert({
+			where: { id: data.id },
+			update: data,
+			create: data
+		});
+	});
 };
+
+export const getNoteEditor = ({ noteId, userId }: Pick<NoteEditor, 'noteId' | 'userId'>) =>
+	tryDbTask(() => {
+		return db.noteEditor.findFirst({
+			where: {
+				userId: userId,
+				noteId: noteId
+			}
+		});
+	});
 
 export const getSharedNotes = ({
 	userId
@@ -77,7 +86,11 @@ export const getSharedNotes = ({
 				where: {
 					editors: { some: { userId } }
 				},
-				include: { board: { include: { user: { select: { name: true, id: true } } } } }
+				include: {
+					board: {
+						include: { user: { select: { name: true, id: true } } }
+					}
+				}
 			});
 		}),
 		TE.map((data) =>

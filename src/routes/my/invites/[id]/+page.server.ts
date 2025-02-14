@@ -17,9 +17,10 @@ export const load = async ({ params, locals }) => {
 			(err) => {
 				throw error(err.status, err.message);
 			},
-			(result) => ({
+			({ invitedBy, noteEditor }) => ({
 				connected: true,
-				friendName: result.invitedBy.name
+				friendName: invitedBy.name,
+				noteEditor
 			})
 		)
 	)();

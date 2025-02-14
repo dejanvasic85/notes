@@ -21,11 +21,13 @@ import type {
 	UserInvite,
 	ValidationError
 } from '$lib/types';
+import { addNoteEditorFromInvite } from '$lib/server/services/noteService';
 
 import { acceptInvite, sendInvite, cancelInvite } from './friendService';
 
 vi.mock('$lib/server/db/userDb');
 vi.mock('$lib/server/services/emailService');
+vi.mock('$lib/server/services/noteService');
 
 const mockSendEmail = sendEmail as MockedFunction<typeof sendEmail>;
 const mockCreateInvite = createInvite as MockedFunction<typeof createInvite>;
@@ -36,6 +38,9 @@ const mockCreateConnection = createConnection as MockedFunction<typeof createCon
 const mockGetConnectionOrNull = getConnectionOrNull as MockedFunction<typeof getConnectionOrNull>;
 const mockUpdateConnection = updateConnection as MockedFunction<typeof updateConnection>;
 const mockGetInvitesByUser = getInvitesByUser as MockedFunction<typeof getInvitesByUser>;
+const mockAddNoteEditorFromInvite = addNoteEditorFromInvite as MockedFunction<
+	typeof addNoteEditorFromInvite
+>;
 
 describe('acceptInvite', () => {
 	it('should update the invite to accepted and create a new connection', async () => {
@@ -67,7 +72,12 @@ describe('acceptInvite', () => {
 		const result: any = await acceptInvite(inviteId, acceptedBy)();
 
 		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual({ connection, invitedBy });
+		expect(result.right).toEqual({
+			connection,
+			invitedBy,
+			invite,
+			noteEditor: null
+		});
 	});
 
 	it('should update the invite to accepted and update an existing connection when exists', async () => {
@@ -95,11 +105,17 @@ describe('acceptInvite', () => {
 		mockUpdateInvite.mockReturnValue(TE.right({ ...invite, status: 'accepted' }));
 		mockGetConnectionOrNull.mockReturnValue(TE.right(connection));
 		mockUpdateConnection.mockReturnValue(TE.right({ ...connection, type: 'connected' }));
+		mockAddNoteEditorFromInvite.mockReturnValue(TE.right(null));
 
 		const result: any = await acceptInvite(inviteId, acceptedBy)();
 
 		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual({ connection: { ...connection, type: 'connected' }, invitedBy });
+		expect(result.right).toEqual({
+			connection: { ...connection, type: 'connected' },
+			invitedBy,
+			invite,
+			noteEditor: null
+		});
 		expect(mockCreateConnection).not.toHaveBeenCalled();
 	});
 
@@ -120,7 +136,7 @@ describe('acceptInvite', () => {
 	});
 });
 
-describe('sendInvites', () => {
+describe('sendInvite', () => {
 	it('should create an invite and send an email to the friend', async () => {
 		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
 		mockSendEmail.mockReturnValue(TE.right({} as any));
@@ -131,7 +147,8 @@ describe('sendInvites', () => {
 			friendEmail: 'bob@foo.com',
 			name: 'foo bar',
 			userId: 'uid_123',
-			userEmail: 'foo@bar.com'
+			userEmail: 'foo@bar.com',
+			invitedToNoteId: null
 		})();
 
 		expect(result._tag).toBe('Right');
@@ -152,7 +169,8 @@ describe('sendInvites', () => {
 			friendEmail: 'bob@foo.com',
 			name: 'foo bar',
 			userId: 'uid_123',
-			userEmail: 'foo@bar.com'
+			userEmail: 'foo@bar.com',
+			invitedToNoteId: null
 		})();
 
 		expect(result._tag).toBe('Left');
@@ -174,7 +192,8 @@ describe('sendInvites', () => {
 			friendEmail: 'bob@foo.com',
 			name: 'foo bar',
 			userId: 'uid_123',
-			userEmail: 'foo@bar.com'
+			userEmail: 'foo@bar.com',
+			invitedToNoteId: null
 		})();
 
 		expect(result._tag).toBe('Left');
@@ -197,7 +216,8 @@ describe('sendInvites', () => {
 			friendEmail: 'foo@bar.com',
 			name: 'foo bar',
 			userId: 'uid_123',
-			userEmail: 'foo@bar.com'
+			userEmail: 'foo@bar.com',
+			invitedToNoteId: null
 		})();
 
 		expect(result._tag).toBe('Left');
@@ -222,7 +242,8 @@ describe('sendInvites', () => {
 			friendEmail: 'friend@bar.com',
 			name: 'foo bar',
 			userId: 'uid_123',
-			userEmail: 'foo@bar.com'
+			userEmail: 'foo@bar.com',
+			invitedToNoteId: null
 		})();
 
 		expect(result._tag).toBe('Left');

@@ -3,10 +3,15 @@ import { pipe } from 'fp-ts/lib/function';
 
 import { PUBLIC_BASE_URL } from '$env/static/public';
 
-import { createOrUpdateNoteEditor } from '$lib/server/db/notesDb';
+import {
+	createOrUpdateNoteEditor,
+	createNoteEditor,
+	getNoteById,
+	getNoteEditor
+} from '$lib/server/db/notesDb';
 import { getUserByNoteId, getUser } from '$lib/server/db/userDb';
-import type { NoteEditorInput, ServerError } from '$lib/types';
-
+import type { NoteEditor, NoteEditorInput, ServerError } from '$lib/types';
+import { generateId } from '$lib/identityGenerator';
 import { sendEmail } from './emailService';
 
 export const updateNoteEditor = (input: NoteEditorInput): TE.TaskEither<ServerError, void> => {
@@ -21,7 +26,7 @@ export const updateNoteEditor = (input: NoteEditorInput): TE.TaskEither<ServerEr
 			}
 			const html = `Hello, ${fromUser.name} has given you access to 
 				<a href="${PUBLIC_BASE_URL}/my/board?id=${input.noteId}" target="_blank">
-				view their note!</a>.`;
+				collaborate on their note!</a>.`;
 
 			return sendEmail({
 				html,
@@ -31,3 +36,28 @@ export const updateNoteEditor = (input: NoteEditorInput): TE.TaskEither<ServerEr
 		})
 	);
 };
+
+type NoteEditorInviteInput = {
+	noteId: string;
+	userId: string;
+};
+
+export const addNoteEditorFromInvite = (
+	input: NoteEditorInviteInput
+): TE.TaskEither<ServerError, NoteEditor | null> =>
+	pipe(
+		getNoteById({ id: input.noteId }),
+		TE.flatMap((note) =>
+			note ? getNoteEditor({ noteId: note.id, userId: input.userId }) : TE.right(null)
+		),
+		TE.flatMap((noteEditor) =>
+			noteEditor
+				? TE.right(noteEditor)
+				: createNoteEditor({
+						id: generateId('ned'),
+						noteId: input.noteId,
+						userId: input.userId,
+						selected: true
+					})
+		)
+	);
