@@ -1,7 +1,7 @@
 import { taskEither as TE, either as E } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
-import type { ServerError, User, UserConnection, UserInvite } from '$lib/types';
+import type { NoteEditor, ServerError, User, UserConnection, UserInvite } from '$lib/types';
 
 import { generateId } from '$lib/identityGenerator';
 import {
@@ -16,7 +16,8 @@ import {
 	getConnectionOrNull
 } from '$lib/server/db/userDb';
 import { sendEmail } from '$lib/server/services/emailService';
-import { createError } from '../createError';
+import { addNoteEditorFromInvite } from '$lib/server/services/noteService';
+import { createError } from '$lib/server/createError';
 
 interface SendInviteParams {
 	baseUrl: string;
@@ -82,10 +83,17 @@ export const sendInvite = (params: SendInviteParams): TE.TaskEither<ServerError,
 	);
 };
 
+export type AcceptInviteResult = {
+	connection: UserConnection;
+	invitedBy: User;
+	invite: UserInvite;
+	noteEditor: NoteEditor | null;
+};
+
 export const acceptInvite = (
 	inviteId: string,
-	acceptedBy: Pick<User, 'id' | 'email'>
-): TE.TaskEither<ServerError, { connection: UserConnection; invitedBy: User }> => {
+	acceptedByUser: Pick<User, 'id' | 'email'>
+): TE.TaskEither<ServerError, AcceptInviteResult> => {
 	return pipe(
 		TE.Do,
 		TE.bind('invite', () => getInvite(inviteId)),
@@ -93,21 +101,28 @@ export const acceptInvite = (
 			getUser({ id: invite.userId, includeBoards: false, includeNotes: false })
 		),
 		TE.bind('existingConnection', ({ invite }) =>
-			getConnectionOrNull(invite.userId, acceptedBy.id)
+			getConnectionOrNull(invite.userId, acceptedByUser.id)
 		),
 		TE.bind('connection', ({ invite, existingConnection }) =>
 			existingConnection
 				? updateConnection({ ...existingConnection, type: 'connected' })
 				: createConnection({
 						userFirstId: invite.userId,
-						userSecondId: acceptedBy.id,
+						userSecondId: acceptedByUser.id,
 						type: 'connected'
 					})
 		),
 		TE.bind('updateInvite', ({ invite }) => updateInvite({ ...invite, status: 'accepted' })),
-		TE.map(({ connection, invitedBy }) => ({
+		TE.bind('noteEditor', ({ invite }) =>
+			invite.invitedToNoteId
+				? addNoteEditorFromInvite({ noteId: invite.invitedToNoteId, userId: acceptedByUser.id })
+				: TE.right(null)
+		),
+		TE.map(({ connection, invitedBy, invite, noteEditor }) => ({
 			connection,
-			invitedBy
+			invitedBy,
+			invite,
+			noteEditor
 		}))
 	);
 };
