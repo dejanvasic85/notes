@@ -11,6 +11,18 @@ export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> 
 		TE.flatMap(fromNullableRecord(`Note with id ${id} not found`))
 	);
 
+export const getNoteOwnerUserId = (noteId: string): TE.TaskEither<ServerError, string> => {
+	return pipe(
+		tryDbTask(() => {
+			return db.note.findFirstOrThrow({
+				where: { id: noteId },
+				select: { board: { select: { userId: true } } }
+			});
+		}),
+		TE.flatMap((d) => TE.right(d.board.userId))
+	);
+};
+
 export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> =>
 	tryDbTask(() => {
 		return db.note.update({

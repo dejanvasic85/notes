@@ -7,7 +7,8 @@ import {
 	createOrUpdateNoteEditor,
 	createNoteEditor,
 	getNoteById,
-	getNoteEditor
+	getNoteEditor,
+	getNoteOwnerUserId
 } from '$lib/server/db/notesDb';
 import { getUserByNoteId, getUser } from '$lib/server/db/userDb';
 import type { NoteEditor, NoteEditorInput, ServerError } from '$lib/types';
@@ -61,3 +62,31 @@ export const addNoteEditorFromInvite = (
 					})
 		)
 	);
+
+type NoteAuthParams = {
+	noteId: string;
+	userId: string;
+};
+
+export const isNoteEditor = (params: NoteAuthParams): TE.TaskEither<ServerError, boolean> => {
+	return pipe(
+		getNoteEditor(params),
+		TE.map((editor) => !!editor)
+	);
+};
+
+export const isNoteOwner = (params: NoteAuthParams): TE.TaskEither<ServerError, boolean> => {
+	return pipe(
+		getNoteOwnerUserId(params.noteId),
+		TE.map((ownerId) => ownerId === params.userId)
+	);
+};
+
+export const isNoteEditorOrOwner = (
+	params: NoteAuthParams
+): TE.TaskEither<ServerError, boolean> => {
+	return pipe(
+		isNoteOwner(params),
+		TE.flatMap((isOwner) => (isOwner ? TE.right(true) : isNoteEditor(params)))
+	);
+};

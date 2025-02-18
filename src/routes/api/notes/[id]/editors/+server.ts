@@ -10,7 +10,7 @@ import { updateNoteEditor } from '$lib/server/services/noteService';
 
 export const POST: RequestHandler = async ({ request, params }) => {
 	return pipe(
-		parseRequest(request, NoteEditorInputSchema, 'Unable to parse NotePatchInputSchema'),
+		parseRequest(request, NoteEditorInputSchema, 'Unable to parse NoteEditorInputSchema'),
 		TE.map((input) => ({
 			noteId: params.id!,
 			...input
