@@ -1,9 +1,8 @@
 <script lang="ts">
-	import type { Friend, NoteOrdered, SharedNote, ToggleFriendShare } from '$lib/types';
+	import type { Friend, NoteOrdered, ToggleFriendShare } from '$lib/types';
 
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
-	import NoteViewer from './NoteViewer.svelte';
 	import NoteDropzone from './NoteDropzone.svelte';
 	import NoteContainer from './NoteContainer.svelte';
 	import NoteList from './NoteList.svelte';
@@ -11,10 +10,8 @@
 	type Props = {
 		notes: NoteOrdered[];
 		selectedNote?: NoteOrdered | null;
-		selectedSharedNote?: SharedNote | null;
 		enableSharing?: boolean;
 		friends?: Friend[];
-		sharedNotes?: SharedNote[];
 		onclosenote: () => void;
 		onupdatenote: (params: { note: NoteOrdered }) => void;
 		onselect: (params: { id: string }) => void;
@@ -26,10 +23,8 @@
 	let {
 		notes,
 		selectedNote,
-		selectedSharedNote,
 		enableSharing = false,
 		friends = [],
-		sharedNotes = [],
 		onupdatenote,
 		onclosenote,
 		onselect,
@@ -59,12 +54,6 @@
 	}
 
 	function handleEdit(id?: string) {
-		if (id) {
-			onselect({ id });
-		}
-	}
-
-	function handleSharedNoteSelected(id?: string) {
 		if (id) {
 			onselect({ id });
 		}
@@ -104,14 +93,6 @@
 	/>
 {/if}
 
-{#if selectedSharedNote}
-	<NoteViewer
-		noteHtmlText={selectedSharedNote.text}
-		noteColour={selectedSharedNote.colour}
-		onclose={() => handleModalClose(selectedSharedNote.id)}
-	/>
-{/if}
-
 {#if notes.length === 0}
 	<p>Nothing to see here yet! Go on, create a note.</p>
 {:else}
@@ -121,24 +102,6 @@
 				<NoteDropzone {index} ondropped={handleDrop}>
 					<Note {note} {index} isDraggable={true} onclick={() => handleEdit(note.id)} />
 				</NoteDropzone>
-			</NoteContainer>
-		{/each}
-	</NoteList>
-{/if}
-
-{#if sharedNotes.length > 0}
-	<div class="my-6">
-		<h1 class="text-2xl">Shared notes</h1>
-	</div>
-	<NoteList>
-		{#each sharedNotes as sharedNote, index}
-			<NoteContainer>
-				<Note
-					note={sharedNote}
-					{index}
-					isDraggable={false}
-					onclick={() => handleSharedNoteSelected(sharedNote.id)}
-				/>
 			</NoteContainer>
 		{/each}
 	</NoteList>

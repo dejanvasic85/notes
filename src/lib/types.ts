@@ -58,11 +58,7 @@ export const BoardPatchSchema = z.object({
 
 export type BoardPatch = z.infer<typeof BoardPatchSchema>;
 
-export const NoteOrderedSchema = NoteSchema.extend({
-	order: z.number()
-});
-
-export type NoteOrdered = z.infer<typeof NoteOrderedSchema>;
+export type NoteOrdered = Note & { order: number };
 
 export const UserInviteSchema = EntitySchema.extend({
 	friendEmail: z.string(),
@@ -103,11 +99,6 @@ export type User = z.infer<typeof UserSchema>;
 export type Friend = Pick<User, 'email' | 'id' | 'name' | 'picture'>;
 
 export type FriendSelection = { noteEditorId?: string; selected: boolean } & Friend;
-
-export type SharedNote = Pick<Note, 'id' | 'colour' | 'text' | 'textPlain'> & {
-	friendUserId: User['id'];
-	friendName: User['name'];
-};
 
 export const AuthUserProfileSchema = z.object({
 	sub: z.string(),

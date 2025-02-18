@@ -2,15 +2,7 @@ import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/server/db';
-import type {
-	ServerError,
-	Note,
-	IdParams,
-	NoteEditorInput,
-	NoteEditor,
-	SharedNote
-} from '$lib/types';
-
+import type { ServerError, Note, IdParams, NoteEditorInput, NoteEditor } from '$lib/types';
 import { fromNullableRecord, tryDbTask } from './utils';
 
 export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> =>
@@ -75,11 +67,13 @@ export const getNoteEditor = ({ noteId, userId }: Pick<NoteEditor, 'noteId' | 'u
 		});
 	});
 
+type GetSharedNotesParmas = {
+	userId: string;
+};
+
 export const getSharedNotes = ({
 	userId
-}: {
-	userId: string;
-}): TE.TaskEither<ServerError, SharedNote[]> =>
+}: GetSharedNotesParmas): TE.TaskEither<ServerError, Note[]> =>
 	pipe(
 		tryDbTask(() => {
 			return db.note.findMany({
@@ -92,15 +86,5 @@ export const getSharedNotes = ({
 					}
 				}
 			});
-		}),
-		TE.map((data) =>
-			data.map(({ id, colour, text, textPlain, board }) => ({
-				id,
-				colour,
-				text,
-				textPlain,
-				friendUserId: board.user.id,
-				friendName: board.user.name
-			}))
-		)
+		})
 	);

@@ -1,58 +1,55 @@
 import { getContext, setContext } from 'svelte';
 
-import type { Board, NoteOrdered, SharedNote, Friend, Note, ToggleFriendShare } from '$lib/types';
+import type { Board, NoteOrdered, Friend, Note, ToggleFriendShare } from '$lib/types';
 import { generateId } from '$lib/identityGenerator';
 
 export class BoardState {
 	boardId: string = $state('');
 	noteOrder: string[] = $state([]);
-	notes: NoteOrdered[] = $state([]);
-	sharedNotes: SharedNote[] = $state([]);
+	notesOrdered: NoteOrdered[] = $state([]);
 	friends: Friend[] = $state([]);
 
 	constructor() {}
 
-	setBoard(board: Board, friends: Friend[], sharedNotes: SharedNote[]) {
+	setBoard(board: Board, friends: Friend[], sharedNotes: Note[]) {
 		this.boardId = board.id;
 		this.noteOrder = [...board.noteOrder];
-		this.notes = mapToOrderedNotes(this.noteOrder, board.notes);
+		this.notesOrdered = mapToOrderedNotes(this.noteOrder, [...board.notes, ...sharedNotes]);
 		this.friends = friends;
-		this.sharedNotes = sharedNotes;
 	}
 
 	reset() {
 		this.boardId = '';
 		this.noteOrder = [];
-		this.notes = [];
+		this.notesOrdered = [];
 		this.friends = [];
-		this.sharedNotes = [];
 	}
 
 	createNewNote(textPlain = '') {
 		const id = generateId('nid');
 		const newNote: Note = { id, text: textPlain, textPlain, boardId: this.boardId, colour: null };
-		this.notes.push({ ...newNote, order: this.notes.length });
+		this.notesOrdered.push({ ...newNote, order: this.notesOrdered.length });
 		this.noteOrder.push(id);
 		return newNote;
 	}
 
 	createNoteAtIndex(index: number, note: Note) {
-		this.notes.splice(index, 0, { ...note, order: index });
+		this.notesOrdered.splice(index, 0, { ...note, order: index });
 		this.noteOrder.splice(index, 0, note.id);
 	}
 
 	deleteNoteById(id: string): [NoteOrdered, number] {
-		const noteToDelete = this.notes.find((n) => n.id === id);
+		const noteToDelete = this.notesOrdered.find((n) => n.id === id);
 		const index = this.noteOrder.indexOf(id);
 		if (index === -1 || !noteToDelete) {
 			throw new Error('Note not found');
 		}
-		this.notes = this.notes.filter((n) => n.id !== id);
+		this.notesOrdered = this.notesOrdered.filter((n) => n.id !== id);
 		return [noteToDelete, index];
 	}
 
 	toggleFriendShare({ friendUserId, noteId, selected, id }: ToggleFriendShare) {
-		const note = this.notes.find((n) => n.id === noteId);
+		const note = this.notesOrdered.find((n) => n.id === noteId);
 		const friend = this.friends.find((f) => f.id === friendUserId);
 		if (!note || !friend) {
 			throw new Error('Note or friend not found');
@@ -72,7 +69,7 @@ export class BoardState {
 	}
 
 	updateNote(note: NoteOrdered) {
-		const noteToUpdate = this.notes.find((n) => n.id === note.id);
+		const noteToUpdate = this.notesOrdered.find((n) => n.id === note.id);
 		if (!noteToUpdate) {
 			throw new Error('Note not found');
 		}
@@ -87,7 +84,7 @@ export class BoardState {
 		const original = Array.from(this.noteOrder);
 		const [removed] = this.noteOrder.splice(fromIndex, 1);
 		this.noteOrder.splice(toIndex, 0, removed);
-		this.notes = mapToOrderedNotes(this.noteOrder, this.notes);
+		this.notesOrdered = mapToOrderedNotes(this.noteOrder, this.notesOrdered);
 		return [this.noteOrder, original];
 	}
 }
@@ -103,12 +100,23 @@ export function getBoardState() {
 }
 
 function mapToOrderedNotes(noteOrder: string[], notes: Note[]): NoteOrdered[] {
-	return noteOrder.map((id, index) => {
-		const note = notes.find((n) => n.id === id);
-		if (!note) throw new Error(`Note ${id} not found`);
-		return {
-			...note,
-			order: index
-		};
-	});
+	const oredered = noteOrder
+		.map((id, index) => {
+			const note = notes.find((n) => n.id === id);
+			if (!note) {
+				return null;
+			}
+			return {
+				...note,
+				order: index
+			};
+		})
+		.filter((n) => !!n);
+
+	// merge with notes that are not in the noteOrder
+	const notOrdered = notes.filter((n) => !noteOrder.includes(n.id));
+	return [
+		...oredered,
+		...notOrdered.map((n) => ({ ...n, order: oredered.length + notOrdered.indexOf(n) }))
+	];
 }
