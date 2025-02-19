@@ -34,6 +34,15 @@ export const NoteSchema = EntitySchema.extend({
 	editors: z.array(NoteEditorSchema).optional()
 });
 
+export const CreateNoteInputSchema = NoteSchema.pick({
+	id: true,
+	text: true,
+	textPlain: true,
+	colour: true
+});
+
+export type CreateNoteInput = z.infer<typeof CreateNoteInputSchema>;
+
 export type Note = z.infer<typeof NoteSchema>;
 
 export const NotePatchInputSchema = z.object({

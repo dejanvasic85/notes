@@ -2,7 +2,14 @@ import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import db from '$lib/server/db';
-import type { ServerError, Note, IdParams, NoteEditorInput, NoteEditor } from '$lib/types';
+import type {
+	ServerError,
+	Note,
+	IdParams,
+	NoteEditorInput,
+	NoteEditor,
+	CreateNoteInput
+} from '$lib/types';
 import { fromNullableRecord, tryDbTask } from './utils';
 
 export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> =>
@@ -43,12 +50,17 @@ export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, N
 		})
 	);
 
-export const createNote = (note: Note): TE.TaskEither<ServerError, Note> =>
+type CreateNoteParams = {
+	note: CreateNoteInput;
+	boardId: string;
+};
+
+export const createNote = ({ note, boardId }: CreateNoteParams): TE.TaskEither<ServerError, Note> =>
 	tryDbTask(() =>
 		db.note.create({
 			data: {
 				...note,
-				boardId: note.boardId!,
+				boardId,
 				editors: undefined
 			}
 		})

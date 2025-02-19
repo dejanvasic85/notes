@@ -33,6 +33,11 @@ interface IsNoteOwnerParams {
 	user: User;
 }
 
+/**
+ *
+ * @returns true if the user is the owner of the note
+ * @deprecated Use isNoteOwnerOrEditor instead
+ */
 export const isNoteOwner = <T extends IsNoteOwnerParams>({
 	note,
 	user,
@@ -97,21 +102,6 @@ export const getOrCreateUserByAuth = ({
 			return TE.left(err);
 		})
 	);
-
-export const getCurrentBoardForUserNote = ({
-	note,
-	user
-}: {
-	note: Note;
-	user: User;
-}): TE.TaskEither<ServerError, { note: Note; user: User; board: Board }> => {
-	const boardId = note.boardId;
-	const board = user.boards.find((b) => b.id === boardId);
-	if (!board) {
-		return TE.left(createError('RecordNotFound', `Board ${boardId} not found`));
-	}
-	return TE.right({ note, user, board });
-};
 
 export const getFriends = (userId: string): TE.TaskEither<ServerError, Friend[]> => {
 	return pipe(

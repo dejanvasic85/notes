@@ -79,22 +79,6 @@ describe('POST', () => {
 		});
 	});
 
-	it('should return a 403 when the user is not the owner of the note', async () => {
-		const request = {
-			json: vi.fn().mockResolvedValue({ ...mockNoteInput, boardId: 'board_456' })
-		};
-
-		await expect(
-			POST({
-				locals: { user: { id: 'uid_123' } },
-				request
-			} as any)
-		).rejects.toEqual({
-			status: 403,
-			body: { message: 'User uid_hello is not the owner of note note_123' }
-		});
-	});
-
 	it('should return a 500 when the update board throws an error', async () => {
 		const request = {
 			json: vi.fn().mockResolvedValue(mockNoteInput)
