@@ -13,6 +13,7 @@ import {
 import { getUserByNoteId, getUser } from '$lib/server/db/userDb';
 import type { NoteEditor, NoteEditorInput, ServerError } from '$lib/types';
 import { generateId } from '$lib/identityGenerator';
+import { createError } from '$lib/server/createError';
 import { sendEmail } from './emailService';
 
 export const updateNoteEditor = (input: NoteEditorInput): TE.TaskEither<ServerError, void> => {
@@ -87,6 +88,11 @@ export const isNoteEditorOrOwner = (
 ): TE.TaskEither<ServerError, boolean> => {
 	return pipe(
 		isNoteOwner(params),
-		TE.flatMap((isOwner) => (isOwner ? TE.right(true) : isNoteEditor(params)))
+		TE.flatMap((isOwner) => (isOwner ? TE.right(true) : isNoteEditor(params))),
+		TE.flatMap(
+			(isEditor) =>
+				TE.right(isEditor) ||
+				TE.left(createError('AuthorizationError', 'User is not an editor or owner'))
+		)
 	);
 };
