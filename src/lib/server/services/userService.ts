@@ -10,7 +10,7 @@ import {
 	getConnections
 } from '$lib/server/db/userDb';
 import { createError, withError } from '$lib/server/createError';
-import type { AuthUserProfile, Board, Friend, Note, ServerError, User } from '$lib/types';
+import type { AuthUserProfile, Board, Friend, ServerError, User } from '$lib/types';
 
 interface IsBoardOwnerParams {
 	user: User;
@@ -26,27 +26,6 @@ export const isBoardOwner = <T extends IsBoardOwnerParams>({
 		? TE.right({ user, board, ...rest } as T)
 		: TE.left(
 				createError('AuthorizationError', `User ${user.id} is not the owner of board ${board.id}`)
-			);
-
-interface IsNoteOwnerParams {
-	note: Note;
-	user: User;
-}
-
-/**
- *
- * @returns true if the user is the owner of the note
- * @deprecated Use isNoteOwnerOrEditor instead
- */
-export const isNoteOwner = <T extends IsNoteOwnerParams>({
-	note,
-	user,
-	...rest
-}: T): TE.TaskEither<ServerError, T> =>
-	user.boards.some((board) => board.id === note.boardId)
-		? TE.right({ note, user, ...rest } as T)
-		: TE.left(
-				createError('AuthorizationError', `User ${user.id} is not the owner of note ${note.id}`)
 			);
 
 const tryFetchAuthUser = ({

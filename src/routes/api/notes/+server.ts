@@ -23,7 +23,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 			)
 		),
 		TE.flatMap(({ createNoteInput, board }) =>
-			createNote({ note: createNoteInput, boardId: board.id })
+			createNote({ ...createNoteInput, boardId: board.id })
 		),
 		TE.mapLeft(mapToApiError),
 		TE.match(

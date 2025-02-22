@@ -50,17 +50,15 @@ export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, N
 		})
 	);
 
-type CreateNoteParams = {
-	note: CreateNoteInput;
+type CreateNoteParams = CreateNoteInput & {
 	boardId: string;
 };
 
-export const createNote = ({ note, boardId }: CreateNoteParams): TE.TaskEither<ServerError, Note> =>
+export const createNote = (noteParams: CreateNoteParams): TE.TaskEither<ServerError, Note> =>
 	tryDbTask(() =>
 		db.note.create({
 			data: {
-				...note,
-				boardId,
+				...noteParams,
 				editors: undefined
 			}
 		})

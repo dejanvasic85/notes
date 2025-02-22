@@ -5,7 +5,7 @@ import { fetchAuthUser } from '$lib/auth/fetchUser';
 import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
 import type { DatabaseError, RecordNotFoundError } from '$lib/types';
 
-import { getOrCreateUserByAuth, isNoteOwner } from './userService';
+import { getOrCreateUserByAuth } from './userService';
 
 vi.mock('$lib/server/db/userDb');
 vi.mock('$lib/auth/fetchUser');
@@ -106,19 +106,5 @@ describe('getOrCreateUserByAuth', () => {
 			expect(result.left).toEqual(databaseError);
 			expect(mockFetchAuthUser).toHaveBeenCalledWith({ accessToken });
 		});
-	});
-});
-
-describe('isNoteOwner', () => {
-	it('should return the same argument provided when the ', async () => {
-		const param = {
-			note: { id: 'note_123', boardId: 'bid_999' },
-			user: { id: 'user_123', boards: [{ id: 'bid_999' }] },
-			randomProperty: '1'
-		};
-		const result: any = await isNoteOwner(param as any)();
-
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual(param);
 	});
 });
