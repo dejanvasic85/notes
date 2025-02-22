@@ -13,19 +13,18 @@ import { createError, withError } from '$lib/server/createError';
 import type { AuthUserProfile, Board, Friend, ServerError, User } from '$lib/types';
 
 interface IsBoardOwnerParams {
-	user: User;
 	board: Board;
+	userId?: string;
 }
 
-export const isBoardOwner = <T extends IsBoardOwnerParams>({
-	user,
+export const isBoardOwner = ({
 	board,
-	...rest
-}: T): TE.TaskEither<ServerError, T> =>
-	user.boards.some((b) => b.id === board.id)
-		? TE.right({ user, board, ...rest } as T)
+	userId
+}: IsBoardOwnerParams): TE.TaskEither<ServerError, Board> =>
+	board.userId === userId
+		? TE.right(board)
 		: TE.left(
-				createError('AuthorizationError', `User ${user.id} is not the owner of board ${board.id}`)
+				createError('AuthorizationError', `User ${userId} is not the owner of board ${board.id}`)
 			);
 
 const tryFetchAuthUser = ({

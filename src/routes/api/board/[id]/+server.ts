@@ -13,9 +13,8 @@ import { BoardPatchSchema } from '$lib/types';
 
 export const GET = async ({ locals, params }) => {
 	return pipe(
-		TE.Do,
-		TE.bind('board', () => getBoard({ id: params.id! })),
-		TE.map(({ board }) => isBoardOwner({ user: locals.user!, board })),
+		getBoard({ id: params.id! }),
+		TE.map((board) => isBoardOwner({ userId: locals.user!.id, board })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => error(err.status, { message: err.message }),
@@ -34,7 +33,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 			getUser({ id: locals.user!.id, includeBoards: true, includeNotes: true })
 		),
 		TE.bind('board', () => getBoard({ id: params.id! })),
-		TE.flatMap((params) => isBoardOwner(params)),
+		TE.bind('boardAccess', ({ board }) => isBoardOwner({ board, userId: locals.user?.id })),
 		TE.flatMap(({ changes, board }) => updateBoard({ ...board, ...changes })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
