@@ -72,7 +72,7 @@ type NoteAuthParams = {
 export const isNoteEditor = (params: NoteAuthParams): TE.TaskEither<ServerError, boolean> => {
 	return pipe(
 		getNoteEditor(params),
-		TE.map((editor) => !!editor)
+		TE.map((editor) => !!editor && editor.selected)
 	);
 };
 
