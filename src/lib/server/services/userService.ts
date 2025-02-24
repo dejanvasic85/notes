@@ -9,7 +9,7 @@ import {
 	getUserByAuthId,
 	getConnections
 } from '$lib/server/db/userDb';
-import { createError, withError } from '$lib/server/createError';
+import { createError, withError } from '$lib/server/errorFactory';
 import type { AuthUserProfile, Board, Friend, ServerError, User } from '$lib/types';
 
 interface IsBoardOwnerParams {

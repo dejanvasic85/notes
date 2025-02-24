@@ -2,9 +2,9 @@ import { describe, expect, it, vi, type MockedFunction } from 'vitest';
 import { taskEither as TE } from 'fp-ts';
 
 import { getNoteOwnerUserId, getNoteEditor } from '$lib/server/db/notesDb';
+import { createError } from '$lib/server/errorFactory';
 
 import { isNoteEditorOrOwner } from './noteService';
-import { createError } from '../createError';
 
 vi.mock('$lib/server/db/notesDb');
 

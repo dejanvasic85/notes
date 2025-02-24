@@ -4,7 +4,7 @@ import jwt, { type JwtHeader, type SigningKeyCallback } from 'jsonwebtoken';
 import jwks from 'jwks-rsa';
 
 import { AUTH0_DOMAIN } from '$env/static/private';
-import { withError } from '$lib/server/createError';
+import { withError } from '$lib/server/errorFactory';
 import type { ServerError } from '$lib/types';
 
 export interface DecodedToken {

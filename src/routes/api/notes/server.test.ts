@@ -4,7 +4,7 @@ import { taskEither as TE } from 'fp-ts';
 
 import { updateBoard, getBoardByUserId } from '$lib/server/db/boardDb';
 import { createNote } from '$lib/server/db/notesDb';
-import { createError } from '$lib/server/createError';
+import { createError } from '$lib/server/errorFactory';
 import type { Note } from '$lib/types';
 
 import { POST } from './+server';

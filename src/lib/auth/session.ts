@@ -3,7 +3,7 @@ import type { Cookies } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 
 import type { User, ServerError } from '$lib/types';
-import { withError } from '$lib/server/createError';
+import { withError } from '$lib/server/errorFactory';
 import { SESSION_SECRET } from '$env/static/private';
 
 const COOKIE_NAME = 'session';

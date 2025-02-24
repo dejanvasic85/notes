@@ -6,7 +6,7 @@ import { mapToApiError } from '$lib/server/mapApi';
 import { updateUser, getUser } from '$lib/server/db/userDb';
 import { tryUpdateAuthUser } from '$lib/server/services/userService';
 import type { ServerError, User } from '$lib/types';
-import { createError } from '$lib/server/createError';
+import { createError } from '$lib/server/errorFactory';
 
 export const load = async ({ locals }) => {
 	if (!locals.user) {

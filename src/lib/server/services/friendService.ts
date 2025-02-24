@@ -17,7 +17,7 @@ import {
 } from '$lib/server/db/userDb';
 import { sendEmail } from '$lib/server/services/emailService';
 import { addNoteEditorFromInvite } from '$lib/server/services/noteService';
-import { createError } from '$lib/server/createError';
+import { createError } from '$lib/server/errorFactory';
 
 interface SendInviteParams {
 	baseUrl: string;
