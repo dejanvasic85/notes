@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 
-	import type { Note, NoteOrdered, SharedNote, ToggleFriendShare } from '$lib/types';
+	import type { Note, NoteOrdered, ToggleFriendShare } from '$lib/types';
 	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { getFetchState } from '$lib/state/fetchState.svelte';
@@ -23,7 +23,6 @@
 	const friendsState = getFriendsState();
 
 	let selectedNote: NoteOrdered | null = $state(null);
-	let selectedSharedNote: SharedNote | null = $state(null);
 	let loading = $state(false);
 	let loadingError = $state('');
 
@@ -51,9 +50,8 @@
 	});
 
 	$effect(() => {
-		selectedNote = selectedId ? boardState.notes.find((n) => n.id === selectedId) || null : null;
-		selectedSharedNote = selectedId
-			? boardState.sharedNotes.find((n) => n.id === selectedId) || null
+		selectedNote = selectedId
+			? boardState.notesOrdered.find((n) => n.id === selectedId) || null
 			: null;
 	});
 
@@ -144,11 +142,9 @@
 	{:else}
 		<Board
 			{selectedNote}
-			{selectedSharedNote}
 			friends={boardState.friends}
-			notes={boardState.notes}
+			notes={boardState.notesOrdered}
 			enableSharing={true}
-			sharedNotes={boardState.sharedNotes}
 			onselect={handleSelect}
 			onclosenote={handleClose}
 			onupdatenote={handleUpdate}

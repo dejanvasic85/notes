@@ -1,7 +1,7 @@
 import { type RequestHandler, json, error } from '@sveltejs/kit';
 import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
-import { mapToApiError } from '$lib/server/mapApi';
+import { mapToApiError } from '$lib/server/apiResultMapper';
 import { acceptInvite } from '$lib/server/services/friendService';
 
 export const POST: RequestHandler = async ({ locals, request }) => {

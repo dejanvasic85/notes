@@ -3,9 +3,9 @@ import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 import { SES_AWS_ACCESS_KEY_ID, SES_AWS_SECRET_ACCESS_KEY } from '$env/static/private';
 import { PUBLIC_BASE_URL } from '$env/static/public';
-import type { ServerError } from '$lib/types';
 
-import { withError } from '../createError';
+import type { ServerError } from '$lib/types';
+import { withError } from '$lib/server/errorFactory';
 
 let cachedClient: SESClient;
 

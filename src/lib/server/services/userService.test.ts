@@ -3,9 +3,9 @@ import { describe, expect, it, vi, type MockedFunction, beforeEach } from 'vites
 
 import { fetchAuthUser } from '$lib/auth/fetchUser';
 import { createUser, getUserByAuthId } from '$lib/server/db/userDb';
-import type { DatabaseError, RecordNotFoundError } from '$lib/types';
+import type { Board, DatabaseError, RecordNotFoundError } from '$lib/types';
 
-import { getOrCreateUserByAuth, isNoteOwner } from './userService';
+import { getOrCreateUserByAuth, isBoardOwner } from './userService';
 
 vi.mock('$lib/server/db/userDb');
 vi.mock('$lib/auth/fetchUser');
@@ -14,6 +14,33 @@ vi.mock('$lib/server/services/emailService');
 const mockGetUserByAuthId = getUserByAuthId as MockedFunction<typeof getUserByAuthId>;
 const mockCreateUser = createUser as MockedFunction<typeof createUser>;
 const mockFetchAuthUser = fetchAuthUser as MockedFunction<typeof fetchAuthUser>;
+
+describe('isBoardOwner', () => {
+	it('should return board when the user has access', async () => {
+		const board = { id: 'board_id', userId: 'user_one' } as Board;
+		const result: any = await isBoardOwner({
+			userId: 'user_one',
+			board
+		})();
+
+		expect(result._tag).toBe('Right');
+		expect(result.right).toEqual(board);
+	});
+
+	it('should return not authorized error when the user does not own the board', async () => {
+		const board = { id: 'board_id', userId: 'user_two' } as Board;
+		const result: any = await isBoardOwner({
+			userId: 'user_one',
+			board
+		})();
+
+		expect(result._tag).toBe('Left');
+		expect(result.left).toEqual({
+			_tag: 'AuthorizationError',
+			message: 'User user_one is not the owner of board board_id'
+		});
+	});
+});
 
 describe('getOrCreateUserByAuth', () => {
 	const accessToken = 'access_token';
@@ -106,19 +133,5 @@ describe('getOrCreateUserByAuth', () => {
 			expect(result.left).toEqual(databaseError);
 			expect(mockFetchAuthUser).toHaveBeenCalledWith({ accessToken });
 		});
-	});
-});
-
-describe('isNoteOwner', () => {
-	it('should return the same argument provided when the ', async () => {
-		const param = {
-			note: { id: 'note_123', boardId: 'bid_999' },
-			user: { id: 'user_123', boards: [{ id: 'bid_999' }] },
-			randomProperty: '1'
-		};
-		const result: any = await isNoteOwner(param as any)();
-
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual(param);
 	});
 });

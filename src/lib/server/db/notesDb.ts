@@ -8,9 +8,8 @@ import type {
 	IdParams,
 	NoteEditorInput,
 	NoteEditor,
-	SharedNote
+	CreateNoteInput
 } from '$lib/types';
-
 import { fromNullableRecord, tryDbTask } from './utils';
 
 export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> =>
@@ -18,6 +17,18 @@ export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> 
 		tryDbTask(() => db.note.findFirst({ where: { id } })),
 		TE.flatMap(fromNullableRecord(`Note with id ${id} not found`))
 	);
+
+export const getNoteOwnerUserId = (noteId: string): TE.TaskEither<ServerError, string> => {
+	return pipe(
+		tryDbTask(() => {
+			return db.note.findFirstOrThrow({
+				where: { id: noteId },
+				select: { board: { select: { userId: true } } }
+			});
+		}),
+		TE.flatMap((d) => TE.right(d.board.userId))
+	);
+};
 
 export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> =>
 	tryDbTask(() => {
@@ -39,12 +50,15 @@ export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, N
 		})
 	);
 
-export const createNote = (note: Note): TE.TaskEither<ServerError, Note> =>
+type CreateNoteParams = CreateNoteInput & {
+	boardId: string;
+};
+
+export const createNote = (noteParams: CreateNoteParams): TE.TaskEither<ServerError, Note> =>
 	tryDbTask(() =>
 		db.note.create({
 			data: {
-				...note,
-				boardId: note.boardId!,
+				...noteParams,
 				editors: undefined
 			}
 		})
@@ -75,11 +89,13 @@ export const getNoteEditor = ({ noteId, userId }: Pick<NoteEditor, 'noteId' | 'u
 		});
 	});
 
+type GetSharedNotesParmas = {
+	userId: string;
+};
+
 export const getSharedNotes = ({
 	userId
-}: {
-	userId: string;
-}): TE.TaskEither<ServerError, SharedNote[]> =>
+}: GetSharedNotesParmas): TE.TaskEither<ServerError, Note[]> =>
 	pipe(
 		tryDbTask(() => {
 			return db.note.findMany({
@@ -92,15 +108,5 @@ export const getSharedNotes = ({
 					}
 				}
 			});
-		}),
-		TE.map((data) =>
-			data.map(({ id, colour, text, textPlain, board }) => ({
-				id,
-				colour,
-				text,
-				textPlain,
-				friendUserId: board.user.id,
-				friendName: board.user.name
-			}))
-		)
+		})
 	);

@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest';
 
 import type { ErrorType } from '$lib/types';
+import { createError } from '$lib/server/errorFactory';
 
-import { createError } from './createError';
-import { mapToApiError } from './mapApi';
+import { mapToApiError } from './apiResultMapper';
 
 describe('mapToApiError', () => {
 	test.each([

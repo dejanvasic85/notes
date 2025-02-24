@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Icon from './Icon.svelte';
 	import { getNoteCssClass } from '$lib/colours';
-	import type { NoteOrdered, SharedNote } from '$lib/types';
+	import type { NoteOrdered } from '$lib/types';
 
 	type Props = {
-		note: NoteOrdered | SharedNote;
+		note: NoteOrdered;
 		index: number;
 		isDraggable?: boolean;
 		onclick: () => void;

@@ -1,6 +1,6 @@
 import { taskEither as TE } from 'fp-ts';
 import type { ServerError } from '$lib/types';
-import { createError, withError } from '$lib/server/createError';
+import { createError, withError } from '$lib/server/errorFactory';
 
 export const tryDbTask = <T>(
 	func: () => Promise<T>,

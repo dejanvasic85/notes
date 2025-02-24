@@ -2,10 +2,9 @@ import { describe, it, vi, type MockedFunction, beforeEach, expect } from 'vites
 
 import { taskEither as TE } from 'fp-ts';
 
-import { updateBoard } from '$lib/server/db/boardDb';
+import { updateBoard, getBoardByUserId } from '$lib/server/db/boardDb';
 import { createNote } from '$lib/server/db/notesDb';
-import { getUser } from '$lib/server/db/userDb';
-import { createError } from '$lib/server/createError';
+import { createError } from '$lib/server/errorFactory';
 import type { Note } from '$lib/types';
 
 import { POST } from './+server';
@@ -22,17 +21,15 @@ const mockNoteInput: Note = {
 	id: 'note_123'
 };
 
-const mockGetUser = getUser as MockedFunction<typeof getUser>;
 const mockUpdateBoard = updateBoard as MockedFunction<typeof updateBoard>;
+const mockGetBoardById = getBoardByUserId as MockedFunction<typeof getBoardByUserId>;
 const mockCreateNote = createNote as MockedFunction<typeof createNote>;
 
 describe('POST', () => {
 	beforeEach(() => {
-		mockGetUser.mockReturnValue(
-			TE.right({ id: 'uid_hello', boards: [{ id: 'board_123', noteOrder: [] }] } as any)
-		);
 		mockUpdateBoard.mockReturnValue(TE.right({} as any));
 		mockCreateNote.mockReturnValue(TE.right(mockNoteInput));
+		mockGetBoardById.mockReturnValue(TE.right({ id: 'board_123', noteOrder: [] } as any));
 	});
 
 	it('should return 201 when note is created successfully', async () => {
@@ -79,22 +76,6 @@ describe('POST', () => {
 		});
 	});
 
-	it('should return a 403 when the user is not the owner of the note', async () => {
-		const request = {
-			json: vi.fn().mockResolvedValue({ ...mockNoteInput, boardId: 'board_456' })
-		};
-
-		await expect(
-			POST({
-				locals: { user: { id: 'uid_123' } },
-				request
-			} as any)
-		).rejects.toEqual({
-			status: 403,
-			body: { message: 'User uid_hello is not the owner of note note_123' }
-		});
-	});
-
 	it('should return a 500 when the update board throws an error', async () => {
 		const request = {
 			json: vi.fn().mockResolvedValue(mockNoteInput)
@@ -112,24 +93,6 @@ describe('POST', () => {
 		).rejects.toEqual({
 			status: 500,
 			body: { message: 'Failed to update board' }
-		});
-	});
-
-	it('should return a 500 when the user db throws an error', async () => {
-		const request = {
-			json: vi.fn().mockResolvedValue(mockNoteInput)
-		};
-
-		mockGetUser.mockReturnValue(TE.left(createError('DatabaseError', 'Failed to fetch user')));
-
-		await expect(
-			POST({
-				locals: { user: { id: 'uid_123' } },
-				request
-			} as any)
-		).rejects.toEqual({
-			status: 500,
-			body: { message: 'Failed to fetch user' }
 		});
 	});
 });

@@ -1,6 +1,7 @@
-import type { ServerError } from '$lib/types';
 import { taskEither as TE } from 'fp-ts';
-import { withError } from './createError';
+
+import type { ServerError } from '$lib/types';
+import { withError } from '$lib/server/errorFactory';
 
 export const tryFetchJson = <T>(
 	params: RequestInfo | URL,

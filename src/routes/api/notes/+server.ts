@@ -3,28 +3,28 @@ import { json, error, type RequestHandler } from '@sveltejs/kit';
 import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts/lib';
 
-import { updateBoard } from '$lib/server/db/boardDb';
-import { getUser } from '$lib/server/db/userDb';
+import { updateBoard, getBoardByUserId } from '$lib/server/db/boardDb';
 import { createNote } from '$lib/server/db/notesDb';
-import { isNoteOwner, getCurrentBoardForUserNote } from '$lib/server/services/userService';
-import { parseRequest } from '$lib/server/parseRequest';
-import { mapToApiError } from '$lib/server/mapApi';
-import { NoteSchema } from '$lib/types';
+import { parseRequest } from '$lib/server/requestParser';
+import { mapToApiError } from '$lib/server/apiResultMapper';
+import { CreateNoteInputSchema } from '$lib/types';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	return pipe(
 		TE.Do,
-		TE.bind('note', () => parseRequest(request, NoteSchema, 'Unable to parse Note')),
-		TE.bind('user', () => getUser({ id: locals.user!.id, includeBoards: true })),
-		TE.flatMap(({ note, user }) => isNoteOwner({ user, note })),
-		TE.flatMap(({ note, user }) => getCurrentBoardForUserNote({ user, note })),
-		TE.flatMap(({ board, note, user }) =>
+		TE.bind('createNoteInput', () =>
+			parseRequest(request, CreateNoteInputSchema, 'Unable to parse Note')
+		),
+		TE.bind('board', () => getBoardByUserId({ userId: locals.user!.id, includeNotes: false })),
+		TE.flatMap(({ board, createNoteInput }) =>
 			pipe(
-				updateBoard({ ...board, noteOrder: [...board.noteOrder, note.id!] }),
-				TE.map(() => ({ note, user }))
+				updateBoard({ ...board, noteOrder: [...board.noteOrder, createNoteInput.id] }),
+				TE.map(() => ({ createNoteInput, board }))
 			)
 		),
-		TE.flatMap(({ note }) => createNote({ ...note, boardId: note.boardId! })),
+		TE.flatMap(({ createNoteInput, board }) =>
+			createNote({ ...createNoteInput, boardId: board.id })
+		),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => error(err.status, { message: err.message }),

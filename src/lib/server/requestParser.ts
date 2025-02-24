@@ -1,8 +1,7 @@
 import { taskEither as TE } from 'fp-ts';
 
 import type { ServerError } from '$lib/types';
-
-import { withError } from './createError';
+import { withError } from '$lib/server/errorFactory';
 
 interface Parser<T> {
 	parse: (json: any) => T;

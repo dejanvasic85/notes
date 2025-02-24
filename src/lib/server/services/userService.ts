@@ -9,39 +9,22 @@ import {
 	getUserByAuthId,
 	getConnections
 } from '$lib/server/db/userDb';
-import { createError, withError } from '$lib/server/createError';
-import type { AuthUserProfile, Board, Friend, Note, ServerError, User } from '$lib/types';
+import { createError, withError } from '$lib/server/errorFactory';
+import type { AuthUserProfile, Board, Friend, ServerError, User } from '$lib/types';
 
 interface IsBoardOwnerParams {
-	user: User;
 	board: Board;
+	userId?: string;
 }
 
-export const isBoardOwner = <T extends IsBoardOwnerParams>({
-	user,
+export const isBoardOwner = ({
 	board,
-	...rest
-}: T): TE.TaskEither<ServerError, T> =>
-	user.boards.some((b) => b.id === board.id)
-		? TE.right({ user, board, ...rest } as T)
+	userId
+}: IsBoardOwnerParams): TE.TaskEither<ServerError, Board> =>
+	board.userId === userId
+		? TE.right(board)
 		: TE.left(
-				createError('AuthorizationError', `User ${user.id} is not the owner of board ${board.id}`)
-			);
-
-interface IsNoteOwnerParams {
-	note: Note;
-	user: User;
-}
-
-export const isNoteOwner = <T extends IsNoteOwnerParams>({
-	note,
-	user,
-	...rest
-}: T): TE.TaskEither<ServerError, T> =>
-	user.boards.some((board) => board.id === note.boardId)
-		? TE.right({ note, user, ...rest } as T)
-		: TE.left(
-				createError('AuthorizationError', `User ${user.id} is not the owner of note ${note.id}`)
+				createError('AuthorizationError', `User ${userId} is not the owner of board ${board.id}`)
 			);
 
 const tryFetchAuthUser = ({
@@ -97,21 +80,6 @@ export const getOrCreateUserByAuth = ({
 			return TE.left(err);
 		})
 	);
-
-export const getCurrentBoardForUserNote = ({
-	note,
-	user
-}: {
-	note: Note;
-	user: User;
-}): TE.TaskEither<ServerError, { note: Note; user: User; board: Board }> => {
-	const boardId = note.boardId;
-	const board = user.boards.find((b) => b.id === boardId);
-	if (!board) {
-		return TE.left(createError('RecordNotFound', `Board ${boardId} not found`));
-	}
-	return TE.right({ note, user, board });
-};
 
 export const getFriends = (userId: string): TE.TaskEither<ServerError, Friend[]> => {
 	return pipe(
