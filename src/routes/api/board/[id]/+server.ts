@@ -7,7 +7,7 @@ import { pipe } from 'fp-ts/lib/function';
 import { isBoardOwner } from '$lib/server/services/userService';
 import { getBoard, updateBoard } from '$lib/server/db/boardDb';
 import { getUser } from '$lib/server/db/userDb';
-import { parseRequest } from '$lib/server/parseRequest';
+import { parseRequest } from '$lib/server/requestParser';
 import { mapToApiError } from '$lib/server/apiResultMapper';
 import { BoardPatchSchema } from '$lib/types';
 

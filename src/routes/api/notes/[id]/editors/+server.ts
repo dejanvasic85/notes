@@ -3,7 +3,7 @@ import { type RequestHandler, json, error } from '@sveltejs/kit';
 import { pipe } from 'fp-ts/lib/function.js';
 import { taskEither as TE } from 'fp-ts';
 
-import { parseRequest } from '$lib/server/parseRequest';
+import { parseRequest } from '$lib/server/requestParser';
 import { NoteEditorInputSchema } from '$lib/types';
 import { mapToApiError } from '$lib/server/apiResultMapper';
 import { updateNoteEditor } from '$lib/server/services/noteService';

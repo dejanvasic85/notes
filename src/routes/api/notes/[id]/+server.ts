@@ -7,7 +7,7 @@ import { mapToApiError } from '$lib/server/apiResultMapper';
 import { getBoard, updateBoard } from '$lib/server/db/boardDb';
 import { getNoteById, updateNote, deleteNote } from '$lib/server/db/notesDb';
 import { isNoteEditorOrOwner } from '$lib/server/services/noteService';
-import { parseRequest } from '$lib/server/parseRequest';
+import { parseRequest } from '$lib/server/requestParser';
 import { NotePatchInputSchema } from '$lib/types';
 
 export const GET: RequestHandler = ({ locals, params }) => {

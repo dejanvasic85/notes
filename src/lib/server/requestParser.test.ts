@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { Note } from '$lib/types';
 import { NoteSchema } from '$lib/types';
 
-import { parseRequest } from './parseRequest';
+import { parseRequest } from './requestParser';
 
 describe('parseRequest', () => {
 	it('should return a NoteCreateInput when parsing succeeds', async () => {
