@@ -96,3 +96,13 @@ export const isNoteEditorOrOwner = (
 		)
 	);
 };
+
+export const canDeleteNote = (params: NoteAuthParams): TE.TaskEither<ServerError, boolean> =>
+	pipe(
+		isNoteOwner(params),
+		TE.flatMap((canDelete) =>
+			canDelete
+				? TE.right(canDelete)
+				: TE.left(createError('AuthorizationError', 'Only note owner can delete note'))
+		)
+	);
