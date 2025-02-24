@@ -2,7 +2,7 @@ import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
 import { getPendingReceivedInvites, getPendingSentInvites } from '$lib/server/db/userDb';
-import { mapToApiError } from '$lib/server/mapApi';
+import { mapToApiError } from '$lib/server/apiResultMapper';
 import { getFriends } from '$lib/server/services/userService';
 
 export const GET: RequestHandler = ({ locals }) => {

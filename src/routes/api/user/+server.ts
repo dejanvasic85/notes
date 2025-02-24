@@ -3,7 +3,7 @@ import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
 import { getUser } from '$lib/server/db/userDb';
-import { mapToApiError } from '$lib/server/mapApi';
+import { mapToApiError } from '$lib/server/apiResultMapper';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	return pipe(

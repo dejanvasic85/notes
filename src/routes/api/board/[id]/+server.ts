@@ -8,7 +8,7 @@ import { isBoardOwner } from '$lib/server/services/userService';
 import { getBoard, updateBoard } from '$lib/server/db/boardDb';
 import { getUser } from '$lib/server/db/userDb';
 import { parseRequest } from '$lib/server/parseRequest';
-import { mapToApiError } from '$lib/server/mapApi';
+import { mapToApiError } from '$lib/server/apiResultMapper';
 import { BoardPatchSchema } from '$lib/types';
 
 export const GET = async ({ locals, params }) => {

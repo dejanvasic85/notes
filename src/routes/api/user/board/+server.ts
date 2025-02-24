@@ -3,7 +3,7 @@ import { error, json } from '@sveltejs/kit';
 import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
 
-import { mapToApiError } from '$lib/server/mapApi';
+import { mapToApiError } from '$lib/server/apiResultMapper';
 import { getUser } from '$lib/server/db/userDb';
 import { getSharedNotes } from '$lib/server/db/notesDb';
 

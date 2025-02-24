@@ -6,7 +6,7 @@ import { taskEither as TE } from 'fp-ts/lib';
 import { updateBoard, getBoardByUserId } from '$lib/server/db/boardDb';
 import { createNote } from '$lib/server/db/notesDb';
 import { parseRequest } from '$lib/server/parseRequest';
-import { mapToApiError } from '$lib/server/mapApi';
+import { mapToApiError } from '$lib/server/apiResultMapper';
 import { CreateNoteInputSchema } from '$lib/types';
 
 export const POST: RequestHandler = async ({ locals, request }) => {

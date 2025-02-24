@@ -2,7 +2,7 @@ import { fail } from '@sveltejs/kit';
 import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE, either as E } from 'fp-ts';
 
-import { mapToApiError } from '$lib/server/mapApi';
+import { mapToApiError } from '$lib/server/apiResultMapper';
 import { updateUser, getUser } from '$lib/server/db/userDb';
 import { tryUpdateAuthUser } from '$lib/server/services/userService';
 import type { ServerError, User } from '$lib/types';

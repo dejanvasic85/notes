@@ -5,7 +5,7 @@ import { taskEither as TE } from 'fp-ts';
 
 import { PUBLIC_BASE_URL } from '$env/static/public';
 import { sendInvite } from '$lib/server/services/friendService';
-import { mapToApiError } from '$lib/server/mapApi';
+import { mapToApiError } from '$lib/server/apiResultMapper';
 
 export const actions = {
 	default: async ({ request, locals }) => {

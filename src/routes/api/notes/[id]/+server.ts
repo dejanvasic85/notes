@@ -3,7 +3,7 @@ import { json, error, type RequestHandler } from '@sveltejs/kit';
 import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
-import { mapToApiError } from '$lib/server/mapApi';
+import { mapToApiError } from '$lib/server/apiResultMapper';
 import { getBoard, updateBoard } from '$lib/server/db/boardDb';
 import { getNoteById, updateNote, deleteNote } from '$lib/server/db/notesDb';
 import { isNoteEditorOrOwner } from '$lib/server/services/noteService';
