@@ -12,9 +12,10 @@ export class BoardState {
 	constructor() {}
 
 	setBoard(board: Board, friends: Friend[], sharedNotes: Note[]) {
+		const allNotes = [...board.notes, ...sharedNotes];
 		this.boardId = board.id;
-		this.noteOrder = [...board.noteOrder];
-		this.notesOrdered = mapToOrderedNotes(this.noteOrder, [...board.notes, ...sharedNotes]);
+		this.noteOrder = this.consolodateNoteOrder(board.noteOrder, allNotes);
+		this.notesOrdered = mapToOrderedNotes(this.noteOrder, allNotes);
 		this.friends = friends;
 	}
 
@@ -86,6 +87,14 @@ export class BoardState {
 		this.noteOrder.splice(toIndex, 0, removed);
 		this.notesOrdered = mapToOrderedNotes(this.noteOrder, this.notesOrdered);
 		return [this.noteOrder, original];
+	}
+
+	consolodateNoteOrder(initialNoteOrder: string[], notes: Note[]) {
+		// We need to remove and notes from order that are not in the notes array to cater for deleted shared notes
+		const noteOrder = initialNoteOrder.filter((id) => notes.find((n) => n.id === id));
+		// Then add the noteIds that are in the notes array but not in the noteOrder
+		const notOrdered = notes.filter((n) => !noteOrder.includes(n.id));
+		return [...noteOrder, ...notOrdered.map((n) => n.id)];
 	}
 }
 

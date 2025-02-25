@@ -161,7 +161,7 @@ export type ServerError =
 export type ErrorType = ServerError['_tag'];
 
 export interface ApiError {
-	status: 200 | 404 | 403 | 400 | 500;
+	status: 200 | 401 | 404 | 403 | 400 | 500;
 	message: string;
 }
 

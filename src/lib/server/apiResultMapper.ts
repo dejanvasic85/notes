@@ -12,7 +12,7 @@ export const mapToApiError = <T extends ServerError>(err: T): ApiError => {
 			return { status: 404, message: err.message };
 		}
 		case 'AuthorizationError': {
-			return { status: 403, message: err.message };
+			return { status: 401, message: err.message };
 		}
 		case 'ValidationError': {
 			return { status: 400, message: err.message };

@@ -26,7 +26,7 @@ describe('mapToApiError', () => {
 		[
 			'AuthorizationError',
 			'An authorization error occurred',
-			{ status: 403, message: 'An authorization error occurred' }
+			{ status: 401, message: 'An authorization error occurred' }
 		]
 	])(`should map a %s to an ApiError`, (tag, message, expected) => {
 		const err = createError(tag as ErrorType, message);
