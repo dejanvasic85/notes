@@ -2,17 +2,14 @@
 	import { onMount } from 'svelte';
 	import { crossfade, slide, fade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-
 	import { createTabs, melt } from '@melt-ui/svelte';
 
 	import Skeleton from '$components/Skeleton.svelte';
 	import Button from '$components/Button.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
 	import Icon from '$components/Icon.svelte';
-
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
-	import { getFetchState } from '$lib/state/fetchState.svelte';
 	import type { IconName } from '$lib/icons';
 	import { tryFetch } from '$lib/browserFetch';
 
@@ -33,26 +30,22 @@
 
 	const friendsState = getFriendsState();
 	const toastMessages = getToastMessages();
-	const fetchState = getFetchState();
 	const numberOfSkeletons = 4;
 
 	let loading = $state(false);
 	let loadingError = $state('');
 
 	onMount(() => {
-		if (fetchState.shouldFetch('friends')) {
-			loading = true;
-			fetch('/api/friends')
-				.then((data) => data.json())
-				.then((data) => {
-					loading = false;
-					friendsState.setState(data.friends, data.pendingSentInvites, data.pendingReceivedInvites);
-					fetchState.setFetched('friends');
-				})
-				.catch((err) => {
-					loadingError = err.message;
-				});
-		}
+		loading = true;
+		fetch('/api/friends')
+			.then((data) => data.json())
+			.then((data) => {
+				loading = false;
+				friendsState.setState(data.friends, data.pendingSentInvites, data.pendingReceivedInvites);
+			})
+			.catch((err) => {
+				loadingError = err.message;
+			});
 	});
 
 	async function handleCancelInvite(id: string) {
