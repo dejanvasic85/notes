@@ -13,7 +13,7 @@ export const GET = async ({ locals }) => {
 		TE.bind('user', () =>
 			getUser({ id: locals.user!.id, includeBoards: true, includeNotes: true })
 		),
-		TE.bind('sharedNotes', () => getSharedNotes({ userId: locals.user!.id })),
+		TE.bind('sharedNotes', ({ user }) => getSharedNotes({ userId: user.id })),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => error(err.status, { message: err.message }),

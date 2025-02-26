@@ -101,11 +101,6 @@ export const getSharedNotes = ({
 			return db.note.findMany({
 				where: {
 					editors: { some: { userId } }
-				},
-				include: {
-					board: {
-						include: { user: { select: { name: true, id: true } } }
-					}
 				}
 			});
 		})
