@@ -8,6 +8,7 @@
 	import Button from '$components/Button.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
 	import Icon from '$components/Icon.svelte';
+	import UserAvatar from '$components/UserAvatar.svelte';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import type { IconName } from '$lib/icons';
@@ -126,7 +127,7 @@
 	>
 		<div class="flex items-center gap-2">
 			{#if props.picture}
-				<img src={props.picture} class="h-10 rounded-full" alt="picture of {props.name}" />
+				<UserAvatar picture={props.picture} name={props.name} size={8} />
 			{/if}
 			<span class:italic={props.showPending} class:text-gray-400={props.showPending}
 				>{props.name} {props.showPending ? '(pending)' : ''}</span

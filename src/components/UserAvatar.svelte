@@ -4,7 +4,7 @@
 	type Props = {
 		picture: string;
 		name: string;
-		size?: 5 | 6 | 7 | 8;
+		size?: 5 | 8;
 	};
 
 	const { picture, name, size = 5 }: Props = $props();
@@ -17,8 +17,6 @@
 
 	const sizeMap = {
 		5: 'size-5',
-		6: 'size-6',
-		7: 'size-7',
 		8: 'size-8'
 	};
 </script>
