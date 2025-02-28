@@ -1,7 +1,9 @@
 <script lang="ts">
-	import Icon from './Icon.svelte';
 	import { getNoteCssClass } from '$lib/colours';
 	import type { NoteOrdered, Friend } from '$lib/types';
+
+	import Icon from './Icon.svelte';
+	import UserAvatar from './UserAvatar.svelte';
 
 	type Props = {
 		note: NoteOrdered;
@@ -65,18 +67,10 @@
 			class="absolute bottom-0 left-0 flex h-10 w-full items-center gap-2 bg-white/20 px-4 backdrop-blur-sm"
 		>
 			{#if note.shared}
-				<img
-					class="m-0 size-5 rounded-full ring-2 ring-white"
-					src={note.owner.picture}
-					alt={`Avatar of ${note.owner.name}`}
-				/>
+				<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} />
 			{/if}
 			{#each editors as editor}
-				<img
-					class="m-0 size-5 rounded-full ring-2 ring-white"
-					src={editor.picture}
-					alt={`Avatar of ${editor.name}`}
-				/>
+				<UserAvatar picture={editor.picture || ''} name={editor.name || ''} />
 			{/each}
 		</div>
 	{/if}
