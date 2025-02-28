@@ -31,7 +31,8 @@
 		loading = true;
 		Promise.all([fetch('/api/user/board'), fetch('/api/friends')])
 			.then(async ([boardResp, friendsResp]) => {
-				const { board, sharedNotes } = await boardResp.json();
+				const { board, sharedNotes, sharedNoteOwners } = await boardResp.json();
+				console.log('todo: set sharedNoteOwners', sharedNoteOwners);
 				const { friends, pendingSentInvites, pendingReceivedInvites } = await friendsResp.json();
 				boardState.setBoard(board, friends, sharedNotes);
 				friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);

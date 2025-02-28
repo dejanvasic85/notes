@@ -32,7 +32,7 @@ export const getUser = ({
 				include: {
 					boards: {
 						include: {
-							notes: includeNotes
+							notes: includeNotes ? { include: { editors: true } } : false
 						}
 					}
 				}

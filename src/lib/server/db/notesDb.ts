@@ -8,15 +8,17 @@ import type {
 	IdParams,
 	NoteEditorInput,
 	NoteEditor,
-	CreateNoteInput
+	CreateNoteInput,
+	NoteOwner
 } from '$lib/types';
 import { fromNullableRecord, tryDbTask } from './utils';
 
-export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> =>
-	pipe(
+export const getNoteById = ({ id }: IdParams): TE.TaskEither<ServerError, Note> => {
+	return pipe(
 		tryDbTask(() => db.note.findFirst({ where: { id } })),
 		TE.flatMap(fromNullableRecord(`Note with id ${id} not found`))
 	);
+};
 
 export const getNoteOwnerUserId = (noteId: string): TE.TaskEither<ServerError, string> => {
 	return pipe(
@@ -30,8 +32,8 @@ export const getNoteOwnerUserId = (noteId: string): TE.TaskEither<ServerError, s
 	);
 };
 
-export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> =>
-	tryDbTask(() => {
+export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> => {
+	return tryDbTask(() => {
 		return db.note.update({
 			where: { id: note.id },
 			data: {
@@ -42,20 +44,22 @@ export const updateNote = (note: Note): TE.TaskEither<ServerError, Note> =>
 			}
 		});
 	});
+};
 
-export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, Note> =>
-	tryDbTask(() =>
+export const deleteNote = ({ id }: { id: string }): TE.TaskEither<ServerError, Note> => {
+	return tryDbTask(() =>
 		db.note.delete({
 			where: { id }
 		})
 	);
+};
 
 type CreateNoteParams = CreateNoteInput & {
 	boardId: string;
 };
 
-export const createNote = (noteParams: CreateNoteParams): TE.TaskEither<ServerError, Note> =>
-	tryDbTask(() =>
+export const createNote = (noteParams: CreateNoteParams): TE.TaskEither<ServerError, Note> => {
+	return tryDbTask(() =>
 		db.note.create({
 			data: {
 				...noteParams,
@@ -63,9 +67,13 @@ export const createNote = (noteParams: CreateNoteParams): TE.TaskEither<ServerEr
 			}
 		})
 	);
+};
 
-export const createNoteEditor = (noteEditor: NoteEditor): TE.TaskEither<ServerError, NoteEditor> =>
-	tryDbTask(() => db.noteEditor.create({ data: noteEditor }));
+export const createNoteEditor = (
+	noteEditor: NoteEditor
+): TE.TaskEither<ServerError, NoteEditor> => {
+	return tryDbTask(() => db.noteEditor.create({ data: noteEditor }));
+};
 
 export const createOrUpdateNoteEditor = (
 	data: NoteEditorInput
@@ -79,8 +87,8 @@ export const createOrUpdateNoteEditor = (
 	});
 };
 
-export const getNoteEditor = ({ noteId, userId }: Pick<NoteEditor, 'noteId' | 'userId'>) =>
-	tryDbTask(() => {
+export const getNoteEditor = ({ noteId, userId }: Pick<NoteEditor, 'noteId' | 'userId'>) => {
+	return tryDbTask(() => {
 		return db.noteEditor.findFirst({
 			where: {
 				userId: userId,
@@ -88,6 +96,7 @@ export const getNoteEditor = ({ noteId, userId }: Pick<NoteEditor, 'noteId' | 'u
 			}
 		});
 	});
+};
 
 type GetSharedNotesParmas = {
 	userId: string;
@@ -95,13 +104,40 @@ type GetSharedNotesParmas = {
 
 export const getSharedNotes = ({
 	userId
-}: GetSharedNotesParmas): TE.TaskEither<ServerError, Note[]> =>
-	pipe(
-		tryDbTask(() => {
-			return db.note.findMany({
-				where: {
-					editors: { some: { userId } }
-				}
-			});
+}: GetSharedNotesParmas): TE.TaskEither<ServerError, Note[]> => {
+	return tryDbTask(() => {
+		return db.note.findMany({
+			where: {
+				editors: { some: { userId } }
+			},
+			include: { editors: true }
+		});
+	});
+};
+
+export const getNoteOwners = (noteIds: string[]): TE.TaskEither<ServerError, NoteOwner[]> => {
+	return pipe(
+		tryDbTask(() =>
+			db.note.findMany({
+				where: { id: { in: noteIds } },
+				select: { id: true, board: { select: { user: true } } }
+			})
+		),
+		TE.flatMap((r) => {
+			return TE.right(
+				r.map(
+					({ id: noteId, board: { user } }) =>
+						({
+							noteId,
+							owner: {
+								id: user.id,
+								name: user.name,
+								email: user.email,
+								picture: user.picture
+							}
+						}) satisfies NoteOwner
+				)
+			);
 		})
 	);
+};

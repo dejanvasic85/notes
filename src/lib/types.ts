@@ -104,10 +104,10 @@ export const UserSchema = EntitySchema.extend({
 });
 
 export type User = z.infer<typeof UserSchema>;
-
-export type Friend = Pick<User, 'email' | 'id' | 'name' | 'picture'>;
-
+export type UserProfile = Pick<User, 'id' | 'email' | 'name' | 'picture'>;
+export type Friend = Pick<User, 'email' | 'id' | 'name' | 'picture'>; // Todo: replace friend with UserProfile
 export type FriendSelection = { noteEditorId?: string; selected: boolean } & Friend;
+export type NoteOwner = { noteId: string; owner: UserProfile };
 
 export const AuthUserProfileSchema = z.object({
 	sub: z.string(),
