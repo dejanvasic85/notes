@@ -4,6 +4,7 @@
 
 	import type { IconName } from '$lib/icons';
 	import Icon from './Icon.svelte';
+	import UserAvatar from './UserAvatar.svelte';
 
 	type Props = {
 		userPicture: string;
@@ -47,7 +48,7 @@
 {/snippet}
 
 <button type="button" use:melt={$trigger} aria-label="user menu">
-	<img src={userPicture} alt="User" class="size-8 rounded-full" />
+	<UserAvatar picture={userPicture} {name} size={8} />
 </button>
 
 {#if $open}
@@ -57,7 +58,7 @@
 		transition:fly={{ duration: 150, y: -10 }}
 	>
 		<div class="flex">
-			<img src={userPicture} alt="User" class="mb-4 size-8 rounded-full" />
+			<UserAvatar picture={userPicture} {name} size={8} />
 			<div class="ml-4 flex flex-col truncate">
 				<span class="truncate font-bold">{name}</span>
 				<span class="truncate text-xs text-gray-500">{email}</span>
