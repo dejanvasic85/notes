@@ -111,12 +111,12 @@
 
 	{#snippet footer()}
 		<div class="flex justify-between px-2 pb-2">
-			<div class="flex items-center gap-2">
+			<div class="flex items-center gap-4">
 				{#if note.shared}
-					<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} />
+					<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} size={7} />
 				{/if}
 				{#each editors as editor}
-					<UserAvatar picture={editor.picture || ''} name={editor.name || ''} />
+					<UserAvatar picture={editor.picture || ''} name={editor.name || ''} size={7} />
 				{/each}
 			</div>
 			<div class="ml-auto">
