@@ -53,5 +53,19 @@
 			<Icon icon="squares-box" size={20} fill="none" title="Drag to reorder" />
 		</div>
 	{/if}
-	{@html note.text}
+
+	<div class="">
+		{@html note.text}
+	</div>
+	{#if note.shared}
+		<div
+			class="absolute bottom-0 left-0 flex h-10 w-full items-center bg-white/20 px-4 backdrop-blur-sm"
+		>
+			<img
+				class="m-0 size-5 rounded-full ring-2 ring-white"
+				src={note.owner.picture}
+				alt={`Avatar of ${note.owner.name}`}
+			/>
+		</div>
+	{/if}
 </div>

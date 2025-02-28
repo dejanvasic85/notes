@@ -32,9 +32,8 @@
 		Promise.all([fetch('/api/user/board'), fetch('/api/friends')])
 			.then(async ([boardResp, friendsResp]) => {
 				const { board, sharedNotes, sharedNoteOwners } = await boardResp.json();
-				console.log('todo: set sharedNoteOwners', sharedNoteOwners);
 				const { friends, pendingSentInvites, pendingReceivedInvites } = await friendsResp.json();
-				boardState.setBoard(board, friends, sharedNotes);
+				boardState.setBoard(board, friends, sharedNotes, sharedNoteOwners);
 				friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);
 				loading = false;
 			})
@@ -45,9 +44,7 @@
 	});
 
 	$effect(() => {
-		selectedNote = selectedId
-			? boardState.notesOrdered.find((n) => n.id === selectedId) || null
-			: null;
+		selectedNote = selectedId ? boardState.notes.find((n) => n.id === selectedId) || null : null;
 	});
 
 	function handleSelect({ id }: { id: string }) {
@@ -138,7 +135,7 @@
 		<Board
 			{selectedNote}
 			friends={boardState.friends}
-			notes={boardState.notesOrdered}
+			notes={boardState.notes}
 			enableSharing={true}
 			onselect={handleSelect}
 			onclosenote={handleClose}

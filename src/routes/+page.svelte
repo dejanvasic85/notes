@@ -49,7 +49,7 @@
 
 	let search = $derived(new URL(page.url).searchParams);
 	let selectedId = $derived(search.get('id'));
-	let selectedNote = $derived(boardState.notesOrdered.find((n) => n.id === selectedId));
+	let selectedNote = $derived(boardState.notes.find((n) => n.id === selectedId));
 </script>
 
 <svelte:head>
@@ -132,7 +132,7 @@
 				</Button>
 			</div>
 			<Board
-				notes={boardState.notesOrdered}
+				notes={boardState.notes}
 				{selectedNote}
 				onclosenote={handleClose}
 				ondeletenote={handleDeleteNote}
