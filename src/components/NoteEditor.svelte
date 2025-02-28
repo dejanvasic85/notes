@@ -110,7 +110,7 @@
 	{/snippet}
 
 	{#snippet footer()}
-		<div class="flex justify-between px-2 pb-2">
+		<div class="flex justify-between pb-2 pl-4 pr-2">
 			<div class="flex items-center gap-4">
 				{#if note.shared}
 					<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} size={7} />
