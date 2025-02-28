@@ -100,7 +100,7 @@
 		{#each notes as note, index}
 			<NoteContainer>
 				<NoteDropzone {index} ondropped={handleDrop}>
-					<Note {note} {index} isDraggable={true} onclick={() => handleEdit(note.id)} />
+					<Note {note} {friends} {index} isDraggable={true} onclick={() => handleEdit(note.id)} />
 				</NoteDropzone>
 			</NoteContainer>
 		{/each}

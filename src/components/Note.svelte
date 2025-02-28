@@ -1,18 +1,22 @@
 <script lang="ts">
 	import Icon from './Icon.svelte';
 	import { getNoteCssClass } from '$lib/colours';
-	import type { NoteOrdered } from '$lib/types';
+	import type { NoteOrdered, Friend } from '$lib/types';
 
 	type Props = {
 		note: NoteOrdered;
 		index: number;
 		isDraggable?: boolean;
+		friends?: Friend[];
 		onclick: () => void;
 	};
 
-	let { note, index, isDraggable = true, onclick }: Props = $props();
+	let { note, index, friends = [], isDraggable = true, onclick }: Props = $props();
 	let isDragging = $state(false);
 	let isHovering = $state(false);
+	let editors = $derived(
+		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
+	);
 
 	const className = $derived(
 		getNoteCssClass({
@@ -54,18 +58,26 @@
 		</div>
 	{/if}
 
-	<div class="">
-		{@html note.text}
-	</div>
-	{#if note.shared}
+	{@html note.text}
+
+	{#if note.shared || editors.length > 0}
 		<div
-			class="absolute bottom-0 left-0 flex h-10 w-full items-center bg-white/20 px-4 backdrop-blur-sm"
+			class="absolute bottom-0 left-0 flex h-10 w-full items-center gap-2 bg-white/20 px-4 backdrop-blur-sm"
 		>
-			<img
-				class="m-0 size-5 rounded-full ring-2 ring-white"
-				src={note.owner.picture}
-				alt={`Avatar of ${note.owner.name}`}
-			/>
+			{#if note.shared}
+				<img
+					class="m-0 size-5 rounded-full ring-2 ring-white"
+					src={note.owner.picture}
+					alt={`Avatar of ${note.owner.name}`}
+				/>
+			{/if}
+			{#each editors as editor}
+				<img
+					class="m-0 size-5 rounded-full ring-2 ring-white"
+					src={editor.picture}
+					alt={`Avatar of ${editor.name}`}
+				/>
+			{/each}
 		</div>
 	{/if}
 </div>
