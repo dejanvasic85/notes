@@ -8,6 +8,7 @@
 	import Icon from './Icon.svelte';
 	import Share from './Share.svelte';
 	import HtmlEditor from './HtmlEditor.svelte';
+	import UserAvatar from './UserAvatar.svelte';
 
 	type Props = {
 		enableSharing?: boolean;
@@ -33,6 +34,9 @@
 
 	let noteText: string = $state(note.text);
 	let noteTextPlain: string = $state(note.textPlain);
+	let editors = $derived(
+		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
+	);
 
 	function handleSave() {
 		onsavenote({
@@ -106,7 +110,15 @@
 	{/snippet}
 
 	{#snippet footer()}
-		<div class="flex justify-between px-2 pb-2">
+		<div class="flex justify-between pb-2 pl-4 pr-2">
+			<div class="flex items-center gap-4">
+				{#if note.shared}
+					<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} size={7} />
+				{/if}
+				{#each editors as editor}
+					<UserAvatar picture={editor.picture || ''} name={editor.name || ''} size={7} />
+				{/each}
+			</div>
 			<div class="ml-auto">
 				<Button onclick={handleSave}>
 					<Icon icon="check" title="Save note" fill="none" />

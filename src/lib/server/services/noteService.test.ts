@@ -4,7 +4,7 @@ import { taskEither as TE } from 'fp-ts';
 import { getNoteOwnerUserId, getNoteEditor } from '$lib/server/db/notesDb';
 import { createError } from '$lib/server/errorFactory';
 
-import { isNoteEditorOrOwner } from './noteService';
+import { isNoteEditorOrOwner, canDeleteNote } from './noteService';
 
 vi.mock('$lib/server/db/notesDb');
 
@@ -68,5 +68,25 @@ describe('isNoteEditorOrOwner', () => {
 		const result: any = await isNoteEditorOrOwner({ noteId: 'nid_1', userId: 'uid_222' })();
 
 		expect(result).toEqual({ _tag: 'Right', right: false });
+	});
+});
+
+describe('canDeleteNote', () => {
+	it('should return true when the user is an owner', async () => {
+		mockGetNoteOwnerId.mockReturnValue(TE.right('1'));
+
+		const result: any = await canDeleteNote({ noteId: '1', userId: '1' })();
+
+		expect(result).toEqual({ _tag: 'Right', right: true });
+	});
+
+	it('should return Unauthorized error when user is not owner', async () => {
+		mockGetNoteOwnerId.mockReturnValue(TE.right('uid_111'));
+		const result: any = await canDeleteNote({ noteId: 'nid_111', userId: 'uid_222' })();
+
+		expect(result.left).toEqual({
+			_tag: 'AuthorizationError',
+			message: 'Only note owner can delete note'
+		});
 	});
 });

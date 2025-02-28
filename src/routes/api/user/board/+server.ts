@@ -5,7 +5,7 @@ import { taskEither as TE } from 'fp-ts';
 
 import { mapToApiError } from '$lib/server/apiResultMapper';
 import { getUser } from '$lib/server/db/userDb';
-import { getSharedNotes } from '$lib/server/db/notesDb';
+import { getNoteOwners, getSharedNotes } from '$lib/server/db/notesDb';
 
 export const GET = async ({ locals }) => {
 	return pipe(
@@ -13,14 +13,16 @@ export const GET = async ({ locals }) => {
 		TE.bind('user', () =>
 			getUser({ id: locals.user!.id, includeBoards: true, includeNotes: true })
 		),
-		TE.bind('sharedNotes', () => getSharedNotes({ userId: locals.user!.id })),
+		TE.bind('sharedNotes', ({ user }) => getSharedNotes({ userId: user.id })),
+		TE.bind('sharedNoteOwners', ({ sharedNotes }) => getNoteOwners(sharedNotes.map((n) => n.id))),
 		TE.mapLeft(mapToApiError),
 		TE.match(
 			(err) => error(err.status, { message: err.message }),
-			(data) =>
+			({ sharedNoteOwners, sharedNotes, user }) =>
 				json({
-					board: data.user.boards[0],
-					sharedNotes: data.sharedNotes
+					board: user.boards[0],
+					sharedNotes,
+					sharedNoteOwners
 				})
 		)
 	)();

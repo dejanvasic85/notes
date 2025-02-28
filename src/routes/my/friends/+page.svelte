@@ -2,17 +2,15 @@
 	import { onMount } from 'svelte';
 	import { crossfade, slide, fade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-
 	import { createTabs, melt } from '@melt-ui/svelte';
 
 	import Skeleton from '$components/Skeleton.svelte';
 	import Button from '$components/Button.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
 	import Icon from '$components/Icon.svelte';
-
+	import UserAvatar from '$components/UserAvatar.svelte';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
-	import { getFetchState } from '$lib/state/fetchState.svelte';
 	import type { IconName } from '$lib/icons';
 	import { tryFetch } from '$lib/browserFetch';
 
@@ -33,26 +31,22 @@
 
 	const friendsState = getFriendsState();
 	const toastMessages = getToastMessages();
-	const fetchState = getFetchState();
 	const numberOfSkeletons = 4;
 
 	let loading = $state(false);
 	let loadingError = $state('');
 
 	onMount(() => {
-		if (fetchState.shouldFetch('friends')) {
-			loading = true;
-			fetch('/api/friends')
-				.then((data) => data.json())
-				.then((data) => {
-					loading = false;
-					friendsState.setState(data.friends, data.pendingSentInvites, data.pendingReceivedInvites);
-					fetchState.setFetched('friends');
-				})
-				.catch((err) => {
-					loadingError = err.message;
-				});
-		}
+		loading = true;
+		fetch('/api/friends')
+			.then((data) => data.json())
+			.then((data) => {
+				loading = false;
+				friendsState.setState(data.friends, data.pendingSentInvites, data.pendingReceivedInvites);
+			})
+			.catch((err) => {
+				loadingError = err.message;
+			});
 	});
 
 	async function handleCancelInvite(id: string) {
@@ -133,7 +127,7 @@
 	>
 		<div class="flex items-center gap-2">
 			{#if props.picture}
-				<img src={props.picture} class="h-10 rounded-full" alt="picture of {props.name}" />
+				<UserAvatar picture={props.picture} name={props.name} size={8} />
 			{/if}
 			<span class:italic={props.showPending} class:text-gray-400={props.showPending}
 				>{props.name} {props.showPending ? '(pending)' : ''}</span

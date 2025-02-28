@@ -67,8 +67,6 @@ export const BoardPatchSchema = z.object({
 
 export type BoardPatch = z.infer<typeof BoardPatchSchema>;
 
-export type NoteOrdered = Note & { order: number };
-
 export const UserInviteSchema = EntitySchema.extend({
 	friendEmail: z.string(),
 	userId: z.string(),
@@ -104,10 +102,12 @@ export const UserSchema = EntitySchema.extend({
 });
 
 export type User = z.infer<typeof UserSchema>;
-
-export type Friend = Pick<User, 'email' | 'id' | 'name' | 'picture'>;
-
+export type UserProfile = Pick<User, 'id' | 'email' | 'name' | 'picture'>;
+export type Friend = Pick<User, 'email' | 'id' | 'name' | 'picture'>; // Todo: replace friend with UserProfile
 export type FriendSelection = { noteEditorId?: string; selected: boolean } & Friend;
+export type NoteOwner = { noteId: string; owner: UserProfile };
+export type NoteWithOwner = Note & ({ shared: true; owner: UserProfile } | { shared: false });
+export type NoteOrdered = NoteWithOwner & { order: number };
 
 export const AuthUserProfileSchema = z.object({
 	sub: z.string(),
@@ -161,7 +161,7 @@ export type ServerError =
 export type ErrorType = ServerError['_tag'];
 
 export interface ApiError {
-	status: 200 | 404 | 403 | 400 | 500;
+	status: 200 | 401 | 404 | 403 | 400 | 500;
 	message: string;
 }
 

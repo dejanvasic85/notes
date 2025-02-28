@@ -4,7 +4,6 @@
 	import { page } from '$app/state';
 	import { createLabel, melt } from '@melt-ui/svelte';
 
-	import { getFetchState } from '$lib/state/fetchState.svelte';
 	import Input from '$components/Input.svelte';
 	import Button from '$components/Button.svelte';
 	import Icon from '$components/Icon.svelte';
@@ -12,7 +11,6 @@
 	let loading = $state(false);
 	let error = $state('');
 	const invitedToNoteId = page.url.searchParams.get('noteId');
-	const fetchState = getFetchState();
 
 	const {
 		elements: { root }
@@ -38,7 +36,6 @@
 				error = result.data?.message as string;
 			}
 			if (result.type === 'redirect') {
-				fetchState.reset('friends');
 				goto(result.location);
 			}
 		};

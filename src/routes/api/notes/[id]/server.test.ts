@@ -3,7 +3,7 @@ import { taskEither as TE } from 'fp-ts';
 
 import { getNoteById, updateNote, deleteNote } from '$lib/server/db/notesDb';
 import { updateBoard, getBoard } from '$lib/server/db/boardDb';
-import { isNoteEditorOrOwner } from '$lib/server/services/noteService';
+import { isNoteEditorOrOwner, canDeleteNote } from '$lib/server/services/noteService';
 import type { NotePatchInput } from '$lib/types';
 
 import { GET, PATCH, DELETE } from './+server';
@@ -17,6 +17,7 @@ const mockDeleteNote = deleteNote as MockedFunction<typeof deleteNote>;
 const mockUpdateNote = updateNote as MockedFunction<typeof updateNote>;
 const mockUpdateBoard = updateBoard as MockedFunction<typeof updateBoard>;
 const mockIsNoteEditorOrOwner = isNoteEditorOrOwner as MockedFunction<typeof isNoteEditorOrOwner>;
+const mockCanDeleteNote = canDeleteNote as MockedFunction<typeof canDeleteNote>;
 const mockGetBoard = getBoard as MockedFunction<typeof getBoard>;
 
 const mockNote = {
@@ -56,7 +57,7 @@ describe('GET', () => {
 		});
 	});
 
-	it('should return a 403 when note does belong to the user', async () => {
+	it('should return unauthorized when note does belong to the user', async () => {
 		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
 		mockIsNoteEditorOrOwner.mockReturnValue(
 			TE.left({ _tag: 'AuthorizationError', message: 'Unauthorized' })
@@ -69,7 +70,7 @@ describe('GET', () => {
 				params: { id: 'nid_123' }
 			} as any)
 		).rejects.toEqual({
-			status: 403,
+			status: 401,
 			body: { message: 'Unauthorized' }
 		});
 	});
@@ -117,7 +118,7 @@ describe('DELETE', () => {
 		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
 		mockDeleteNote.mockReturnValue(TE.right(mockNote) as any);
 		mockUpdateBoard.mockReturnValue(TE.right({} as any));
-		mockIsNoteEditorOrOwner.mockReturnValue(TE.right(true) as any);
+		mockCanDeleteNote.mockReturnValue(TE.right(true) as any);
 		mockGetBoard.mockReturnValue(TE.right({ id: 'bid_123', noteOrder: ['nid_123'] }) as any);
 
 		const result = await DELETE({
@@ -127,5 +128,28 @@ describe('DELETE', () => {
 
 		expect(mockUpdateBoard).toHaveBeenCalled();
 		expect(result.status).toBe(204);
+	});
+
+	it('should return not authorized when the user is not the owner of the note', async () => {
+		const locals = { user: { id: 'uid_123' } };
+		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
+		mockDeleteNote.mockReturnValue(TE.right(mockNote) as any);
+		mockUpdateBoard.mockReturnValue(TE.right({} as any));
+		mockCanDeleteNote.mockReturnValue(
+			TE.left({ _tag: 'AuthorizationError', message: 'Unauthorized' })
+		);
+		mockGetBoard.mockReturnValue(TE.right({ id: 'bid_123', noteOrder: ['nid_123'] }) as any);
+
+		await expect(
+			DELETE({
+				locals,
+				params: { id: mockNote.id }
+			} as any)
+		).rejects.toEqual({
+			status: 401,
+			body: { message: 'Unauthorized' }
+		});
+
+		expect(mockUpdateBoard).not.toHaveBeenCalled();
 	});
 });

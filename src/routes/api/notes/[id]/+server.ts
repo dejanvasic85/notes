@@ -6,7 +6,7 @@ import { pipe } from 'fp-ts/lib/function';
 import { mapToApiError } from '$lib/server/apiResultMapper';
 import { getBoard, updateBoard } from '$lib/server/db/boardDb';
 import { getNoteById, updateNote, deleteNote } from '$lib/server/db/notesDb';
-import { isNoteEditorOrOwner } from '$lib/server/services/noteService';
+import { isNoteEditorOrOwner, canDeleteNote } from '$lib/server/services/noteService';
 import { parseRequest } from '$lib/server/requestParser';
 import { NotePatchInputSchema } from '$lib/types';
 
@@ -40,12 +40,11 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 	)();
 };
 
-// todo: remove the note from anyone else's note order
 export const DELETE: RequestHandler = async ({ locals, params }) => {
 	return pipe(
 		TE.Do,
 		TE.bind('note', () => getNoteById({ id: params.id! })),
-		TE.bind('canEdit', () => isNoteEditorOrOwner({ noteId: params.id!, userId: locals.user!.id })),
+		TE.bind('canDelete', () => canDeleteNote({ noteId: params.id!, userId: locals.user!.id })),
 		TE.bind('board', (p) => getBoard({ id: p.note.boardId! })),
 		TE.flatMap(({ board, note }) => {
 			return pipe(

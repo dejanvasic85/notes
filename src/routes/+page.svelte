@@ -12,16 +12,13 @@
 	import logo from '$lib/images/notes-main.png';
 	import type { Note, NoteOrdered } from '$lib/types';
 	import { getBoardState } from '$lib/state/boardState.svelte';
-	import { getFetchState } from '$lib/state/fetchState.svelte';
 
 	let { data } = $props();
 	const boardState = getBoardState();
-	const fetchState = getFetchState();
 
 	onMount(() => {
 		boardState.reset();
 		boardState.createNewNote('<p>Click here to edit me! You can also drag to reorder 😊</p>');
-		fetchState.reset('board');
 	});
 
 	function handleCreateNote() {
@@ -52,7 +49,7 @@
 
 	let search = $derived(new URL(page.url).searchParams);
 	let selectedId = $derived(search.get('id'));
-	let selectedNote = $derived(boardState.notesOrdered.find((n) => n.id === selectedId));
+	let selectedNote = $derived(boardState.notes.find((n) => n.id === selectedId));
 </script>
 
 <svelte:head>
@@ -135,7 +132,7 @@
 				</Button>
 			</div>
 			<Board
-				notes={boardState.notesOrdered}
+				notes={boardState.notes}
 				{selectedNote}
 				onclosenote={handleClose}
 				ondeletenote={handleDeleteNote}

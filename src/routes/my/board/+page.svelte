@@ -6,7 +6,6 @@
 	import type { Note, NoteOrdered, ToggleFriendShare } from '$lib/types';
 	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
-	import { getFetchState } from '$lib/state/fetchState.svelte';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 
@@ -19,7 +18,6 @@
 	const numberOfSkeletons = 4;
 	const boardState = getBoardState();
 	const toastMessages = getToastMessages();
-	const fetchState = getFetchState();
 	const friendsState = getFriendsState();
 
 	let selectedNote: NoteOrdered | null = $state(null);
@@ -30,29 +28,23 @@
 	let selectedId = $derived(search.get('id'));
 
 	onMount(() => {
-		if (fetchState.shouldFetch('board')) {
-			loading = true;
-			Promise.all([fetch('/api/user/board'), fetch('/api/friends')])
-				.then(async ([boardResp, friendsResp]) => {
-					const { board, sharedNotes } = await boardResp.json();
-					const { friends, pendingSentInvites, pendingReceivedInvites } = await friendsResp.json();
-					boardState.setBoard(board, friends, sharedNotes);
-					friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);
-					fetchState.setFetched('board');
-					fetchState.setFetched('friends');
-					loading = false;
-				})
-				.catch((err) => {
-					console.error(err);
-					loadingError = err.message;
-				});
-		}
+		loading = true;
+		Promise.all([fetch('/api/user/board'), fetch('/api/friends')])
+			.then(async ([boardResp, friendsResp]) => {
+				const { board, sharedNotes, sharedNoteOwners } = await boardResp.json();
+				const { friends, pendingSentInvites, pendingReceivedInvites } = await friendsResp.json();
+				boardState.setBoard(board, friends, sharedNotes, sharedNoteOwners);
+				friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);
+				loading = false;
+			})
+			.catch((err) => {
+				console.error(err);
+				loadingError = err.message;
+			});
 	});
 
 	$effect(() => {
-		selectedNote = selectedId
-			? boardState.notesOrdered.find((n) => n.id === selectedId) || null
-			: null;
+		selectedNote = selectedId ? boardState.notes.find((n) => n.id === selectedId) || null : null;
 	});
 
 	function handleSelect({ id }: { id: string }) {
@@ -143,7 +135,7 @@
 		<Board
 			{selectedNote}
 			friends={boardState.friends}
-			notes={boardState.notesOrdered}
+			notes={boardState.notes}
 			enableSharing={true}
 			onselect={handleSelect}
 			onclosenote={handleClose}
