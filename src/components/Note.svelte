@@ -67,7 +67,11 @@
 			class="absolute bottom-0 left-0 flex h-10 w-full items-center gap-2 bg-white/20 px-4 backdrop-blur-sm"
 		>
 			{#if note.shared}
-				<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} />
+				<UserAvatar
+					picture={note.owner.picture || ''}
+					name={note.owner.name || ''}
+					tooltip="{note.owner.name} (owner)"
+				/>
 			{/if}
 			{#each editors as editor}
 				<UserAvatar picture={editor.picture || ''} name={editor.name || ''} />

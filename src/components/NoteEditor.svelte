@@ -37,6 +37,7 @@
 	let editors = $derived(
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
 	);
+	$inspect(note);
 
 	function handleSave() {
 		onsavenote({
@@ -83,7 +84,7 @@
 					</Button>
 				</div>
 				<div class="flex gap-2">
-					{#if enableSharing}
+					{#if enableSharing && !note.shared}
 						<Share
 							{friends}
 							noteId={note.id}
@@ -97,9 +98,11 @@
 						/>
 					{/if}
 					<ColourPicker onselect={handleColourPick} />
-					<Button variant="ghost" onclick={handleDeleteClick}>
-						<Icon icon="trash" title="Delete note" fill="none" />
-					</Button>
+					{#if !note.shared}
+						<Button variant="ghost" onclick={handleDeleteClick}>
+							<Icon icon="trash" title="Delete note" fill="none" />
+						</Button>
+					{/if}
 				</div>
 			</div>
 		</div>
@@ -110,10 +113,15 @@
 	{/snippet}
 
 	{#snippet footer()}
-		<div class="flex justify-between pb-2 pl-4 pr-2">
+		<div class="flex justify-between py-2 pl-4 pr-2">
 			<div class="flex items-center gap-4">
 				{#if note.shared}
-					<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} size={7} />
+					<UserAvatar
+						picture={note.owner.picture || ''}
+						name={note.owner.name || ''}
+						size={7}
+						tooltip="{note.owner.name} (owner)"
+					/>
 				{/if}
 				{#each editors as editor}
 					<UserAvatar picture={editor.picture || ''} name={editor.name || ''} size={7} />
