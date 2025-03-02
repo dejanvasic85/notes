@@ -110,10 +110,15 @@
 	{/snippet}
 
 	{#snippet footer()}
-		<div class="flex justify-between pb-2 pl-4 pr-2">
+		<div class="flex justify-between py-2 pl-4 pr-2">
 			<div class="flex items-center gap-4">
 				{#if note.shared}
-					<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} size={7} />
+					<UserAvatar
+						picture={note.owner.picture || ''}
+						name={note.owner.name || ''}
+						size={7}
+						tooltip="{note.owner.name} (owner)"
+					/>
 				{/if}
 				{#each editors as editor}
 					<UserAvatar picture={editor.picture || ''} name={editor.name || ''} size={7} />

@@ -5,9 +5,10 @@
 		picture: string;
 		name: string;
 		size?: 5 | 6 | 7 | 8;
+		tooltip?: string;
 	};
 
-	const { picture, name, size = 5 }: Props = $props();
+	const { picture, name, size = 5, tooltip = name }: Props = $props();
 
 	const {
 		elements: { image }
@@ -46,6 +47,6 @@
 {#if $open}
 	<div use:melt={$content} class="z-toaster rounded-lg bg-black shadow">
 		<div use:melt={$arrow}></div>
-		<p class="p-4 text-sm text-white">{name}</p>
+		<p class="p-4 text-sm text-white">{tooltip}</p>
 	</div>
 {/if}
