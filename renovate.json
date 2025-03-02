@@ -21,12 +21,7 @@
 	"packageRules": [
 		{
 			"matchManagers": ["npm"],
-			"matchPackageNames": ["svelte"],
-			"allowedVersions": "< 5"
-		},
-		{
-			"matchManagers": ["npm"],
-			"matchPackageNames": ["@sveltejs/vite-plugin-svelte"],
+			"matchPackageNames": ["tailwindcss"],
 			"allowedVersions": "< 4"
 		}
 	]
