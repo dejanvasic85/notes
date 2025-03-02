@@ -37,6 +37,7 @@
 	let editors = $derived(
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
 	);
+	$inspect(note);
 
 	function handleSave() {
 		onsavenote({
@@ -83,7 +84,7 @@
 					</Button>
 				</div>
 				<div class="flex gap-2">
-					{#if enableSharing}
+					{#if enableSharing && !note.shared}
 						<Share
 							{friends}
 							noteId={note.id}
@@ -97,9 +98,11 @@
 						/>
 					{/if}
 					<ColourPicker onselect={handleColourPick} />
-					<Button variant="ghost" onclick={handleDeleteClick}>
-						<Icon icon="trash" title="Delete note" fill="none" />
-					</Button>
+					{#if !note.shared}
+						<Button variant="ghost" onclick={handleDeleteClick}>
+							<Icon icon="trash" title="Delete note" fill="none" />
+						</Button>
+					{/if}
 				</div>
 			</div>
 		</div>
