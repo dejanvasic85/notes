@@ -102,7 +102,7 @@
 			</div>
 
 			<!-- body -->
-			<div class="w-full flex-1 overflow-y-auto shadow-xl">
+			<div class="w-full flex-1 overflow-y-auto shadow-lg">
 				{@render body()}
 			</div>
 
