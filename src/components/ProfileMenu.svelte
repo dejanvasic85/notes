@@ -48,7 +48,7 @@
 {/snippet}
 
 <button type="button" use:melt={$trigger} aria-label="user menu">
-	<UserAvatar picture={userPicture} {name} size={8} />
+	<UserAvatar picture={userPicture} {name} size={8} showTooltip={false} />
 </button>
 
 {#if $open}
@@ -58,7 +58,7 @@
 		transition:fly={{ duration: 150, y: -10 }}
 	>
 		<div class="flex">
-			<UserAvatar picture={userPicture} {name} size={8} />
+			<UserAvatar picture={userPicture} {name} size={8} showTooltip={false} />
 			<div class="ml-4 flex flex-col truncate">
 				<span class="truncate font-bold">{name}</span>
 				<span class="truncate text-xs text-gray-500">{email}</span>

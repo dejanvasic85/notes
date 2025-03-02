@@ -6,9 +6,10 @@
 		name: string;
 		size?: 5 | 6 | 7 | 8;
 		tooltip?: string;
+		showTooltip?: boolean;
 	};
 
-	const { picture, name, size = 5, tooltip = name }: Props = $props();
+	const { picture, name, size = 5, tooltip = name, showTooltip = true }: Props = $props();
 
 	const {
 		elements: { image }
@@ -44,7 +45,7 @@
 	alt={`Avatar of ${name}`}
 />
 
-{#if $open}
+{#if $open && showTooltip}
 	<div use:melt={$content} class="z-toaster rounded-lg bg-black shadow">
 		<div use:melt={$arrow}></div>
 		<p class="p-4 text-sm text-white">{tooltip}</p>
