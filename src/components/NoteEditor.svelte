@@ -37,7 +37,6 @@
 	let editors = $derived(
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
 	);
-	$inspect(note);
 
 	function handleSave() {
 		onsavenote({
@@ -73,6 +72,8 @@
 		noteTextPlain = plaintext;
 	};
 </script>
+
+<svelte:window onkeydown={(e) => e.code === 'Escape' && onclose()} />
 
 <Dialog show={true} colour={note.colour}>
 	{#snippet header()}

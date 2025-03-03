@@ -107,7 +107,6 @@
 			</div>
 
 			<!-- footer -->
-
 			<div>
 				{@render footer?.()}
 			</div>
