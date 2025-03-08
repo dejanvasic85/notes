@@ -1,4 +1,4 @@
-import { PUBLIC_AUTH0_DOMAIN } from '$env/static/public';
+import { AUTH0_DOMAIN } from '$env/static/private';
 
 import { type AuthUserProfile, AuthUserProfileSchema } from '$lib/types';
 
@@ -7,7 +7,7 @@ export async function fetchAuthUser({
 }: {
 	accessToken: string;
 }): Promise<AuthUserProfile> {
-	const resp = await fetch(`https://${PUBLIC_AUTH0_DOMAIN}/userinfo`, {
+	const resp = await fetch(`https://${AUTH0_DOMAIN}/userinfo`, {
 		headers: {
 			Authorization: `Bearer ${accessToken}`
 		}
