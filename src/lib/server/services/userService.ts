@@ -7,6 +7,7 @@ import {
 	createUser,
 	getAllUsersById,
 	getUserByAuthId,
+	getUserByEmail,
 	getConnections
 } from '$lib/server/db/userDb';
 import { createError, withError } from '$lib/server/errorFactory';
@@ -41,16 +42,16 @@ export const tryUpdateAuthUser = (params: UpdateAuthUserParams): TE.TaskEither<S
 	TE.tryCatch(() => updateAuthUser(params), withError('FetchError', 'Failed to update user'));
 
 interface GetOrCreateUserParams {
-	authId: string;
+	email: string;
 	authUserProfile: AuthUserProfile;
 }
 
 export const getOrCreateUser = ({
-	authId,
+	email,
 	authUserProfile
 }: GetOrCreateUserParams): TE.TaskEither<ServerError, User> =>
 	pipe(
-		getUserByAuthId(authId),
+		getUserByEmail(email),
 		TE.orElse((err) => {
 			if (err._tag === 'RecordNotFound') {
 				return createUser({ authUserProfile });

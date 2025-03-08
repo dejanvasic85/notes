@@ -23,7 +23,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 	return pipe(
 		getToken({ code }),
 		TE.flatMap((token) => tryVerifyToken<AuthUserProfile>(token.id_token)),
-		TE.flatMap((authUser) => getOrCreateUser({ authId: authUser.sub, authUserProfile: authUser })),
+		TE.flatMap((authUser) => getOrCreateUser({ email: authUser.email, authUserProfile: authUser })),
 		TE.map((user) => setAuthCookie(cookies, user)),
 		TE.match(
 			(err) => {
