@@ -56,7 +56,7 @@ export const actions = {
 			E.flatMap(() => authorizeUser(locals.user)),
 			TE.fromEither,
 			TE.flatMap((u) => updateUser({ id: u.id, name: name })),
-			TE.flatMap((u) => tryUpdateAuthUser({ authId: u.authId!, name: name })),
+			TE.flatMap((u) => tryUpdateAuthUser({ email: u.email!, name: name })),
 			TE.mapLeft(mapToApiError),
 			TE.match(
 				// @ts-ignore: fp-ts is expecting the same return types

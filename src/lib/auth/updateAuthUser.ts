@@ -1,57 +1,39 @@
-import { AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET, AUTH0_DOMAIN } from '$env/static/private';
+import { taskEither as TE } from 'fp-ts';
+import { AUTH0_DOMAIN } from '$env/static/private';
 
-let cachedToken: string | undefined = undefined;
-const getToken = async () => {
-	if (cachedToken) return cachedToken;
-
-	const resp = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			client_id: AUTH0_CLIENT_ID,
-			client_secret: AUTH0_CLIENT_SECRET,
-			audience: `https://${AUTH0_DOMAIN}/api/v2/`,
-			grant_type: 'client_credentials'
-		})
-	});
-
-	if (!resp.ok) {
-		const responseText = await resp.text();
-		throw new Error(`Failed to fetch token. Status: ${resp.status}. Response: ${responseText}`);
-	}
-
-	const { access_token } = await resp.json();
-	cachedToken = access_token;
-	return access_token;
-};
+import { getClientCredentialToken } from './getToken';
+import type { ServerError } from '$lib/types';
+import { pipe } from 'fp-ts/lib/function';
+import { tryFetchJson } from '$lib/server/serverFetch';
 
 export type UpdateAuthUserParams = {
 	authId: string;
 	name: string;
 };
 
-export const updateAuthUser = async ({ authId, name }: UpdateAuthUserParams) => {
+export const updateAuthUser = ({
+	authId,
+	name
+}: UpdateAuthUserParams): TE.TaskEither<ServerError, void> => {
 	if (!authId.startsWith('auth0|')) {
 		// We can only update the user if it's not a social login
-		return;
+		return TE.right(void 0);
 	}
 
-	const token = await getToken();
-	const resp = await fetch(`https://${AUTH0_DOMAIN}/api/v2/users/${authId}`, {
-		method: 'PATCH',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		},
-		body: JSON.stringify({
-			name
-		})
-	});
-
-	if (!resp.ok) {
-		const responseText = await resp.text();
-		throw new Error(`Failed to update user. Status: ${resp.status}. Response: ${responseText}`);
-	}
+	return pipe(
+		getClientCredentialToken(),
+		TE.flatMap(({ access_token }) =>
+			tryFetchJson(`https://${AUTH0_DOMAIN}/api/v2/users/${authId}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${access_token}`
+				},
+				body: JSON.stringify({
+					name
+				})
+			})
+		),
+		TE.map(() => void 0)
+	);
 };

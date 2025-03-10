@@ -40,3 +40,28 @@ export const getToken = ({
 		})
 	);
 };
+
+type GetClientCredentialTokenParams = {
+	audience?: string;
+};
+
+export const getClientCredentialToken = (
+	{ audience }: GetClientCredentialTokenParams = {
+		audience: `https://${AUTH0_DOMAIN}/api/v2/`
+	}
+): TE.TaskEither<ServerError, GetTokenResponse> => {
+	return pipe(
+		tryFetchJson(`https://${AUTH0_DOMAIN}/oauth/token`, {
+			method: 'POST',
+			body: JSON.stringify({
+				audience,
+				client_id: AUTH0_CLIENT_ID,
+				client_secret: AUTH0_CLIENT_SECRET,
+				grant_type: 'client_credentials'
+			}),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+	);
+};
