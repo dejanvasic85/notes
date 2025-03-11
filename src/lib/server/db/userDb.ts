@@ -47,16 +47,6 @@ export const getUser = ({
 		}))
 	);
 
-export const getUserByAuthId = (authId: string): TE.TaskEither<ServerError, User> =>
-	pipe(
-		tryDbTask(() => db.user.findFirst({ where: { authId } })),
-		TE.flatMap(fromNullableRecord(`User with authId ${authId} not found`)),
-		TE.map((user) => ({
-			...user,
-			boards: []
-		}))
-	);
-
 export const getUserByEmail = (email: string): TE.TaskEither<ServerError, User> =>
 	pipe(
 		tryDbTask(() => db.user.findFirst({ where: { email } })),
@@ -92,11 +82,10 @@ export const createUser = ({
 	authUserProfile: AuthUserProfile;
 }): TE.TaskEither<ServerError, User> => {
 	return tryDbTask(() => {
-		const { email, email_verified, name, picture, sub } = authUserProfile;
+		const { email, email_verified, name, picture } = authUserProfile;
 		return db.user.create({
 			data: {
 				id: generateId('uid'),
-				authId: sub,
 				name,
 				email,
 				emailVerified: email_verified,
@@ -168,7 +157,9 @@ export const getInvite = (
 ): TE.TaskEither<ServerError, UserInvite> =>
 	pipe(
 		tryDbTask(() => db.userInvite.findFirst({ where: { id, friendEmail } })),
-		TE.flatMap(fromNullableRecord(`User with authId ${id} not found`))
+		TE.flatMap(
+			fromNullableRecord(`User invite with id ${id} and friendEmail ${friendEmail} not found`)
+		)
 	);
 
 export const getInvitesByUser = (userId: string): TE.TaskEither<ServerError, UserInvite[]> => {

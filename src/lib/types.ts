@@ -91,7 +91,6 @@ export const UserConnectionSchema = z.object({
 export type UserConnection = z.infer<typeof UserConnectionSchema>;
 
 export const UserSchema = EntitySchema.extend({
-	authId: z.string().optional(),
 	email: z.string().optional(),
 	emailVerified: z.boolean(),
 	name: z.string().nullable(),
