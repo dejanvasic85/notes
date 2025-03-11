@@ -1,12 +1,13 @@
 import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
-import { fetchAuthUser } from '$lib/auth/fetchUser';
-import { updateAuthUser, type UpdateAuthUserParams } from '$lib/auth/updateAuthUser';
+import { fetchAuthUser, fetchAuthUserByEmail } from '$lib/auth/fetchUser';
+import { updateAuthUser } from '$lib/auth/updateAuthUser';
 import {
 	createUser,
 	getAllUsersById,
 	getUserByAuthId,
+	getUserByEmail,
 	getConnections
 } from '$lib/server/db/userDb';
 import { createError, withError } from '$lib/server/errorFactory';
@@ -37,20 +38,33 @@ const tryFetchAuthUser = ({
 		withError('FetchError', 'Failed to fetch user with access token')
 	);
 
-export const tryUpdateAuthUser = (params: UpdateAuthUserParams): TE.TaskEither<ServerError, void> =>
-	TE.tryCatch(() => updateAuthUser(params), withError('FetchError', 'Failed to update user'));
+type UpdateUserParams = {
+	email: string;
+	name: string;
+};
+
+export const tryUpdateAuthUser = (params: UpdateUserParams): TE.TaskEither<ServerError, void> =>
+	pipe(
+		fetchAuthUserByEmail(params.email),
+		TE.flatMap((user) =>
+			updateAuthUser({
+				authId: user.user_id,
+				name: params.name
+			})
+		)
+	);
 
 interface GetOrCreateUserParams {
-	authId: string;
+	email: string;
 	authUserProfile: AuthUserProfile;
 }
 
 export const getOrCreateUser = ({
-	authId,
+	email,
 	authUserProfile
 }: GetOrCreateUserParams): TE.TaskEither<ServerError, User> =>
 	pipe(
-		getUserByAuthId(authId),
+		getUserByEmail(email),
 		TE.orElse((err) => {
 			if (err._tag === 'RecordNotFound') {
 				return createUser({ authUserProfile });

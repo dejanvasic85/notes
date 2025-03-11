@@ -57,6 +57,16 @@ export const getUserByAuthId = (authId: string): TE.TaskEither<ServerError, User
 		}))
 	);
 
+export const getUserByEmail = (email: string): TE.TaskEither<ServerError, User> =>
+	pipe(
+		tryDbTask(() => db.user.findFirst({ where: { email } })),
+		TE.flatMap(fromNullableRecord(`User with email ${email} not found`)),
+		TE.map((user) => ({
+			...user,
+			boards: []
+		}))
+	);
+
 export const getAllUsersById = (ids: string[]): TE.TaskEither<ServerError, User[]> =>
 	pipe(
 		tryDbTask(() => db.user.findMany({ where: { id: { in: ids } } })),
