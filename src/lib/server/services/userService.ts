@@ -1,16 +1,10 @@
 import { taskEither as TE } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 
-import { fetchAuthUser, fetchAuthUserByEmail } from '$lib/auth/fetchUser';
+import { fetchAuthUserByEmail } from '$lib/auth/fetchUser';
 import { updateAuthUser } from '$lib/auth/updateAuthUser';
-import {
-	createUser,
-	getAllUsersById,
-	getUserByAuthId,
-	getUserByEmail,
-	getConnections
-} from '$lib/server/db/userDb';
-import { createError, withError } from '$lib/server/errorFactory';
+import { createUser, getAllUsersById, getUserByEmail, getConnections } from '$lib/server/db/userDb';
+import { createError } from '$lib/server/errorFactory';
 import type { AuthUserProfile, Board, Friend, ServerError, User } from '$lib/types';
 
 interface IsBoardOwnerParams {
@@ -27,16 +21,6 @@ export const isBoardOwner = ({
 		: TE.left(
 				createError('AuthorizationError', `User ${userId} is not the owner of board ${board.id}`)
 			);
-
-const tryFetchAuthUser = ({
-	accessToken
-}: {
-	accessToken: string;
-}): TE.TaskEither<ServerError, AuthUserProfile> =>
-	TE.tryCatch(
-		() => fetchAuthUser({ accessToken }),
-		withError('FetchError', 'Failed to fetch user with access token')
-	);
 
 type UpdateUserParams = {
 	email: string;
@@ -68,28 +52,6 @@ export const getOrCreateUser = ({
 		TE.orElse((err) => {
 			if (err._tag === 'RecordNotFound') {
 				return createUser({ authUserProfile });
-			}
-			return TE.left(err);
-		})
-	);
-
-interface GetOrCreateParams {
-	accessToken: string;
-	authId: string;
-}
-
-export const getOrCreateUserByAuth = ({
-	accessToken,
-	authId
-}: GetOrCreateParams): TE.TaskEither<ServerError, User> =>
-	pipe(
-		getUserByAuthId(authId),
-		TE.orElse((err) => {
-			if (err._tag === 'RecordNotFound') {
-				return pipe(
-					tryFetchAuthUser({ accessToken }),
-					TE.flatMap((u) => createUser({ authUserProfile: u }))
-				);
 			}
 			return TE.left(err);
 		})

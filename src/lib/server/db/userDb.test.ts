@@ -1,7 +1,7 @@
 import { describe, it, vi, type Mocked, expect } from 'vitest';
 import db from '$lib/server/db';
 
-import { getUser, getUserByAuthId, createUser, getUserByNoteId } from './userDb';
+import { getUser, createUser, getUserByNoteId } from './userDb';
 
 vi.mock('$lib/server/db', () => ({
 	default: {
@@ -86,60 +86,6 @@ describe('getUser', () => {
 		dbUserMock.findFirst.mockRejectedValue(new Error('Something went wrong'));
 
 		const result: any = await getUser({ id: 'uid_123' })();
-
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual({
-			_tag: 'DatabaseError',
-			message: 'Unexpected database error occurred',
-			originalError: new Error('Something went wrong')
-		});
-	});
-});
-
-describe('getUserByAuthId', () => {
-	it('should return a user successfully', async () => {
-		dbUserMock.findFirst.mockResolvedValue({
-			id: 'hello world',
-			name: 'Goerge Costanza',
-			boards: [
-				{
-					id: 'bid_123',
-					notes: [
-						{
-							id: 'nid_333',
-							text: 'hello world'
-						}
-					]
-				}
-			]
-		} as any);
-
-		const result: any = await getUserByAuthId('auth_123')();
-
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual({
-			id: 'hello world',
-			name: 'Goerge Costanza',
-			boards: []
-		});
-	});
-
-	it('should return RecordNotFoundError when the user is null', async () => {
-		dbUserMock.findFirst.mockResolvedValue(null as any);
-
-		const result: any = await getUserByAuthId('auth_123')();
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual({
-			_tag: 'RecordNotFound',
-			message: 'User with authId auth_123 not found',
-			originalError: undefined
-		});
-	});
-
-	it('should return a DatabaseError when the db throws an error', async () => {
-		dbUserMock.findFirst.mockRejectedValue(new Error('Something went wrong'));
-
-		const result: any = await getUserByAuthId('auth_123')();
 
 		expect(result._tag).toBe('Left');
 		expect(result.left).toEqual({
