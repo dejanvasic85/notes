@@ -48,7 +48,6 @@ export const fetchAuthUserByEmail = (email: string): TE.TaskEither<ServerError, 
 			if (data.length === 0) {
 				return TE.left(createError('RecordNotFound', `Auth user not found`));
 			}
-			console.log('Found user', data[0]);
 			return TE.right(data[0]);
 		})
 	);
