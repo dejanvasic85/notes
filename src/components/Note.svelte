@@ -39,7 +39,7 @@
 <div
 	id={note.id}
 	aria-label={`Edit note ${index + 1}`}
-	class="prose h-full w-full overflow-hidden rounded-lg p-4 text-sm dark:prose-invert lg:text-base {className} relative select-none hover:cursor-grab hover:ring-2 dark:hover:ring-darkText {isDragging
+	class="prose h-full w-full overflow-hidden rounded-lg p-4 text-sm dark:prose-invert lg:text-base {className} relative select-none break-words hover:cursor-grab hover:ring-2 dark:hover:ring-darkText {isDragging
 		? 'opacity-50'
 		: ''}"
 	tabindex={index}
@@ -67,11 +67,7 @@
 			class="absolute bottom-0 left-0 flex h-10 w-full items-center gap-2 bg-white/20 px-4 backdrop-blur-sm"
 		>
 			{#if note.shared}
-				<UserAvatar
-					picture={note.owner.picture || ''}
-					name={note.owner.name || ''}
-					tooltip="{note.owner.name} (owner)"
-				/>
+				<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} />
 			{/if}
 			{#each editors as editor}
 				<UserAvatar picture={editor.picture || ''} name={editor.name || ''} />
