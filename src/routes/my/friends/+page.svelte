@@ -154,7 +154,7 @@
 		<div class="mt-16">
 			<div class="grid gap-2">
 				<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-				{#each Array(numberOfSkeletons) as _, i}
+				{#each Array(numberOfSkeletons) as _, __}
 					<div class="h-friend w-full">
 						<Skeleton />
 					</div>
