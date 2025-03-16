@@ -33,12 +33,7 @@ export default [
 			'**/vitest.config.ts'
 		]
 	},
-	...compat.extends(
-		'eslint:recommended',
-		'plugin:@typescript-eslint/recommended',
-		'plugin:svelte/recommended',
-		'prettier'
-	),
+	...compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'),
 	{
 		plugins: {
 			'@typescript-eslint': typescriptEslint
@@ -61,7 +56,8 @@ export default [
 
 		rules: {
 			'@typescript-eslint/ban-ts-comment': 'off',
-			'@typescript-eslint/no-explicit-any': 'off'
+			'@typescript-eslint/no-explicit-any': 'off',
+			'@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
 		}
 	},
 	{

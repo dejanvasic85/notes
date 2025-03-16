@@ -25,10 +25,6 @@
 			element: element,
 			extensions: [StarterKit],
 			content: initialContent,
-			onTransaction: () => {
-				// force re-render so `editor.isActive` works as expected
-				editor = editor;
-			},
 			onUpdate: ({ editor }) => {
 				onupdate(editor.getHTML(), editor.getText());
 			}
