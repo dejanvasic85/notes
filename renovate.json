@@ -23,6 +23,16 @@
 			"matchManagers": ["npm"],
 			"matchPackageNames": ["tailwindcss"],
 			"allowedVersions": "< 4"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["vite"],
+			"allowedVersions": "< 6"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["@sveltejs/vite-plugin-svelte"],
+			"allowedVersions": "< 5"
 		}
 	]
 }
