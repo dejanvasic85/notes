@@ -8,11 +8,11 @@
 	import Button from './Button.svelte';
 
 	let search = $derived(new URL(page.url).searchParams);
-	let searchParam = $derived(search.get('q'));
+	let searchQuery = $derived(search.get('q'));
 	let searchValue: string | null = $state(null);
 
 	onMount(() => {
-		searchValue = searchParam;
+		searchValue = searchQuery;
 	});
 
 	function handleTextChange(event: Event) {
@@ -24,11 +24,18 @@
 		event.preventDefault();
 		goto(`/my/board?q=${searchValue}`);
 	}
+
+	function clearAndFocus() {
+		const searchInput = document.getElementById('search') as HTMLInputElement;
+		searchInput.value = '';
+		searchInput.focus();
+		goto(`/my/board`);
+	}
 </script>
 
 <form class="flex flex-grow items-center" onsubmit={handleSubmit}>
 	<Input id="search" name="search" onchange={handleTextChange} bind:value={searchValue} />
-	<Button variant="ghost" type="reset">
+	<Button variant="ghost" type="reset" onclick={clearAndFocus}>
 		<Icon icon="x-mark" fill="none" size={32} />
 	</Button>
 	<Button variant="ghost" type="submit">

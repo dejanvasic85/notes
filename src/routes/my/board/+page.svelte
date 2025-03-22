@@ -20,12 +20,12 @@
 	const toastMessages = getToastMessages();
 	const friendsState = getFriendsState();
 
-	let selectedNote: NoteOrdered | null = $state(null);
 	let loading = $state(false);
 	let loadingError = $state('');
 
 	let search = $derived(new URL(page.url).searchParams);
-	let selectedId = $derived(search.get('id'));
+	let selectedNote = $derived(boardState.getNoteById(search.get('id')));
+	let filtered = $derived(boardState.filter(search.get('q')));
 
 	onMount(() => {
 		loading = true;
@@ -41,10 +41,6 @@
 				console.error(err);
 				loadingError = err.message;
 			});
-	});
-
-	$effect(() => {
-		selectedNote = selectedId ? boardState.notes.find((n) => n.id === selectedId) || null : null;
 	});
 
 	function handleSelect({ id }: { id: string }) {
@@ -135,7 +131,7 @@
 		<Board
 			{selectedNote}
 			friends={boardState.friends}
-			notes={boardState.notes}
+			notes={filtered}
 			enableSharing={true}
 			onselect={handleSelect}
 			onclosenote={handleClose}
