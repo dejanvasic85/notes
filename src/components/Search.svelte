@@ -35,7 +35,7 @@
 </script>
 
 <form class="relative flex flex-grow items-center gap-2" onsubmit={handleSubmit}>
-	<Input id="search" name="search" onchange={handleTextChange} bind:value={searchValue} />
+	<Input id="search" name="search" size="lg" onchange={handleTextChange} bind:value={searchValue} />
 	<div class="absolute right-0 flex gap-2">
 		{#if showClearIcon}
 			<Button variant="ghost" type="reset" onclick={clearAndFocus}>
