@@ -10,6 +10,7 @@
 	let search = $derived(new URL(page.url).searchParams);
 	let searchQuery = $derived(search.get('q'));
 	let searchValue: string | null = $state(null);
+	let showClearIcon = $derived(!!searchValue);
 
 	onMount(() => {
 		searchValue = searchQuery;
@@ -33,12 +34,16 @@
 	}
 </script>
 
-<form class="flex flex-grow items-center gap-2" onsubmit={handleSubmit}>
+<form class="relative flex flex-grow items-center gap-2" onsubmit={handleSubmit}>
 	<Input id="search" name="search" onchange={handleTextChange} bind:value={searchValue} />
-	<Button variant="ghost" type="reset" onclick={clearAndFocus}>
-		<Icon icon="x-mark" fill="none" size={32} />
-	</Button>
-	<Button variant="ghost" type="submit">
-		<Icon icon="search" fill="none" size={32} />
-	</Button>
+	<div class="absolute right-0 flex gap-2">
+		{#if showClearIcon}
+			<Button variant="ghost" type="reset" onclick={clearAndFocus}>
+				<Icon icon="x-mark" fill="none" size={16} />
+			</Button>
+		{/if}
+		<Button variant="ghost" type="submit">
+			<Icon icon="search" fill="none" size={16} />
+		</Button>
+	</div>
 </form>
