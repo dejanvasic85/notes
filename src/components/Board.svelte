@@ -11,6 +11,7 @@
 		notes: NoteOrdered[];
 		selectedNote?: NoteOrdered | null;
 		enableSharing?: boolean;
+		emptyMessage?: string;
 		friends?: Friend[];
 		onclosenote: () => void;
 		onupdatenote: (params: { note: NoteOrdered }) => void;
@@ -24,6 +25,7 @@
 		notes,
 		selectedNote,
 		enableSharing = false,
+		emptyMessage = 'Nothing to see yet! Go on create a note.',
 		friends = [],
 		onupdatenote,
 		onclosenote,
@@ -94,7 +96,7 @@
 {/if}
 
 {#if notes.length === 0}
-	<p>Nothing to see here yet! Go on, create a note.</p>
+	<p>{emptyMessage}</p>
 {:else}
 	<NoteList>
 		{#each notes as note, index}

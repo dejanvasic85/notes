@@ -26,6 +26,11 @@
 	let search = $derived(new URL(page.url).searchParams);
 	let selectedNote = $derived(boardState.getNoteById(search.get('id')));
 	let filtered = $derived(boardState.filter(search.get('q')));
+	let emptyMessage = $derived(
+		filtered.length === 0 && search.get('q') !== null
+			? 'No notes found'
+			: 'Nothing to see yet! Go on create a note.'
+	);
 
 	onMount(() => {
 		loading = true;
@@ -130,6 +135,7 @@
 	{:else}
 		<Board
 			{selectedNote}
+			{emptyMessage}
 			friends={boardState.friends}
 			notes={filtered}
 			enableSharing={true}

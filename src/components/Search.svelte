@@ -33,7 +33,7 @@
 	}
 </script>
 
-<form class="flex flex-grow items-center" onsubmit={handleSubmit}>
+<form class="flex flex-grow items-center gap-2" onsubmit={handleSubmit}>
 	<Input id="search" name="search" onchange={handleTextChange} bind:value={searchValue} />
 	<Button variant="ghost" type="reset" onclick={clearAndFocus}>
 		<Icon icon="x-mark" fill="none" size={32} />
