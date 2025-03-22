@@ -107,6 +107,18 @@ export class BoardState {
 		const notOrdered = notes.filter((n) => !noteOrder.includes(n.id));
 		return [...noteOrder, ...notOrdered.map((n) => n.id)];
 	}
+
+	filter(searchQuery: string | null) {
+		if (!searchQuery) {
+			return this.notes;
+		}
+		const query = searchQuery.toLowerCase();
+		return this.notes.filter((note) => note.text.toLowerCase().includes(query));
+	}
+
+	getNoteById(id: string | null) {
+		return this.notes.find((n) => n.id === id);
+	}
 }
 
 const BoardStateKey = Symbol('BoardState');
