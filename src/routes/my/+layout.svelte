@@ -3,6 +3,7 @@
 	import ProfileMenu from '$components/ProfileMenu.svelte';
 	import Menu from '$components/Menu.svelte';
 	import Note from '$components/Note.svelte';
+	import Search from '$components/Search.svelte';
 	import logo from '$lib/images/notes-main.png';
 	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
@@ -41,6 +42,8 @@
 		class="sticky top-0 z-menu flex h-20 items-center justify-between border-b bg-white px-4 py-2 md:col-second dark:border-b-darkBorder dark:bg-dark"
 	>
 		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
+
+		<Search />
 		{#if data.userData}
 			<ProfileMenu
 				userPicture={data.userData.picture!}
