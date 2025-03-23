@@ -42,7 +42,6 @@
 		class="sticky top-0 z-menu flex h-20 items-center justify-between gap-4 border-b bg-white px-4 py-2 md:col-second dark:border-b-darkBorder dark:bg-dark"
 	>
 		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
-
 		<Search />
 		{#if data.userData}
 			<ProfileMenu

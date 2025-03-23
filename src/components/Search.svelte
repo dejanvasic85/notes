@@ -34,23 +34,25 @@
 	}
 </script>
 
-<form class="relative flex flex-grow items-center gap-2" onsubmit={handleSubmit}>
-	<Input
-		id="search"
-		name="search"
-		size="lg"
-		paddingRight="lg"
-		onchange={handleTextChange}
-		bind:value={searchValue}
-	/>
-	<div class="absolute right-0 flex gap-2">
-		{#if showClearIcon}
-			<Button variant="ghost" type="reset" onclick={clearAndFocus}>
-				<Icon icon="x-mark" fill="none" size={16} />
+<div class="w-2/3 lg:w-1/3">
+	<form class="relative flex flex-grow items-center gap-2" onsubmit={handleSubmit}>
+		<Input
+			id="search"
+			name="search"
+			size="lg"
+			paddingRight="lg"
+			onchange={handleTextChange}
+			bind:value={searchValue}
+		/>
+		<div class="absolute right-0 flex gap-2">
+			{#if showClearIcon}
+				<Button variant="ghost" type="reset" onclick={clearAndFocus}>
+					<Icon icon="x-mark" fill="none" size={16} />
+				</Button>
+			{/if}
+			<Button variant="ghost" type="submit">
+				<Icon icon="search" fill="none" size={16} />
 			</Button>
-		{/if}
-		<Button variant="ghost" type="submit">
-			<Icon icon="search" fill="none" size={16} />
-		</Button>
-	</div>
-</form>
+		</div>
+	</form>
+</div>
