@@ -7,6 +7,7 @@
 		value?: unknown;
 		invalid?: boolean;
 		paddingRight?: 'lg';
+		placeholder?: string;
 		size?: 'sm' | 'md' | 'lg';
 		type?: HTMLInputTypeAttribute;
 		onchange?: ChangeEventHandler<HTMLInputElement> | undefined | null;
@@ -18,6 +19,7 @@
 		value = $bindable(),
 		invalid,
 		paddingRight,
+		placeholder,
 		size = 'md',
 		type = 'text',
 		onchange
@@ -28,6 +30,7 @@
 	{id}
 	{name}
 	{type}
+	{placeholder}
 	bind:value
 	class="w-full rounded-md border border-gray-300 bg-gray-50 p-2 text-gray-900 dark:border-gray-600 dark:bg-darkHover dark:text-white dark:placeholder-gray-400"
 	class:ring-2={invalid}
