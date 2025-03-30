@@ -1,15 +1,17 @@
 import { taskEither as TE } from 'fp-ts';
 import { describe, expect, it, vi, type MockedFunction } from 'vitest';
 
+import { deselectAllNoteEditors } from '$lib/server/db/notesDb';
 import {
 	createInvite,
 	createConnection,
 	getInvite,
 	getUser,
 	getInvitesByUser,
-	updateInvite,
+	getConnection,
 	getConnectionOrNull,
-	updateConnection
+	updateConnection,
+	updateInvite
 } from '$lib/server/db/userDb';
 import { sendEmail } from '$lib/server/services/emailService';
 import type {
@@ -23,9 +25,10 @@ import type {
 } from '$lib/types';
 import { addNoteEditorFromInvite } from '$lib/server/services/noteService';
 
-import { acceptInvite, sendInvite, cancelInvite } from './friendService';
+import { acceptInvite, sendInvite, cancelInvite, removeConnection } from './friendService';
 
 vi.mock('$lib/server/db/userDb');
+vi.mock('$lib/server/db/notesDb');
 vi.mock('$lib/server/services/emailService');
 vi.mock('$lib/server/services/noteService');
 
@@ -35,11 +38,15 @@ const mockGetInvite = getInvite as MockedFunction<typeof getInvite>;
 const mockGetUser = getUser as MockedFunction<typeof getUser>;
 const mockUpdateInvite = updateInvite as MockedFunction<typeof updateInvite>;
 const mockCreateConnection = createConnection as MockedFunction<typeof createConnection>;
+const mockGetConnection = getConnection as MockedFunction<typeof getConnection>;
 const mockGetConnectionOrNull = getConnectionOrNull as MockedFunction<typeof getConnectionOrNull>;
 const mockUpdateConnection = updateConnection as MockedFunction<typeof updateConnection>;
 const mockGetInvitesByUser = getInvitesByUser as MockedFunction<typeof getInvitesByUser>;
 const mockAddNoteEditorFromInvite = addNoteEditorFromInvite as MockedFunction<
 	typeof addNoteEditorFromInvite
+>;
+const mockDeselectAllNoteEditors = deselectAllNoteEditors as MockedFunction<
+	typeof deselectAllNoteEditors
 >;
 
 describe('acceptInvite', () => {
@@ -276,5 +283,24 @@ describe('cancelInvite', () => {
 
 		expect(result._tag).toBe('Left');
 		expect(result.left).toEqual(recordNotFound);
+	});
+});
+
+describe('removeConnection', () => {
+	it('should set the connection as "removed" and deselect the note editor', async () => {
+		const userId = 'usr_owner123';
+		const friendUserId = 'usr_friend123';
+
+		const connection: UserConnection = {
+			type: 'connected',
+			userFirstId: userId,
+			userSecondId: friendUserId
+		};
+
+		mockGetConnection.mockReturnValue(TE.right(connection));
+		mockDeselectAllNoteEditors.mockReturnValue(TE.right(null as any));
+
+		const result: any = await removeConnection(userId, friendUserId)();
+		expect(result._tag).toBe('Right');
 	});
 });

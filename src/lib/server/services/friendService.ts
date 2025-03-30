@@ -4,6 +4,7 @@ import { pipe } from 'fp-ts/lib/function';
 import type { NoteEditor, ServerError, User, UserConnection, UserInvite } from '$lib/types';
 
 import { generateId } from '$lib/identityGenerator';
+import { deselectAllNoteEditors } from '$lib/server/db/notesDb';
 import {
 	createInvite,
 	createConnection,
@@ -150,6 +151,9 @@ export const removeConnection = (
 	return pipe(
 		TE.Do,
 		TE.bind('connection', () => getConnection(userId, friendUserId)),
+		TE.bind('deselectedEditors', () =>
+			deselectAllNoteEditors({ userId, noteEditorUserId: friendUserId })
+		),
 		TE.flatMap(({ connection }) =>
 			updateConnection({ ...connection, type: 'removed', updatedAt: new Date() })
 		)

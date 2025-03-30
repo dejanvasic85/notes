@@ -141,3 +141,27 @@ export const getNoteOwners = (noteIds: string[]): TE.TaskEither<ServerError, Not
 		})
 	);
 };
+
+type DeselectAllNoteEditors = {
+	userId: string;
+	noteEditorUserId: string;
+};
+
+export const deselectAllNoteEditors = ({ userId, noteEditorUserId }: DeselectAllNoteEditors) => {
+	return tryDbTask(() => {
+		return db.noteEditor.updateMany({
+			data: {
+				selected: false,
+				updatedAt: new Date()
+			},
+			where: {
+				note: {
+					board: {
+						userId
+					}
+				},
+				userId: noteEditorUserId
+			}
+		});
+	});
+};
