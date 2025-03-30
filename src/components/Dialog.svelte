@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { createDialog, melt } from '@melt-ui/svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import { scale, fade } from 'svelte/transition';
-	import { type Snippet } from 'svelte';
+	import { createDialog, melt } from '@melt-ui/svelte';
 
 	import { type Colour, colours } from '$lib/colours';
 
@@ -36,12 +36,13 @@
 		states: { open }
 	} = dialog;
 
-	$effect(() => {
+	onMount(() => {
+		if (typeof window !== 'undefined') {
+			window.visualViewport?.addEventListener('resize', handleResize);
+		}
 		$open = show;
 		onopen?.();
-	});
 
-	$effect(() => {
 		className =
 			colours.find((c) => c.name === colour)?.cssClass ??
 			'bg-white dark:bg-dark dark:text-darkText border';
