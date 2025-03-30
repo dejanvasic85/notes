@@ -14,7 +14,6 @@
 
 	onMount(() => {
 		editor = new Editor({
-			autofocus: 'end',
 			editable: true,
 			editorProps: {
 				attributes: {
@@ -29,6 +28,10 @@
 				onupdate(editor.getHTML(), editor.getText());
 			}
 		});
+
+		setTimeout(() => {
+			editor.commands.focus('end', { scrollIntoView: true });
+		}, 200);
 	});
 
 	onDestroy(() => {
