@@ -13,7 +13,11 @@
 	let editor: Editor;
 
 	onMount(() => {
+		const viewportWidth = window.innerWidth;
+
 		editor = new Editor({
+			// Only focus on largrer screens
+			autofocus: viewportWidth < 1024 ? false : 'end',
 			editable: true,
 			editorProps: {
 				attributes: {
@@ -28,10 +32,6 @@
 				onupdate(editor.getHTML(), editor.getText());
 			}
 		});
-
-		setTimeout(() => {
-			editor.commands.focus('end', { scrollIntoView: true });
-		}, 500);
 	});
 
 	onDestroy(() => {
