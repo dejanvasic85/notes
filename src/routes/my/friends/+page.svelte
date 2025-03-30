@@ -62,6 +62,9 @@
 	}
 
 	async function handleRemoveFriend(id: string) {
+		if (!confirm('Are you sure you want to remove this friend?')) {
+			return;
+		}
 		const [index, friend] = friendsState.removeFriend(id);
 		const result = await tryFetch(`/api/friends/${id}`, { method: 'DELETE' });
 		if (result.type === 'error') {
