@@ -31,7 +31,7 @@
 
 		setTimeout(() => {
 			editor.commands.focus('end', { scrollIntoView: true });
-		}, 200);
+		}, 500);
 	});
 
 	onDestroy(() => {
