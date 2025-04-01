@@ -28,15 +28,16 @@
 	<a
 		href="/my/board"
 		aria-label="My board"
-		class="rounded-xl px-4 py-2 transition-all hover:dark:bg-darkHover"
+		class="rounded-xl transition-all"
 		class:pressed={iconPress === 'home'}
 		onclick={() => handleIconPress('home')}
 	>
-		<Icon
-			icon="home"
-			size={iconSize}
-			fill={page.url.pathname === '/my/board' ? 'currentColor' : 'none'}
-		/>
+		<div
+			class="flex h-full w-full border-b-4 border-white px-4 py-2 dark:border-dark"
+			class:selected={page.url.pathname === '/my/board'}
+		>
+			<Icon icon="home" size={iconSize} fill="none" />
+		</div>
 	</a>
 	<Button onclick={oncreatenote} variant="primary">
 		<Icon icon="plus-circle" size={iconSize} fill="none" />
@@ -44,15 +45,16 @@
 	<a
 		href="/my/friends"
 		aria-label="My friends"
-		class="rounded-xl px-4 py-2 hover:dark:bg-darkHover"
+		class="rounded-xl transition-all"
 		class:pressed={iconPress === 'friends'}
 		onclick={() => handleIconPress('friends')}
 	>
-		<Icon
-			icon="users"
-			size={iconSize}
-			fill={page.url.pathname === '/my/friends' ? 'currentColor' : 'none'}
-		/>
+		<div
+			class="flex h-full w-full border-b-4 border-white px-4 py-2 dark:border-dark"
+			class:selected={page.url.pathname === '/my/friends'}
+		>
+			<Icon icon="users" size={iconSize} fill="none" />
+		</div>
 	</a>
 </nav>
 
@@ -71,5 +73,9 @@
 
 	.pressed {
 		animation: shrink 0.3s ease;
+	}
+
+	.selected {
+		@apply border-b-4 border-b-primary dark:border-white;
 	}
 </style>
