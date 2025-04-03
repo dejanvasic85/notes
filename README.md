@@ -1,7 +1,4 @@
-<a href="/" align="center" >
-  <img alt="Notes App - A personal notes application" src="src/lib/images/notes-main.png" style="height: 100px; display: flex; justifty-content: center; align-items: center; margin: 0 auto;" />
-  <h1 align="center">My Notes App</h1>
-</a>
+<h1 align="center">My Notes App</h1>
 
 <p align="center">
   A personal, open-source notes application inspired by Google Keep, built with Svelte.
