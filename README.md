@@ -1,46 +1,79 @@
-# create-svelte
+<a href="/" align="center" >
+  <img alt="Notes App - A personal notes application" src="src/lib/images/notes-main.png" style="height: 100px; display: flex; justifty-content: center; align-items: center; margin: 0 auto;" />
+  <h1 align="center">My Notes App</h1>
+</a>
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+<p align="center">
+  A personal, open-source notes application inspired by Google Keep, built with Svelte.
+</p>
 
-## Creating a project
+<p align="center">
+  <a href="#features"><strong>Features</strong></a> ·
+  <a href="#tooling"><strong>Tooling</strong></a> ·
+  <a href="#developing-and-running-locally"><strong>Developing and Running Locally</strong></a>
+</p>
+<br/>
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+- Create notes with a Google Keep-inspired style.
+- Color-code notes for better organization.
+- Simple, one board per user.
+- Drag-and-drop functionality to reorder notes.
+- Share notes with others.
+- Invite friends via email.
+- Progressive Web App (PWA) for easy installation on phones and desktops.
+- Interactive homepage to try out the app.
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+## Tooling
 
-## Developing
+- **Svelte**: Initially built with Svelte 4 and upgraded to Svelte 5.
+- **Tailwind CSS**: For styling.
+- **Prisma + Postgres**: Database and ORM.
+- **FP-TS**: Functional programming utilities.
+- **Vite**: Lightning-fast build tool.
+- **Playwright**: For end-to-end testing.
+- **Vercel**: Hosting and deployment.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Why I Built This
 
-```bash
-npm run dev
+I developed this application for myself and my family members, but it is open-source and free for anyone to use. It was my way of learning Svelte and improving my frontend and functional programming skills. Another motivation was to reduce reliance on apps like Google Keep by creating a personal alternative.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+## Developing and Running Locally
 
-## Building
+To run the app locally, follow these steps:
 
-To create a production version of your app:
+1. **Install dependencies**:
 
-```bash
-npm run build
-```
+   ```bash
+   npm install
+   ```
 
-You can preview the production build with `npm run preview`.
+2. **Run the development server**:
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+   ```bash
+   npm run dev
+   ```
 
-## Config
+3. **Optional: Use Docker for Postgres**:
 
-To configure environment variables, you can use `.env` file. When running the command `npm run check` the environment variables will be automatically available from `import {} from '$env/static/private'`...
+   - Set up a Postgres database using Docker:
+     ```bash
+     docker run --name notes-postgres -e POSTGRES_PASSWORD=yourpassword -p 5432:5432 -d postgres
+     ```
+   - Update your `.env` file with the database connection details.
 
-Just be sure to update the ci.yml and deploy.yml files to include the new environment variables.
+4. **Environment Variables**:
 
-Github actions may also need to be updated.
+   - Configure environment variables in a `.env` file. These will be automatically available via `$env/static/private`.
+
+5. **Preview the app**:
+   - Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## Deploying
+
+To deploy the app, you can use Vercel or any other hosting provider. Make sure to configure the necessary environment variables in your deployment settings.
+
+---
+
+This project is a labor of love and a way to explore modern web development. Contributions and feedback are welcome!
