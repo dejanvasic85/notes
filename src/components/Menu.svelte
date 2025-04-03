@@ -8,15 +8,26 @@
 		layout: 'horizontal' | 'vertical';
 	};
 
+	type MenuItem = 'home' | 'friends';
+
 	let { oncreatenote, layout }: Props = $props();
-	let iconPress = $state<null | 'home' | 'friends'>(null);
+	let iconPress = $state<null | MenuItem>(null);
 	const iconSize = 32;
 
-	function handleIconPress(name: 'home' | 'friends') {
+	function handleIconPress(name: MenuItem) {
 		iconPress = name;
 		setTimeout(() => {
 			iconPress = null;
 		}, 300);
+	}
+
+	function isSelected(path: MenuItem) {
+		switch (path) {
+			case 'home':
+				return page.url.pathname === '/my/board';
+			case 'friends':
+				return page.url.pathname === '/my/friends';
+		}
 	}
 </script>
 
@@ -34,9 +45,9 @@
 	>
 		<div
 			class="flex h-full w-full border-b-4 border-white px-4 py-2 dark:border-dark"
-			class:selected={page.url.pathname === '/my/board'}
+			class:selected={isSelected('home')}
 		>
-			<Icon icon="home" size={iconSize} fill="none" />
+			<Icon icon="home" size={iconSize} fill={isSelected('home') ? 'currentColor' : 'none'} />
 		</div>
 	</a>
 	<Button onclick={oncreatenote} variant="primary">
@@ -51,9 +62,9 @@
 	>
 		<div
 			class="flex h-full w-full border-b-4 border-white px-4 py-2 dark:border-dark"
-			class:selected={page.url.pathname === '/my/friends'}
+			class:selected={isSelected('friends')}
 		>
-			<Icon icon="users" size={iconSize} fill="none" />
+			<Icon icon="users" size={iconSize} fill={isSelected('friends') ? 'currentColor' : 'none'} />
 		</div>
 	</a>
 </nav>
