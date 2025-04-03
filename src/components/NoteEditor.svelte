@@ -34,6 +34,7 @@
 
 	let noteText: string = $state(note.text);
 	let noteTextPlain: string = $state(note.textPlain);
+
 	let editors = $derived(
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
 	);

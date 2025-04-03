@@ -23,7 +23,10 @@
 		onopen
 	}: Props = $props();
 
-	let className = $state('');
+	const className = $derived(
+		colours.find((c) => c.name === colour)?.cssClass ??
+			'bg-white dark:bg-dark dark:text-darkText border'
+	);
 
 	const dialog = createDialog({
 		preventScroll: true,
@@ -42,10 +45,6 @@
 		}
 		$open = show;
 		onopen?.();
-
-		className =
-			colours.find((c) => c.name === colour)?.cssClass ??
-			'bg-white dark:bg-dark dark:text-darkText border';
 	});
 
 	let modalHeight = $state<number | null>(0);

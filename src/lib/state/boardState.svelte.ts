@@ -85,11 +85,10 @@ export class BoardState {
 		if (!noteToUpdate) {
 			throw new Error('Note not found');
 		}
-		const original = {
-			...noteToUpdate
-		};
-		Object.assign(noteToUpdate, note);
-		return [noteToUpdate, original];
+		const original = { ...noteToUpdate };
+		const result = Object.assign(noteToUpdate, note);
+
+		return [result, original];
 	}
 
 	reorderNotes(fromIndex: number, toIndex: number) {
