@@ -9,13 +9,13 @@
 		":timezone(Australia/Melbourne)",
 		":updateNotScheduled",
 		":dependencyDashboard",
-		"group:allNonMajor",
-		"schedule:earlyMondays"
+		"group:allNonMajor"
 	],
 	"commitMessageAction": "",
 	"labels": ["dependencies"],
 	"prConcurrentLimit": 5,
 	"prNotPendingHours": 1,
+	"schedule": ["at any time"],
 	"semanticCommitScope": "",
 	"semanticCommitType": "deps",
 	"packageRules": [
