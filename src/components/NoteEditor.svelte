@@ -34,6 +34,8 @@
 
 	let noteText: string = $state(note.text);
 	let noteTextPlain: string = $state(note.textPlain);
+	let noteColour: string | null = $state(note.colour);
+
 	let editors = $derived(
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
 	);
@@ -55,6 +57,7 @@
 	}
 
 	function handleColourPick(colour: Colour | null) {
+		noteColour = colour;
 		onupdateColour({
 			note: {
 				...note,
@@ -75,7 +78,7 @@
 
 <svelte:window onkeydown={(e) => e.code === 'Escape' && onclose()} />
 
-<Dialog show={true} colour={note.colour}>
+<Dialog show={true} colour={noteColour}>
 	{#snippet header()}
 		<div class="px-2 pt-2">
 			<div class="flex justify-between">
