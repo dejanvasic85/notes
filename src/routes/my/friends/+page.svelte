@@ -140,7 +140,12 @@
 		<div class="flex gap-1">
 			{#if props.actions}
 				{#each props.actions as action}
-					<Button variant="ghost" label={action.label} onclick={() => action.onclick(action.id)}>
+					<Button
+						variant="ghost"
+						label={action.label}
+						onclick={() => action.onclick(action.id)}
+						tooltip={action.label}
+					>
 						<Icon icon={action.icon} fill="none" />
 					</Button>
 				{/each}
