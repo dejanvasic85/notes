@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { page } from '$app/state';
+
 	import Icon from './Icon.svelte';
 	import Button from './Button.svelte';
-	import { page } from '$app/state';
+	import { getFriendsState } from '$lib/state/friendsState.svelte';
 
 	type Props = {
 		oncreatenote: () => void;
@@ -12,6 +14,8 @@
 
 	let { oncreatenote, layout }: Props = $props();
 	let iconPress = $state<null | MenuItem>(null);
+	const friendsState = getFriendsState();
+	const numberOfInvites = $derived(friendsState.pendingReceivedInvites.length);
 	const iconSize = 32;
 
 	function handleIconPress(name: MenuItem) {
@@ -61,10 +65,18 @@
 		onclick={() => handleIconPress('friends')}
 	>
 		<div
-			class="flex h-full w-full border-b-4 border-white px-4 py-2 dark:border-dark"
+			class="relative flex h-full w-full border-b-4 border-white px-4 py-2 dark:border-dark"
 			class:selected={isSelected('friends')}
 		>
 			<Icon icon="users" size={iconSize} fill={isSelected('friends') ? 'currentColor' : 'none'} />
+			{#if numberOfInvites > 0}
+				<span
+					class="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-tertiary text-xs font-bold text-white"
+					aria-label="You have pending invites"
+				>
+					{numberOfInvites}
+				</span>
+			{/if}
 		</div>
 	</a>
 </nav>
