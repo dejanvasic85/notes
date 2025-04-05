@@ -60,6 +60,10 @@
 		</div>
 	{/if}
 
+	{#if note.title}
+		<div class="mt-2 text-base font-bold lg:text-lg">{note.title}</div>
+	{/if}
+
 	{@html note.text}
 
 	{#if note.shared || editors.length > 0}
