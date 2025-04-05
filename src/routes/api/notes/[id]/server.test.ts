@@ -81,7 +81,8 @@ describe('PATCH', () => {
 		const noteInput: NotePatchInput = {
 			colour: 'black',
 			text: 'Hello world!',
-			textPlain: 'hello again'
+			textPlain: 'hello again',
+			title: 'Hello world!'
 		};
 		const locals = { user: { id: 'uid_123' } };
 
@@ -107,7 +108,8 @@ describe('PATCH', () => {
 			text: 'Hello world!',
 			textPlain: 'hello again',
 			id: 'nid_123',
-			boardId: 'bid_123'
+			boardId: 'bid_123',
+			title: 'Hello world!'
 		});
 	});
 });
