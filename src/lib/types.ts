@@ -32,7 +32,7 @@ export const NoteSchema = EntitySchema.extend({
 	colour: z.string().nullable(),
 	boardId: z.string().nullable(),
 	editors: z.array(NoteEditorSchema).optional(),
-	title: z.string().optional()
+	title: z.string().nullable()
 });
 
 export const CreateNoteInputSchema = NoteSchema.pick({

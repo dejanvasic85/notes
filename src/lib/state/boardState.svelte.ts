@@ -39,7 +39,14 @@ export class BoardState {
 
 	createNewNote(textPlain = '') {
 		const id = generateId('nid');
-		const newNote: Note = { id, text: textPlain, textPlain, boardId: this.boardId, colour: null };
+		const newNote: Note = {
+			id,
+			text: textPlain,
+			textPlain,
+			boardId: this.boardId,
+			colour: null,
+			title: null
+		};
 		this.notes.push({ ...newNote, order: this.notes.length, editors: [], shared: false });
 		this.noteOrder.push(id);
 		return newNote;
