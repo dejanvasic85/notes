@@ -132,9 +132,13 @@
 			{#if props.picture}
 				<UserAvatar picture={props.picture} name={props.name} size={8} showTooltip={false} />
 			{/if}
-			<span class:italic={props.showPending} class:text-gray-400={props.showPending}
-				>{props.name} {props.showPending ? '(pending)' : ''}</span
-			>
+
+			<div class:italic={props.showPending} class:text-gray-400={props.showPending}>
+				{props.name}
+				{#if props.showPending}
+					<span class="text-xs italic text-gray-400">(pending)</span>
+				{/if}
+			</div>
 		</div>
 
 		<div class="flex gap-1">
