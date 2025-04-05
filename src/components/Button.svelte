@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { createTooltip, melt } from '@melt-ui/svelte';
 
 	import { type Variant, buildButtonClass } from '$lib/button';
 
@@ -11,6 +12,7 @@
 		label?: string;
 		loading?: boolean;
 		disabled?: boolean;
+		tooltip?: string;
 		onclick?: () => void;
 	};
 
@@ -22,13 +24,34 @@
 		label = '',
 		loading = false,
 		disabled = false,
+		tooltip,
 		onclick
 	}: Props = $props();
 
 	const buttonClass = $derived(buildButtonClass(variant, rounded, loading || disabled));
+
+	const {
+		elements: { trigger, content, arrow },
+		states: { open }
+	} = createTooltip({
+		positioning: {
+			placement: 'top'
+		},
+		openDelay: 0,
+		closeDelay: 0,
+		closeOnPointerDown: false,
+		forceVisible: true
+	});
 </script>
 
-<button {type} class={buttonClass} {onclick} aria-label={label} disabled={loading || disabled}>
+<button
+	{type}
+	class={buttonClass}
+	{onclick}
+	aria-label={label}
+	disabled={loading || disabled}
+	use:melt={$trigger}
+>
 	{#if loading}
 		<svg
 			class="-ml-1 mr-3 h-5 w-5 animate-spin dark:text-white"
@@ -47,3 +70,10 @@
 	{/if}
 	{@render children()}
 </button>
+
+{#if $open && tooltip}
+	<div use:melt={$content} class="z-toaster rounded-lg bg-black shadow">
+		<div use:melt={$arrow}></div>
+		<p class="p-4 text-sm text-white">{tooltip}</p>
+	</div>
+{/if}
