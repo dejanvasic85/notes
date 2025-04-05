@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { Editor } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
+	import Placeholder from '@tiptap/extension-placeholder';
 
 	type Props = {
 		initialContent: string;
@@ -26,8 +27,14 @@
 			},
 			injectCSS: true,
 			element: element,
-			extensions: [StarterKit],
+			extensions: [
+				StarterKit,
+				Placeholder.configure({
+					placeholder: 'Write a note ...'
+				})
+			],
 			content: initialContent,
+
 			onUpdate: ({ editor }) => {
 				onupdate(editor.getHTML(), editor.getText());
 			}
