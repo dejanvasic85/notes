@@ -49,6 +49,7 @@ export type Note = z.infer<typeof NoteSchema>;
 export const NotePatchInputSchema = z.object({
 	text: z.string(),
 	textPlain: z.string(),
+	title: z.string().nullable(),
 	colour: z.string().nullable()
 });
 
