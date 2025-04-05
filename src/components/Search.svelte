@@ -38,7 +38,7 @@
 	<form class="relative flex flex-grow items-center gap-2" onsubmit={handleSubmit}>
 		<Input
 			id="search"
-			placeholder="Search notes by keyword"
+			placeholder="Search notes"
 			name="search"
 			size="lg"
 			paddingRight="lg"
