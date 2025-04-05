@@ -59,6 +59,7 @@
 		"@aws-sdk/client-ses": "^3.540.0",
 		"@prisma/client": "^6.0.0",
 		"@tiptap/core": "^2.11.2",
+		"@tiptap/extension-placeholder": "^2.11.7",
 		"@tiptap/pm": "^2.11.2",
 		"@tiptap/starter-kit": "^2.11.2",
 		"fp-ts": "^2.16.5",
