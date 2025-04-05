@@ -12,7 +12,8 @@ describe('parseRequest', () => {
 			colour: 'colour',
 			id: 'id',
 			text: 'text',
-			textPlain: 'this is plain text'
+			textPlain: 'this is plain text',
+			title: 'title'
 		};
 
 		const req = {

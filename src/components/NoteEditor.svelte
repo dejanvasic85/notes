@@ -34,6 +34,7 @@
 
 	let noteText: string = $state(note.text);
 	let noteTextPlain: string = $state(note.textPlain);
+	let noteTitle: string | null = $state(note.title);
 
 	let editors = $derived(
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
@@ -44,7 +45,8 @@
 			note: {
 				...note,
 				text: noteText,
-				textPlain: noteTextPlain
+				textPlain: noteTextPlain,
+				title: noteTitle
 			}
 		});
 	}
@@ -111,6 +113,12 @@
 	{/snippet}
 
 	{#snippet body()}
+		<input
+			type="text"
+			bind:value={noteTitle}
+			placeholder="Title"
+			class="w-full bg-transparent px-4 py-2 text-xl font-bold focus-visible:outline-none"
+		/>
 		<HtmlEditor initialContent={noteText} onupdate={handleContentUpdate} />
 	{/snippet}
 

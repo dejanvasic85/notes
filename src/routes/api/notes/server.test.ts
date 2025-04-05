@@ -18,7 +18,8 @@ const mockNoteInput: Note = {
 	text: 'This is a note',
 	textPlain: 'This is a note',
 	colour: 'red',
-	id: 'note_123'
+	id: 'note_123',
+	title: 'This is a note'
 };
 
 const mockUpdateBoard = updateBoard as MockedFunction<typeof updateBoard>;
@@ -49,7 +50,8 @@ describe('POST', () => {
 			boardId: 'board_123',
 			colour: 'red',
 			text: 'This is a note',
-			textPlain: 'This is a note'
+			textPlain: 'This is a note',
+			title: 'This is a note'
 		});
 
 		expect(createNote).toHaveBeenCalled();
