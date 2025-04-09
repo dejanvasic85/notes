@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { pushState } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
 	import type { Note, NoteOrdered, ToggleFriendShare } from '$lib/types';
 	import { tryFetch } from '$lib/browserFetch';
@@ -22,9 +22,8 @@
 
 	let loading = $state(false);
 	let loadingError = $state('');
-
 	let search = $derived(new URL(page.url).searchParams);
-	let selectedNote = $derived(boardState.getNoteById(search.get('id')));
+	let selectedNote = $derived(boardState.getNoteById(page.state.selectedNoteId));
 	let filtered = $derived(boardState.filter(search.get('q')));
 	let emptyMessage = $derived(
 		filtered.length === 0 && search.get('q') !== null
@@ -34,6 +33,9 @@
 
 	onMount(() => {
 		loading = true;
+		tick().then(() => {
+			pushState('/my/board', { selectedNoteId: search.get('id') });
+		});
 		Promise.all([fetch('/api/user/board'), fetch('/api/friends')])
 			.then(async ([boardResp, friendsResp]) => {
 				const { board, sharedNotes, sharedNoteOwners } = await boardResp.json();
@@ -49,11 +51,11 @@
 	});
 
 	function handleSelect({ id }: { id: string }) {
-		goto(`/my/board?id=${id}`);
+		pushState(`/my/board?id=${id}`, { selectedNoteId: id });
 	}
 
 	function handleClose() {
-		goto('/my/board');
+		pushState(`/my/board`, { selectedNoteId: null });
 	}
 
 	async function handleToggleFriendShare({
@@ -96,7 +98,7 @@
 			boardState.createNoteAtIndex(index, deletedNote);
 			toastMessages.addMessage({ message: 'Failed to delete note. Try again.', type: 'error' });
 		} else {
-			goto('/my/board');
+			pushState(`/my/board`, { selectedNoteId: null });
 		}
 	}
 

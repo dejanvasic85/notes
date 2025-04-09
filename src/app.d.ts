@@ -8,8 +8,11 @@ declare global {
 		interface Locals {
 			user?: User;
 		}
-		// interface PageData {}
+		//interface PageData {}
 		// interface Platform {}
+		interface PageState {
+			selectedNoteId: string | null;
+		}
 	}
 }
 
