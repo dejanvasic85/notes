@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { goto, pushState } from '$app/navigation';
+	import { pushState } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
 	import type { Note, NoteOrdered, ToggleFriendShare } from '$lib/types';
 	import { tryFetch } from '$lib/browserFetch';
@@ -33,6 +33,9 @@
 
 	onMount(() => {
 		loading = true;
+		tick().then(() => {
+			pushState('/my/board', { selectedNoteId: search.get('id') });
+		});
 		Promise.all([fetch('/api/user/board'), fetch('/api/friends')])
 			.then(async ([boardResp, friendsResp]) => {
 				const { board, sharedNotes, sharedNoteOwners } = await boardResp.json();
@@ -95,7 +98,7 @@
 			boardState.createNoteAtIndex(index, deletedNote);
 			toastMessages.addMessage({ message: 'Failed to delete note. Try again.', type: 'error' });
 		} else {
-			goto('/my/board');
+			pushState(`/my/board`, { selectedNoteId: null });
 		}
 	}
 
