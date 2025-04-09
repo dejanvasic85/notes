@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, pushState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 
@@ -22,9 +22,8 @@
 
 	let loading = $state(false);
 	let loadingError = $state('');
-
 	let search = $derived(new URL(page.url).searchParams);
-	let selectedNote = $derived(boardState.getNoteById(search.get('id')));
+	let selectedNote = $derived(boardState.getNoteById(page.state.selectedNoteId));
 	let filtered = $derived(boardState.filter(search.get('q')));
 	let emptyMessage = $derived(
 		filtered.length === 0 && search.get('q') !== null
@@ -49,11 +48,11 @@
 	});
 
 	function handleSelect({ id }: { id: string }) {
-		goto(`/my/board?id=${id}`);
+		pushState(`/my/board?id=${id}`, { selectedNoteId: id });
 	}
 
 	function handleClose() {
-		goto('/my/board');
+		pushState(`/my/board`, { selectedNoteId: null });
 	}
 
 	async function handleToggleFriendShare({

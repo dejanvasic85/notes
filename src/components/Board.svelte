@@ -35,20 +35,13 @@
 		ontogglefriend
 	}: Props = $props();
 
-	function handleModalClose(noteId: string) {
+	function handleModalClose() {
 		onclosenote();
-		setTimeout(() => {
-			const noteElement = document.getElementById(noteId);
-			if (noteElement) {
-				noteElement.scrollIntoView({ behavior: 'instant', block: 'center' });
-				noteElement.focus();
-			}
-		}, 50);
 	}
 
 	function handleSave({ note }: { note: NoteOrdered }) {
 		onupdatenote({ note });
-		handleModalClose(note.id);
+		handleModalClose();
 	}
 
 	function handleUpdateColour({ note }: { note: NoteOrdered }) {
@@ -88,7 +81,7 @@
 		{ondeletenote}
 		note={selectedNote}
 		friends={selectedNoteFriends}
-		onclose={() => handleModalClose(selectedNote.id)}
+		onclose={handleModalClose}
 		ontogglefriendshare={(params) => ontogglefriend?.(params)}
 		onsavenote={handleSave}
 		onupdateColour={handleUpdateColour}
