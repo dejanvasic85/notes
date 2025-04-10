@@ -19,7 +19,10 @@
 
 	async function handleCreateNote() {
 		const newNote = boardState.createNewNote();
-		goto(`/my/board?id=${newNote.id}`);
+		goto(`/my/board?id=${newNote.id}`, {
+			state: { selectedNoteId: newNote.id },
+			replaceState: true
+		});
 		const resp = await tryFetch<Note>('/api/notes', {
 			method: 'POST',
 			body: JSON.stringify(newNote)

@@ -31,23 +31,29 @@
 			: 'Nothing to see yet! Go on create a note.'
 	);
 
-	onMount(() => {
+	onMount(async () => {
 		loading = true;
-		tick().then(() => {
-			pushState('/my/board', { selectedNoteId: search.get('id') });
-		});
-		Promise.all([fetch('/api/user/board'), fetch('/api/friends')])
-			.then(async ([boardResp, friendsResp]) => {
-				const { board, sharedNotes, sharedNoteOwners } = await boardResp.json();
-				const { friends, pendingSentInvites, pendingReceivedInvites } = await friendsResp.json();
-				boardState.setBoard(board, friends, sharedNotes, sharedNoteOwners);
-				friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);
-				loading = false;
-			})
-			.catch((err) => {
-				console.error(err);
-				loadingError = err.message;
-			});
+		await tick();
+		const selectedNoteId = search.get('id');
+		if (selectedNoteId) {
+			pushState(`/my/board?id=${selectedNoteId}`, { selectedNoteId });
+		}
+
+		const [boardResp, friendsResp] = await Promise.all([
+			fetch('/api/user/board'),
+			fetch('/api/friends')
+		]);
+
+		try {
+			const { board, sharedNotes, sharedNoteOwners } = await boardResp.json();
+			const { friends, pendingSentInvites, pendingReceivedInvites } = await friendsResp.json();
+			boardState.setBoard(board, friends, sharedNotes, sharedNoteOwners);
+			friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);
+			loading = false;
+		} catch (err) {
+			console.log('Error loading board:', err);
+			loadingError = 'There was a problem loading your board';
+		}
 	});
 
 	function handleSelect({ id }: { id: string }) {
