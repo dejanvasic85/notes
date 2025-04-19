@@ -23,6 +23,10 @@
 		setTimeout(() => {
 			iconPress = null;
 		}, 300);
+
+		if (navigator.vibrate) {
+			navigator.vibrate(50);
+		}
 	}
 
 	function isSelected(path: MenuItem) {
