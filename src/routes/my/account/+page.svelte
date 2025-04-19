@@ -7,10 +7,12 @@
 	import Button from '$components/Button.svelte';
 	import Icon from '$components/Icon.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
+	import { getUserState } from '$lib/state/userState.svelte';
 
 	type Props = {
 		data: { name: string };
 		form?: {
+			name: string;
 			errors: {
 				name: string;
 			};
@@ -21,6 +23,7 @@
 	let props: Props = $props();
 
 	const toastMessages = getToastMessages();
+	const userState = getUserState();
 
 	const {
 		elements: { root }
@@ -50,6 +53,7 @@
 			}
 			if (result.type === 'success') {
 				toastMessages.addMessage({ type: 'success', message: 'Account updated' });
+				userState.setName(props.form?.name ?? '');
 			}
 		};
 	}}

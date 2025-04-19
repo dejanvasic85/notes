@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { fail, type Actions } from '@sveltejs/kit';
 import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE, either as E } from 'fp-ts';
 
@@ -7,6 +7,7 @@ import { updateUser, getUser } from '$lib/server/db/userDb';
 import { tryUpdateAuthUser } from '$lib/server/services/userService';
 import type { ServerError, User } from '$lib/types';
 import { createError } from '$lib/server/errorFactory';
+import { setAuthCookie } from '$lib/auth/session.js';
 
 export const load = async ({ locals }) => {
 	if (!locals.user) {
@@ -48,23 +49,32 @@ const validateUpdateUser = (form: UpdateUserForm): E.Either<ServerError, string>
 };
 
 export const actions = {
-	default: async ({ request, locals }) => {
+	default: async ({ request, locals, cookies }) => {
 		const data = await request.formData();
 		const name = String(data.get('name'));
+
 		return pipe(
 			validateUpdateUser({ name }),
 			E.flatMap(() => authorizeUser(locals.user)),
 			TE.fromEither,
 			TE.flatMap((u) => updateUser({ id: u.id, name: name })),
+			TE.flatMap((u) => {
+				setAuthCookie(cookies, u);
+				return TE.right(u);
+			}),
 			TE.flatMap((u) => tryUpdateAuthUser({ email: u.email!, name: name })),
 			TE.mapLeft(mapToApiError),
 			TE.match(
-				// @ts-ignore: fp-ts is expecting the same return types
-				({ status, message }) => fail(status, { message, status }),
+				({ status, message }) =>
+					// @ts-ignore: fp-ts is expecting the same return types
+					fail(status, {
+						name,
+						errors: { name: message }
+					}),
 				() => ({
 					name
 				})
 			)
 		)();
 	}
-};
+} satisfies Actions;
