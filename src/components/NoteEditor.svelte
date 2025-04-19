@@ -49,9 +49,15 @@
 				title: noteTitle
 			}
 		});
+		if (navigator.vibrate) {
+			navigator.vibrate(50);
+		}
 	}
 
 	function handleDeleteClick() {
+		if (navigator.vibrate) {
+			navigator.vibrate(50);
+		}
 		if (confirm('Are you sure you want to delete this note?')) {
 			ondeletenote({ note });
 		}
@@ -68,6 +74,10 @@
 
 	const handleClose = () => {
 		onclose();
+
+		if (navigator.vibrate) {
+			navigator.vibrate(50);
+		}
 	};
 
 	const handleContentUpdate = (html: string, plaintext: string) => {

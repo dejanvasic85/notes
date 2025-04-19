@@ -23,6 +23,11 @@
 			state: { selectedNoteId: newNote.id },
 			replaceState: true
 		});
+
+		if (navigator.vibrate) {
+			navigator.vibrate(50);
+		}
+
 		const resp = await tryFetch<Note>('/api/notes', {
 			method: 'POST',
 			body: JSON.stringify(newNote)
