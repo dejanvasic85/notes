@@ -9,10 +9,15 @@
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { setFriendsState } from '$lib/state/friendsState.svelte';
+	import { getUserState } from '$lib/state/userState.svelte';
 
 	let { children, data } = $props();
 	const boardState = getBoardState();
 	const toastMessages = getToastMessages();
+	const userState = getUserState();
+
+	userState.setName(data.userData?.name ?? '');
+
 	if (data.userData?.id) {
 		setFriendsState(data.userData.id);
 	}
@@ -55,7 +60,7 @@
 			<ProfileMenu
 				userPicture={data.userData.picture!}
 				email={data.userData.email!}
-				name={data.userData.name!}
+				name={userState.name}
 			/>
 		{/if}
 	</header>
