@@ -4,6 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* tip tap styles */
 p.is-editor-empty:first-child::before {
 	color: #999;
 	content: attr(data-placeholder);
