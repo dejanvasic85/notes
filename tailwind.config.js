@@ -8,14 +8,13 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				dark: colors.slate[900],
-				darkHover: colors.slate[700],
-				darkBorder: colors.slate[700],
-				darkText: colors.slate[200],
-				darkLoading: colors.slate[600],
+				dark: '#282c34',
+				darkHover: '#334155',
+				darkBorder: '#4b5563',
+				darkText: colors.slate[300],
+				darkLoading: '#3c424a',
 				primary: '#8f5bbd',
-				secondary: '#9E6A88',
-				tertiary: '#5C8D89',
+				secondary: '#5c8d89',
 				background: '#f5f5f7',
 				loading: '#e0e0e2',
 				error: colors.red[500]

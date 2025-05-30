@@ -119,7 +119,9 @@ export class BoardState {
 			return this.notes;
 		}
 		const query = searchQuery.toLowerCase();
-		return this.notes.filter((note) => note.text.toLowerCase().includes(query));
+		return this.notes.filter(
+			(note) => note.text.toLowerCase().includes(query) || note.title?.toLowerCase().includes(query)
+		);
 	}
 
 	getNoteById(id: string | null) {
