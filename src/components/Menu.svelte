@@ -75,7 +75,7 @@
 			<Icon icon="users" size={iconSize} fill={isSelected('friends') ? 'currentColor' : 'none'} />
 			{#if numberOfInvites > 0}
 				<span
-					class="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-tertiary text-xs font-bold text-white"
+					class="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white"
 					aria-label="You have pending invites"
 				>
 					{numberOfInvites}

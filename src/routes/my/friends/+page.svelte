@@ -185,7 +185,7 @@
 						<div
 							in:send={{ key: 'trigger' }}
 							out:receive={{ key: 'trigger' }}
-							class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-tertiary"
+							class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-secondary"
 						></div>
 					{/if}
 				</button>
@@ -196,7 +196,7 @@
 							<span
 								role="status"
 								aria-label="You have pending invites"
-								class="absolute right-0 top-0 h-3 w-3 rounded-full bg-tertiary"
+								class="absolute right-0 top-0 h-3 w-3 rounded-full bg-secondary"
 							></span>
 						{/if}
 					</div>
@@ -204,14 +204,14 @@
 						<div
 							in:send={{ key: 'trigger' }}
 							out:receive={{ key: 'trigger' }}
-							class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-tertiary"
+							class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-secondary"
 						></div>
 					{/if}
 				</button>
 			</div>
 			<div use:melt={$content(tabs.friends)} class="mt-4">
 				<div class="flex justify-end">
-					<LinkButton variant="primary" href="/my/friends/add">Add friend</LinkButton>
+					<LinkButton variant="secondary" href="/my/friends/add">Add friend</LinkButton>
 				</div>
 				<div class="mt-4 flex flex-col rounded-lg">
 					{#if friendsState.friends.length === 0 && friendsState.pendingSentInvites.length === 0}

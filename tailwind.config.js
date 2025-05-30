@@ -14,8 +14,7 @@ export default {
 				darkText: colors.slate[200],
 				darkLoading: colors.slate[600],
 				primary: '#8f5bbd',
-				secondary: '#9E6A88',
-				tertiary: '#5C8D89',
+				secondary: '#5C8D89',
 				background: '#f5f5f7',
 				loading: '#e0e0e2',
 				error: colors.red[500]

@@ -98,12 +98,12 @@
 					<p class="text-lg md:text-xl">
 						Your Notes, Your <span class="border-b-2 border-secondary pb-1 font-semibold">Data</span
 						>, Your
-						<span class="border-b-2 border-tertiary pb-1 font-bold">Peace of Mind</span>.
+						<span class="border-b-2 border-primary pb-1 font-bold">Peace of Mind</span>.
 					</p>
 
 					<div class="flex flex-col justify-end gap-2 md:flex-row">
 						{#if data.isAuthenticated}
-							<LinkButton variant="tertiary" href="/my/board">
+							<LinkButton variant="secondary" href="/my/board">
 								<Icon icon="arrow-right-circle" fill="none" />
 								<span>Go to board</span>
 							</LinkButton>
@@ -112,7 +112,7 @@
 								<span>Logout</span>
 							</LinkButton>
 						{:else}
-							<LinkButton href="/api/auth/login?returnUrl=/my/board&signup=true" variant="tertiary"
+							<LinkButton href="/api/auth/login?returnUrl=/my/board&signup=true" variant="primary"
 								>Sign up</LinkButton
 							>
 							<LinkButton href="/api/auth/login?returnUrl=/my/board" variant="secondary"
