@@ -40,7 +40,7 @@
 </script>
 
 <nav
-	class="flex h-full flex-grow items-center justify-center gap-6 {layout === 'horizontal'
+	class="flex h-full grow items-center justify-center gap-6 {layout === 'horizontal'
 		? 'justify-around'
 		: 'flex-col justify-center'}"
 >
@@ -52,7 +52,7 @@
 		onclick={() => handleIconPress('home')}
 	>
 		<div
-			class="flex h-full w-full border-b-4 border-white px-4 py-2 dark:border-dark"
+			class="dark:border-dark flex h-full w-full border-b-4 border-white px-4 py-2"
 			class:selected={isSelected('home')}
 		>
 			<Icon icon="home" size={iconSize} fill={isSelected('home') ? 'currentColor' : 'none'} />
@@ -69,13 +69,13 @@
 		onclick={() => handleIconPress('friends')}
 	>
 		<div
-			class="relative flex h-full w-full border-b-4 border-white px-4 py-2 dark:border-dark"
+			class="dark:border-dark relative flex h-full w-full border-b-4 border-white px-4 py-2"
 			class:selected={isSelected('friends')}
 		>
 			<Icon icon="users" size={iconSize} fill={isSelected('friends') ? 'currentColor' : 'none'} />
 			{#if numberOfInvites > 0}
 				<span
-					class="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white"
+					class="bg-primary absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"
 					aria-label="You have pending invites"
 				>
 					{numberOfInvites}
@@ -103,6 +103,12 @@
 	}
 
 	.selected {
-		@apply border-b-4 border-b-primary dark:border-white;
+		border: 4px solid var(--primary);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.selected {
+			border-bottom: 4px solid currentColor;
+		}
 	}
 </style>

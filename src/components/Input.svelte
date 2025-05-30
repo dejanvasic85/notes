@@ -32,7 +32,7 @@
 	{type}
 	{placeholder}
 	bind:value
-	class="w-full rounded-md border border-gray-300 bg-gray-50 p-2 text-gray-900 dark:border-gray-600 dark:bg-dark dark:text-white dark:placeholder-gray-400 dark:focus:outline-none"
+	class="dark:bg-dark w-full rounded-md border border-gray-300 bg-gray-50 p-2 text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:outline-hidden"
 	class:ring-2={invalid}
 	class:ring-red-500={invalid}
 	class:h-10={size === 'sm'}

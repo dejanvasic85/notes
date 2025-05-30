@@ -25,7 +25,7 @@
 
 	const className = $derived(
 		colours.find((c) => c.name === colour)?.cssClass ??
-			'bg-white dark:bg-dark dark:text-darkText border'
+			'bg-white dark:bg-dark dark:text-dark-text border'
 	);
 
 	const dialog = createDialog({
@@ -82,13 +82,13 @@
 			transition:fade={{
 				duration: 100
 			}}
-			class="fixed inset-0 z-overlay bg-black/50 backdrop-blur-sm"
+			class="z-overlay fixed inset-0 bg-black/50 backdrop-blur-xs"
 		></div>
 		<div
 			use:melt={$content}
 			transition:scale={{ duration: 100, start: 0.1 }}
-			class="fixed
-      left-1/2 top-8 z-dialog
+			class="z-dialog
+      fixed top-8 left-1/2
       mx-auto flex w-10/12
       -translate-x-1/2 flex-col
       rounded-lg shadow-lg sm:w-3/4 lg:top-1/2 lg:my-auto lg:w-1/2

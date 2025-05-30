@@ -22,7 +22,7 @@
 			editable: true,
 			editorProps: {
 				attributes: {
-					class: 'prose h-full p-4 focus:outline-none dark:prose-invert'
+					class: 'prose h-full p-4 focus:outline-hidden dark:prose-invert'
 				}
 			},
 			injectCSS: true,

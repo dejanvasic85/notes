@@ -49,10 +49,10 @@
 	}
 </script>
 
-<div class="flex min-h-screen flex-col md:grid md:grid-cols-layout md:grid-rows-layout">
+<div class="md:grid-cols-layout md:grid-rows-layout flex min-h-screen flex-col md:grid">
 	<!-- Header -->
 	<header
-		class="sticky top-0 z-menu flex h-20 items-center justify-between gap-4 border-b bg-white px-4 py-2 md:col-second dark:border-b-darkBorder dark:bg-dark"
+		class="z-menu md:col-second dark:border-b-dark-border dark:bg-dark sticky top-0 flex h-20 items-center justify-between gap-4 border-b bg-white px-4 py-2"
 	>
 		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
 		<Search />
@@ -67,7 +67,7 @@
 
 	<!-- Side menu -->
 	<div
-		class="relative mx-auto hidden w-20 border-r bg-white md:row-first-span-2 md:flex dark:border-r-darkBorder dark:bg-dark"
+		class="md:row-first-span-2 dark:border-r-dark-border dark:bg-dark relative mx-auto hidden w-20 border-r bg-white md:flex"
 	>
 		<div class="fixed left-0 h-screen p-2">
 			<Menu oncreatenote={handleCreateNote} layout="vertical" />
@@ -79,7 +79,7 @@
 
 	<!-- Mobile Menu -->
 	<div
-		class="fixed inset-auto-0-0 bottom-0 flex h-16 items-center border-t bg-white p-2 md:hidden dark:border-t-darkBorder dark:bg-dark"
+		class="inset-auto-0-0 dark:border-t-dark-border dark:bg-dark fixed bottom-0 flex h-16 items-center border-t bg-white p-2 md:hidden"
 	>
 		<Menu oncreatenote={handleCreateNote} layout="horizontal" />
 	</div>

@@ -39,7 +39,7 @@
 <div
 	id={note.id}
 	aria-label={`Edit note ${index + 1}`}
-	class="prose h-full w-full overflow-hidden rounded-lg p-4 text-sm shadow-lg dark:prose-invert lg:text-base {className} relative select-none break-words hover:cursor-grab hover:ring-2 dark:hover:ring-darkText {isDragging
+	class="prose dark:prose-invert h-full w-full overflow-hidden rounded-lg p-4 text-sm shadow-lg lg:text-base {className} dark:hover:ring-dark-text relative break-words select-none hover:cursor-grab hover:ring-2 {isDragging
 		? 'opacity-50'
 		: ''}"
 	tabindex={index}
@@ -54,7 +54,7 @@
 >
 	{#if isDraggable}
 		<div
-			class="absolute right-2 top-2 text-gray-700 dark:text-white {isHovering ? '' : 'md:hidden'}"
+			class="absolute top-2 right-2 text-gray-700 dark:text-white {isHovering ? '' : 'md:hidden'}"
 		>
 			<Icon icon="squares-box" size={20} fill="none" title="Drag to reorder" />
 		</div>
@@ -68,7 +68,7 @@
 
 	{#if note.shared || editors.length > 0}
 		<div
-			class="absolute bottom-0 left-0 flex h-10 w-full items-center gap-2 bg-white/20 px-4 backdrop-blur-sm"
+			class="absolute bottom-0 left-0 flex h-10 w-full items-center gap-2 bg-white/20 px-4 backdrop-blur-xs"
 		>
 			{#if note.shared}
 				<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} />

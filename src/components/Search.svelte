@@ -35,7 +35,7 @@
 </script>
 
 <div class="w-2/3 lg:w-1/3">
-	<form class="relative flex flex-grow items-center gap-2" onsubmit={handleSubmit}>
+	<form class="relative flex grow items-center gap-2" onsubmit={handleSubmit}>
 		<Input
 			id="search"
 			placeholder="Search notes"
