@@ -21,11 +21,6 @@
 	"packageRules": [
 		{
 			"matchManagers": ["npm"],
-			"matchPackageNames": ["tailwindcss"],
-			"allowedVersions": "< 4"
-		},
-		{
-			"matchManagers": ["npm"],
 			"matchPackageNames": ["vite"],
 			"allowedVersions": "< 6"
 		},
