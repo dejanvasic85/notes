@@ -40,7 +40,7 @@
 </script>
 
 <div
-	class="h-full w-full lg:w-note"
+	class="lg:w-note h-full w-full"
 	role="listitem"
 	ondragover={handleDragOver}
 	ondrop={handleDrop}

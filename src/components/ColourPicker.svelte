@@ -46,7 +46,7 @@
 		<div class="block" use:melt={$item}>
 			<button
 				aria-label="No colour"
-				class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200 dark:bg-dark"
+				class="dark:bg-dark flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200"
 				onclick={() => handleColourClick(null)}
 			>
 				<Icon icon="minus" size={30} fill="none" title="No colour" />

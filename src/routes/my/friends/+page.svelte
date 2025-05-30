@@ -123,7 +123,7 @@
 
 {#snippet Friend(props: FriendSnippetProps)}
 	<div
-		class="flex h-friend w-full items-center justify-between gap-2 p-4 dark:bg-dark"
+		class="h-friend dark:bg-dark flex w-full items-center justify-between gap-2 p-4"
 		role="listitem"
 		in:fade
 		out:slide={{ duration: 250 }}
@@ -136,7 +136,7 @@
 			<div class:italic={props.showPending} class:text-gray-400={props.showPending}>
 				{props.name}
 				{#if props.showPending}
-					<span class="text-xs italic text-gray-400">(pending)</span>
+					<span class="text-xs text-gray-400 italic">(pending)</span>
 				{/if}
 			</div>
 		</div>
@@ -185,7 +185,7 @@
 						<div
 							in:send={{ key: 'trigger' }}
 							out:receive={{ key: 'trigger' }}
-							class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-secondary"
+							class="bg-secondary absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full"
 						></div>
 					{/if}
 				</button>
@@ -196,7 +196,7 @@
 							<span
 								role="status"
 								aria-label="You have pending invites"
-								class="absolute right-0 top-0 h-3 w-3 rounded-full bg-secondary"
+								class="bg-secondary absolute top-0 right-0 h-3 w-3 rounded-full"
 							></span>
 						{/if}
 					</div>
@@ -204,7 +204,7 @@
 						<div
 							in:send={{ key: 'trigger' }}
 							out:receive={{ key: 'trigger' }}
-							class="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-secondary"
+							class="bg-secondary absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full"
 						></div>
 					{/if}
 				</button>

@@ -48,7 +48,7 @@
 			<Input id="email" type="text" invalid={!!error} name="email" />
 		</div>
 		{#if error}
-			<p class="mt-2 text-sm text-error">{error}</p>
+			<p class="text-error mt-2 text-sm">{error}</p>
 		{/if}
 		<div class="flex justify-end">
 			<Button type="submit" {loading}>Send invite</Button>
