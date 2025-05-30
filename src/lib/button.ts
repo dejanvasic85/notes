@@ -5,7 +5,7 @@ const baseClasses = `flex min-h-11 min-w-[44px] items-center justify-center gap-
 const variantClasses = {
 	primary: 'bg-primary hover:bg-primary/90 text-white border-none',
 	secondary: 'bg-secondary hover:bg-secondary/90 text-white border-none',
-	ghost: 'dark:hover:bg-slate-800 hover:ring-2'
+	ghost: 'dark:hover:darkHover hover:ring-2'
 } as const;
 
 export const buildButtonClass = (variant: Variant, round = false, loading = false) => {
