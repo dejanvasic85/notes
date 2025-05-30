@@ -44,10 +44,10 @@
 	<div
 		use:melt={$menu}
 		in:slide={{ duration: 100 }}
-		class="z-dropdown flex w-96 flex-col gap-1 rounded-lg border bg-white p-2 shadow-lg dark:bg-dark"
+		class="z-dropdown dark:bg-dark flex w-96 flex-col gap-1 rounded-lg border bg-white p-2 shadow-lg"
 	>
 		<a
-			class="flex items-center rounded-lg bg-white p-2 hover:ring-2 dark:bg-dark"
+			class="dark:bg-dark flex items-center rounded-lg bg-white p-2 hover:ring-2"
 			href={`/my/friends/add?noteId=${noteId}`}
 			use:melt={$item}
 		>
@@ -55,7 +55,7 @@
 		</a>
 		{#each friends as { id, noteEditorId, name, selected }}
 			<button
-				class="flex items-center rounded-lg bg-white p-2 hover:ring-2 dark:bg-dark"
+				class="dark:bg-dark flex items-center rounded-lg bg-white p-2 hover:ring-2"
 				onclick={() => ontogglefriend({ id: noteEditorId, friendUserId: id, selected: !selected })}
 				use:melt={$item}
 			>

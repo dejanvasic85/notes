@@ -1,6 +1,6 @@
 export type Variant = 'primary' | 'secondary' | 'ghost';
 
-const baseClasses = `flex min-h-11 min-w-[44px] items-center justify-center gap-2 px-4 py-2 transition-all duration-150 hover:scale-105 focus:outline-none`;
+const baseClasses = `flex min-h-11 min-w-[44px] items-center justify-center gap-2 px-4 py-2 transition-all duration-150 hover:scale-105 focus:outline-hidden`;
 
 const variantClasses = {
 	primary: 'bg-primary hover:bg-primary/90 text-white border-none',

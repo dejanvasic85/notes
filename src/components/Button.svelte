@@ -54,7 +54,7 @@
 >
 	{#if loading}
 		<svg
-			class="-ml-1 mr-3 h-5 w-5 animate-spin dark:text-white"
+			class="mr-3 -ml-1 h-5 w-5 animate-spin dark:text-white"
 			xmlns="http://www.w3.org/2000/svg"
 			fill="none"
 			viewBox="0 0 24 24"
@@ -72,7 +72,7 @@
 </button>
 
 {#if $open && tooltip}
-	<div use:melt={$content} class="z-toaster rounded-lg bg-black shadow">
+	<div use:melt={$content} class="z-toaster rounded-lg bg-black shadow-sm">
 		<div use:melt={$arrow}></div>
 		<p class="p-4 text-sm text-white">{tooltip}</p>
 	</div>

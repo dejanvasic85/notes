@@ -46,7 +46,7 @@
 />
 
 {#if $open && showTooltip}
-	<div use:melt={$content} class="z-toaster rounded-lg bg-black shadow">
+	<div use:melt={$content} class="z-toaster rounded-lg bg-black shadow-sm">
 		<div use:melt={$arrow}></div>
 		<p class="p-4 text-sm text-white">{tooltip}</p>
 	</div>

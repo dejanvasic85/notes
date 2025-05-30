@@ -1,3 +1,3 @@
 <div
-	class="h-full w-full animate-pulse rounded-lg bg-loading transition-all dark:bg-darkLoading"
+	class="bg-loading dark:bg-dark-loading h-full w-full animate-pulse rounded-lg transition-all"
 ></div>

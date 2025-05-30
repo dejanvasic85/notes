@@ -3,7 +3,7 @@
 	<meta name="description" content="A simple note taking application. Privacy policy" />
 </svelte:head>
 
-<div class="container prose-lg mx-auto pt-8 dark:prose-invert">
+<div class="prose-lg dark:prose-invert container mx-auto pt-8">
 	<h1>My Notes Privacy Policy</h1>
 
 	<p><strong>Effective Date:</strong> October 19, 2024</p>

@@ -25,7 +25,7 @@
 	});
 </script>
 
-<div use:portal class="fixed left-1/2 top-2 z-toaster w-80 -translate-x-1/2 transform">
+<div use:portal class="z-toaster fixed top-2 left-1/2 w-80 -translate-x-1/2 transform">
 	{#each $toasts as { id, data } (id)}
 		<div use:melt={$content(id)}>
 			<div

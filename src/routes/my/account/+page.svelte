@@ -72,7 +72,7 @@
 			/>
 		</div>
 		{#if props.form?.errors?.name}
-			<p class="mt-2 text-sm text-error">{props.form?.errors?.name}</p>
+			<p class="text-error mt-2 text-sm">{props.form?.errors?.name}</p>
 		{/if}
 		<div class="flex justify-end">
 			<Button type="submit" {loading}>Update</Button>

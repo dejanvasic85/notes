@@ -35,11 +35,11 @@
 
 {#snippet MenuLink({ borderTop = false, href, icon, text }: MenuLinkProps)}
 	{#if borderTop}
-		<div class="mt-2 border-t border-gray-200 dark:border-darkBorder"></div>
+		<div class="dark:border-dark-border mt-2 border-t border-gray-200"></div>
 	{/if}
 	<a
 		use:melt={$item}
-		class="hover:bg-slate mt-2 flex w-full gap-2 rounded-lg p-2 hover:bg-background dark:hover:bg-darkHover"
+		class="hover:bg-slate hover:bg-background dark:hover:bg-dark-hover mt-2 flex w-full gap-2 rounded-lg p-2"
 		{href}
 	>
 		<Icon {icon} fill="none" />
@@ -53,7 +53,7 @@
 
 {#if $open}
 	<div
-		class="menu z-dropdown flex w-72 flex-col justify-between rounded-lg border bg-white p-6 dark:border-darkBorder dark:bg-dark"
+		class="menu z-dropdown dark:border-dark-border dark:bg-dark flex w-72 flex-col justify-between rounded-lg border bg-white p-6"
 		use:melt={$menu}
 		transition:fly={{ duration: 150, y: -10 }}
 	>

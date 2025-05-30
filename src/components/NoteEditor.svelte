@@ -127,13 +127,13 @@
 			type="text"
 			bind:value={noteTitle}
 			placeholder="Title"
-			class="w-full bg-transparent px-4 py-2 text-xl font-bold focus-visible:outline-none"
+			class="w-full bg-transparent px-4 py-2 text-xl font-bold focus-visible:outline-hidden"
 		/>
 		<HtmlEditor initialContent={noteText} onupdate={handleContentUpdate} />
 	{/snippet}
 
 	{#snippet footer()}
-		<div class="flex justify-between py-2 pl-4 pr-2">
+		<div class="flex justify-between py-2 pr-2 pl-4">
 			<div class="flex items-center gap-4">
 				{#if note.shared}
 					<UserAvatar

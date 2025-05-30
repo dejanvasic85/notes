@@ -60,7 +60,7 @@
 <div class="flex min-h-screen flex-col">
 	<main>
 		<header
-			class="h-20 border-b px-4 py-2 md:container md:mx-auto dark:border-b-darkBorder dark:bg-dark"
+			class="dark:border-b-dark-border dark:bg-dark h-20 border-b px-4 py-2 md:container md:mx-auto"
 		>
 			<nav class="flex h-full w-full items-center justify-between">
 				<img src={logo} alt="Notes" class="size-14" />
@@ -91,14 +91,14 @@
 			>
 				<h1 class="text-6xl md:text-7xl">
 					Take Notes
-					<span class="block font-bold text-primary">Privately</span>
+					<span class="text-primary block font-bold">Privately</span>
 				</h1>
 
 				<div class="flex flex-col gap-8">
 					<p class="text-lg md:text-xl">
-						Your Notes, Your <span class="border-b-2 border-secondary pb-1 font-semibold">Data</span
+						Your Notes, Your <span class="border-secondary border-b-2 pb-1 font-semibold">Data</span
 						>, Your
-						<span class="border-b-2 border-primary pb-1 font-bold">Peace of Mind</span>.
+						<span class="border-primary border-b-2 pb-1 font-bold">Peace of Mind</span>.
 					</p>
 
 					<div class="flex flex-col justify-end gap-2 md:flex-row">
