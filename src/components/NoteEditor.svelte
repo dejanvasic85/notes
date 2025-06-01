@@ -148,9 +148,7 @@
 				{/each}
 			</div>
 			<div class="ml-auto">
-				<Button onclick={handleSave}>
-					<Icon icon="check" title="Save note" fill="none" />
-				</Button>
+				<Button onclick={handleSave}>Save note</Button>
 			</div>
 		</div>
 	{/snippet}
