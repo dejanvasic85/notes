@@ -40,7 +40,7 @@
 </script>
 
 <nav
-	class="flex h-full grow items-center justify-center gap-6 {layout === 'horizontal'
+	class="flex h-full grow items-center justify-evenly {layout === 'horizontal'
 		? 'justify-around'
 		: 'flex-col justify-center'}"
 >
