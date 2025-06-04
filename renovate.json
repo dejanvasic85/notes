@@ -18,16 +18,5 @@
 	"schedule": ["at any time"],
 	"semanticCommitScope": "",
 	"semanticCommitType": "deps",
-	"packageRules": [
-		{
-			"matchManagers": ["npm"],
-			"matchPackageNames": ["vite"],
-			"allowedVersions": "< 6"
-		},
-		{
-			"matchManagers": ["npm"],
-			"matchPackageNames": ["@sveltejs/vite-plugin-svelte"],
-			"allowedVersions": "< 5"
-		}
-	]
+	"packageRules": []
 }
