@@ -40,9 +40,9 @@
 </script>
 
 <nav
-	class="flex h-full grow items-center justify-evenly {layout === 'horizontal'
-		? 'justify-around'
-		: 'flex-col justify-center'}"
+	class="flex h-full grow items-center {layout === 'horizontal'
+		? 'justify-evenly'
+		: 'flex-col justify-center gap-8'}"
 >
 	<a
 		href="/my/board"
