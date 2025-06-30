@@ -53,7 +53,6 @@ To run the app locally, follow these steps:
    ```
 
 3. **Optional: Use Docker for Postgres**:
-
    - Set up a Postgres database using Docker:
      ```bash
      docker run --name notes-postgres -e POSTGRES_PASSWORD=yourpassword -p 5432:5432 -d postgres
@@ -61,7 +60,6 @@ To run the app locally, follow these steps:
    - Update your `.env` file with the database connection details.
 
 4. **Environment Variables**:
-
    - Configure environment variables in a `.env` file. These will be automatically available via `$env/static/private`.
 
 5. **Preview the app**:
