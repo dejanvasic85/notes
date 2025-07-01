@@ -20,8 +20,8 @@
 	"semanticCommitType": "deps",
 	"packageRules": [
 		{
-			"matchPackageNames": "vite",
-			"matchCurrentVersion": "^6.0.0"
+			"matchPackageNames": ["vite"],
+			"allowedVersions": "< 7.0.0"
 		}
 	]
 }
