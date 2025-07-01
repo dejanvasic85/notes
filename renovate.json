@@ -18,5 +18,10 @@
 	"schedule": ["at any time"],
 	"semanticCommitScope": "",
 	"semanticCommitType": "deps",
-	"packageRules": []
+	"packageRules": [
+		{
+			"matchPackageNames": "vite",
+			"matchCurrentVersion": "^6.0.0"
+		}
+	]
 }
