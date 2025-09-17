@@ -67,7 +67,7 @@
 		"jwks-rsa": "^3.0.1",
 		"nanoid": "^5.0.1",
 		"prisma-field-encryption": "^1.5.0",
-		"zod": "^3.22.4"
+		"zod": "^4.0.0"
 	},
 	"lint-staged": {
 		"*": [
