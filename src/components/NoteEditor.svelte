@@ -129,7 +129,7 @@
 			placeholder="Title"
 			class="w-full bg-transparent px-4 py-2 text-xl font-bold focus-visible:outline-hidden"
 		/>
-		<HtmlEditor initialContent={noteText} onupdate={handleContentUpdate} />
+		<HtmlEditor id="note-editor" initialContent={noteText} onupdate={handleContentUpdate} />
 	{/snippet}
 
 	{#snippet footer()}

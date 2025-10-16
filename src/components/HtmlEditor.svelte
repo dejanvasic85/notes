@@ -5,11 +5,12 @@
 	import Placeholder from '@tiptap/extension-placeholder';
 
 	type Props = {
+		id: string;
 		initialContent: string;
 		onupdate(html: string, plaintext: string): void;
 	};
 
-	let { initialContent, onupdate }: Props = $props();
+	let { initialContent, id, onupdate }: Props = $props();
 	let element: HTMLDivElement;
 	let editor: Editor;
 
@@ -48,4 +49,4 @@
 	});
 </script>
 
-<div class="h-full" bind:this={element}></div>
+<div class="h-full" {id} bind:this={element}></div>
