@@ -42,6 +42,9 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
   test:
+    env:
+      TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
     name: Test Playwright
     timeout-minutes: 60
     runs-on: ubuntu-latest
