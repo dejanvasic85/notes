@@ -12,6 +12,7 @@ test('edit sample note', async ({ page }) => {
 
 test('add a new note', async ({ page }) => {
 	await page.goto('/');
+	await page.waitForTimeout(1000);
 	await page.getByRole('button', { name: 'Create a note' }).click();
 	await page.waitForTimeout(1000);
 	await page.keyboard.type(' hello world');
