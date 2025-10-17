@@ -9,6 +9,7 @@ const config: PlaywrightTestConfig = {
 		stderr: 'pipe'
 	},
 	testDir: 'tests',
+	workers: 1,
 	testMatch: /(.+\.)?(test|spec)\.[jt]s/,
 	use: {
 		baseURL: 'http://localhost:5173',
