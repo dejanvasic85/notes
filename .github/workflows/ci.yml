@@ -42,7 +42,7 @@ jobs:
     env:
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      PUBLIC_BASE_URL: http://localhost:4173
+      PUBLIC_BASE_URL: http://localhost:5173
       HOME: /root
     name: Test Playwright
     timeout-minutes: 60
@@ -60,13 +60,6 @@ jobs:
         run: npm run build
       - name: Run Playwright tests
         run: npx playwright test --reporter=list
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
-          if-no-files-found: warn
       - name: Upload Playwright test results
         uses: actions/upload-artifact@v4
         if: always()
