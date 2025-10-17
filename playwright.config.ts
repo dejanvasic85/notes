@@ -2,17 +2,16 @@ import type { PlaywrightTestConfig } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
 	webServer: {
-		command: 'npm run build && npm run preview',
-		port: 4173,
-		timeout: 120000, // 2 minutes for build
-		reuseExistingServer: !process.env.CI,
+		command: 'npm run dev',
+		reuseExistingServer: true,
+		port: 5173,
 		stdout: 'pipe',
 		stderr: 'pipe'
 	},
 	testDir: 'tests',
 	testMatch: /(.+\.)?(test|spec)\.[jt]s/,
 	use: {
-		baseURL: 'http://localhost:4173',
+		baseURL: 'http://localhost:5173',
 		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
 		video: 'retain-on-failure'
