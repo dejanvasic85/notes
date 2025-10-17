@@ -58,7 +58,7 @@
 			<Icon icon="home" size={iconSize} fill={isSelected('home') ? 'currentColor' : 'none'} />
 		</div>
 	</a>
-	<Button onclick={oncreatenote} variant="primary">
+	<Button onclick={oncreatenote} variant="primary" label="Create a new note">
 		<Icon icon="plus-circle" size={iconSize} fill="none" />
 	</Button>
 	<a

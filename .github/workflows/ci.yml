@@ -4,12 +4,9 @@ env:
   AUTH0_DOMAIN: ${{ vars.AUTH0_DOMAIN }}
   AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  PUBLIC_AUTH0_CLIENT_ID: ${{ vars.PUBLIC_AUTH0_CLIENT_ID }}
-  PUBLIC_AUTH0_DOMAIN: ${{ vars.PUBLIC_AUTH0_DOMAIN }}
-  PUBLIC_AUTH0_AUDIENCE: ${{ vars.PUBLIC_AUTH0_AUDIENCE }}
   PUBLIC_BUILD: ${{ github.ref_name }}-${{ github.run_number }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
-  PREVIEW_DOMAIN: notes-dev.dejanvasic.me
+  PREVIEW_DOMAIN: notes-dev.vasic.com.au
   PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL }}
   SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
   SES_AWS_ACCESS_KEY_ID: ${{ secrets.SES_AWS_ACCESS_KEY_ID }}
@@ -42,9 +39,16 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
   test:
+    env:
+      TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      PUBLIC_BASE_URL: http://localhost:5173
+      HOME: /root
     name: Test Playwright
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-jammy
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
@@ -52,16 +56,18 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm ci
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+      - name: Build application
+        run: npm run build
       - name: Run Playwright tests
-        run: npx playwright test
-      - uses: actions/upload-artifact@v4
+        run: npx playwright test --reporter=list
+      - name: Upload Playwright test results
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: playwright-results
+          path: test-results/
           retention-days: 7
+          if-no-files-found: warn
 
   deploy_preview:
     name: Deploy Preview
@@ -79,5 +85,5 @@ jobs:
           vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
           vercel build --token=${{ secrets.VERCEL_TOKEN }}
           url="$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
-          vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "$url" ${{ env.PREVIEW_DOMAIN }}
+          # vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "$url" ${{ env.PREVIEW_DOMAIN }}
           echo "deployment_url=$url" >> $GITHUB_ENV
