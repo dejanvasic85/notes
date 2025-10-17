@@ -8,21 +8,37 @@ test('basic note management', async ({ page }) => {
 
 	// Wait for the page to load (either empty state or notes list)
 	await page.waitForLoadState('networkidle');
-	await page.waitForTimeout(1000);
 
 	// Generate unique content for this test
 	const noteTitle = faker.lorem.words(3);
 	const noteContent = faker.lorem.sentence();
 
 	// Click the create button and wait for the title textbox to appear
+	// Set up listener BEFORE clicking to catch the POST request
+	const createNotePromise = page.waitForResponse(
+		(response) =>
+			response.url().includes('/api/notes') &&
+			response.request().method() === 'POST' &&
+			response.status() < 400
+	);
+
 	await page.getByRole('button', { name: 'Create a new note' }).click();
-	await page.waitForLoadState('networkidle');
-	await page.waitForTimeout(1000);
+
+	// Wait for the note creation to complete on the server
+	await createNotePromise;
 
 	await page.getByRole('button', { name: 'Choose colour' }).click();
+
+	// Wait for the color update request to complete
+	const updateColorPromise = page.waitForResponse(
+		(response) =>
+			response.url().includes('/api/notes') &&
+			response.request().method() === 'PATCH' &&
+			response.status() < 400
+	);
+
 	await page.getByRole('button', { name: 'blue' }).click();
-	await page.waitForLoadState('networkidle');
-	await page.waitForTimeout(1000);
+	await updateColorPromise;
 
 	// Wait for the note editor dialog to appear by waiting for the Title textbox
 	const titleTextbox = page.getByRole('textbox', { name: 'Title' });
@@ -32,9 +48,16 @@ test('basic note management', async ({ page }) => {
 	const editor = page.getByRole('textbox').nth(2);
 	await editor.fill(noteContent);
 
+	// Wait for the save/update request to complete
+	const saveNotePromise = page.waitForResponse(
+		(response) =>
+			response.url().includes('/api/notes') &&
+			response.request().method() === 'PATCH' &&
+			response.status() < 400
+	);
+
 	await page.getByRole('button', { name: 'Save note' }).click();
-	await page.waitForLoadState('networkidle');
-	await page.waitForTimeout(1000);
+	await saveNotePromise;
 
 	// Wait for the note to be saved - verify the note appears on the board
 	await expect(page.getByText(noteTitle)).toBeVisible();
@@ -48,9 +71,16 @@ test('basic note management', async ({ page }) => {
 		await dialog.accept();
 	});
 
+	// Wait for the delete request to complete
+	const deleteNotePromise = page.waitForResponse(
+		(response) =>
+			response.url().includes('/api/notes') &&
+			response.request().method() === 'DELETE' &&
+			response.status() < 400
+	);
+
 	await page.getByRole('button', { name: 'Delete note' }).click();
-	await page.waitForLoadState('networkidle');
-	await page.waitForTimeout(1000);
+	await deleteNotePromise;
 
 	// Verify the note content is no longer visible on the page
 	await expect(page.getByText(noteTitle)).not.toBeVisible();
