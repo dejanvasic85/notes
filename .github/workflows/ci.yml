@@ -6,7 +6,7 @@ env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
   PUBLIC_BUILD: ${{ github.ref_name }}-${{ github.run_number }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
-  PREVIEW_DOMAIN: notes-dev.dejanvasic.me
+  PREVIEW_DOMAIN: notes-dev.vasic.com.au
   PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL }}
   SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
   SES_AWS_ACCESS_KEY_ID: ${{ secrets.SES_AWS_ACCESS_KEY_ID }}
