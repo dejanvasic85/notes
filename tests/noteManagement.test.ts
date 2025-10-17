@@ -9,6 +9,13 @@ test('basic note management', async ({ page }) => {
 	// Wait for the page to load (either empty state or notes list)
 	await page.waitForLoadState('networkidle');
 
+	// Debug: Check what page we're on after login
+	console.log('Current URL after login:', page.url());
+
+	// Wait for either the board to load or an error state
+	const createButton = page.getByRole('button', { name: 'Create a new note' });
+	await expect(createButton).toBeVisible({ timeout: 10000 });
+
 	// Generate unique content for this test
 	const noteTitle = faker.lorem.words(3);
 	const noteContent = faker.lorem.sentence();
@@ -22,7 +29,7 @@ test('basic note management', async ({ page }) => {
 			response.status() < 400
 	);
 
-	await page.getByRole('button', { name: 'Create a new note' }).click();
+	await createButton.click();
 
 	// Wait for the note creation to complete on the server
 	await createNotePromise;
@@ -91,4 +98,7 @@ async function login(page: Page) {
 	await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL!);
 	await page.getByRole('textbox', { name: 'Password' }).fill(process.env.TEST_USER_PASSWORD!);
 	await page.getByRole('button', { name: 'Continue', exact: true }).click();
+
+	// Wait for navigation after login to complete
+	await page.waitForURL(/\/my\/board/, { timeout: 10000 });
 }
