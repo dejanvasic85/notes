@@ -36,6 +36,10 @@
 	let noteTextPlain: string = $state(note.textPlain);
 	let noteTitle: string | null = $state(note.title);
 
+	let hasUnsavedChanges = $derived(
+		noteText !== note.text || noteTextPlain !== note.textPlain || noteTitle !== note.title
+	);
+
 	let editors = $derived(
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
 	);
@@ -73,6 +77,12 @@
 	}
 
 	const handleClose = () => {
+		if (hasUnsavedChanges) {
+			if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
+				return;
+			}
+		}
+
 		onclose();
 
 		if (navigator.vibrate) {
@@ -86,7 +96,7 @@
 	};
 </script>
 
-<svelte:window onkeydown={(e) => e.code === 'Escape' && onclose()} />
+<svelte:window onkeydown={(e) => e.code === 'Escape' && handleClose()} />
 
 <Dialog show={true} colour={note.colour}>
 	{#snippet header()}
