@@ -6,11 +6,9 @@
 	import type { Note, NoteOrdered, ToggleFriendShare } from '$lib/types';
 	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
-	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 
 	import Board from '$components/Board.svelte';
-	import Button from '$components/Button.svelte';
 	import NoteList from '$components/NoteList.svelte';
 	import NoteContainer from '$components/NoteContainer.svelte';
 	import Skeleton from '$components/Skeleton.svelte';
@@ -18,10 +16,8 @@
 	const numberOfSkeletons = 4;
 	const boardState = getBoardState();
 	const toastMessages = getToastMessages();
-	const friendsState = getFriendsState();
 
-	let loading = $state(false);
-	let loadingError = $state('');
+	let loading = $derived(boardState.loading);
 	let search = $derived(new URL(page.url).searchParams);
 	let selectedNote = $derived(boardState.getNoteById(page.state.selectedNoteId));
 	let filtered = $derived(boardState.filter(search.get('q')));
@@ -32,27 +28,10 @@
 	);
 
 	onMount(async () => {
-		loading = true;
 		await tick();
 		const selectedNoteId = search.get('id');
 		if (selectedNoteId) {
 			pushState(`/my/board?id=${selectedNoteId}`, { selectedNoteId });
-		}
-
-		const [boardResp, friendsResp] = await Promise.all([
-			fetch('/api/user/board'),
-			fetch('/api/friends')
-		]);
-
-		try {
-			const { board, sharedNotes, sharedNoteOwners } = await boardResp.json();
-			const { friends, pendingSentInvites, pendingReceivedInvites } = await friendsResp.json();
-			boardState.setBoard(board, friends, sharedNotes, sharedNoteOwners);
-			friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);
-			loading = false;
-		} catch (err) {
-			console.log('Error loading board:', err);
-			loadingError = 'There was a problem loading your board';
 		}
 	});
 
@@ -127,32 +106,27 @@
 	<meta name="description" content="My personal note board" />
 </svelte:head>
 
-<div>
-	{#if loading}
-		<NoteList>
-			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-			{#each Array.from({ length: numberOfSkeletons }) as _}
-				<NoteContainer>
-					<Skeleton />
-				</NoteContainer>
-			{/each}
-		</NoteList>
-	{:else if loadingError}
-		<p class="text-error" role="alert">There was a problem loading your board</p>
-		<Button onclick={() => window.location.reload()}>Retry</Button>
-	{:else}
-		<Board
-			{selectedNote}
-			{emptyMessage}
-			friends={boardState.friends}
-			notes={filtered}
-			enableSharing={true}
-			onselect={handleSelect}
-			onclosenote={handleClose}
-			onupdatenote={handleUpdate}
-			ondeletenote={handleDelete}
-			onreorder={handleReorder}
-			ontogglefriend={handleToggleFriendShare}
-		/>
-	{/if}
-</div>
+{#if loading}
+	<NoteList>
+		<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+		{#each Array.from({ length: numberOfSkeletons }) as _}
+			<NoteContainer>
+				<Skeleton />
+			</NoteContainer>
+		{/each}
+	</NoteList>
+{:else}
+	<Board
+		{selectedNote}
+		{emptyMessage}
+		friends={boardState.friends}
+		notes={filtered}
+		enableSharing={true}
+		onselect={handleSelect}
+		onclosenote={handleClose}
+		onupdatenote={handleUpdate}
+		ondeletenote={handleDelete}
+		onreorder={handleReorder}
+		ontogglefriend={handleToggleFriendShare}
+	/>
+{/if}

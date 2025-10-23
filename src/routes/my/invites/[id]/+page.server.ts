@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
 
 import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
@@ -6,7 +7,7 @@ import { taskEither as TE } from 'fp-ts';
 import { mapToApiError } from '$lib/server/apiResultMapper';
 import { acceptInvite } from '$lib/server/services/friendService';
 
-export const load = async ({ params, locals }) => {
+export const load: PageServerLoad = async ({ params, locals }) => {
 	const inviteId = params.id;
 	const acceptedBy = locals.user!;
 

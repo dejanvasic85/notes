@@ -1,4 +1,5 @@
 import { fail, type Actions } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
 import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE, either as E } from 'fp-ts';
 
@@ -9,7 +10,7 @@ import type { ServerError, User } from '$lib/types';
 import { createError } from '$lib/server/errorFactory';
 import { setAuthCookie } from '$lib/auth/session.js';
 
-export const load = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
 		return fail(401, {
 			errors: {

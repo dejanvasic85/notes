@@ -16,8 +16,13 @@ export class BoardState {
 	noteOrder: string[] = $state([]);
 	notes: NoteOrdered[] = $state([]);
 	friends: Friend[] = $state([]);
+	loading: boolean = $state(true);
 
 	constructor() {}
+
+	setLoading(loading: boolean) {
+		this.loading = loading;
+	}
 
 	setBoard(board: Board, friends: Friend[], sharedNotes: Note[], sharedNoteOwners: NoteOwner[]) {
 		const allNotes = [...board.notes, ...sharedNotes];

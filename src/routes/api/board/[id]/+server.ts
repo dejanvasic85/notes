@@ -11,7 +11,7 @@ import { parseRequest } from '$lib/server/requestParser';
 import { mapToApiError } from '$lib/server/apiResultMapper';
 import { BoardPatchSchema } from '$lib/types';
 
-export const GET = async ({ locals, params }) => {
+export const GET: RequestHandler = async ({ locals, params }) => {
 	return pipe(
 		getBoard({ id: params.id! }),
 		TE.map((board) => isBoardOwner({ userId: locals.user!.id, board })),

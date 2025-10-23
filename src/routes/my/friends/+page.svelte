@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { crossfade, slide, fade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 	import { createTabs, melt } from '@melt-ui/svelte';
@@ -33,21 +32,7 @@
 	const toastMessages = getToastMessages();
 	const numberOfSkeletons = 4;
 
-	let loading = $state(false);
-	let loadingError = $state('');
-
-	onMount(() => {
-		loading = true;
-		fetch('/api/friends')
-			.then((data) => data.json())
-			.then((data) => {
-				loading = false;
-				friendsState.setState(data.friends, data.pendingSentInvites, data.pendingReceivedInvites);
-			})
-			.catch((err) => {
-				loadingError = err.message;
-			});
-	});
+	let loading = $derived(friendsState.loading);
 
 	async function handleCancelInvite(id: string) {
 		const [index, invite] = friendsState.cancelInvite(id);
@@ -173,9 +158,6 @@
 				{/each}
 			</div>
 		</div>
-	{:else if loadingError}
-		<p class="text-error" role="alert">There was a problem loading your friends.</p>
-		<Button onclick={() => window.location.reload()}>Retry</Button>
 	{:else}
 		<div use:melt={$tabRoot}>
 			<div use:melt={$list} aria-label="Manage your friends and invites">

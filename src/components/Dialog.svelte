@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, type Snippet } from 'svelte';
-	import { scale, fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	import { createDialog, melt } from '@melt-ui/svelte';
 
 	import { type Colour, colours } from '$lib/colours';
@@ -47,15 +47,11 @@
 		onopen?.();
 	});
 
-	let modalHeight = $state<number | null>(0);
+	let isDesktop = $state<boolean>(false);
 	let resizeTimer: ReturnType<typeof setTimeout> | null = null;
 
-	function getModalHeight(viewportHeight: number, viewportWidth: number) {
-		return viewportWidth < 1024 ? viewportHeight - 80 : null;
-	}
-
 	if (typeof window !== 'undefined') {
-		modalHeight = getModalHeight(window.innerHeight, window.innerWidth);
+		isDesktop = window.innerWidth >= 1024;
 	}
 
 	function handleResize() {
@@ -68,7 +64,7 @@
 				return;
 			}
 
-			modalHeight = getModalHeight(window.visualViewport.height, window.visualViewport.width);
+			isDesktop = window.visualViewport.width >= 1024;
 		}, 100);
 	}
 </script>
@@ -76,25 +72,25 @@
 <svelte:window onresize={handleResize} />
 
 {#if $open}
-	<div use:melt={$portalled} class="mx-4">
+	<div use:melt={$portalled}>
 		<div
 			use:melt={$overlay}
 			transition:fade={{
-				duration: 100
+				duration: 150
 			}}
 			class="z-overlay fixed inset-0 bg-black/50 backdrop-blur-xs"
 		></div>
 		<div
 			use:melt={$content}
-			transition:scale={{ duration: 100, start: 0.1 }}
-			class="z-dialog
-      fixed top-8 left-1/2
-      mx-auto flex w-10/12
-      -translate-x-1/2 flex-col
-      rounded-lg shadow-lg sm:w-3/4 lg:top-1/2 lg:my-auto lg:w-1/2
-			lg:-translate-y-1/2
-      {className}"
-			style="height: {modalHeight ? modalHeight + 'px' : '60vh'}"
+			transition:fly={{
+				duration: 200,
+				y: isDesktop ? 0 : 400,
+				x: isDesktop ? 400 : 0
+			}}
+			class="z-dialog fixed flex flex-col shadow-lg {className}
+				{isDesktop
+				? 'top-0 right-0 h-screen w-4/5 rounded-l-lg'
+				: 'right-0 bottom-0 left-0 h-[90vh] rounded-t-lg'}"
 		>
 			<!-- header -->
 			<div>
