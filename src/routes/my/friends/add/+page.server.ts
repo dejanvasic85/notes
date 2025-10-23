@@ -1,4 +1,4 @@
-import { redirect, fail } from '@sveltejs/kit';
+import { redirect, fail, type Actions } from '@sveltejs/kit';
 
 import { pipe } from 'fp-ts/lib/function';
 import { taskEither as TE } from 'fp-ts';
@@ -31,4 +31,4 @@ export const actions = {
 			)
 		)();
 	}
-};
+} satisfies Actions;

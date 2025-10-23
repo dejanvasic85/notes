@@ -1,3 +1,4 @@
+import type { RequestHandler } from '@sveltejs/kit';
 import { error, json } from '@sveltejs/kit';
 
 import { pipe } from 'fp-ts/lib/function';
@@ -7,7 +8,7 @@ import { mapToApiError } from '$lib/server/apiResultMapper';
 import { getUser } from '$lib/server/db/userDb';
 import { getNoteOwners, getSharedNotes } from '$lib/server/db/notesDb';
 
-export const GET = async ({ locals }) => {
+export const GET: RequestHandler = async ({ locals }) => {
 	return pipe(
 		TE.Do,
 		TE.bind('user', () =>
