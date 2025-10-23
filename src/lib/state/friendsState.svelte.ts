@@ -7,9 +7,14 @@ export class FriendsState {
 	friends: Friend[] = $state([]);
 	pendingSentInvites: UserInvite[] = $state([]);
 	pendingReceivedInvites: UserInviteWithUserProps[] = $state([]);
+	loading: boolean = $state(true);
 
 	constructor(currentUserId: string) {
 		this.currentUserId = currentUserId;
+	}
+
+	setLoading(loading: boolean) {
+		this.loading = loading;
 	}
 
 	setState(

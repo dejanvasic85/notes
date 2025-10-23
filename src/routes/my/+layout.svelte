@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import ProfileMenu from '$components/ProfileMenu.svelte';
 	import Menu from '$components/Menu.svelte';
@@ -8,19 +9,47 @@
 	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
-	import { setFriendsState } from '$lib/state/friendsState.svelte';
+	import { setFriendsState, getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getUserState } from '$lib/state/userState.svelte';
 
 	let { children, data } = $props();
+
+	if (data.userData?.id) {
+		setFriendsState(data.userData.id);
+	}
+
 	const boardState = getBoardState();
+	const friendsState = getFriendsState();
 	const toastMessages = getToastMessages();
 	const userState = getUserState();
 
 	userState.setName(data.userData?.name ?? '');
 
-	if (data.userData?.id) {
-		setFriendsState(data.userData.id);
-	}
+	onMount(async () => {
+		boardState.setLoading(true);
+		friendsState.setLoading(true);
+
+		const [boardResp, friendsResp] = await Promise.all([
+			fetch('/api/user/board'),
+			fetch('/api/friends')
+		]);
+
+		try {
+			const { board, sharedNotes, sharedNoteOwners } = await boardResp.json();
+			const { friends, pendingSentInvites, pendingReceivedInvites } = await friendsResp.json();
+			boardState.setBoard(board, friends, sharedNotes, sharedNoteOwners);
+			friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);
+		} catch (err) {
+			console.error('Error loading data:', err);
+			toastMessages.addMessage({
+				type: 'error',
+				message: 'There was a problem loading your data'
+			});
+		} finally {
+			boardState.setLoading(false);
+			friendsState.setLoading(false);
+		}
+	});
 
 	async function handleCreateNote() {
 		const newNote = boardState.createNewNote();
