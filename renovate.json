@@ -11,6 +11,9 @@
 		":dependencyDashboard",
 		"group:allNonMajor"
 	],
+	"constraints": {
+		"node": "22"
+	},
 	"automerge": true,
 	"commitMessageAction": "",
 	"labels": ["dependencies"],
