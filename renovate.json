@@ -26,6 +26,10 @@
 		{
 			"matchPackageNames": ["vite"],
 			"allowedVersions": "< 7.0.0"
+		},
+		{
+			"matchDatasources": ["node-version"],
+			"allowedVersions": "22.x"
 		}
 	]
 }
