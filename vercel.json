@@ -1,4 +1,5 @@
 {
+	"$schema": "https://openapi.vercel.sh/vercel.json",
 	"functions": {
 		"api/**/*.js": {
 			"runtime": "nodejs22.x"
