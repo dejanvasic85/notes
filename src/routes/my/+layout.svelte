@@ -62,10 +62,16 @@
 			navigator.vibrate(50);
 		}
 
-		const resp = await tryFetch<Note>('/api/notes', {
-			method: 'POST',
-			body: JSON.stringify(newNote)
-		});
+		const resp = await tryFetch<Note>(
+			'/api/notes',
+			{
+				method: 'POST',
+				body: JSON.stringify(newNote)
+			},
+			{
+				clearQueueOnError: true
+			}
+		);
 
 		if (resp.type === 'error') {
 			boardState.deleteNoteById(newNote.id);
