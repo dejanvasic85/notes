@@ -62,14 +62,10 @@
 
 	async function handleUpdate({ note }: { note: NoteOrdered }) {
 		const [updatedNote, original] = boardState.updateNote(note);
-		const { type } = await tryFetch<Note>(
-			`/api/notes/${note.id}`,
-			{
-				method: 'PATCH',
-				body: JSON.stringify(updatedNote)
-			},
-			{ clearQueueOnError: true }
-		);
+		const { type } = await tryFetch<Note>(`/api/notes/${note.id}`, {
+			method: 'PATCH',
+			body: JSON.stringify(updatedNote)
+		});
 		if (type === 'error') {
 			boardState.updateNote(original);
 			toastMessages.addMessage({ message: 'Failed to update note. Try again.', type: 'error' });
