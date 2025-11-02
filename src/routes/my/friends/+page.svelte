@@ -63,12 +63,16 @@
 
 	async function handleAcceptInvite(id: string) {
 		const [index, invite] = friendsState.acceptInvite(id);
-		const result = await tryFetch(`/api/connections`, {
-			method: 'POST',
-			body: JSON.stringify({
-				inviteId: id
-			})
-		});
+		const result = await tryFetch(
+			`/api/connections`,
+			{
+				method: 'POST',
+				body: JSON.stringify({
+					inviteId: id
+				})
+			},
+			{ clearQueueOnError: true }
+		);
 		if (result.type === 'error') {
 			toastMessages.addMessage({
 				type: 'error',

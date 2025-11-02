@@ -133,3 +133,6 @@ dist
 .vercel
 
 /docs
+
+# Playwright
+test-results/*
