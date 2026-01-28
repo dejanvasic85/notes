@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { Editor } from '@tiptap/core';
+	import { Editor, Extension } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
+	import HardBreak from '@tiptap/extension-hard-break';
 	import Placeholder from '@tiptap/extension-placeholder';
 
 	type Props = {
@@ -13,6 +14,18 @@
 	let { initialContent, id, onupdate }: Props = $props();
 	let element: HTMLDivElement;
 	let editor: Editor;
+
+	// Custom extension to make Shift+Enter create a new paragraph
+	const ShiftEnterParagraph = Extension.create({
+		name: 'shiftEnterParagraph',
+		addKeyboardShortcuts() {
+			return {
+				'Shift-Enter': ({ editor }) => {
+					return editor.commands.splitBlock();
+				}
+			};
+		}
+	});
 
 	onMount(() => {
 		const viewportWidth = window.innerWidth;
@@ -29,7 +42,18 @@
 			injectCSS: true,
 			element: element,
 			extensions: [
-				StarterKit,
+				StarterKit.configure({
+					hardBreak: false // Disable default hard break to use custom one
+				}),
+				// Custom HardBreak that triggers on Enter instead of Shift+Enter
+				HardBreak.extend({
+					addKeyboardShortcuts() {
+						return {
+							Enter: () => this.editor.commands.setHardBreak()
+						};
+					}
+				}),
+				ShiftEnterParagraph,
 				Placeholder.configure({
 					placeholder: 'Write a note ...'
 				})
