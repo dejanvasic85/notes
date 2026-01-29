@@ -12,7 +12,8 @@ const config = {
 		}),
 		alias: {
 			'$components/*': 'src/components/*',
-			'$test-utils/*': 'src/test-utils/*'
+			'$test-utils/*': 'src/test-utils/*',
+			'@/*': 'src/*'
 		}
 	}
 };
