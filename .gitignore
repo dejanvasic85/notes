@@ -132,6 +132,9 @@ dist
 .svelte-kit/
 .vercel
 
+# Generated Prisma Client
+src/generated/
+
 /docs
 
 # Playwright
