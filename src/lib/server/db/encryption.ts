@@ -3,6 +3,7 @@ import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
 const AUTH_TAG_LENGTH = 16;
+const AES_256_KEY_LENGTH = 32;
 const KEY_PREFIX = 'k1.aesgcm256.';
 const CIPHERTEXT_PREFIX = 'v1.aesgcm256.';
 
@@ -11,7 +12,11 @@ function parseKey(keyString: string): Buffer {
 		throw new Error(`Invalid key format: expected prefix ${KEY_PREFIX}`);
 	}
 	const base64Key = keyString.slice(KEY_PREFIX.length);
-	return Buffer.from(base64Key, 'base64');
+	const key = Buffer.from(base64Key, 'base64');
+	if (key.length !== AES_256_KEY_LENGTH) {
+		throw new Error(`Invalid key length: expected ${AES_256_KEY_LENGTH} bytes, got ${key.length}`);
+	}
+	return key;
 }
 
 function getEncryptionKey(): Buffer {
