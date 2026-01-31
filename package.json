@@ -46,7 +46,7 @@
 		"prettier": "^3.1.0",
 		"prettier-plugin-svelte": "^3.2.6",
 		"prettier-plugin-tailwindcss": "^0.7.0",
-		"prisma": "^6.0.0",
+		"prisma": "^7.0.0",
 		"svelte": "^5.16.0",
 		"svelte-check": "^4.0.0",
 		"tailwindcss": "^4.1.8",
@@ -59,7 +59,7 @@
 	"dependencies": {
 		"@auth0/auth0-spa-js": "^2.1.1",
 		"@aws-sdk/client-ses": "^3.540.0",
-		"@prisma/client": "^6.0.0",
+		"@prisma/client": "^7.0.0",
 		"@tiptap/core": "^3.0.0",
 		"@tiptap/extension-hard-break": "^3.18.0",
 		"@tiptap/extension-placeholder": "^3.0.0",
