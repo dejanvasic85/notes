@@ -55,7 +55,7 @@ export function decrypt(ciphertext: string): string {
 	const decipher = createDecipheriv(ALGORITHM, key, iv, { authTagLength: AUTH_TAG_LENGTH });
 	decipher.setAuthTag(authTag);
 
-	return decipher.update(encrypted) + decipher.final('utf8');
+	return decipher.update(encrypted, undefined, 'utf8') + decipher.final('utf8');
 }
 
 export function encryptNoteFields<T extends { text?: string; textPlain?: string }>(data: T): T {

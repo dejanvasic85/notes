@@ -6,13 +6,19 @@ import { encrypt, decrypt } from './encryption';
 function decryptNoteResult<T extends { text?: string | null; textPlain?: string | null }>(
 	result: T
 ): T {
-	if (result.text) {
-		result.text = decrypt(result.text);
+	return {
+		...result,
+		...(result.text ? { text: decrypt(result.text) } : {}),
+		...(result.textPlain ? { textPlain: decrypt(result.textPlain) } : {})
+	};
+}
+
+function getPool(connectionString: string) {
+	const globalForPg = globalThis as unknown as { __pgPool?: pg.Pool };
+	if (!globalForPg.__pgPool) {
+		globalForPg.__pgPool = new pg.Pool({ connectionString });
 	}
-	if (result.textPlain) {
-		result.textPlain = decrypt(result.textPlain);
-	}
-	return result;
+	return globalForPg.__pgPool;
 }
 
 function createExtendedClient() {
@@ -20,7 +26,7 @@ function createExtendedClient() {
 	if (!connectionString) {
 		throw new Error('DATABASE_URL environment variable is not set');
 	}
-	const pool = new pg.Pool({ connectionString });
+	const pool = getPool(connectionString);
 	const adapter = new PrismaPg(pool);
 	const basePrisma = new PrismaClient({ adapter });
 
@@ -48,6 +54,32 @@ function createExtendedClient() {
 					}
 					const result = await query(args);
 					return decryptNoteResult(result);
+				},
+				async upsert({ args, query }) {
+					if (typeof args.create.text === 'string') {
+						args.create.text = encrypt(args.create.text);
+					}
+					if (typeof args.create.textPlain === 'string') {
+						args.create.textPlain = encrypt(args.create.textPlain);
+					}
+					if (typeof args.update.text === 'string') {
+						args.update.text = encrypt(args.update.text);
+					}
+					if (typeof args.update.textPlain === 'string') {
+						args.update.textPlain = encrypt(args.update.textPlain);
+					}
+					const result = await query(args);
+					return decryptNoteResult(result);
+				},
+				async updateMany({ args, query }) {
+					const { data } = args;
+					if (typeof data.text === 'string') {
+						data.text = encrypt(data.text);
+					}
+					if (typeof data.textPlain === 'string') {
+						data.textPlain = encrypt(data.textPlain);
+					}
+					return query(args);
 				},
 				async findFirst({ args, query }) {
 					const result = await query(args);
