@@ -11,9 +11,6 @@
 		":dependencyDashboard",
 		"group:allNonMajor"
 	],
-	"constraints": {
-		"node": "22"
-	},
 	"automerge": true,
 	"commitMessageAction": "",
 	"labels": ["dependencies"],
@@ -25,7 +22,7 @@
 	"packageRules": [
 		{
 			"matchDatasources": ["node-version"],
-			"allowedVersions": "22.x"
+			"allowedVersions": "24.x"
 		}
 	]
 }
