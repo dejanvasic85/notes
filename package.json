@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "prisma generate && prisma migrate deploy && vite build",
+		"build": "svelte-kit sync && prisma generate && prisma migrate deploy && vite build",
 		"build:tsc": "tsc --noEmit",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -15,7 +15,7 @@
 		"lint-staged": "lint-staged",
 		"format": "prettier . --write .",
 		"prepare": "husky",
-		"postinstall": "prisma generate"
+		"postinstall": "svelte-kit sync && prisma generate"
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.1.0",
