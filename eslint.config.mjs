@@ -24,6 +24,7 @@ export default [
 			'.svelte-kit',
 			'.vercel',
 			'package',
+			'coverage',
 			'**/.env',
 			'**/.env.*',
 			'!**/.env.example',
@@ -71,8 +72,8 @@ export default [
 
 		languageOptions: {
 			parser: parser,
-			ecmaVersion: 5,
-			sourceType: 'script',
+			ecmaVersion: 2020,
+			sourceType: 'module',
 
 			parserOptions: {
 				parser: '@typescript-eslint/parser'
