@@ -17,7 +17,7 @@ export const tryFetchJson = <T>(
 				throw new Error(await result.text());
 			} catch (error) {
 				console.error(`Failed to fetch. ${JSON.stringify(error)}`);
-				throw new Error(`Failed to fetch`);
+				throw new Error(`Failed to fetch`, { cause: error });
 			}
 		},
 		withError('FetchError', `Failed in server call. Try again.`)

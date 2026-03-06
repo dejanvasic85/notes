@@ -30,7 +30,7 @@ export const tryVerifyToken = <T>(token: string): TE.TaskEither<ServerError, T> 
 			try {
 				return verifyToken(token);
 			} catch (error) {
-				throw new Error(`Failed to verify token. Error: ${error}`);
+				throw new Error(`Failed to verify token. Error: ${error}`, { cause: error });
 			}
 		},
 		withError('AuthorizationError', 'Failed to verify token')
