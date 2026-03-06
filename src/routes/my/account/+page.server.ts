@@ -59,10 +59,12 @@ export const actions = {
 			E.flatMap(() => authorizeUser(locals.user)),
 			TE.fromEither,
 			TE.flatMap((u) => updateUser({ id: u.id, name: name })),
-			TE.flatMap((u) => {
-				setAuthCookie(cookies, u);
-				return TE.right(u);
-			}),
+			TE.flatMap((u) =>
+				TE.tryCatch(
+					() => setAuthCookie(cookies, u).then(() => u),
+					() => createError('AuthorizationError', 'Failed to set cookie')
+				)
+			),
 			TE.flatMap((u) => tryUpdateAuthUser({ email: u.email!, name: name })),
 			TE.mapLeft(mapToApiError),
 			TE.match(

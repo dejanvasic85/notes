@@ -1,6 +1,6 @@
 import { taskEither as TE } from 'fp-ts';
 import type { Cookies } from '@sveltejs/kit';
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from 'jose';
 
 import type { User, ServerError } from '$lib/types';
 import { withError } from '$lib/server/errorFactory';
@@ -9,8 +9,13 @@ import { SESSION_SECRET } from '$env/static/private';
 const COOKIE_NAME = 'session';
 const COOKIE_DURATION_SECONDS = 60 * 60 * 24 * 7;
 
-export const setAuthCookie = (cookies: Cookies, user: User) => {
-	const cookieValue = jwt.sign(user, SESSION_SECRET);
+const getSecretKey = () => new TextEncoder().encode(SESSION_SECRET);
+
+export const setAuthCookie = async (cookies: Cookies, user: User) => {
+	const cookieValue = await new SignJWT({ ...user })
+		.setProtectedHeader({ alg: 'HS256' })
+		.setExpirationTime(`${COOKIE_DURATION_SECONDS}s`)
+		.sign(getSecretKey());
 	cookies.set(COOKIE_NAME, cookieValue, {
 		httpOnly: true,
 		sameSite: 'lax',
@@ -32,7 +37,8 @@ export const getSession = (cookies: Cookies): TE.TaskEither<false | ServerError,
 
 	return TE.tryCatch(
 		async () => {
-			return jwt.verify(cookie, SESSION_SECRET) as User;
+			const { payload } = await jwtVerify(cookie, getSecretKey());
+			return payload as unknown as User;
 		},
 		withError('AuthorizationError', 'Failed to verify user cookie')
 	);

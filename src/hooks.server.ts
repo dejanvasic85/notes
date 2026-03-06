@@ -21,8 +21,8 @@ const handleSessionCookie: Handle = async ({ event, resolve }) => {
 				}
 				return resolve(event);
 			},
-			(user) => {
-				setAuthCookie(event.cookies, user);
+			async (user) => {
+				await setAuthCookie(event.cookies, user);
 				event.locals.user = user;
 				return resolve(event);
 			}

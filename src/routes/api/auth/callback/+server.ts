@@ -24,7 +24,12 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		getToken({ code }),
 		TE.flatMap((token) => tryVerifyToken<AuthUserProfile>(token.id_token)),
 		TE.flatMap((authUser) => getOrCreateUser({ email: authUser.email, authUserProfile: authUser })),
-		TE.map((user) => setAuthCookie(cookies, user)),
+		TE.flatMap((user) =>
+			TE.tryCatch(
+				() => setAuthCookie(cookies, user),
+				() => ({ type: 'AuthorizationError' as const, message: 'Failed to set cookie' })
+			)
+		),
 		TE.match(
 			(err) => {
 				console.log('Failed to get token', JSON.stringify(err));
