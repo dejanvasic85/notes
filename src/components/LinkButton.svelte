@@ -10,7 +10,7 @@
 	};
 
 	const { children, href, variant = 'primary' }: Props = $props();
-	const buttonClass = buildButtonClass(variant, false);
+	const buttonClass = $derived(buildButtonClass(variant, false));
 </script>
 
 <a {href} class={buttonClass}>

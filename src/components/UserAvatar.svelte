@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { createAvatar, createTooltip, melt } from '@melt-ui/svelte';
 
 	type Props = {
@@ -14,7 +15,7 @@
 	const {
 		elements: { image }
 	} = createAvatar({
-		src: picture
+		src: untrack(() => picture)
 	});
 
 	const {

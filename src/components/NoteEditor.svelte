@@ -2,6 +2,8 @@
 	import { type Colour } from '$lib/colours';
 	import type { FriendSelection, NoteOrdered, ToggleFriendShare } from '$lib/types';
 
+	import { untrack } from 'svelte';
+
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
 	import Dialog from './Dialog.svelte';
@@ -32,9 +34,9 @@
 		onupdateColour
 	}: Props = $props();
 
-	let noteText: string = $state(note.text);
-	let noteTextPlain: string = $state(note.textPlain);
-	let noteTitle: string | null = $state(note.title);
+	let noteText: string = $state(untrack(() => note.text));
+	let noteTextPlain: string = $state(untrack(() => note.textPlain));
+	let noteTitle: string | null = $state(untrack(() => note.title));
 
 	let hasUnsavedChanges = $derived(
 		noteText !== note.text || noteTextPlain !== note.textPlain || noteTitle !== note.title

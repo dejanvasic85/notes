@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import ProfileMenu from '$components/ProfileMenu.svelte';
 	import Menu from '$components/Menu.svelte';
@@ -14,16 +14,17 @@
 
 	let { children, data } = $props();
 
-	if (data.userData?.id) {
-		setFriendsState(data.userData.id);
-	}
-
 	const boardState = getBoardState();
 	const friendsState = getFriendsState();
 	const toastMessages = getToastMessages();
 	const userState = getUserState();
 
-	userState.setName(data.userData?.name ?? '');
+	untrack(() => {
+		if (data.userData?.id) {
+			setFriendsState(data.userData.id);
+		}
+		userState.setName(data.userData?.name ?? '');
+	});
 
 	onMount(async () => {
 		boardState.setLoading(true);

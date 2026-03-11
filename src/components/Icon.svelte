@@ -11,9 +11,11 @@
 
 	let { icon, size = 24, title, fill = 'currentColor', stroke = 'currentColor' }: Props = $props();
 
-	const paths = Array.isArray(icons[icon].path)
-		? (icons[icon].path as string[])
-		: ([icons[icon].path] as string[]);
+	const paths = $derived(
+		Array.isArray(icons[icon].path)
+			? (icons[icon].path as string[])
+			: ([icons[icon].path] as string[])
+	);
 </script>
 
 <svg

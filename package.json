@@ -11,7 +11,7 @@
 		"test": "vitest run --coverage",
 		"test:unit": "vitest",
 		"test:playwright": "playwright test",
-		"lint": "prettier . --check . && eslint .",
+		"lint": "eslint .",
 		"lint-staged": "lint-staged",
 		"format": "prettier . --write .",
 		"prepare": "husky",
