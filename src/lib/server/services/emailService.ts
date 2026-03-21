@@ -1,4 +1,4 @@
-import { taskEither as TE } from 'fp-ts';
+import { ResultAsync, okAsync } from 'neverthrow';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 import { SES_AWS_ACCESS_KEY_ID, SES_AWS_SECRET_ACCESS_KEY } from '$env/static/private';
@@ -36,15 +36,15 @@ export const sendEmail = ({
 	to,
 	subject,
 	html
-}: SendEmailParams): TE.TaskEither<ServerError, void> => {
+}: SendEmailParams): ResultAsync<void, ServerError> => {
 	console.log('Sending email ...', { to, subject, html });
 
 	if (isLocal()) {
-		return TE.right(undefined);
+		return okAsync(undefined);
 	}
 
-	return TE.tryCatch(
-		async () => {
+	return ResultAsync.fromPromise(
+		(async () => {
 			const client = getClient();
 			await client.send(
 				new SendEmailCommand({
@@ -66,7 +66,7 @@ export const sendEmail = ({
 					Source: 'no-reply@dejanvasic.me'
 				})
 			);
-		},
+		})(),
 		withError('SendEmailError', 'Failed to send email')
 	);
 };

@@ -1,43 +1,36 @@
-import { either as E } from 'fp-ts';
+import type { Result } from 'neverthrow';
 
-export const isRightEqual = (received: E.Either<unknown, unknown>, expected: unknown) => {
-	return E.isRight(received) && deepEqual(received.right, expected);
-};
+export const isOkEqual = (received: Result<unknown, unknown>, expected: unknown) =>
+	received.isOk() && deepEqual(received.value, expected);
 
-export const isLeftEqual = (received: E.Either<unknown, unknown>, expected: any) => {
-	return E.isLeft(received) && deepEqual(received.left, expected);
-};
+export const isErrEqual = (received: Result<unknown, unknown>, expected: unknown) =>
+	received.isErr() && deepEqual(received.error, expected);
 
-export const isRight = (received: E.Either<unknown, unknown>) => {
-	return E.isRight(received);
-};
+export const isOk = (received: Result<unknown, unknown>) => received.isOk();
 
-export const isLeft = (received: E.Either<unknown, unknown>, expected: string) => {
-	return E.isLeft(received) && (received.left as any)._tag === expected;
-};
+export const isErrTag = (received: Result<unknown, unknown>, expectedTag: string) =>
+	received.isErr() && (received.error as any)._tag === expectedTag;
 
-function deepEqual(object1: any, object2: any): boolean {
-	// Get the keys of both objects
+function deepEqual(object1: unknown, object2: unknown): boolean {
+	if (object1 === object2) return true;
+	if (typeof object1 !== 'object' || typeof object2 !== 'object') return false;
+	if (object1 == null || object2 == null) return false;
+
 	const keys1 = Object.keys(object1);
 	const keys2 = Object.keys(object2);
 
-	// If number of properties is different, objects are not equal
 	if (keys1.length !== keys2.length) {
 		return false;
 	}
 
-	// Iterate through keys to compare values deeply
 	for (const key of keys1) {
-		const val1 = object1[key];
-		const val2 = object2[key];
+		const val1 = (object1 as any)[key];
+		const val2 = (object2 as any)[key];
 		const areObjects = isObject(val1) && isObject(val2);
 
-		// If values are both objects, recursively call deepEqual
 		if (areObjects && !deepEqual(val1, val2)) {
 			return false;
-		}
-		// If values are not both objects and not equal, objects are not equal
-		else if (!areObjects && val1 !== val2) {
+		} else if (!areObjects && val1 !== val2) {
 			return false;
 		}
 	}
@@ -45,6 +38,6 @@ function deepEqual(object1: any, object2: any): boolean {
 	return true;
 }
 
-function isObject(object: any): boolean {
+function isObject(object: unknown): boolean {
 	return object != null && typeof object === 'object';
 }

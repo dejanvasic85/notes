@@ -1,4 +1,4 @@
-import { taskEither as TE } from 'fp-ts';
+import { okAsync, errAsync } from 'neverthrow';
 import { describe, expect, it, vi, type MockedFunction } from 'vitest';
 
 import { deselectAllNoteEditors } from '$lib/server/db/notesDb';
@@ -70,16 +70,16 @@ describe('acceptInvite', () => {
 			userSecondId: 'uid_234'
 		};
 
-		mockGetInvite.mockReturnValue(TE.right(invite));
-		mockGetUser.mockReturnValue(TE.right(invitedBy));
-		mockUpdateInvite.mockReturnValue(TE.right({ ...invite, status: 'accepted' }));
-		mockCreateConnection.mockReturnValue(TE.right(connection));
-		mockGetConnectionOrNull.mockReturnValue(TE.right(null));
+		mockGetInvite.mockReturnValue(okAsync(invite));
+		mockGetUser.mockReturnValue(okAsync(invitedBy));
+		mockUpdateInvite.mockReturnValue(okAsync({ ...invite, status: 'accepted' }));
+		mockCreateConnection.mockReturnValue(okAsync(connection));
+		mockGetConnectionOrNull.mockReturnValue(okAsync(null));
 
-		const result: any = await acceptInvite(inviteId, acceptedBy)();
+		const result = await acceptInvite(inviteId, acceptedBy);
 
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual({
+		expect(result.isOk()).toBe(true);
+		expect(result._unsafeUnwrap()).toEqual({
 			connection,
 			invitedBy,
 			invite,
@@ -107,17 +107,17 @@ describe('acceptInvite', () => {
 			userSecondId: 'uid_234'
 		};
 
-		mockGetInvite.mockReturnValue(TE.right(invite));
-		mockGetUser.mockReturnValue(TE.right(invitedBy));
-		mockUpdateInvite.mockReturnValue(TE.right({ ...invite, status: 'accepted' }));
-		mockGetConnectionOrNull.mockReturnValue(TE.right(connection));
-		mockUpdateConnection.mockReturnValue(TE.right({ ...connection, type: 'connected' }));
-		mockAddNoteEditorFromInvite.mockReturnValue(TE.right(null));
+		mockGetInvite.mockReturnValue(okAsync(invite));
+		mockGetUser.mockReturnValue(okAsync(invitedBy));
+		mockUpdateInvite.mockReturnValue(okAsync({ ...invite, status: 'accepted' }));
+		mockGetConnectionOrNull.mockReturnValue(okAsync(connection));
+		mockUpdateConnection.mockReturnValue(okAsync({ ...connection, type: 'connected' }));
+		mockAddNoteEditorFromInvite.mockReturnValue(okAsync(null));
 
-		const result: any = await acceptInvite(inviteId, acceptedBy)();
+		const result = await acceptInvite(inviteId, acceptedBy);
 
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual({
+		expect(result.isOk()).toBe(true);
+		expect(result._unsafeUnwrap()).toEqual({
 			connection: { ...connection, type: 'connected' },
 			invitedBy,
 			invite,
@@ -134,31 +134,31 @@ describe('acceptInvite', () => {
 			message: 'Invite not found'
 		};
 
-		mockGetInvite.mockReturnValue(TE.left(recordNotFound));
+		mockGetInvite.mockReturnValue(errAsync(recordNotFound));
 
-		const result: any = await acceptInvite(inviteId, acceptedBy)();
+		const result = await acceptInvite(inviteId, acceptedBy);
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual(recordNotFound);
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual(recordNotFound);
 	});
 });
 
 describe('sendInvite', () => {
 	it('should create an invite and send an email to the friend', async () => {
-		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
-		mockSendEmail.mockReturnValue(TE.right({} as any));
-		mockGetInvitesByUser.mockReturnValue(TE.right([]));
+		mockCreateInvite.mockReturnValue(okAsync({ id: 'invite_123' } as any));
+		mockSendEmail.mockReturnValue(okAsync({} as any));
+		mockGetInvitesByUser.mockReturnValue(okAsync([]));
 
-		const result: any = await sendInvite({
+		const result = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'bob@foo.com',
 			name: 'foo bar',
 			userId: 'uid_123',
 			userEmail: 'foo@bar.com',
 			invitedToNoteId: null
-		})();
+		});
 
-		expect(result._tag).toBe('Right');
+		expect(result.isOk()).toBe(true);
 	});
 
 	it('should return an error when the invite creation fails', async () => {
@@ -168,20 +168,20 @@ describe('sendInvite', () => {
 			originalError: new Error('')
 		};
 
-		mockCreateInvite.mockReturnValue(TE.left(databaseError));
-		mockGetInvitesByUser.mockReturnValue(TE.right([]));
+		mockCreateInvite.mockReturnValue(errAsync(databaseError));
+		mockGetInvitesByUser.mockReturnValue(okAsync([]));
 
-		const result: any = await sendInvite({
+		const result = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'bob@foo.com',
 			name: 'foo bar',
 			userId: 'uid_123',
 			userEmail: 'foo@bar.com',
 			invitedToNoteId: null
-		})();
+		});
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual(databaseError);
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual(databaseError);
 	});
 
 	it('should return an error when the sendEmail fails', async () => {
@@ -190,21 +190,21 @@ describe('sendInvite', () => {
 			message: 'Failed to send email'
 		};
 
-		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
-		mockSendEmail.mockReturnValue(TE.left(emailError));
-		mockGetInvitesByUser.mockReturnValue(TE.right([]));
+		mockCreateInvite.mockReturnValue(okAsync({ id: 'invite_123' } as any));
+		mockSendEmail.mockReturnValue(errAsync(emailError));
+		mockGetInvitesByUser.mockReturnValue(okAsync([]));
 
-		const result: any = await sendInvite({
+		const result = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'bob@foo.com',
 			name: 'foo bar',
 			userId: 'uid_123',
 			userEmail: 'foo@bar.com',
 			invitedToNoteId: null
-		})();
+		});
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual(emailError);
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual(emailError);
 	});
 
 	it('should return a validation error when the friend email matches the current user email', async () => {
@@ -214,21 +214,21 @@ describe('sendInvite', () => {
 			originalError: undefined
 		};
 
-		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
-		mockSendEmail.mockReturnValue(TE.right({} as any));
-		mockGetInvitesByUser.mockReturnValue(TE.right([]));
+		mockCreateInvite.mockReturnValue(okAsync({ id: 'invite_123' } as any));
+		mockSendEmail.mockReturnValue(okAsync({} as any));
+		mockGetInvitesByUser.mockReturnValue(okAsync([]));
 
-		const result: any = await sendInvite({
+		const result = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'foo@bar.com',
 			name: 'foo bar',
 			userId: 'uid_123',
 			userEmail: 'foo@bar.com',
 			invitedToNoteId: null
-		})();
+		});
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual(validationError);
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual(validationError);
 	});
 
 	it('should return a validation error when the friend email is already invited', async () => {
@@ -238,23 +238,23 @@ describe('sendInvite', () => {
 			originalError: undefined
 		};
 
-		mockCreateInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
-		mockSendEmail.mockReturnValue(TE.right({} as any));
+		mockCreateInvite.mockReturnValue(okAsync({ id: 'invite_123' } as any));
+		mockSendEmail.mockReturnValue(okAsync({} as any));
 		mockGetInvitesByUser.mockReturnValue(
-			TE.right([{ friendEmail: 'friend@bar.com', status: null } as any])
+			okAsync([{ friendEmail: 'friend@bar.com', status: null } as any])
 		);
 
-		const result: any = await sendInvite({
+		const result = await sendInvite({
 			baseUrl: 'localhost:1000',
 			friendEmail: 'friend@bar.com',
 			name: 'foo bar',
 			userId: 'uid_123',
 			userEmail: 'foo@bar.com',
 			invitedToNoteId: null
-		})();
+		});
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual(validationError);
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual(validationError);
 	});
 });
 
@@ -262,11 +262,11 @@ describe('cancelInvite', () => {
 	it('should update the invite status to cancelled', async () => {
 		const inviteId = 'invite_123';
 
-		mockGetInvite.mockReturnValue(TE.right({ id: 'invite_123' } as any));
-		mockUpdateInvite.mockReturnValue(TE.right({ id: 'invite_123', status: 'cancelled' } as any));
+		mockGetInvite.mockReturnValue(okAsync({ id: 'invite_123' } as any));
+		mockUpdateInvite.mockReturnValue(okAsync({ id: 'invite_123', status: 'cancelled' } as any));
 
-		const result: any = await cancelInvite(inviteId)();
-		expect(result._tag).toBe('Right');
+		const result = await cancelInvite(inviteId);
+		expect(result.isOk()).toBe(true);
 		expect(mockUpdateInvite).toHaveBeenCalledWith({ id: 'invite_123', status: 'cancelled' });
 	});
 
@@ -277,12 +277,12 @@ describe('cancelInvite', () => {
 			message: 'Invite not found'
 		};
 
-		mockGetInvite.mockReturnValue(TE.left(recordNotFound));
+		mockGetInvite.mockReturnValue(errAsync(recordNotFound));
 
-		const result: any = await cancelInvite(inviteId)();
+		const result = await cancelInvite(inviteId);
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual(recordNotFound);
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual(recordNotFound);
 	});
 });
 
@@ -297,10 +297,11 @@ describe('removeConnection', () => {
 			userSecondId: friendUserId
 		};
 
-		mockGetConnection.mockReturnValue(TE.right(connection));
-		mockDeselectAllNoteEditors.mockReturnValue(TE.right(null as any));
+		mockGetConnection.mockReturnValue(okAsync(connection));
+		mockDeselectAllNoteEditors.mockReturnValue(okAsync(null as any));
+		mockUpdateConnection.mockReturnValue(okAsync({ ...connection, type: 'removed' }));
 
-		const result: any = await removeConnection(userId, friendUserId)();
-		expect(result._tag).toBe('Right');
+		const result = await removeConnection(userId, friendUserId);
+		expect(result.isOk()).toBe(true);
 	});
 });

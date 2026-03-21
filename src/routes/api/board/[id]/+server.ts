@@ -1,44 +1,34 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { json, error } from '@sveltejs/kit';
 
-import { taskEither as TE } from 'fp-ts';
-import { pipe } from 'fp-ts/lib/function';
-
 import { isBoardOwner } from '$lib/server/services/userService';
 import { getBoard, updateBoard } from '$lib/server/db/boardDb';
-import { getUser } from '$lib/server/db/userDb';
 import { parseRequest } from '$lib/server/requestParser';
 import { mapToApiError } from '$lib/server/apiResultMapper';
 import { BoardPatchSchema } from '$lib/types';
 
 export const GET: RequestHandler = async ({ locals, params }) => {
-	return pipe(
-		getBoard({ id: params.id! }),
-		TE.map((board) => isBoardOwner({ userId: locals.user!.id, board })),
-		TE.mapLeft(mapToApiError),
-		TE.match(
-			(err) => error(err.status, { message: err.message }),
-			(data) => json(data)
-		)
-	)();
+	const result = await getBoard({ id: params.id! })
+		.andThen((board) => isBoardOwner({ userId: locals.user!.id, board }))
+		.mapErr(mapToApiError);
+
+	return result.match(
+		(data) => json(data),
+		(err) => error(err.status, { message: err.message })
+	);
 };
 
 export const PATCH: RequestHandler = async ({ locals, params, request }) => {
-	return pipe(
-		TE.Do,
-		TE.bind('changes', () =>
-			parseRequest(request, BoardPatchSchema, 'Unable to parse BoardPatchSchema')
-		),
-		TE.bind('user', () =>
-			getUser({ id: locals.user!.id, includeBoards: true, includeNotes: true })
-		),
-		TE.bind('board', () => getBoard({ id: params.id! })),
-		TE.bind('boardAccess', ({ board }) => isBoardOwner({ board, userId: locals.user?.id })),
-		TE.flatMap(({ changes, board }) => updateBoard({ ...board, ...changes })),
-		TE.mapLeft(mapToApiError),
-		TE.match(
-			(err) => error(err.status, { message: err.message }),
-			(board) => json(board)
+	const result = await parseRequest(request, BoardPatchSchema, 'Unable to parse BoardPatchSchema')
+		.andThen((changes) => getBoard({ id: params.id! }).map((board) => ({ changes, board })))
+		.andThen(({ changes, board }) =>
+			isBoardOwner({ board, userId: locals.user?.id }).map(() => ({ changes, board }))
 		)
-	)();
+		.andThen(({ changes, board }) => updateBoard({ ...board, ...changes }))
+		.mapErr(mapToApiError);
+
+	return result.match(
+		(board) => json(board),
+		(err) => error(err.status, { message: err.message })
+	);
 };

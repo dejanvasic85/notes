@@ -1,7 +1,6 @@
 import { fail, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { pipe } from 'fp-ts/lib/function';
-import { taskEither as TE, either as E } from 'fp-ts';
+import { ResultAsync, Result, ok, err } from 'neverthrow';
 
 import { mapToApiError } from '$lib/server/apiResultMapper';
 import { updateUser, getUser } from '$lib/server/db/userDb';
@@ -19,34 +18,31 @@ export const load: PageServerLoad = async ({ locals }) => {
 		});
 	}
 
-	return pipe(
-		getUser({ id: locals.user.id }),
-		TE.mapLeft(mapToApiError),
-		TE.match(
-			() => fail(404, { errors: { _: 'User not found' } }),
-			// @ts-ignore: fp-ts is expecting the same return types
-			(user) => ({ name: user.name })
-		)
-	)();
+	const result = await getUser({ id: locals.user.id }).mapErr(mapToApiError);
+
+	return result.match(
+		(user) => ({ name: user.name }),
+		() => fail(404, { errors: { _: 'User not found' } })
+	);
 };
 
-const authorizeUser = (user?: User): E.Either<ServerError, User> => {
+const authorizeUser = (user?: User): Result<User, ServerError> => {
 	if (!user) {
-		return E.left(createError('AuthorizationError', 'User not authenticated'));
+		return err(createError('AuthorizationError', 'User not authenticated'));
 	}
-	return E.right(user);
+	return ok(user);
 };
 
 type UpdateUserForm = Pick<User, 'name'>;
 
-const validateUpdateUser = (form: UpdateUserForm): E.Either<ServerError, string> => {
+const validateUpdateUser = (form: UpdateUserForm): Result<string, ServerError> => {
 	if (!form.name) {
-		return E.left(createError('ValidationError', 'Name is required'));
+		return err(createError('ValidationError', 'Name is required'));
 	}
 	if (form.name.length > 100) {
-		return E.left(createError('ValidationError', 'Display name is too long'));
+		return err(createError('ValidationError', 'Display name is too long'));
 	}
-	return E.right(form.name);
+	return ok(form.name);
 };
 
 export const actions = {
@@ -54,30 +50,32 @@ export const actions = {
 		const data = await request.formData();
 		const name = String(data.get('name'));
 
-		return pipe(
-			validateUpdateUser({ name }),
-			E.flatMap(() => authorizeUser(locals.user)),
-			TE.fromEither,
-			TE.flatMap((u) => updateUser({ id: u.id, name: name })),
-			TE.flatMap((u) =>
-				TE.tryCatch(
-					() => setAuthCookie(cookies, u).then(() => u),
+		const nameValidation = validateUpdateUser({ name });
+		if (nameValidation.isErr()) {
+			const apiErr = mapToApiError(nameValidation.error);
+			return fail(apiErr.status, { name, errors: { name: apiErr.message } });
+		}
+
+		const userAuth = authorizeUser(locals.user);
+		if (userAuth.isErr()) {
+			const apiErr = mapToApiError(userAuth.error);
+			return fail(apiErr.status, { name, errors: { name: apiErr.message } });
+		}
+
+		const u = userAuth.value;
+		const result = await updateUser({ id: u.id, name })
+			.andThen((updatedUser) =>
+				ResultAsync.fromPromise(
+					setAuthCookie(cookies, updatedUser).then(() => updatedUser),
 					() => createError('AuthorizationError', 'Failed to set cookie')
 				)
-			),
-			TE.flatMap((u) => tryUpdateAuthUser({ email: u.email!, name: name })),
-			TE.mapLeft(mapToApiError),
-			TE.match(
-				({ status, message }) =>
-					// @ts-ignore: fp-ts is expecting the same return types
-					fail(status, {
-						name,
-						errors: { name: message }
-					}),
-				() => ({
-					name
-				})
 			)
-		)();
+			.andThen((updatedUser) => tryUpdateAuthUser({ email: updatedUser.email!, name }))
+			.mapErr(mapToApiError);
+
+		return result.match(
+			() => ({ name }),
+			({ status, message }) => fail(status, { name, errors: { name: message } })
+		);
 	}
 } satisfies Actions;

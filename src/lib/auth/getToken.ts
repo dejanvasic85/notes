@@ -1,5 +1,4 @@
-import type { taskEither as TE } from 'fp-ts';
-import { pipe } from 'fp-ts/lib/function';
+import { ResultAsync } from 'neverthrow';
 import { z } from 'zod';
 
 import { AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET, AUTH0_DOMAIN } from '$env/static/private';
@@ -23,22 +22,20 @@ export type GetTokenResponse = z.infer<typeof GetTokenResponseSchema>;
 
 export const getToken = ({
 	code
-}: GetTokenParams): TE.TaskEither<ServerError, GetTokenResponse> => {
-	return pipe(
-		tryFetchJson(`https://${AUTH0_DOMAIN}/oauth/token`, {
-			method: 'POST',
-			body: JSON.stringify({
-				code,
-				client_id: AUTH0_CLIENT_ID,
-				client_secret: AUTH0_CLIENT_SECRET,
-				redirect_uri: `${PUBLIC_BASE_URL}/api/auth/callback`,
-				grant_type: 'authorization_code'
-			}),
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
+}: GetTokenParams): ResultAsync<GetTokenResponse, ServerError> => {
+	return tryFetchJson(`https://${AUTH0_DOMAIN}/oauth/token`, {
+		method: 'POST',
+		body: JSON.stringify({
+			code,
+			client_id: AUTH0_CLIENT_ID,
+			client_secret: AUTH0_CLIENT_SECRET,
+			redirect_uri: `${PUBLIC_BASE_URL}/api/auth/callback`,
+			grant_type: 'authorization_code'
+		}),
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
 };
 
 type GetClientCredentialTokenParams = {
@@ -49,19 +46,17 @@ export const getClientCredentialToken = (
 	{ audience }: GetClientCredentialTokenParams = {
 		audience: `https://${AUTH0_DOMAIN}/api/v2/`
 	}
-): TE.TaskEither<ServerError, GetTokenResponse> => {
-	return pipe(
-		tryFetchJson(`https://${AUTH0_DOMAIN}/oauth/token`, {
-			method: 'POST',
-			body: JSON.stringify({
-				audience,
-				client_id: AUTH0_CLIENT_ID,
-				client_secret: AUTH0_CLIENT_SECRET,
-				grant_type: 'client_credentials'
-			}),
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-	);
+): ResultAsync<GetTokenResponse, ServerError> => {
+	return tryFetchJson(`https://${AUTH0_DOMAIN}/oauth/token`, {
+		method: 'POST',
+		body: JSON.stringify({
+			audience,
+			client_id: AUTH0_CLIENT_ID,
+			client_secret: AUTH0_CLIENT_SECRET,
+			grant_type: 'client_credentials'
+		}),
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
 };

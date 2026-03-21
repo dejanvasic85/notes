@@ -21,10 +21,10 @@ describe('getNoteById', () => {
 			id: 'nid_123'
 		} as any);
 
-		const result: any = await getNoteById({ id: 'nid_123' })();
+		const result = await getNoteById({ id: 'nid_123' });
 
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual({
+		expect(result.isOk()).toBe(true);
+		expect(result._unsafeUnwrap()).toEqual({
 			id: 'nid_123'
 		});
 	});
@@ -32,10 +32,10 @@ describe('getNoteById', () => {
 	it('should return RecordNotFoundError when the note does not exist', async () => {
 		dbNoteMock.findFirst.mockResolvedValue(null);
 
-		const result: any = await getNoteById({ id: 'nid_123' })();
+		const result = await getNoteById({ id: 'nid_123' });
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual({
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual({
 			_tag: 'RecordNotFound',
 			message: 'Note with id nid_123 not found',
 			originalError: undefined
@@ -45,10 +45,10 @@ describe('getNoteById', () => {
 	it('should return DatabaseError when the db throws an error', async () => {
 		dbNoteMock.findFirst.mockRejectedValue(new Error('db error'));
 
-		const result: any = await getNoteById({ id: 'nid_123' })();
+		const result = await getNoteById({ id: 'nid_123' });
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual({
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual({
 			_tag: 'DatabaseError',
 			message: 'Unexpected database error occurred',
 			originalError: new Error('db error')
@@ -62,15 +62,15 @@ describe('createNote', () => {
 			id: 'nid_123'
 		} as any);
 
-		const result: any = await createNote({
+		const result = await createNote({
 			id: 'nid_123',
 			boardId: 'bid_123',
 			text: 'foo',
 			textPlain: 'foo',
 			colour: null
-		})();
+		});
 
-		expect(result.right).toEqual({
+		expect(result._unsafeUnwrap()).toEqual({
 			id: 'nid_123'
 		});
 	});
@@ -78,16 +78,16 @@ describe('createNote', () => {
 	it('should return DatabaseError when the db throws an error', async () => {
 		dbNoteMock.create.mockRejectedValue(new Error('db error'));
 
-		const result: any = await createNote({
+		const result = await createNote({
 			id: 'nid_123',
 			boardId: 'bid_123',
 			text: 'foo',
 			textPlain: 'foo',
 			colour: null
-		})();
+		});
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual({
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual({
 			_tag: 'DatabaseError',
 			message: expect.any(String),
 			originalError: new Error('db error')

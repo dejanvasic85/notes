@@ -1,5 +1,4 @@
-import { taskEither as TE } from 'fp-ts';
-import { pipe } from 'fp-ts/lib/function';
+import { ResultAsync, Result, ok, err, errAsync } from 'neverthrow';
 
 import { fetchAuthUserByEmail } from '$lib/auth/fetchUser';
 import { updateAuthUser } from '$lib/auth/updateAuthUser';
@@ -15,10 +14,10 @@ interface IsBoardOwnerParams {
 export const isBoardOwner = ({
 	board,
 	userId
-}: IsBoardOwnerParams): TE.TaskEither<ServerError, Board> =>
+}: IsBoardOwnerParams): Result<Board, ServerError> =>
 	board.userId === userId
-		? TE.right(board)
-		: TE.left(
+		? ok(board)
+		: err(
 				createError('AuthorizationError', `User ${userId} is not the owner of board ${board.id}`)
 			);
 
@@ -27,15 +26,12 @@ type UpdateUserParams = {
 	name: string;
 };
 
-export const tryUpdateAuthUser = (params: UpdateUserParams): TE.TaskEither<ServerError, void> =>
-	pipe(
-		fetchAuthUserByEmail(params.email),
-		TE.flatMap((user) =>
-			updateAuthUser({
-				authId: user.user_id,
-				name: params.name
-			})
-		)
+export const tryUpdateAuthUser = (params: UpdateUserParams): ResultAsync<void, ServerError> =>
+	fetchAuthUserByEmail(params.email).andThen((user) =>
+		updateAuthUser({
+			authId: user.user_id,
+			name: params.name
+		})
 	);
 
 interface GetOrCreateUserParams {
@@ -46,28 +42,24 @@ interface GetOrCreateUserParams {
 export const getOrCreateUser = ({
 	email,
 	authUserProfile
-}: GetOrCreateUserParams): TE.TaskEither<ServerError, User> =>
-	pipe(
-		getUserByEmail(email),
-		TE.orElse((err) => {
-			if (err._tag === 'RecordNotFound') {
-				return createUser({ authUserProfile });
-			}
-			return TE.left(err);
-		})
-	);
+}: GetOrCreateUserParams): ResultAsync<User, ServerError> =>
+	getUserByEmail(email).orElse((e) => {
+		if (e._tag === 'RecordNotFound') {
+			return createUser({ authUserProfile });
+		}
+		return errAsync(e);
+	});
 
-export const getFriends = (userId: string): TE.TaskEither<ServerError, Friend[]> => {
-	return pipe(
-		getConnections(userId),
-		TE.map((connections) => {
-			return connections
+export const getFriends = (userId: string): ResultAsync<Friend[], ServerError> =>
+	getConnections(userId)
+		.map((connections) =>
+			connections
 				.filter((c) => c.type === 'connected')
-				.map((c) => (c.userFirstId === userId ? c.userSecondId : c.userFirstId));
-		}),
-		TE.flatMap((friendIds) => getAllUsersById(friendIds)),
-		TE.map((friends) => {
-			return friends.map((friend) => {
+				.map((c) => (c.userFirstId === userId ? c.userSecondId : c.userFirstId))
+		)
+		.andThen((friendIds) => getAllUsersById(friendIds))
+		.map((friends) =>
+			friends.map((friend) => {
 				const data: Friend = {
 					email: friend.email,
 					id: friend.id,
@@ -75,7 +67,5 @@ export const getFriends = (userId: string): TE.TaskEither<ServerError, Friend[]>
 					picture: friend.picture
 				};
 				return data;
-			});
-		})
-	);
-};
+			})
+		);

@@ -36,10 +36,10 @@ describe('getUser', () => {
 			]
 		} as any);
 
-		const result: any = await getUser({ id: 'uid_123', includeBoards: false })();
+		const result = await getUser({ id: 'uid_123', includeBoards: false });
 
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual({ id: 'hello world', name: 'Goerge Costanza', boards: [] });
+		expect(result.isOk()).toBe(true);
+		expect(result._unsafeUnwrap()).toEqual({ id: 'hello world', name: 'Goerge Costanza', boards: [] });
 	});
 
 	it('should return a user with boards successfully', async () => {
@@ -54,10 +54,10 @@ describe('getUser', () => {
 			]
 		} as any);
 
-		const result: any = await getUser({ id: 'uid_123', includeBoards: true })();
+		const result = await getUser({ id: 'uid_123', includeBoards: true });
 
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual({
+		expect(result.isOk()).toBe(true);
+		expect(result._unsafeUnwrap()).toEqual({
 			id: 'hello world',
 			name: 'Goerge Costanza',
 			boards: [
@@ -72,10 +72,10 @@ describe('getUser', () => {
 	it('should return RecordNotFoundError when the user is null', async () => {
 		dbUserMock.findFirst.mockResolvedValue(null as any);
 
-		const result: any = await getUser({ id: 'uid_123' })();
+		const result = await getUser({ id: 'uid_123' });
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual({
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual({
 			_tag: 'RecordNotFound',
 			message: 'User with id uid_123 not found',
 			originalError: undefined
@@ -85,10 +85,10 @@ describe('getUser', () => {
 	it('should return a DatabaseError when the db throws an error', async () => {
 		dbUserMock.findFirst.mockRejectedValue(new Error('Something went wrong'));
 
-		const result: any = await getUser({ id: 'uid_123' })();
+		const result = await getUser({ id: 'uid_123' });
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual({
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual({
 			_tag: 'DatabaseError',
 			message: 'Unexpected database error occurred',
 			originalError: new Error('Something went wrong')
@@ -114,7 +114,7 @@ describe('createUser', () => {
 			]
 		} as any);
 
-		const result: any = await createUser({
+		const result = await createUser({
 			authUserProfile: {
 				email: 'email@foobar.com',
 				email_verified: true,
@@ -124,15 +124,15 @@ describe('createUser', () => {
 				nickname: 'nickname',
 				updated_at: 'updated_at'
 			}
-		})();
+		});
 
-		expect(result._tag).toBe('Right');
+		expect(result.isOk()).toBe(true);
 	});
 
 	it('should return a DatabaseError when the db throws an error', async () => {
 		dbUserMock.create.mockRejectedValue(new Error('Something went wrong'));
 
-		const result: any = await createUser({
+		const result = await createUser({
 			authUserProfile: {
 				email: 'email@foobar.com',
 				email_verified: true,
@@ -142,10 +142,10 @@ describe('createUser', () => {
 				nickname: 'nickname',
 				updated_at: 'updated_at'
 			}
-		})();
+		});
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual({
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual({
 			_tag: 'DatabaseError',
 			message: 'Unexpected database error occurred',
 			originalError: new Error('Something went wrong')
@@ -161,17 +161,17 @@ describe('getUserByNoteId', () => {
 			}
 		} as any);
 
-		const result: any = await getUserByNoteId('note_id')();
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual({ id: 'uid_123', name: 'Goerge Costanza', boards: [] });
+		const result = await getUserByNoteId('note_id');
+		expect(result.isOk()).toBe(true);
+		expect(result._unsafeUnwrap()).toEqual({ id: 'uid_123', name: 'Goerge Costanza', boards: [] });
 	});
 
 	it('should return RecordNotFoundError when the user is null', async () => {
 		dbNoteMock.findFirst.mockResolvedValue(null);
 
-		const result: any = await getUserByNoteId('note_id')();
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual({
+		const result = await getUserByNoteId('note_id');
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual({
 			_tag: 'RecordNotFound',
 			message: 'User for note note_id not found'
 		});

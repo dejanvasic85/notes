@@ -1,14 +1,12 @@
-import { taskEither as TE } from 'fp-ts';
-import { pipe } from 'fp-ts/lib/function';
+import { ResultAsync } from 'neverthrow';
 
 import type { Board, IdParams, ServerError } from '$lib/types';
 import db from '$lib/server/db';
 import { tryDbTask, fromNullableRecord } from './utils';
 
-export const getBoard = ({ id }: IdParams): TE.TaskEither<ServerError, Board> =>
-	pipe(
-		tryDbTask(() => db.board.findFirst({ where: { id }, include: { notes: true } })),
-		TE.flatMap(fromNullableRecord(`Board ${id} not found`))
+export const getBoard = ({ id }: IdParams): ResultAsync<Board, ServerError> =>
+	tryDbTask(() => db.board.findFirst({ where: { id }, include: { notes: true } })).andThen(
+		fromNullableRecord(`Board ${id} not found`)
 	);
 
 export const getBoardByUserId = ({
@@ -17,18 +15,15 @@ export const getBoardByUserId = ({
 }: {
 	userId: string;
 	includeNotes?: boolean;
-}): TE.TaskEither<ServerError, Board> =>
-	pipe(
-		tryDbTask(() =>
-			db.board.findFirst({
-				where: { userId },
-				include: { notes: includeNotes && { include: { editors: true } } }
-			})
-		),
-		TE.flatMap(fromNullableRecord(`Board for user ${userId} not found`))
-	);
+}): ResultAsync<Board, ServerError> =>
+	tryDbTask(() =>
+		db.board.findFirst({
+			where: { userId },
+			include: { notes: includeNotes && { include: { editors: true } } }
+		})
+	).andThen(fromNullableRecord(`Board for user ${userId} not found`));
 
-export const updateBoard = (board: Board): TE.TaskEither<ServerError, Board> => {
+export const updateBoard = (board: Board): ResultAsync<Board, ServerError> => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { notes, ...rest } = board;
 	return tryDbTask(() =>

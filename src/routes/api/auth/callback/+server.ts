@@ -1,6 +1,4 @@
-import { pipe } from 'fp-ts/lib/function';
-import { taskEither as TE } from 'fp-ts';
-
+import { ResultAsync } from 'neverthrow';
 import type { RequestHandler } from '@sveltejs/kit';
 
 import { getToken } from '$lib/auth/getToken';
@@ -8,6 +6,7 @@ import type { AuthUserProfile } from '$lib/types';
 import { getOrCreateUser } from '$lib/server/services/userService';
 import { tryVerifyToken } from '$lib/auth/verifyToken';
 import { setAuthCookie } from '$lib/auth/session';
+import { createError } from '$lib/server/errorFactory';
 
 export const GET: RequestHandler = async ({ url, cookies }) => {
 	const code = url.searchParams.get('code');
@@ -20,25 +19,24 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		return new Response('Invalid state', { status: 403 });
 	}
 
-	return pipe(
-		getToken({ code }),
-		TE.flatMap((token) => tryVerifyToken<AuthUserProfile>(token.id_token)),
-		TE.flatMap((authUser) => getOrCreateUser({ email: authUser.email, authUserProfile: authUser })),
-		TE.flatMap((user) =>
-			TE.tryCatch(
-				() => setAuthCookie(cookies, user),
-				() => ({ type: 'AuthorizationError' as const, message: 'Failed to set cookie' })
+	const result = await getToken({ code })
+		.andThen((token) => tryVerifyToken<AuthUserProfile>(token.id_token))
+		.andThen((authUser) => getOrCreateUser({ email: authUser.email, authUserProfile: authUser }))
+		.andThen((user) =>
+			ResultAsync.fromPromise(
+				setAuthCookie(cookies, user),
+				() => createError('AuthorizationError', 'Failed to set cookie')
 			)
-		),
-		TE.match(
-			(err) => {
-				console.log('Failed to get token', JSON.stringify(err));
-				return new Response(`Failed to get token.`, { status: 500 });
-			},
-			() => {
-				cookies.delete('csrfState', { path: '/' });
-				return new Response(null, { status: 302, headers: { location: returnUrl } });
-			}
-		)
-	)();
+		);
+
+	return result.match(
+		() => {
+			cookies.delete('csrfState', { path: '/' });
+			return new Response(null, { status: 302, headers: { location: returnUrl } });
+		},
+		(err) => {
+			console.log('Failed to get token', JSON.stringify(err));
+			return new Response(`Failed to get token.`, { status: 500 });
+		}
+	);
 };

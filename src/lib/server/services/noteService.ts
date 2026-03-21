@@ -1,5 +1,4 @@
-import { taskEither as TE } from 'fp-ts';
-import { pipe } from 'fp-ts/lib/function';
+import { ResultAsync, okAsync, errAsync } from 'neverthrow';
 
 import { PUBLIC_BASE_URL } from '$env/static/public';
 
@@ -16,17 +15,19 @@ import { generateId } from '$lib/identityGenerator';
 import { createError } from '$lib/server/errorFactory';
 import { sendEmail } from './emailService';
 
-export const updateNoteEditor = (input: NoteEditorInput): TE.TaskEither<ServerError, void> => {
-	return pipe(
-		TE.Do,
-		TE.bind('data', () => createOrUpdateNoteEditor(input)),
-		TE.bind('friend', () => getUser({ id: input.userId, includeBoards: false })),
-		TE.bind('fromUser', () => getUserByNoteId(input.noteId)),
-		TE.flatMap(({ data, friend, fromUser }) => {
+export const updateNoteEditor = (input: NoteEditorInput): ResultAsync<void, ServerError> =>
+	createOrUpdateNoteEditor(input)
+		.andThen((data) =>
+			getUser({ id: input.userId, includeBoards: false }).map((friend) => ({ data, friend }))
+		)
+		.andThen(({ data, friend }) =>
+			getUserByNoteId(input.noteId).map((fromUser) => ({ data, friend, fromUser }))
+		)
+		.andThen(({ data, friend, fromUser }) => {
 			if (!data.selected || !friend.email) {
-				return TE.right(undefined);
+				return okAsync<void, ServerError>(undefined);
 			}
-			const html = `Hello, ${fromUser.name} has given you access to 
+			const html = `Hello, ${fromUser.name} has given you access to
 				<a href="${PUBLIC_BASE_URL}/my/board?id=${input.noteId}" target="_blank">
 				collaborate on their note!</a>.`;
 
@@ -35,9 +36,7 @@ export const updateNoteEditor = (input: NoteEditorInput): TE.TaskEither<ServerEr
 				subject: 'You have been given access to edit a note!',
 				to: friend.email
 			});
-		})
-	);
-};
+		});
 
 type NoteEditorInviteInput = {
 	noteId: string;
@@ -46,63 +45,41 @@ type NoteEditorInviteInput = {
 
 export const addNoteEditorFromInvite = (
 	input: NoteEditorInviteInput
-): TE.TaskEither<ServerError, NoteEditor | null> =>
-	pipe(
-		getNoteById({ id: input.noteId }),
-		TE.flatMap((note) =>
-			note ? getNoteEditor({ noteId: note.id, userId: input.userId }) : TE.right(null)
-		),
-		TE.flatMap((noteEditor) =>
+): ResultAsync<NoteEditor | null, ServerError> =>
+	getNoteById({ id: input.noteId })
+		.andThen((note) => getNoteEditor({ noteId: note.id, userId: input.userId }))
+		.andThen((noteEditor) =>
 			noteEditor
-				? TE.right(noteEditor)
+				? okAsync<NoteEditor | null, ServerError>(noteEditor)
 				: createNoteEditor({
 						id: generateId('ned'),
 						noteId: input.noteId,
 						userId: input.userId,
 						selected: true
 					})
-		)
-	);
+		);
 
 type NoteAuthParams = {
 	noteId: string;
 	userId: string;
 };
 
-export const isNoteEditor = (params: NoteAuthParams): TE.TaskEither<ServerError, boolean> => {
-	return pipe(
-		getNoteEditor(params),
-		TE.map((editor) => !!editor && editor.selected)
-	);
-};
+export const isNoteEditor = (params: NoteAuthParams): ResultAsync<boolean, ServerError> =>
+	getNoteEditor(params).map((editor) => !!editor && editor.selected);
 
-export const isNoteOwner = (params: NoteAuthParams): TE.TaskEither<ServerError, boolean> => {
-	return pipe(
-		getNoteOwnerUserId(params.noteId),
-		TE.map((ownerId) => ownerId === params.userId)
-	);
-};
+export const isNoteOwner = (params: NoteAuthParams): ResultAsync<boolean, ServerError> =>
+	getNoteOwnerUserId(params.noteId).map((ownerId) => ownerId === params.userId);
 
 export const isNoteEditorOrOwner = (
 	params: NoteAuthParams
-): TE.TaskEither<ServerError, boolean> => {
-	return pipe(
-		isNoteOwner(params),
-		TE.flatMap((isOwner) => (isOwner ? TE.right(true) : isNoteEditor(params))),
-		TE.flatMap(
-			(isEditor) =>
-				TE.right(isEditor) ||
-				TE.left(createError('AuthorizationError', 'User is not an editor or owner'))
-		)
+): ResultAsync<boolean, ServerError> =>
+	isNoteOwner(params).andThen((isOwner) =>
+		isOwner ? okAsync<boolean, ServerError>(true) : isNoteEditor(params)
 	);
-};
 
-export const canDeleteNote = (params: NoteAuthParams): TE.TaskEither<ServerError, boolean> =>
-	pipe(
-		isNoteOwner(params),
-		TE.flatMap((canDelete) =>
-			canDelete
-				? TE.right(canDelete)
-				: TE.left(createError('AuthorizationError', 'Only note owner can delete note'))
-		)
+export const canDeleteNote = (params: NoteAuthParams): ResultAsync<boolean, ServerError> =>
+	isNoteOwner(params).andThen((canDelete) =>
+		canDelete
+			? okAsync<boolean, ServerError>(canDelete)
+			: errAsync(createError('AuthorizationError', 'Only note owner can delete note'))
 	);
