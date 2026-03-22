@@ -26,9 +26,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 		NotePatchInputSchema,
 		'Unable to parse NotePatchInputSchema'
 	)
-		.andThen((noteInput) =>
-			getNoteById({ id: params.id! }).map((note) => ({ noteInput, note }))
-		)
+		.andThen((noteInput) => getNoteById({ id: params.id! }).map((note) => ({ noteInput, note })))
 		.andThen(({ noteInput, note }) =>
 			isNoteEditorOrOwner({ noteId: params.id!, userId: locals.user!.id }).map(() => ({
 				noteInput,

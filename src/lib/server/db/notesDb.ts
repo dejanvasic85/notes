@@ -1,4 +1,4 @@
-import { ResultAsync, okAsync } from 'neverthrow';
+import { ResultAsync } from 'neverthrow';
 
 import db from '$lib/server/db';
 import type {

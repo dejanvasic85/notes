@@ -11,10 +11,7 @@ interface IsBoardOwnerParams {
 	userId?: string;
 }
 
-export const isBoardOwner = ({
-	board,
-	userId
-}: IsBoardOwnerParams): Result<Board, ServerError> =>
+export const isBoardOwner = ({ board, userId }: IsBoardOwnerParams): Result<Board, ServerError> =>
 	board.userId === userId
 		? ok(board)
 		: err(

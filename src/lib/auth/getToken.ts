@@ -20,9 +20,7 @@ export const GetTokenResponseSchema = z.object({
 
 export type GetTokenResponse = z.infer<typeof GetTokenResponseSchema>;
 
-export const getToken = ({
-	code
-}: GetTokenParams): ResultAsync<GetTokenResponse, ServerError> => {
+export const getToken = ({ code }: GetTokenParams): ResultAsync<GetTokenResponse, ServerError> => {
 	return tryFetchJson(`https://${AUTH0_DOMAIN}/oauth/token`, {
 		method: 'POST',
 		body: JSON.stringify({

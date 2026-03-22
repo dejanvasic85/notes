@@ -70,9 +70,7 @@ export const isNoteEditor = (params: NoteAuthParams): ResultAsync<boolean, Serve
 export const isNoteOwner = (params: NoteAuthParams): ResultAsync<boolean, ServerError> =>
 	getNoteOwnerUserId(params.noteId).map((ownerId) => ownerId === params.userId);
 
-export const isNoteEditorOrOwner = (
-	params: NoteAuthParams
-): ResultAsync<boolean, ServerError> =>
+export const isNoteEditorOrOwner = (params: NoteAuthParams): ResultAsync<boolean, ServerError> =>
 	isNoteOwner(params).andThen((isOwner) =>
 		isOwner ? okAsync<boolean, ServerError>(true) : isNoteEditor(params)
 	);

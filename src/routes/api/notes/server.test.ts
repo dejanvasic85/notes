@@ -82,7 +82,9 @@ describe('POST', () => {
 			json: vi.fn().mockResolvedValue(mockNoteInput)
 		};
 
-		mockUpdateBoard.mockReturnValue(errAsync(createError('DatabaseError', 'Failed to update board')));
+		mockUpdateBoard.mockReturnValue(
+			errAsync(createError('DatabaseError', 'Failed to update board'))
+		);
 
 		await expect(
 			POST({

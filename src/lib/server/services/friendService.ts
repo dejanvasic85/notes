@@ -35,9 +35,7 @@ const validateSendInviteParams = (
 		return err(createError('ValidationError', 'Friend email is required'));
 	}
 	return params.friendEmail === params.userEmail
-		? err(
-				createError('ValidationError', 'Friend email should be different to current user email')
-			)
+		? err(createError('ValidationError', 'Friend email should be different to current user email'))
 		: ok(params);
 };
 

@@ -39,7 +39,11 @@ describe('getUser', () => {
 		const result = await getUser({ id: 'uid_123', includeBoards: false });
 
 		expect(result.isOk()).toBe(true);
-		expect(result._unsafeUnwrap()).toEqual({ id: 'hello world', name: 'Goerge Costanza', boards: [] });
+		expect(result._unsafeUnwrap()).toEqual({
+			id: 'hello world',
+			name: 'Goerge Costanza',
+			boards: []
+		});
 	});
 
 	it('should return a user with boards successfully', async () => {

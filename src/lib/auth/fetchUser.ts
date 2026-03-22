@@ -44,7 +44,9 @@ export const fetchAuthUserByEmail = (email: string): ResultAsync<Auth0User, Serv
 		)
 		.andThen((data) => {
 			if (data.length === 0) {
-				return errAsync<Auth0User, ServerError>(createError('RecordNotFound', `Auth user not found`));
+				return errAsync<Auth0User, ServerError>(
+					createError('RecordNotFound', `Auth user not found`)
+				);
 			}
 			return okAsync(data[0]);
 		});

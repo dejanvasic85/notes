@@ -23,9 +23,8 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		.andThen((token) => tryVerifyToken<AuthUserProfile>(token.id_token))
 		.andThen((authUser) => getOrCreateUser({ email: authUser.email, authUserProfile: authUser }))
 		.andThen((user) =>
-			ResultAsync.fromPromise(
-				setAuthCookie(cookies, user),
-				() => createError('AuthorizationError', 'Failed to set cookie')
+			ResultAsync.fromPromise(setAuthCookie(cookies, user), () =>
+				createError('AuthorizationError', 'Failed to set cookie')
 			)
 		);
 
