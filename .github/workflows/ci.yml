@@ -40,6 +40,8 @@ jobs:
         run: npm run build:tsc
       - name: Run unit tests
         run: npm run test:unit
+      - name: Build application
+        run: npm run build
   test:
     env:
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
