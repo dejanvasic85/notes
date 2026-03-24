@@ -3,7 +3,8 @@
 	"version": "1.0.0",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "prisma generate && prisma migrate deploy && vite build",
+		"build": "prisma generate && vite build",
+		"build:migrate": "prisma generate && prisma migrate deploy && vite build",
 		"build:tsc": "tsc --noEmit",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -30,7 +31,7 @@
 		"@sveltejs/adapter-vercel": "^6.0.0",
 		"@sveltejs/kit": "^2.21.1",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
-		"@tailwindcss/postcss": "^4.1.8",
+		"@tailwindcss/vite": "^4.2.2",
 		"@tailwindcss/typography": "^0.5.15",
 		"@types/node": "^25.3.5",
 		"@typescript-eslint/eslint-plugin": "^8.8.1",
