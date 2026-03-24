@@ -1,6 +1,5 @@
 import { describe, it, vi, type MockedFunction, beforeEach, expect } from 'vitest';
-
-import { taskEither as TE } from 'fp-ts';
+import { okAsync, errAsync } from 'neverthrow';
 
 import { updateBoard, getBoardByUserId } from '$lib/server/db/boardDb';
 import { createNote } from '$lib/server/db/notesDb';
@@ -28,9 +27,9 @@ const mockCreateNote = createNote as MockedFunction<typeof createNote>;
 
 describe('POST', () => {
 	beforeEach(() => {
-		mockUpdateBoard.mockReturnValue(TE.right({} as any));
-		mockCreateNote.mockReturnValue(TE.right(mockNoteInput));
-		mockGetBoardById.mockReturnValue(TE.right({ id: 'board_123', noteOrder: [] } as any));
+		mockUpdateBoard.mockReturnValue(okAsync({} as any));
+		mockCreateNote.mockReturnValue(okAsync(mockNoteInput));
+		mockGetBoardById.mockReturnValue(okAsync({ id: 'board_123', noteOrder: [] } as any));
 	});
 
 	it('should return 201 when note is created successfully', async () => {
@@ -84,7 +83,7 @@ describe('POST', () => {
 		};
 
 		mockUpdateBoard.mockReturnValue(
-			TE.left(createError('DatabaseError', 'Failed to update board'))
+			errAsync(createError('DatabaseError', 'Failed to update board'))
 		);
 
 		await expect(

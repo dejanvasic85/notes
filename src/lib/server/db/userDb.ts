@@ -1,5 +1,4 @@
-import { taskEither as TE } from 'fp-ts';
-import { pipe } from 'fp-ts/lib/function';
+import { ResultAsync } from 'neverthrow';
 
 import db from '$lib/server/db';
 import { generateId } from '$lib/identityGenerator';
@@ -24,64 +23,54 @@ export const getUser = ({
 	id,
 	includeBoards = true,
 	includeNotes = true
-}: GetUserByIdTaskParams): TE.TaskEither<ServerError, User> =>
-	pipe(
-		tryDbTask(() =>
-			db.user.findFirst({
-				where: { id },
-				include: {
-					boards: {
-						include: {
-							notes: includeNotes ? { include: { editors: true } } : false
-						}
+}: GetUserByIdTaskParams): ResultAsync<User, ServerError> =>
+	tryDbTask(() =>
+		db.user.findFirst({
+			where: { id },
+			include: {
+				boards: {
+					include: {
+						notes: includeNotes ? { include: { editors: true } } : false
 					}
 				}
-			})
-		),
-		TE.flatMap(fromNullableRecord(`User with id ${id} not found`)),
-		TE.map((user) => ({
+			}
+		})
+	)
+		.andThen(fromNullableRecord(`User with id ${id} not found`))
+		.map((user) => ({
 			...user,
 			boards: !includeBoards
 				? []
 				: user.boards.map((board) => ({ ...board, notes: includeNotes ? board.notes : [] }))
-		}))
+		}));
+
+export const getUserByEmail = (email: string): ResultAsync<User, ServerError> =>
+	tryDbTask(() => db.user.findFirst({ where: { email } }))
+		.andThen(fromNullableRecord(`User with email ${email} not found`))
+		.map((user) => ({ ...user, boards: [] }));
+
+export const getAllUsersById = (ids: string[]): ResultAsync<User[], ServerError> =>
+	tryDbTask(() => db.user.findMany({ where: { id: { in: ids } } })).map((users) =>
+		users.map((user) => ({ ...user, boards: [] }))
 	);
 
-export const getUserByEmail = (email: string): TE.TaskEither<ServerError, User> =>
-	pipe(
-		tryDbTask(() => db.user.findFirst({ where: { email } })),
-		TE.flatMap(fromNullableRecord(`User with email ${email} not found`)),
-		TE.map((user) => ({
-			...user,
-			boards: []
-		}))
-	);
-
-export const getAllUsersById = (ids: string[]): TE.TaskEither<ServerError, User[]> =>
-	pipe(
-		tryDbTask(() => db.user.findMany({ where: { id: { in: ids } } })),
-		TE.map((users) => users.map((user) => ({ ...user, boards: [] })))
-	);
-
-export const getUserByNoteId = (noteId: string): TE.TaskEither<ServerError, User> =>
-	pipe(
-		tryDbTask(() =>
-			db.note.findFirst({
-				where: { id: noteId },
-				select: { board: { include: { user: true } } }
-			})
-		),
-		TE.flatMap(fromNullableRecord(`User for note ${noteId} not found`)),
-		TE.map(({ board }) => board.user),
-		TE.map((user) => ({ ...user, boards: [] }))
-	);
+export const getUserByNoteId = (noteId: string): ResultAsync<User, ServerError> =>
+	tryDbTask(() =>
+		db.note.findFirst({
+			where: { id: noteId },
+			select: { board: { include: { user: true } } }
+		})
+	)
+		.andThen(fromNullableRecord(`User for note ${noteId} not found`))
+		.map(({ board }) => board.user)
+		.map((user) => ({ ...user, boards: [] }));
 
 export const createUser = ({
 	authUserProfile
 }: {
 	authUserProfile: AuthUserProfile;
-}): TE.TaskEither<ServerError, User> => {
-	return tryDbTask(() => {
+}): ResultAsync<User, ServerError> =>
+	tryDbTask(() => {
 		const { email, email_verified, name, picture } = authUserProfile;
 		return db.user.create({
 			data: {
@@ -108,9 +97,8 @@ export const createUser = ({
 			}
 		});
 	});
-};
 
-export const getPendingSentInvites = (userId: string): TE.TaskEither<ServerError, UserInvite[]> =>
+export const getPendingSentInvites = (userId: string): ResultAsync<UserInvite[], ServerError> =>
 	tryDbTask(() =>
 		db.userInvite.findMany({
 			where: {
@@ -125,26 +113,23 @@ export const getPendingSentInvites = (userId: string): TE.TaskEither<ServerError
 
 export const getPendingReceivedInvites = (
 	friendEmail: string
-): TE.TaskEither<ServerError, UserInviteWithUserProps[]> =>
-	pipe(
-		tryDbTask(() =>
-			db.userInvite.findMany({
-				where: {
-					friendEmail,
-					status: null
-				},
-				include: { user: true }
-			})
-		),
-		TE.map((invites) =>
-			invites.map(({ user, ...rest }) => {
-				const inv: UserInviteWithUserProps = {
-					...rest,
-					user: { email: user.email, name: user.name, picture: user.picture }
-				};
-				return inv;
-			})
-		)
+): ResultAsync<UserInviteWithUserProps[], ServerError> =>
+	tryDbTask(() =>
+		db.userInvite.findMany({
+			where: {
+				friendEmail,
+				status: null
+			},
+			include: { user: true }
+		})
+	).map((invites) =>
+		invites.map(({ user, ...rest }) => {
+			const inv: UserInviteWithUserProps = {
+				...rest,
+				user: { email: user.email, name: user.name, picture: user.picture }
+			};
+			return inv;
+		})
 	);
 
 interface GetInviteOptions {
@@ -154,28 +139,24 @@ interface GetInviteOptions {
 export const getInvite = (
 	id: string,
 	{ friendEmail }: GetInviteOptions = {}
-): TE.TaskEither<ServerError, UserInvite> =>
-	pipe(
-		tryDbTask(() => db.userInvite.findFirst({ where: { id, friendEmail } })),
-		TE.flatMap(
-			fromNullableRecord(`User invite with id ${id} and friendEmail ${friendEmail} not found`)
-		)
+): ResultAsync<UserInvite, ServerError> =>
+	tryDbTask(() => db.userInvite.findFirst({ where: { id, friendEmail } })).andThen(
+		fromNullableRecord(`User invite with id ${id} and friendEmail ${friendEmail} not found`)
 	);
 
-export const getInvitesByUser = (userId: string): TE.TaskEither<ServerError, UserInvite[]> => {
-	return tryDbTask(() =>
+export const getInvitesByUser = (userId: string): ResultAsync<UserInvite[], ServerError> =>
+	tryDbTask(() =>
 		db.userInvite.findMany({
 			where: {
 				userId
 			}
 		})
 	);
-};
 
-export const createInvite = (data: UserInvite): TE.TaskEither<ServerError, UserInvite> =>
+export const createInvite = (data: UserInvite): ResultAsync<UserInvite, ServerError> =>
 	tryDbTask(() => db.userInvite.create({ data }));
 
-export const updateInvite = (invite: UserInvite): TE.TaskEither<ServerError, UserInvite> => {
+export const updateInvite = (invite: UserInvite): ResultAsync<UserInvite, ServerError> => {
 	const { id, ...rest } = invite;
 	return tryDbTask(() =>
 		db.userInvite.update({ where: { id }, data: { ...rest, updatedAt: new Date() } })
@@ -184,15 +165,12 @@ export const updateInvite = (invite: UserInvite): TE.TaskEither<ServerError, Use
 
 export const createConnection = (
 	connection: UserConnection
-): TE.TaskEither<ServerError, UserConnection> => {
-	return pipe(
-		tryDbTask(() =>
-			db.userConnection.create({
-				data: connection
-			})
-		)
+): ResultAsync<UserConnection, ServerError> =>
+	tryDbTask(() =>
+		db.userConnection.create({
+			data: connection
+		})
 	);
-};
 
 export const getConnections = (userId: string) =>
 	tryDbTask(() =>
@@ -206,17 +184,16 @@ export const getConnections = (userId: string) =>
 export const getConnection = (
 	userId: string,
 	friendUserId: string
-): TE.TaskEither<ServerError, UserConnection> =>
-	pipe(
-		getConnectionOrNull(userId, friendUserId),
-		TE.flatMap(fromNullableRecord(`User connection not found for ${userId} and ${friendUserId}`))
+): ResultAsync<UserConnection, ServerError> =>
+	getConnectionOrNull(userId, friendUserId).andThen(
+		fromNullableRecord(`User connection not found for ${userId} and ${friendUserId}`)
 	);
 
 export const getConnectionOrNull = (
 	userId: string,
 	friendUserId: string
-): TE.TaskEither<ServerError, UserConnection | null> => {
-	return tryDbTask(() =>
+): ResultAsync<UserConnection | null, ServerError> =>
+	tryDbTask(() =>
 		db.userConnection.findFirst({
 			where: {
 				OR: [
@@ -232,12 +209,11 @@ export const getConnectionOrNull = (
 			}
 		})
 	);
-};
 
 export const updateConnection = (
 	connection: UserConnection
-): TE.TaskEither<ServerError, UserConnection> => {
-	return tryDbTask(() =>
+): ResultAsync<UserConnection, ServerError> =>
+	tryDbTask(() =>
 		db.userConnection.update({
 			where: {
 				userFirstId_userSecondId: {
@@ -251,23 +227,18 @@ export const updateConnection = (
 			}
 		})
 	);
-};
 
 type UpdateUserParams = {
 	id: string;
 	name: string;
 };
 
-export const updateUser = ({ id, name }: UpdateUserParams): TE.TaskEither<ServerError, User> => {
-	return pipe(
-		tryDbTask(() =>
-			db.user.update({
-				where: { id },
-				data: {
-					name
-				}
-			})
-		),
-		TE.map((user) => ({ ...user, boards: [] }))
-	);
-};
+export const updateUser = ({ id, name }: UpdateUserParams): ResultAsync<User, ServerError> =>
+	tryDbTask(() =>
+		db.user.update({
+			where: { id },
+			data: {
+				name
+			}
+		})
+	).map((user) => ({ ...user, boards: [] }));

@@ -9,26 +9,26 @@ vi.mock('$lib/auth/fetchUser');
 vi.mock('$lib/server/services/emailService');
 
 describe('isBoardOwner', () => {
-	it('should return board when the user has access', async () => {
+	it('should return board when the user has access', () => {
 		const board = { id: 'board_id', userId: 'user_one' } as Board;
-		const result: any = await isBoardOwner({
+		const result = isBoardOwner({
 			userId: 'user_one',
 			board
-		})();
+		});
 
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual(board);
+		expect(result.isOk()).toBe(true);
+		expect(result._unsafeUnwrap()).toEqual(board);
 	});
 
-	it('should return not authorized error when the user does not own the board', async () => {
+	it('should return not authorized error when the user does not own the board', () => {
 		const board = { id: 'board_id', userId: 'user_two' } as Board;
-		const result: any = await isBoardOwner({
+		const result = isBoardOwner({
 			userId: 'user_one',
 			board
-		})();
+		});
 
-		expect(result._tag).toBe('Left');
-		expect(result.left).toEqual({
+		expect(result.isErr()).toBe(true);
+		expect(result._unsafeUnwrapErr()).toEqual({
 			_tag: 'AuthorizationError',
 			message: 'User user_one is not the owner of board board_id'
 		});

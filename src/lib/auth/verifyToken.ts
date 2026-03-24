@@ -1,4 +1,4 @@
-import { taskEither as TE } from 'fp-ts';
+import { ResultAsync } from 'neverthrow';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 import { AUTH0_DOMAIN } from '$env/static/private';
@@ -24,15 +24,8 @@ export async function verifyToken<T>(token: string): Promise<T> {
 	return payload as T;
 }
 
-export const tryVerifyToken = <T>(token: string): TE.TaskEither<ServerError, T> => {
-	return TE.tryCatch(
-		async () => {
-			try {
-				return verifyToken(token);
-			} catch (error) {
-				throw new Error(`Failed to verify token. Error: ${error}`, { cause: error });
-			}
-		},
+export const tryVerifyToken = <T>(token: string): ResultAsync<T, ServerError> =>
+	ResultAsync.fromPromise(
+		verifyToken<T>(token),
 		withError('AuthorizationError', 'Failed to verify token')
 	);
-};

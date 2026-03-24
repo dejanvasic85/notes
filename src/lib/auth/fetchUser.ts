@@ -1,8 +1,7 @@
 import { AUTH0_DOMAIN } from '$env/static/private';
-import { taskEither as TE } from 'fp-ts';
+import { ResultAsync, errAsync, okAsync } from 'neverthrow';
 
 import { type AuthUserProfile, AuthUserProfileSchema, type ServerError } from '$lib/types';
-import { pipe } from 'fp-ts/lib/function';
 import { getClientCredentialToken } from './getToken';
 import { tryFetchJson } from '$lib/server/serverFetch';
 import { createError } from '$lib/server/errorFactory';
@@ -33,22 +32,21 @@ type Auth0User = {
 	user_id: string;
 };
 
-export const fetchAuthUserByEmail = (email: string): TE.TaskEither<ServerError, Auth0User> => {
-	return pipe(
-		getClientCredentialToken(),
-		TE.flatMap(({ access_token }) =>
+export const fetchAuthUserByEmail = (email: string): ResultAsync<Auth0User, ServerError> =>
+	getClientCredentialToken()
+		.andThen(({ access_token }) =>
 			tryFetchJson<Auth0User[]>(`https://${AUTH0_DOMAIN}/api/v2/users-by-email?email=${email}`, {
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${access_token}`
 				}
 			})
-		),
-		TE.flatMap((data) => {
+		)
+		.andThen((data) => {
 			if (data.length === 0) {
-				return TE.left(createError('RecordNotFound', `Auth user not found`));
+				return errAsync<Auth0User, ServerError>(
+					createError('RecordNotFound', `Auth user not found`)
+				);
 			}
-			return TE.right(data[0]);
-		})
-	);
-};
+			return okAsync(data[0]);
+		});

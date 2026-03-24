@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, type MockedFunction } from 'vitest';
-import { taskEither as TE } from 'fp-ts';
+import { okAsync, errAsync } from 'neverthrow';
 
 import { getNoteById, updateNote, deleteNote } from '$lib/server/db/notesDb';
 import { updateBoard, getBoard } from '$lib/server/db/boardDb';
@@ -28,8 +28,8 @@ const mockNote = {
 
 describe('GET', () => {
 	it('should return a note successfully', async () => {
-		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
-		mockIsNoteEditorOrOwner.mockReturnValue(TE.right(true) as any);
+		mockGetNoteById.mockReturnValue(okAsync(mockNote) as any);
+		mockIsNoteEditorOrOwner.mockReturnValue(okAsync(true) as any);
 
 		const locals = { user: { id: 'uid_123' } };
 		const result = await GET({
@@ -43,7 +43,9 @@ describe('GET', () => {
 	});
 
 	it('should return a 404 when note is not found', async () => {
-		mockGetNoteById.mockReturnValue(TE.left({ _tag: 'RecordNotFound', message: 'Note not found' }));
+		mockGetNoteById.mockReturnValue(
+			errAsync({ _tag: 'RecordNotFound', message: 'Note not found' })
+		);
 
 		const locals = { user: { id: 'uid_123' } };
 		await expect(
@@ -58,9 +60,9 @@ describe('GET', () => {
 	});
 
 	it('should return unauthorized when note does belong to the user', async () => {
-		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
+		mockGetNoteById.mockReturnValue(okAsync(mockNote) as any);
 		mockIsNoteEditorOrOwner.mockReturnValue(
-			TE.left({ _tag: 'AuthorizationError', message: 'Unauthorized' })
+			errAsync({ _tag: 'AuthorizationError', message: 'Unauthorized' })
 		);
 
 		const locals = { user: { id: 'uid_123' } };
@@ -86,9 +88,9 @@ describe('PATCH', () => {
 		};
 		const locals = { user: { id: 'uid_123' } };
 
-		mockUpdateNote.mockReturnValue(TE.right(mockNote) as any);
-		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
-		mockIsNoteEditorOrOwner.mockReturnValue(TE.right(true) as any);
+		mockUpdateNote.mockReturnValue(okAsync(mockNote) as any);
+		mockGetNoteById.mockReturnValue(okAsync(mockNote) as any);
+		mockIsNoteEditorOrOwner.mockReturnValue(okAsync(true) as any);
 
 		const request = {
 			json: vi.fn().mockResolvedValue(noteInput)
@@ -117,11 +119,11 @@ describe('PATCH', () => {
 describe('DELETE', () => {
 	it('should return 204 and call the repository to delete the note successfully', async () => {
 		const locals = { user: { id: 'uid_123' } };
-		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
-		mockDeleteNote.mockReturnValue(TE.right(mockNote) as any);
-		mockUpdateBoard.mockReturnValue(TE.right({} as any));
-		mockCanDeleteNote.mockReturnValue(TE.right(true) as any);
-		mockGetBoard.mockReturnValue(TE.right({ id: 'bid_123', noteOrder: ['nid_123'] }) as any);
+		mockGetNoteById.mockReturnValue(okAsync(mockNote) as any);
+		mockDeleteNote.mockReturnValue(okAsync(mockNote) as any);
+		mockUpdateBoard.mockReturnValue(okAsync({} as any));
+		mockCanDeleteNote.mockReturnValue(okAsync(true) as any);
+		mockGetBoard.mockReturnValue(okAsync({ id: 'bid_123', noteOrder: ['nid_123'] }) as any);
 
 		const result = await DELETE({
 			locals,
@@ -134,13 +136,13 @@ describe('DELETE', () => {
 
 	it('should return not authorized when the user is not the owner of the note', async () => {
 		const locals = { user: { id: 'uid_123' } };
-		mockGetNoteById.mockReturnValue(TE.right(mockNote) as any);
-		mockDeleteNote.mockReturnValue(TE.right(mockNote) as any);
-		mockUpdateBoard.mockReturnValue(TE.right({} as any));
+		mockGetNoteById.mockReturnValue(okAsync(mockNote) as any);
+		mockDeleteNote.mockReturnValue(okAsync(mockNote) as any);
+		mockUpdateBoard.mockReturnValue(okAsync({} as any));
 		mockCanDeleteNote.mockReturnValue(
-			TE.left({ _tag: 'AuthorizationError', message: 'Unauthorized' })
+			errAsync({ _tag: 'AuthorizationError', message: 'Unauthorized' })
 		);
-		mockGetBoard.mockReturnValue(TE.right({ id: 'bid_123', noteOrder: ['nid_123'] }) as any);
+		mockGetBoard.mockReturnValue(okAsync({ id: 'bid_123', noteOrder: ['nid_123'] }) as any);
 
 		await expect(
 			DELETE({

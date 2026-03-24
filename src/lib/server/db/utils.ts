@@ -1,15 +1,16 @@
-import { taskEither as TE } from 'fp-ts';
+import { type Result, ResultAsync, ok, err } from 'neverthrow';
+
 import type { ServerError } from '$lib/types';
 import { createError, withError } from '$lib/server/errorFactory';
 
 export const tryDbTask = <T>(
 	func: () => Promise<T>,
 	customError = 'Unexpected database error occurred'
-): TE.TaskEither<ServerError, T> => {
-	return TE.tryCatch(func, withError('DatabaseError', customError));
+): ResultAsync<T, ServerError> => {
+	return ResultAsync.fromPromise(func(), withError('DatabaseError', customError));
 };
 
 export const fromNullableRecord =
 	<T>(message: string) =>
-	(value: T | null): TE.TaskEither<ServerError, T> =>
-		value ? TE.right(value) : TE.left(createError('RecordNotFound', message));
+	(value: T | null): Result<T, ServerError> =>
+		value != null ? ok(value) : err(createError('RecordNotFound', message));

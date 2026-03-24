@@ -20,14 +20,10 @@ describe('parseRequest', () => {
 			json: vi.fn().mockResolvedValue(noteCreateInput)
 		};
 
-		const result: any = await parseRequest(
-			req as any,
-			NoteSchema,
-			'Unable to parse note create input'
-		)();
+		const result = await parseRequest(req as any, NoteSchema, 'Unable to parse note create input');
 
-		expect(result._tag).toBe('Right');
-		expect(result.right).toEqual(noteCreateInput);
+		expect(result.isOk()).toBe(true);
+		expect(result._unsafeUnwrap()).toEqual(noteCreateInput);
 	});
 
 	it('should return a return an error when the parsing fails', async () => {
@@ -39,13 +35,12 @@ describe('parseRequest', () => {
 			json: vi.fn().mockResolvedValue(noteCreateInput)
 		};
 
-		const result: any = await parseRequest(
-			req as any,
-			NoteSchema,
-			'Unable to parse note create input'
-		)();
+		const result = await parseRequest(req as any, NoteSchema, 'Unable to parse note create input');
 
-		expect(result._tag).toBe('Left');
+		expect(result.isErr()).toBe(true);
+		const err = result._unsafeUnwrapErr();
+		expect(err._tag).toBe('ValidationError');
+		expect(err.message).toBe('Unable to parse note create input');
 	});
 
 	it('should return a return an error when the json call rejects', async () => {
@@ -53,12 +48,11 @@ describe('parseRequest', () => {
 			json: vi.fn().mockRejectedValue('boom')
 		};
 
-		const result: any = await parseRequest(
-			req as any,
-			NoteSchema,
-			'Unable to parse note create input'
-		)();
+		const result = await parseRequest(req as any, NoteSchema, 'Unable to parse note create input');
 
-		expect(result._tag).toBe('Left');
+		expect(result.isErr()).toBe(true);
+		const err = result._unsafeUnwrapErr();
+		expect(err._tag).toBe('ValidationError');
+		expect(err.message).toBe('Unable to parse note create input');
 	});
 });

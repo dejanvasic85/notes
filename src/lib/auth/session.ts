@@ -1,4 +1,4 @@
-import { taskEither as TE } from 'fp-ts';
+import { ResultAsync, errAsync } from 'neverthrow';
 import type { Cookies } from '@sveltejs/kit';
 import { SignJWT, jwtVerify } from 'jose';
 
@@ -28,18 +28,15 @@ export const clearAuthCookie = (cookies: Cookies) => {
 	cookies.delete(COOKIE_NAME, { path: '/' });
 };
 
-export const getSession = (cookies: Cookies): TE.TaskEither<false | ServerError, User> => {
+export const getSession = (cookies: Cookies): ResultAsync<User, false | ServerError> => {
 	const cookie = cookies.get(COOKIE_NAME);
 
 	if (!cookie) {
-		return TE.left(false);
+		return errAsync(false as false | ServerError);
 	}
 
-	return TE.tryCatch(
-		async () => {
-			const { payload } = await jwtVerify(cookie, getSecretKey());
-			return payload as unknown as User;
-		},
+	return ResultAsync.fromPromise(
+		jwtVerify(cookie, getSecretKey()).then(({ payload }) => payload as unknown as User),
 		withError('AuthorizationError', 'Failed to verify user cookie')
 	);
 };

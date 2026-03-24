@@ -1,22 +1,17 @@
 import { error, type RequestHandler } from '@sveltejs/kit';
-import { pipe } from 'fp-ts/lib/function';
-import { taskEither as TE } from 'fp-ts';
 
 import { mapToApiError } from '$lib/server/apiResultMapper';
 import { removeConnection } from '$lib/server/services/friendService';
 
-export const DELETE: RequestHandler = ({ locals, params }) => {
+export const DELETE: RequestHandler = async ({ locals, params }) => {
 	if (!locals.user) {
 		return error(401, { message: 'Unauthorized' });
 	}
 
-	const friendId = params.id!;
-	return pipe(
-		removeConnection(locals.user!.id, friendId),
-		TE.mapLeft(mapToApiError),
-		TE.match(
-			(err) => error(err.status, { message: err.message }),
-			() => new Response(null, { status: 204 })
-		)
-	)();
+	const result = await removeConnection(locals.user.id, params.id!).mapErr(mapToApiError);
+
+	return result.match(
+		() => new Response(null, { status: 204 }),
+		(err) => error(err.status, { message: err.message })
+	);
 };

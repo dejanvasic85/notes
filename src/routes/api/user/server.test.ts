@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, type MockedFunction } from 'vitest';
-import { taskEither as TE } from 'fp-ts';
+import { okAsync, errAsync } from 'neverthrow';
 
 import { getUser } from '$lib/server/db/userDb';
 import type { DatabaseError, RecordNotFoundError } from '$lib/types';
@@ -17,7 +17,7 @@ describe('GET', () => {
 			name: 'Test User',
 			email: 'foo@bar.com'
 		};
-		mockGetUser.mockReturnValue(TE.right(user) as any);
+		mockGetUser.mockReturnValue(okAsync(user) as any);
 
 		const resp = await GET({
 			locals: { user: { id: 'uid_123' } }
@@ -34,7 +34,7 @@ describe('GET', () => {
 			message: 'User not found'
 		};
 
-		mockGetUser.mockReturnValue(TE.left(recordNotFoundError));
+		mockGetUser.mockReturnValue(errAsync(recordNotFoundError));
 
 		const resp = await GET({
 			locals: { user: { id: 'uid_notFound' } }
@@ -50,7 +50,7 @@ describe('GET', () => {
 			originalError: new Error('Database is down')
 		};
 
-		mockGetUser.mockReturnValue(TE.left(serverError));
+		mockGetUser.mockReturnValue(errAsync(serverError));
 
 		const resp = await GET({
 			locals: { user: { id: 'uid_unexpectedError' } }
