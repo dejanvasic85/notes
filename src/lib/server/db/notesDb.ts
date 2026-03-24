@@ -19,11 +19,13 @@ export const getNoteById = ({ id }: IdParams): ResultAsync<Note, ServerError> =>
 
 export const getNoteOwnerUserId = (noteId: string): ResultAsync<string, ServerError> =>
 	tryDbTask(() =>
-		db.note.findFirstOrThrow({
+		db.note.findFirst({
 			where: { id: noteId },
 			select: { board: { select: { userId: true } } }
 		})
-	).map((d) => d.board.userId);
+	)
+		.andThen(fromNullableRecord(`Note with id ${noteId} not found`))
+		.map((d) => d.board.userId);
 
 export const updateNote = (note: Note): ResultAsync<Note, ServerError> =>
 	tryDbTask(() =>
@@ -69,7 +71,10 @@ export const createOrUpdateNoteEditor = (
 		})
 	);
 
-export const getNoteEditor = ({ noteId, userId }: Pick<NoteEditor, 'noteId' | 'userId'>) =>
+export const getNoteEditor = ({
+	noteId,
+	userId
+}: Pick<NoteEditor, 'noteId' | 'userId'>): ResultAsync<NoteEditor | null, ServerError> =>
 	tryDbTask(() =>
 		db.noteEditor.findFirst({
 			where: {

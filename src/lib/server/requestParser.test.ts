@@ -38,6 +38,9 @@ describe('parseRequest', () => {
 		const result = await parseRequest(req as any, NoteSchema, 'Unable to parse note create input');
 
 		expect(result.isErr()).toBe(true);
+		const err = result._unsafeUnwrapErr();
+		expect(err._tag).toBe('ValidationError');
+		expect(err.message).toBe('Unable to parse note create input');
 	});
 
 	it('should return a return an error when the json call rejects', async () => {
@@ -48,5 +51,8 @@ describe('parseRequest', () => {
 		const result = await parseRequest(req as any, NoteSchema, 'Unable to parse note create input');
 
 		expect(result.isErr()).toBe(true);
+		const err = result._unsafeUnwrapErr();
+		expect(err._tag).toBe('ValidationError');
+		expect(err.message).toBe('Unable to parse note create input');
 	});
 });

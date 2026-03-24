@@ -43,30 +43,28 @@ export const sendEmail = ({
 		return okAsync(undefined);
 	}
 
+	const client = getClient();
 	return ResultAsync.fromPromise(
-		(async () => {
-			const client = getClient();
-			await client.send(
-				new SendEmailCommand({
-					Destination: {
-						ToAddresses: [to]
-					},
-					Message: {
-						Body: {
-							Html: {
-								Charset: 'UTF-8',
-								Data: html
-							}
-						},
-						Subject: {
+		client.send(
+			new SendEmailCommand({
+				Destination: {
+					ToAddresses: [to]
+				},
+				Message: {
+					Body: {
+						Html: {
 							Charset: 'UTF-8',
-							Data: subject
+							Data: html
 						}
 					},
-					Source: 'no-reply@dejanvasic.me'
-				})
-			);
-		})(),
+					Subject: {
+						Charset: 'UTF-8',
+						Data: subject
+					}
+				},
+				Source: 'no-reply@dejanvasic.me'
+			})
+		),
 		withError('SendEmailError', 'Failed to send email')
-	);
+	).map(() => undefined);
 };

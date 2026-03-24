@@ -26,12 +26,6 @@ export async function verifyToken<T>(token: string): Promise<T> {
 
 export const tryVerifyToken = <T>(token: string): ResultAsync<T, ServerError> =>
 	ResultAsync.fromPromise(
-		(async () => {
-			try {
-				return await verifyToken<T>(token);
-			} catch (error) {
-				throw new Error(`Failed to verify token. Error: ${error}`, { cause: error });
-			}
-		})(),
+		verifyToken<T>(token),
 		withError('AuthorizationError', 'Failed to verify token')
 	);
