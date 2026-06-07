@@ -12,9 +12,21 @@
 		"group:allNonMajor"
 	],
 	"automerge": true,
+	"lockFileMaintenance": {
+		"enabled": true,
+		"recreateWhen": "auto",
+		"rebaseWhen": "behind-base-branch",
+		"branchTopic": "lock-file-maintenance",
+		"commitMessageAction": "Lock file maintenance",
+		"schedule": ["before 4am on monday"],
+		"prBodyDefinitions": {
+			"Change": "All locks refreshed"
+		}
+	},
 	"commitMessageAction": "",
 	"labels": ["dependencies"],
-	"prConcurrentLimit": 5,
+	"dependencyDashboardOSVVulnerabilitySummary": "none",
+	"prConcurrentLimit": 2,
 	"prNotPendingHours": 1,
 	"schedule": ["at any time"],
 	"semanticCommitScope": "",
@@ -23,6 +35,10 @@
 		{
 			"matchDatasources": ["node-version"],
 			"allowedVersions": "24.x"
+		},
+		{
+			"matchPackageNames": ["prisma"],
+			"allowedVersions": "< 7"
 		}
 	]
 }
