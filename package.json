@@ -46,7 +46,7 @@
 		"postcss": "^8.4.28",
 		"prettier": "^3.1.0",
 		"prettier-plugin-svelte": "^3.2.6",
-		"prettier-plugin-tailwindcss": "^0.7.0",
+		"prettier-plugin-tailwindcss": "^0.8.0",
 		"prisma": "^6.0.0",
 		"svelte": "^5.16.0",
 		"svelte-check": "^4.0.0",
@@ -82,7 +82,7 @@
 		"node": "24.x"
 	},
 	"volta": {
-		"node": "24.14.1",
-		"npm": "11.12.1"
+		"node": "24.16.0",
+		"npm": "11.16.0"
 	}
 }
