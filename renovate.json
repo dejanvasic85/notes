@@ -1,43 +1,9 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": [
-		"config:recommended",
-		":prHourlyLimit4",
-		":rebaseStalePrs",
-		":renovatePrefix",
-		":semanticCommits",
-		":timezone(Australia/Melbourne)",
-		":updateNotScheduled",
-		":dependencyDashboard",
-		"group:allNonMajor"
-	],
-	"automerge": true,
-	"lockFileMaintenance": {
-		"enabled": true,
-		"recreateWhen": "auto",
-		"rebaseWhen": "behind-base-branch",
-		"branchTopic": "lock-file-maintenance",
-		"commitMessageAction": "Lock file maintenance",
-		"schedule": ["before 4am on monday"],
-		"prBodyDefinitions": {
-			"Change": "All locks refreshed"
-		}
-	},
-	"commitMessageAction": "",
-	"labels": ["dependencies"],
-	"dependencyDashboardOSVVulnerabilitySummary": "none",
-	"prConcurrentLimit": 2,
-	"prNotPendingHours": 1,
-	"schedule": ["at any time"],
-	"semanticCommitScope": "",
-	"semanticCommitType": "deps",
+	"extends": ["github>dejanvasic85/renovate-config:renovate"],
 	"packageRules": [
 		{
-			"matchDatasources": ["node-version"],
-			"allowedVersions": "24.x"
-		},
-		{
-			"matchPackageNames": ["prisma"],
+			"matchPackageNames": ["prisma", "@prisma/client", "prisma-field-encryption"],
 			"allowedVersions": "< 7"
 		}
 	]
