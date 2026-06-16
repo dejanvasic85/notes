@@ -1,11 +1,7 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": ["github>dejanvasic85/renovate-config:renovate"],
+	"extends": ["github>dejanvasic85/renovate-config:default"],
 	"packageRules": [
-		{
-			"matchDatasources": ["node-version"],
-			"allowedVersions": "24.x"
-		},
 		{
 			"matchPackageNames": ["prisma"],
 			"allowedVersions": "< 7"
