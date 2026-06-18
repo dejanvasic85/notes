@@ -24,7 +24,7 @@ jobs:
     name: Check and test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -54,7 +54,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.60.0-jammy
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -82,7 +82,7 @@ jobs:
       name: preview
       url: https://${{ env.PREVIEW_DOMAIN }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Deploy
         run: |
           npm install --global vercel@canary
