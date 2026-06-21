@@ -60,7 +60,7 @@
 	"dependencies": {
 		"@auth0/auth0-spa-js": "2.21.1",
 		"@aws-sdk/client-ses": "3.1071.0",
-		"@prisma/client": "6.19.3",
+		"@prisma/client": "7.8.0",
 		"@tiptap/core": "3.27.0",
 		"@tiptap/extension-hard-break": "3.27.0",
 		"@tiptap/extension-placeholder": "3.27.0",
