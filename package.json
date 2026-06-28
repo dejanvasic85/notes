@@ -44,7 +44,7 @@
 		"husky": "9.1.7",
 		"lint-staged": "17.0.8",
 		"postcss": "8.5.15",
-		"prettier": "3.8.5",
+		"prettier": "3.9.0",
 		"prettier-plugin-svelte": "4.1.1",
 		"prettier-plugin-tailwindcss": "0.8.0",
 		"prisma": "6.19.3",
