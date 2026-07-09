@@ -29,7 +29,7 @@
 		"@playwright/test": "1.61.1",
 		"@sveltejs/adapter-auto": "7.0.1",
 		"@sveltejs/adapter-vercel": "6.3.4",
-		"@sveltejs/kit": "2.69.1",
+		"@sveltejs/kit": "2.69.2",
 		"@sveltejs/vite-plugin-svelte": "7.2.0",
 		"@tailwindcss/typography": "0.5.20",
 		"@tailwindcss/vite": "4.3.2",
@@ -59,7 +59,7 @@
 	"type": "module",
 	"dependencies": {
 		"@auth0/auth0-spa-js": "2.23.0",
-		"@aws-sdk/client-ses": "3.1081.0",
+		"@aws-sdk/client-ses": "3.1082.0",
 		"@prisma/client": "6.19.3",
 		"@tiptap/core": "3.27.3",
 		"@tiptap/extension-hard-break": "3.27.3",
