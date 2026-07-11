@@ -5,6 +5,10 @@
 		{
 			"matchPackageNames": ["prisma"],
 			"allowedVersions": "< 7"
+		},
+		{
+			"matchPackageNames": ["typescript"],
+			"allowedVersions": "< 7"
 		}
 	]
 }
