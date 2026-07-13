@@ -67,7 +67,7 @@
 		"@tiptap/pm": "3.27.3",
 		"@tiptap/starter-kit": "3.27.3",
 		"jose": "6.2.3",
-		"nanoid": "5.1.16",
+		"nanoid": "6.0.0",
 		"neverthrow": "8.2.0",
 		"prisma-field-encryption": "1.6.0",
 		"zod": "4.4.3"
