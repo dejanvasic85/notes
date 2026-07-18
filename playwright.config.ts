@@ -4,7 +4,7 @@ const config: PlaywrightTestConfig = {
 	webServer: {
 		command: 'npm run dev',
 		reuseExistingServer: true,
-		port: 5173,
+		port: 3377,
 		stdout: 'pipe',
 		stderr: 'pipe'
 	},
@@ -12,7 +12,7 @@ const config: PlaywrightTestConfig = {
 	workers: 1,
 	testMatch: /(.+\.)?(test|spec)\.[jt]s/,
 	use: {
-		baseURL: 'http://localhost:5173',
+		baseURL: 'http://localhost:3377',
 		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
 		video: 'retain-on-failure'

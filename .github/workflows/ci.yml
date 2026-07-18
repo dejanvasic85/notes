@@ -46,7 +46,7 @@ jobs:
     env:
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      PUBLIC_BASE_URL: http://localhost:5173
+      PUBLIC_BASE_URL: http://localhost:3377
       HOME: /root
     name: Test Playwright
     timeout-minutes: 60
