@@ -63,7 +63,7 @@ To run the app locally, follow these steps:
    - Configure environment variables in a `.env` file. These will be automatically available via `$env/static/private`.
 
 5. **Preview the app**:
-   - Open [http://localhost:5173](http://localhost:5173) in your browser.
+   - Open [http://localhost:3377](http://localhost:3377) in your browser.
 
 ## Deploying
 
