@@ -62,10 +62,12 @@
 			friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);
 			return;
 		}
+		throw new Error('Could not reconcile with server: write queue never became idle');
 	}
 
 	onMount(async () => {
-		let hydratedFromCache = false;
+		let boardHydrated = false;
+		let friendsHydrated = false;
 
 		if (userId) {
 			const [boardSnapshot, friendsSnapshot] = await Promise.all([
@@ -75,23 +77,24 @@
 
 			if (boardSnapshot) {
 				boardState.hydrate(boardSnapshot);
-				hydratedFromCache = true;
+				boardHydrated = true;
 			}
 			if (friendsSnapshot) {
 				friendsState.hydrateState(friendsSnapshot);
+				friendsHydrated = true;
 			}
 		}
 
 		// With a cached snapshot we can paint immediately and refresh silently;
 		// otherwise keep the skeleton until the first server response arrives.
-		boardState.setLoading(!hydratedFromCache);
-		friendsState.setLoading(!hydratedFromCache);
+		boardState.setLoading(!boardHydrated);
+		friendsState.setLoading(!friendsHydrated);
 
 		try {
 			await refreshFromServer();
 		} catch (err) {
 			console.error('Error loading data:', err);
-			if (!hydratedFromCache) {
+			if (!boardHydrated && !friendsHydrated) {
 				toastMessages.addMessage({
 					type: 'error',
 					message: 'There was a problem loading your data'
