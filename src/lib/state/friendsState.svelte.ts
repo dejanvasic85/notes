@@ -27,6 +27,16 @@ export class FriendsState {
 		this.pendingReceivedInvites = pendingReceivedInvites;
 	}
 
+	hydrateState(snapshot: {
+		friends: Friend[];
+		pendingSentInvites: UserInvite[];
+		pendingReceivedInvites: UserInviteWithUserProps[];
+	}) {
+		this.friends = snapshot.friends;
+		this.pendingSentInvites = snapshot.pendingSentInvites;
+		this.pendingReceivedInvites = snapshot.pendingReceivedInvites;
+	}
+
 	cancelInvite(inviteId: string): [number, UserInvite] {
 		const [index, invite, newArray] = removeValueWithId(this.pendingSentInvites, inviteId);
 		this.pendingSentInvites = newArray;
