@@ -35,6 +35,18 @@ export class BoardState {
 		this.friends = friends;
 	}
 
+	hydrate(snapshot: {
+		boardId: string;
+		noteOrder: string[];
+		notes: NoteOrdered[];
+		friends: Friend[];
+	}) {
+		this.boardId = snapshot.boardId;
+		this.noteOrder = snapshot.noteOrder;
+		this.notes = snapshot.notes;
+		this.friends = snapshot.friends;
+	}
+
 	reset() {
 		this.boardId = '';
 		this.noteOrder = [];

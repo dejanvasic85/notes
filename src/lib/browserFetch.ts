@@ -31,7 +31,31 @@ export function fail(message: string): Fail {
 
 const maxRetries = 3;
 const retryDelay = 200;
+const defaultIdleTimeout = 8000;
 let queueTail: Promise<unknown> = Promise.resolve();
+let pending = 0;
+
+export function isWriteQueueIdle(): boolean {
+	return pending === 0;
+}
+
+// Resolves when the write queue drains, or after `timeoutMs` so a hung request
+// (fetch has no built-in timeout) can never block the caller indefinitely.
+export async function whenWriteQueueIdle(timeoutMs = defaultIdleTimeout): Promise<void> {
+	const deadline = Date.now() + timeoutMs;
+	while (pending > 0) {
+		const remaining = deadline - Date.now();
+		if (remaining <= 0) {
+			return;
+		}
+		let timer: ReturnType<typeof setTimeout> | undefined;
+		const timeout = new Promise<void>((resolve) => {
+			timer = setTimeout(resolve, remaining);
+		});
+		await Promise.race([queueTail.catch(() => undefined), timeout]);
+		clearTimeout(timer);
+	}
+}
 
 async function fetchWithRetry(func: () => Promise<Response>, retryCount = 0): Promise<Response> {
 	try {
@@ -62,28 +86,33 @@ export async function tryFetch<T>(
 	const shouldParse = options?.shouldParse ?? false;
 	const clearQueueOnError = options?.clearQueueOnError ?? false;
 
-	const thisRequest = queueTail.then(() =>
-		fetchWithRetry(() =>
-			fetch(input, {
-				...init,
-				headers: {
-					'Content-Type': 'application/json',
-					...init?.headers
+	pending++;
+	const thisRequest = queueTail
+		.then(() =>
+			fetchWithRetry(() =>
+				fetch(input, {
+					...init,
+					headers: {
+						'Content-Type': 'application/json',
+						...init?.headers
+					}
+				})
+			).then(async (resp) => {
+				if (!resp.ok) {
+					const rawText = await resp.text();
+					return fail(rawText);
+				}
+
+				if (shouldParse) {
+					return resp.json().then((json) => success(json));
+				} else {
+					return success(resp);
 				}
 			})
-		).then(async (resp) => {
-			if (!resp.ok) {
-				const rawText = await resp.text();
-				return fail(rawText);
-			}
-
-			if (shouldParse) {
-				return resp.json().then((json) => success(json));
-			} else {
-				return success(resp);
-			}
-		})
-	);
+		)
+		.finally(() => {
+			pending--;
+		});
 
 	if (clearQueueOnError) {
 		queueTail = thisRequest.catch(() => {
