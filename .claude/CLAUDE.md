@@ -30,8 +30,8 @@ Please read all the latest documentation for (Svelte Kit)[svelte.dev/llms.txt] a
 
 # Workflow
 
-- Be sure to run `npm run check` when you’re done making a series of code changes
-- Use `npm run format` whenever the format is not correct
+- Be sure to run `pnpm check` when you’re done making a series of code changes
+- Use `pnpm format` whenever the format is not correct
 - Prefer running single tests, and not the whole test suite, for performance
 
 # Dependency management

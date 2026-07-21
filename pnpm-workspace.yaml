@@ -1,0 +1,6 @@
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  browser-tabs-lock: true
+  esbuild: true
+  prisma: true

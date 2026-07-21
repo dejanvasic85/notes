@@ -43,13 +43,13 @@ To run the app locally, follow these steps:
 1. **Install dependencies**:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. **Run the development server**:
 
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 3. **Optional: Use Docker for Postgres**:
