@@ -3,14 +3,14 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { createTabs, melt } from '@melt-ui/svelte';
 
+	import { Check, X, type LucideIcon } from '@lucide/svelte';
+
 	import Skeleton from '$components/Skeleton.svelte';
 	import Button from '$components/Button.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
-	import Icon from '$components/Icon.svelte';
 	import UserAvatar from '$components/UserAvatar.svelte';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
-	import type { IconName } from '$lib/icons';
 	import { tryFetch } from '$lib/browserFetch';
 
 	const {
@@ -112,7 +112,7 @@
 		actions?: Array<{
 			id: string;
 			label: string;
-			icon: IconName;
+			icon: LucideIcon;
 			onclick: (id: string) => void;
 		}>;
 	};
@@ -141,13 +141,14 @@
 		<div class="flex gap-1">
 			{#if props.actions}
 				{#each props.actions as action}
+					{@const ActionIcon = action.icon}
 					<Button
 						variant="ghost"
 						label={action.label}
 						onclick={() => action.onclick(action.id)}
 						tooltip={action.label}
 					>
-						<Icon icon={action.icon} fill="none" />
+						<ActionIcon />
 					</Button>
 				{/each}
 			{/if}
@@ -220,7 +221,7 @@
 							actions: [
 								{
 									id: invite.id,
-									icon: 'x-mark',
+									icon: X,
 									label: 'Cancel',
 									onclick: handleCancelInvite
 								}
@@ -236,7 +237,7 @@
 							actions: [
 								{
 									id: friend.id,
-									icon: 'x-mark',
+									icon: X,
 									label: 'Remove',
 									onclick: handleRemoveFriend
 								}
@@ -259,13 +260,13 @@
 								actions: [
 									{
 										id: invite.id,
-										icon: 'check',
+										icon: Check,
 										label: 'Accept',
 										onclick: handleAcceptInvite
 									},
 									{
 										id: invite.id,
-										icon: 'x-mark',
+										icon: X,
 										label: 'Reject',
 										onclick: handleRejectInvite
 									}

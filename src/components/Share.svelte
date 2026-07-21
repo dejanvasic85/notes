@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { FriendSelection } from '$lib/types';
 	import { createDropdownMenu, melt } from '@melt-ui/svelte';
+	import { UserPlus, CirclePlus, Check, Minus } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
-	import Icon from './Icon.svelte';
 	import { slide } from 'svelte/transition';
 
 	type ToggleFriendEvent = {
@@ -36,8 +36,8 @@
 </script>
 
 <div use:melt={$trigger}>
-	<Button variant="ghost">
-		<Icon icon="user-plus" fill="none" />
+	<Button variant="ghost" label="Manage sharing">
+		<UserPlus />
 	</Button>
 </div>
 {#if $open}
@@ -51,18 +51,19 @@
 			href={`/my/friends/add?noteId=${noteId}`}
 			use:melt={$item}
 		>
-			<Icon icon="plus-circle" size={30} title="No colour" fill="none" /> &nbsp; Invite friend
+			<CirclePlus size={30} /> &nbsp; Invite friend
 		</a>
 		{#each friends as { id, noteEditorId, name, selected }}
 			<button
 				class="dark:bg-dark flex items-center rounded-lg bg-white p-2 hover:ring-2"
+				aria-label={selected ? `${name}, selected` : `${name}, not selected`}
 				onclick={() => ontogglefriend({ id: noteEditorId, friendUserId: id, selected: !selected })}
 				use:melt={$item}
 			>
 				{#if selected}
-					<Icon icon="check" title="Selected" fill="none" /> &nbsp;
+					<Check /> &nbsp;
 				{:else}
-					<Icon icon="minus" title="Not selected" fill="none" /> &nbsp;
+					<Minus /> &nbsp;
 				{/if}
 				{name}
 			</button>{/each}

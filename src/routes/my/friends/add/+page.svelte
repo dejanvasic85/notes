@@ -4,9 +4,10 @@
 	import { page } from '$app/state';
 	import { createLabel, melt } from '@melt-ui/svelte';
 
+	import { ArrowLeft } from '@lucide/svelte';
+
 	import Input from '$components/Input.svelte';
 	import Button from '$components/Button.svelte';
-	import Icon from '$components/Icon.svelte';
 
 	let loading = $state(false);
 	let error = $state('');
@@ -18,8 +19,8 @@
 </script>
 
 <div class="mb-4">
-	<a href="/my/friends" class="mb-4">
-		<Icon icon="arrow-left" />
+	<a href="/my/friends" class="mb-4" aria-label="Back to friends">
+		<ArrowLeft />
 	</a>
 </div>
 

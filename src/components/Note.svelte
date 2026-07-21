@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { getNoteCssClass } from '$lib/colours';
 	import type { NoteOrdered, Friend } from '$lib/types';
+	import { GripVertical } from '@lucide/svelte';
 
-	import Icon from './Icon.svelte';
 	import UserAvatar from './UserAvatar.svelte';
 
 	type Props = {
@@ -56,7 +56,7 @@
 		<div
 			class="absolute top-2 right-2 text-gray-700 dark:text-white {isHovering ? '' : 'md:hidden'}"
 		>
-			<Icon icon="squares-box" size={20} fill="none" title="Drag to reorder" />
+			<GripVertical size={20} />
 		</div>
 	{/if}
 
