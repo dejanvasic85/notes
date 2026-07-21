@@ -8,8 +8,14 @@ const variantClasses = {
 	ghost: 'dark:hover:darkHover hover:ring-2'
 } as const;
 
-export const buildButtonClass = (variant: Variant, round = false, loading = false) => {
+export const buildButtonClass = (
+	variant: Variant,
+	round = false,
+	loading = false,
+	active = false
+) => {
 	const roundedClass = round ? 'rounded-full' : 'rounded-xl';
 	const loadingClass = loading ? 'opacity-50 pointer-events-none' : '';
-	return `${loadingClass} ${baseClasses} ${variantClasses[variant]} ${roundedClass}`;
+	const activeClass = active ? 'ring-2 ring-primary bg-primary/10' : '';
+	return `${loadingClass} ${baseClasses} ${variantClasses[variant]} ${roundedClass} ${activeClass}`;
 };

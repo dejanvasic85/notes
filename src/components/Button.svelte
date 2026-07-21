@@ -12,6 +12,7 @@
 		label?: string;
 		loading?: boolean;
 		disabled?: boolean;
+		active?: boolean;
 		tooltip?: string;
 		onclick?: () => void;
 	};
@@ -24,11 +25,12 @@
 		label = '',
 		loading = false,
 		disabled = false,
+		active = false,
 		tooltip,
 		onclick
 	}: Props = $props();
 
-	const buttonClass = $derived(buildButtonClass(variant, rounded, loading || disabled));
+	const buttonClass = $derived(buildButtonClass(variant, rounded, loading || disabled, active));
 
 	const {
 		elements: { trigger, content, arrow },
