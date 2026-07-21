@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
-	import Icon from '$components/Icon.svelte';
+	import { Search as SearchIcon, X } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import Input from './Input.svelte';
 	import Button from './Button.svelte';
@@ -47,12 +47,12 @@
 		/>
 		<div class="absolute right-0 flex gap-2">
 			{#if showClearIcon}
-				<Button variant="ghost" type="reset" onclick={clearAndFocus}>
-					<Icon icon="x-mark" fill="none" size={16} />
+				<Button variant="ghost" type="reset" onclick={clearAndFocus} label="Clear search">
+					<X size={16} />
 				</Button>
 			{/if}
-			<Button variant="ghost" type="submit">
-				<Icon icon="search" fill="none" size={16} />
+			<Button variant="ghost" type="submit" label="Search">
+				<SearchIcon size={16} />
 			</Button>
 		</div>
 	</form>

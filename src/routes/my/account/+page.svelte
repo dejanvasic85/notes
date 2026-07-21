@@ -3,9 +3,10 @@
 	import { goto } from '$app/navigation';
 	import { createLabel, melt } from '@melt-ui/svelte';
 
+	import { ArrowLeft } from '@lucide/svelte';
+
 	import Input from '$components/Input.svelte';
 	import Button from '$components/Button.svelte';
-	import Icon from '$components/Icon.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { getUserState } from '$lib/state/userState.svelte';
 
@@ -31,8 +32,8 @@
 </script>
 
 <div class="mb-4">
-	<a href="/my/board" class="mb-4">
-		<Icon icon="arrow-left" />
+	<a href="/my/board" class="mb-4" aria-label="Back to board">
+		<ArrowLeft />
 	</a>
 </div>
 

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { type Colour } from '$lib/colours';
 	import type { FriendSelection, NoteOrdered, ToggleFriendShare } from '$lib/types';
+	import { X, Trash2 } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
 	import Dialog from './Dialog.svelte';
-	import Icon from './Icon.svelte';
 	import Share from './Share.svelte';
 	import HtmlEditor from './HtmlEditor.svelte';
 	import UserAvatar from './UserAvatar.svelte';
@@ -103,8 +103,8 @@
 		<div class="px-2 pt-2">
 			<div class="flex justify-between">
 				<div class="flex-1">
-					<Button variant="ghost" onclick={handleClose}>
-						<Icon icon="x-mark" title="Cancel note edit" />
+					<Button variant="ghost" onclick={handleClose} label="Cancel note edit">
+						<X />
 					</Button>
 				</div>
 				<div class="flex gap-2">
@@ -123,8 +123,8 @@
 					{/if}
 					<ColourPicker onselect={handleColourPick} />
 					{#if !note.shared}
-						<Button variant="ghost" onclick={handleDeleteClick}>
-							<Icon icon="trash" title="Delete note" fill="none" />
+						<Button variant="ghost" onclick={handleDeleteClick} label="Delete note">
+							<Trash2 />
 						</Button>
 					{/if}
 				</div>

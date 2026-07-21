@@ -4,9 +4,10 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
+	import { CircleArrowRight, LogOut, CirclePlus } from '@lucide/svelte';
+
 	import Board from '$components/Board.svelte';
 	import Button from '$components/Button.svelte';
-	import Icon from '$components/Icon.svelte';
 	import Footer from '$components/Footer.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
 	import logo from '$lib/images/notes-main.png';
@@ -104,11 +105,11 @@
 					<div class="flex flex-col justify-end gap-2 md:flex-row">
 						{#if data.isAuthenticated}
 							<LinkButton variant="secondary" href="/my/board">
-								<Icon icon="arrow-right-circle" fill="none" />
+								<CircleArrowRight />
 								<span>Go to board</span>
 							</LinkButton>
 							<LinkButton variant="ghost" href="/api/auth/logout">
-								<Icon icon="logout" fill="none" />
+								<LogOut />
 								<span>Logout</span>
 							</LinkButton>
 						{:else}
@@ -127,7 +128,7 @@
 		<div class="container mx-auto mt-24 flex flex-col gap-6 px-8 py-12">
 			<div>
 				<Button variant="primary" onclick={handleCreateNote}>
-					<Icon icon="plus-circle" fill="none" />
+					<CirclePlus />
 					<span>Create a note</span>
 				</Button>
 			</div>

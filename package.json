@@ -61,6 +61,7 @@
 	"dependencies": {
 		"@auth0/auth0-spa-js": "2.23.0",
 		"@aws-sdk/client-ses": "3.1090.0",
+		"@lucide/svelte": "^1.25.0",
 		"@prisma/client": "6.19.3",
 		"@tiptap/core": "3.28.0",
 		"@tiptap/extension-hard-break": "3.28.0",

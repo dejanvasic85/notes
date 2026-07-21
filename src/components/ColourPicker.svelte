@@ -3,9 +3,9 @@
 	import { createDropdownMenu, melt } from '@melt-ui/svelte';
 
 	import { colours, type Colour } from '$lib/colours';
+	import { Paintbrush, Minus } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
-	import Icon from './Icon.svelte';
 
 	type Props = {
 		onselect: (colour: Colour | null) => void;
@@ -33,8 +33,8 @@
 </script>
 
 <div use:melt={$trigger}>
-	<Button variant="ghost">
-		<Icon icon="paint-brush" title="Choose colour" fill="none" />
+	<Button variant="ghost" label="Choose colour">
+		<Paintbrush />
 	</Button>
 </div>
 {#if $open}
@@ -49,7 +49,7 @@
 				class="dark:bg-dark flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200"
 				onclick={() => handleColourClick(null)}
 			>
-				<Icon icon="minus" size={30} fill="none" title="No colour" />
+				<Minus size={30} />
 			</button>
 		</div>
 		{#each colours as { cssClass, name }}

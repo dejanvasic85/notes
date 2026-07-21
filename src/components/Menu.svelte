@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { House, CirclePlus, Users } from '@lucide/svelte';
 
-	import Icon from './Icon.svelte';
 	import Button from './Button.svelte';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 
@@ -17,6 +17,8 @@
 	const friendsState = getFriendsState();
 	const numberOfInvites = $derived(friendsState.pendingReceivedInvites.length);
 	const iconSize = 32;
+	const activeStrokeWidth = 2.5;
+	const inactiveStrokeWidth = 2;
 
 	function handleIconPress(name: MenuItem) {
 		iconPress = name;
@@ -55,11 +57,14 @@
 			class="dark:border-dark flex h-full w-full border-b-4 border-white px-4 py-2"
 			class:selected={isSelected('home')}
 		>
-			<Icon icon="home" size={iconSize} fill={isSelected('home') ? 'currentColor' : 'none'} />
+			<House
+				size={iconSize}
+				strokeWidth={isSelected('home') ? activeStrokeWidth : inactiveStrokeWidth}
+			/>
 		</div>
 	</a>
 	<Button onclick={oncreatenote} variant="primary" label="Create a new note">
-		<Icon icon="plus-circle" size={iconSize} fill="none" />
+		<CirclePlus size={iconSize} />
 	</Button>
 	<a
 		href="/my/friends"
@@ -72,7 +77,10 @@
 			class="dark:border-dark relative flex h-full w-full border-b-4 border-white px-4 py-2"
 			class:selected={isSelected('friends')}
 		>
-			<Icon icon="users" size={iconSize} fill={isSelected('friends') ? 'currentColor' : 'none'} />
+			<Users
+				size={iconSize}
+				strokeWidth={isSelected('friends') ? activeStrokeWidth : inactiveStrokeWidth}
+			/>
 			{#if numberOfInvites > 0}
 				<span
 					class="bg-primary absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"

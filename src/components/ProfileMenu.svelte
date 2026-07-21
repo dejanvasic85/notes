@@ -2,8 +2,7 @@
 	import { fly } from 'svelte/transition';
 	import { createDropdownMenu, melt } from '@melt-ui/svelte';
 
-	import type { IconName } from '$lib/icons';
-	import Icon from './Icon.svelte';
+	import { Settings, LogOut, type LucideIcon } from '@lucide/svelte';
 	import UserAvatar from './UserAvatar.svelte';
 
 	type Props = {
@@ -29,11 +28,11 @@
 		href: string;
 		text: string;
 		borderTop?: boolean;
-		icon: IconName;
+		icon: LucideIcon;
 	};
 </script>
 
-{#snippet MenuLink({ borderTop = false, href, icon, text }: MenuLinkProps)}
+{#snippet MenuLink({ borderTop = false, href, icon: Icon, text }: MenuLinkProps)}
 	{#if borderTop}
 		<div class="dark:border-dark-border mt-2 border-t border-gray-200"></div>
 	{/if}
@@ -42,7 +41,7 @@
 		class="hover:bg-slate hover:bg-background dark:hover:bg-dark-hover mt-2 flex w-full gap-2 rounded-lg p-2"
 		{href}
 	>
-		<Icon {icon} fill="none" />
+		<Icon />
 		<span>{text}</span>
 	</a>
 {/snippet}
@@ -67,12 +66,12 @@
 		{@render MenuLink({
 			text: 'Account settings',
 			href: '/my/account',
-			icon: 'cog'
+			icon: Settings
 		})}
 		{@render MenuLink({
 			text: 'Logout',
 			href: '/api/auth/logout',
-			icon: 'arrow-left-start-on-rectangle',
+			icon: LogOut,
 			borderTop: true
 		})}
 	</div>

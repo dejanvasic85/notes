@@ -3,7 +3,7 @@
 	import { createToaster, melt } from '@melt-ui/svelte';
 
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
-	import Icon from '$components/Icon.svelte';
+	import { X } from '@lucide/svelte';
 	import type { ToastMessage } from '$lib/types';
 
 	const toastMessages = getToastMessages();
@@ -39,7 +39,7 @@
 					{data.message}
 				</div>
 				<button use:melt={$close(id)} aria-label="close notification">
-					<Icon icon="x-mark" />
+					<X />
 				</button>
 			</div>
 		</div>
