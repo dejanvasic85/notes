@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { crossfade, slide, fade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-	import { Tabs } from 'melt/builders';
+	import { Tabs } from 'bits-ui';
 
 	import { Check, X, type LucideIcon } from '@lucide/svelte';
 
@@ -20,7 +20,7 @@
 
 	type TabValue = (typeof tabs)[keyof typeof tabs];
 
-	const tabState = new Tabs<TabValue>({ value: tabs.friends });
+	let activeTab: TabValue = $state(tabs.friends);
 
 	const [send, receive] = crossfade({
 		duration: 250,
@@ -171,19 +171,19 @@
 			</div>
 		</div>
 	{:else}
-		<div>
-			<div {...tabState.triggerList} aria-label="Manage your friends and invites">
-				<button {...tabState.getTrigger(tabs.friends)} class="trigger relative p-4 text-xl">
+		<Tabs.Root bind:value={activeTab}>
+			<Tabs.List aria-label="Manage your friends and invites">
+				<Tabs.Trigger value={tabs.friends} class="trigger relative p-4 text-xl">
 					<div class="relative p-2">Friends</div>
-					{#if tabState.value === tabs.friends}
+					{#if activeTab === tabs.friends}
 						<div
 							in:send={{ key: 'trigger' }}
 							out:receive={{ key: 'trigger' }}
 							class="bg-secondary absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full"
 						></div>
 					{/if}
-				</button>
-				<button {...tabState.getTrigger(tabs.invites)} class="trigger relative p-4 text-xl">
+				</Tabs.Trigger>
+				<Tabs.Trigger value={tabs.invites} class="trigger relative p-4 text-xl">
 					<div class="relative p-2">
 						Invites
 						{#if friendsState.pendingReceivedInvites.length > 0}
@@ -194,16 +194,16 @@
 							></span>
 						{/if}
 					</div>
-					{#if tabState.value === tabs.invites}
+					{#if activeTab === tabs.invites}
 						<div
 							in:send={{ key: 'trigger' }}
 							out:receive={{ key: 'trigger' }}
 							class="bg-secondary absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full"
 						></div>
 					{/if}
-				</button>
-			</div>
-			<div {...tabState.getContent(tabs.friends)} class="mt-4">
+				</Tabs.Trigger>
+			</Tabs.List>
+			<Tabs.Content value={tabs.friends} class="mt-4">
 				<div class="flex justify-end">
 					<LinkButton variant="secondary" href="/my/friends/add">Add friend</LinkButton>
 				</div>
@@ -244,9 +244,9 @@
 						})}
 					{/each}
 				</div>
-			</div>
+			</Tabs.Content>
 
-			<div {...tabState.getContent(tabs.invites)} class="mt-4">
+			<Tabs.Content value={tabs.invites} class="mt-4">
 				<div class="mt-4 flex flex-col rounded-lg">
 					{#if friendsState.pendingReceivedInvites.length === 0}
 						<p class="p-4">No incoming invites</p>
@@ -274,7 +274,7 @@
 						{/each}
 					{/if}
 				</div>
-			</div>
-		</div>
+			</Tabs.Content>
+		</Tabs.Root>
 	{/if}
 </div>
