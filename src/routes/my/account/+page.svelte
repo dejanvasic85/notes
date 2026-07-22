@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
-	import { createLabel, melt } from '@melt-ui/svelte';
 
 	import { ArrowLeft } from '@lucide/svelte';
 
@@ -9,6 +8,7 @@
 	import Button from '$components/Button.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { getUserState } from '$lib/state/userState.svelte';
+	import { preventLabelMultiClickSelect } from '$lib/preventLabelMultiClickSelect';
 
 	type Props = {
 		data: { name: string };
@@ -25,10 +25,6 @@
 
 	const toastMessages = getToastMessages();
 	const userState = getUserState();
-
-	const {
-		elements: { root }
-	} = createLabel();
 </script>
 
 <div class="mb-4">
@@ -60,8 +56,10 @@
 	}}
 >
 	<div class="mt-4 flex w-full flex-col gap-2 lg:w-1/2">
-		<label for="name" class:text-error={!!props.form?.errors?.name} use:melt={$root}
-			>Display name</label
+		<label
+			for="name"
+			class:text-error={!!props.form?.errors?.name}
+			{@attach preventLabelMultiClickSelect}>Display name</label
 		>
 		<div class="flex-1">
 			<Input
