@@ -2,11 +2,12 @@
 	import type { Snippet } from 'svelte';
 	import { createTooltip, melt } from '@melt-ui/svelte';
 
-	import { type Variant, buildButtonClass } from '$lib/button';
+	import { type Size, type Variant, buildButtonClass } from '$lib/button';
 
 	type Props = {
 		children: Snippet<[]>;
 		variant?: Variant;
+		size?: Size;
 		rounded?: boolean;
 		type?: 'button' | 'submit' | 'reset';
 		label?: string;
@@ -20,6 +21,7 @@
 	const {
 		children,
 		variant = 'primary',
+		size = 'md',
 		rounded,
 		type,
 		label = '',
@@ -30,7 +32,9 @@
 		onclick
 	}: Props = $props();
 
-	const buttonClass = $derived(buildButtonClass(variant, rounded, loading || disabled, active));
+	const buttonClass = $derived(
+		buildButtonClass(variant, rounded, loading || disabled, active, size)
+	);
 
 	const {
 		elements: { trigger, content, arrow },

@@ -12,7 +12,7 @@
 
 	let { editor }: Props = $props();
 
-	const iconSize = 20;
+	const iconSize = 16;
 
 	const toolbarItemsValue = [
 		{
@@ -61,12 +61,18 @@
 
 {#if editor}
 	<div
-		class="dark:border-dark-border flex gap-1 border-b px-2 py-1"
+		class="dark:border-dark-border flex gap-2 border-b px-2 pt-2 pb-4"
 		role="toolbar"
 		aria-label="Text formatting"
 	>
 		{#each toolbarItemsValue as { mark, label, Icon, toggle }}
-			<Button variant="ghost" {label} active={activeMarks[mark]} onclick={() => toggle(editor)}>
+			<Button
+				variant="ghost"
+				size="sm"
+				{label}
+				active={activeMarks[mark]}
+				onclick={() => toggle(editor)}
+			>
 				<Icon size={iconSize} />
 			</Button>
 		{/each}
