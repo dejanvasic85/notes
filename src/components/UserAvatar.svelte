@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { createAvatar, createTooltip, melt } from '@melt-ui/svelte';
+	import { createTooltip, melt } from '@melt-ui/svelte';
+	import { Avatar } from 'melt/builders';
 
 	type Props = {
 		picture: string;
@@ -11,10 +12,8 @@
 
 	const { picture, name, size = 5, tooltip = name, showTooltip = true }: Props = $props();
 
-	const {
-		elements: { image }
-	} = createAvatar({
-		src: picture
+	const avatar = new Avatar({
+		src: () => picture
 	});
 
 	const {
@@ -40,7 +39,7 @@
 
 <img
 	class="m-0 rounded-full ring-2 ring-white {sizeMap[size]}"
-	use:melt={$image}
+	{...avatar.image}
 	use:melt={$trigger}
 	alt={`Avatar of ${name}`}
 />

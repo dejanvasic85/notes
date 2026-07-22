@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { crossfade, slide, fade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
-	import { createTabs, melt } from '@melt-ui/svelte';
+	import { Tabs } from 'melt/builders';
 
 	import { Check, X, type LucideIcon } from '@lucide/svelte';
 
@@ -13,20 +13,19 @@
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { tryFetch } from '$lib/browserFetch';
 
-	const {
-		elements: { root: tabRoot, list, content, trigger },
-		states: { value }
-	} = createTabs({ defaultValue: 'Friends' });
+	const tabs = {
+		friends: 'Friends',
+		invites: 'Invites'
+	} as const;
+
+	type TabValue = (typeof tabs)[keyof typeof tabs];
+
+	const tabState = new Tabs<TabValue>({ value: tabs.friends });
 
 	const [send, receive] = crossfade({
 		duration: 250,
 		easing: cubicInOut
 	});
-
-	const tabs = {
-		friends: 'Friends',
-		invites: 'Invites'
-	} as const;
 
 	const friendsState = getFriendsState();
 	const toastMessages = getToastMessages();
@@ -172,11 +171,11 @@
 			</div>
 		</div>
 	{:else}
-		<div use:melt={$tabRoot}>
-			<div use:melt={$list} aria-label="Manage your friends and invites">
-				<button use:melt={$trigger(tabs.friends)} class="trigger relative p-4 text-xl">
+		<div>
+			<div {...tabState.triggerList} aria-label="Manage your friends and invites">
+				<button {...tabState.getTrigger(tabs.friends)} class="trigger relative p-4 text-xl">
 					<div class="relative p-2">Friends</div>
-					{#if $value === tabs.friends}
+					{#if tabState.value === tabs.friends}
 						<div
 							in:send={{ key: 'trigger' }}
 							out:receive={{ key: 'trigger' }}
@@ -184,7 +183,7 @@
 						></div>
 					{/if}
 				</button>
-				<button use:melt={$trigger(tabs.invites)} class="trigger relative p-4 text-xl">
+				<button {...tabState.getTrigger(tabs.invites)} class="trigger relative p-4 text-xl">
 					<div class="relative p-2">
 						Invites
 						{#if friendsState.pendingReceivedInvites.length > 0}
@@ -195,7 +194,7 @@
 							></span>
 						{/if}
 					</div>
-					{#if $value === tabs.invites}
+					{#if tabState.value === tabs.invites}
 						<div
 							in:send={{ key: 'trigger' }}
 							out:receive={{ key: 'trigger' }}
@@ -204,7 +203,7 @@
 					{/if}
 				</button>
 			</div>
-			<div use:melt={$content(tabs.friends)} class="mt-4">
+			<div {...tabState.getContent(tabs.friends)} class="mt-4">
 				<div class="flex justify-end">
 					<LinkButton variant="secondary" href="/my/friends/add">Add friend</LinkButton>
 				</div>
@@ -247,7 +246,7 @@
 				</div>
 			</div>
 
-			<div use:melt={$content(tabs.invites)} class="mt-4">
+			<div {...tabState.getContent(tabs.invites)} class="mt-4">
 				<div class="mt-4 flex flex-col rounded-lg">
 					{#if friendsState.pendingReceivedInvites.length === 0}
 						<p class="p-4">No incoming invites</p>
