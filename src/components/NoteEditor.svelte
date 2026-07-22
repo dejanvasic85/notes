@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Editor } from '@tiptap/core';
+
 	import { type Colour } from '$lib/colours';
 	import type { FriendSelection, NoteOrdered, ToggleFriendShare } from '$lib/types';
 	import { X, Trash2 } from '@lucide/svelte';
@@ -8,6 +10,7 @@
 	import Dialog from './Dialog.svelte';
 	import Share from './Share.svelte';
 	import HtmlEditor from './HtmlEditor.svelte';
+	import Toolbar from './Toolbar.svelte';
 	import UserAvatar from './UserAvatar.svelte';
 
 	type Props = {
@@ -35,6 +38,7 @@
 	let noteText: string = $state(note.text);
 	let noteTextPlain: string = $state(note.textPlain);
 	let noteTitle: string | null = $state(note.title);
+	let editor: Editor | null = $state(null);
 
 	let hasUnsavedChanges = $derived(
 		noteText !== note.text || noteTextPlain !== note.textPlain || noteTitle !== note.title
@@ -139,7 +143,13 @@
 			placeholder="Title"
 			class="w-full bg-transparent px-4 py-2 text-xl font-bold focus-visible:outline-hidden"
 		/>
-		<HtmlEditor id="note-editor" initialContent={noteText} onupdate={handleContentUpdate} />
+		<Toolbar {editor} />
+		<HtmlEditor
+			id="note-editor"
+			initialContent={noteText}
+			onupdate={handleContentUpdate}
+			oneditorcreate={(e) => (editor = e)}
+		/>
 	{/snippet}
 
 	{#snippet footer()}

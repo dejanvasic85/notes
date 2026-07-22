@@ -4,14 +4,16 @@
 	import StarterKit from '@tiptap/starter-kit';
 	import HardBreak from '@tiptap/extension-hard-break';
 	import Placeholder from '@tiptap/extension-placeholder';
+	import Underline from '@tiptap/extension-underline';
 
 	type Props = {
 		id: string;
 		initialContent: string;
 		onupdate(html: string, plaintext: string): void;
+		oneditorcreate?(editor: Editor): void;
 	};
 
-	let { initialContent, id, onupdate }: Props = $props();
+	let { initialContent, id, onupdate, oneditorcreate }: Props = $props();
 	let element: HTMLDivElement;
 	let editor: Editor;
 
@@ -56,7 +58,8 @@
 				ShiftEnterParagraph,
 				Placeholder.configure({
 					placeholder: 'Write a note ...'
-				})
+				}),
+				Underline
 			],
 			content: initialContent,
 
@@ -64,6 +67,8 @@
 				onupdate(editor.getHTML(), editor.getText());
 			}
 		});
+
+		oneditorcreate?.(editor);
 	});
 
 	onDestroy(() => {
