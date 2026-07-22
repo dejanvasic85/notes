@@ -4,6 +4,9 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	ssr: {
+		noExternal: ['bits-ui']
+	},
 	server: {
 		port: 3377
 	},
