@@ -38,8 +38,11 @@
 	</Button>
 </div>
 {#if $open}
+	<!-- pointer-events-auto: when this opens from within Dialog.svelte (bits-ui), the dialog's
+		scroll lock sets pointer-events: none on <body>; this menu is portalled outside the
+		dialog's own DOM subtree, so it needs to opt back in explicitly to stay clickable. -->
 	<div
-		class="z-dropdown flex flex-col gap-1 bg-transparent"
+		class="z-dropdown pointer-events-auto flex flex-col gap-1 bg-transparent"
 		in:slide={{ duration: 100 }}
 		use:melt={$menu}
 	>
