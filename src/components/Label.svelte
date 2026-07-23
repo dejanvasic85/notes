@@ -1,7 +1,19 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	import { preventLabelMultiClickSelect } from '$lib/preventLabelMultiClickSelect';
+	const multiClickThreshold = 1;
+
+	function preventLabelMultiClickSelect(node: HTMLElement) {
+		function handleMouseDown(event: MouseEvent) {
+			if (!event.defaultPrevented && event.detail > multiClickThreshold) {
+				event.preventDefault();
+			}
+		}
+
+		node.addEventListener('mousedown', handleMouseDown);
+
+		return () => node.removeEventListener('mousedown', handleMouseDown);
+	}
 
 	type Props = {
 		for: string;
