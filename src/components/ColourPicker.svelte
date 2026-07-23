@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { createDropdownMenu, melt } from '@melt-ui/svelte';
+	import { DropdownMenu } from 'bits-ui';
 
 	import { colours, type Colour } from '$lib/colours';
 	import { Paintbrush, Minus } from '@lucide/svelte';
@@ -13,57 +13,54 @@
 
 	let { onselect }: Props = $props();
 
-	const {
-		elements: { trigger, menu, item },
-		states: { open }
-	} = createDropdownMenu({
-		forceVisible: true,
-		loop: true,
-		preventScroll: true,
-		closeOnOutsideClick: true,
-		positioning: { placement: 'bottom' },
-		onOutsideClick: () => {
-			$open = false;
-		}
-	});
-
 	function handleColourClick(colour: Colour | null) {
 		onselect(colour);
 	}
 </script>
 
-<div use:melt={$trigger}>
-	<Button variant="ghost" label="Choose colour">
-		<Paintbrush />
-	</Button>
-</div>
-{#if $open}
-	<!-- pointer-events-auto: when this opens from within Dialog.svelte (bits-ui), the dialog's
-		scroll lock sets pointer-events: none on <body>; this menu is portalled outside the
-		dialog's own DOM subtree, so it needs to opt back in explicitly to stay clickable. -->
-	<div
-		class="z-dropdown pointer-events-auto flex flex-col gap-1 bg-transparent"
-		in:slide={{ duration: 100 }}
-		use:melt={$menu}
-	>
-		<div class="block" use:melt={$item}>
-			<button
-				aria-label="No colour"
-				class="dark:bg-dark flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200"
-				onclick={() => handleColourClick(null)}
-			>
-				<Minus size={30} />
-			</button>
-		</div>
-		{#each colours as { cssClass, name }}
-			<div class="block" use:melt={$item}>
-				<button
-					aria-label={name}
-					title={name}
-					class="h-12 w-12 rounded-full border-2 border-slate-400 dark:border dark:border-slate-200 {cssClass}"
-					onclick={() => handleColourClick(name)}
-				></button>
+<DropdownMenu.Root>
+	<DropdownMenu.Trigger>
+		{#snippet child({ props })}
+			<div {...props}>
+				<Button variant="ghost" label="Choose colour">
+					<Paintbrush />
+				</Button>
 			</div>
-		{/each}
-	</div>
-{/if}
+		{/snippet}
+	</DropdownMenu.Trigger>
+	<DropdownMenu.Portal>
+		<DropdownMenu.Content forceMount loop side="bottom">
+			{#snippet child({ props, open, wrapperProps })}
+				{#if open}
+					<div {...wrapperProps}>
+						<div
+							{...props}
+							class="z-dropdown flex flex-col gap-1 bg-transparent"
+							in:slide={{ duration: 100 }}
+						>
+							<DropdownMenu.Item onSelect={() => handleColourClick(null)}>
+								<button
+									aria-label="No colour"
+									class="dark:bg-dark flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-400 bg-white text-gray-600 dark:border-slate-200"
+									tabindex={-1}
+								>
+									<Minus size={30} />
+								</button>
+							</DropdownMenu.Item>
+							{#each colours as { cssClass, name } (name)}
+								<DropdownMenu.Item onSelect={() => handleColourClick(name)}>
+									<button
+										aria-label={name}
+										title={name}
+										class="h-12 w-12 rounded-full border-2 border-slate-400 dark:border dark:border-slate-200 {cssClass}"
+										tabindex={-1}
+									></button>
+								</DropdownMenu.Item>
+							{/each}
+						</div>
+					</div>
+				{/if}
+			{/snippet}
+		</DropdownMenu.Content>
+	</DropdownMenu.Portal>
+</DropdownMenu.Root>
