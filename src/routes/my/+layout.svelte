@@ -6,20 +6,16 @@
 	import Note from '$components/Note.svelte';
 	import Search from '$components/Search.svelte';
 	import logo from '$lib/images/notes-main.png';
-	import { tryFetch, isWriteQueueIdle, whenWriteQueueIdle } from '$lib/browserFetch';
+	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { setFriendsState, getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getUserState } from '$lib/state/userState.svelte';
 	import {
-		getBoardSnapshot,
-		setBoardSnapshot,
-		getFriendsSnapshot,
-		setFriendsSnapshot
-	} from '$lib/state/localCache';
-
-	const persistDebounceMs = 400;
-	const maxReconcileAttempts = 3;
+		refreshFromServer,
+		hydrateFromCache,
+		setupLocalCachePersistence
+	} from '$lib/state/boardSync.svelte';
 
 	let { children, data } = $props();
 
@@ -35,55 +31,12 @@
 
 	userState.setName(data.userData?.name ?? '');
 
-	async function refreshFromServer() {
-		// Server is the source of truth, but only apply it when the optimistic
-		// write queue is idle so in-flight local changes are not clobbered. If a
-		// write races the fetch, retry so the re-fetch reflects the synced change.
-		for (let attempt = 0; attempt < maxReconcileAttempts; attempt++) {
-			await whenWriteQueueIdle();
-
-			const [boardResp, friendsResp] = await Promise.all([
-				fetch('/api/user/board'),
-				fetch('/api/friends')
-			]);
-			if (!boardResp.ok || !friendsResp.ok) {
-				throw new Error(
-					`Failed to load data: board ${boardResp.status}, friends ${friendsResp.status}`
-				);
-			}
-			const { board, sharedNotes, sharedNoteOwners } = await boardResp.json();
-			const { friends, pendingSentInvites, pendingReceivedInvites } = await friendsResp.json();
-
-			if (!isWriteQueueIdle()) {
-				continue;
-			}
-
-			boardState.setBoard(board, friends, sharedNotes, sharedNoteOwners);
-			friendsState.setState(friends, pendingSentInvites, pendingReceivedInvites);
-			return;
-		}
-		throw new Error('Could not reconcile with server: write queue never became idle');
-	}
-
 	onMount(async () => {
-		let boardHydrated = false;
-		let friendsHydrated = false;
-
-		if (userId) {
-			const [boardSnapshot, friendsSnapshot] = await Promise.all([
-				getBoardSnapshot(userId),
-				getFriendsSnapshot(userId)
-			]);
-
-			if (boardSnapshot) {
-				boardState.hydrate(boardSnapshot);
-				boardHydrated = true;
-			}
-			if (friendsSnapshot) {
-				friendsState.hydrateState(friendsSnapshot);
-				friendsHydrated = true;
-			}
-		}
+		const { boardHydrated, friendsHydrated } = await hydrateFromCache(
+			userId,
+			boardState,
+			friendsState
+		);
 
 		// With a cached snapshot we can paint immediately and refresh silently;
 		// otherwise keep the skeleton until the first server response arrives.
@@ -91,7 +44,7 @@
 		friendsState.setLoading(!friendsHydrated);
 
 		try {
-			await refreshFromServer();
+			await refreshFromServer(boardState, friendsState);
 		} catch (err) {
 			console.error('Error loading data:', err);
 			if (!boardHydrated && !friendsHydrated) {
@@ -106,37 +59,7 @@
 		}
 	});
 
-	// Persist state to the local cache (debounced) so the next load paints instantly.
-	$effect(() => {
-		const snapshot = $state.snapshot({
-			boardId: boardState.boardId,
-			noteOrder: boardState.noteOrder,
-			notes: boardState.notes,
-			friends: boardState.friends
-		});
-
-		if (!userId || boardState.loading) {
-			return;
-		}
-
-		const timer = setTimeout(() => setBoardSnapshot(userId, snapshot), persistDebounceMs);
-		return () => clearTimeout(timer);
-	});
-
-	$effect(() => {
-		const snapshot = $state.snapshot({
-			friends: friendsState.friends,
-			pendingSentInvites: friendsState.pendingSentInvites,
-			pendingReceivedInvites: friendsState.pendingReceivedInvites
-		});
-
-		if (!userId || friendsState.loading) {
-			return;
-		}
-
-		const timer = setTimeout(() => setFriendsSnapshot(userId, snapshot), persistDebounceMs);
-		return () => clearTimeout(timer);
-	});
+	setupLocalCachePersistence(userId, boardState, friendsState);
 
 	async function handleCreateNote() {
 		const newNote = boardState.createNewNote();

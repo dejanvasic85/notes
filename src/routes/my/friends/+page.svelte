@@ -1,17 +1,16 @@
 <script lang="ts">
-	import { crossfade, slide, fade } from 'svelte/transition';
+	import { crossfade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 	import { Tabs } from 'bits-ui';
 
-	import { Check, X, type LucideIcon } from '@lucide/svelte';
+	import { Check, X } from '@lucide/svelte';
 
 	import Skeleton from '$components/Skeleton.svelte';
-	import Button from '$components/Button.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
-	import UserAvatar from '$components/UserAvatar.svelte';
+	import FriendListItem from '$components/FriendListItem.svelte';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
-	import { runOptimisticUpdate, tryFetch } from '$lib/browserFetch';
+	import { createFriendsActions } from '$lib/state/friendsActions';
 
 	const tabs = {
 		friends: 'Friends',
@@ -33,110 +32,20 @@
 
 	let loading = $derived(friendsState.loading);
 
-	async function handleCancelInvite(id: string) {
-		await runOptimisticUpdate({
-			apply: () => friendsState.cancelInvite(id),
-			request: () => tryFetch(`/api/invites/${id}`, { method: 'DELETE' }, { shouldParse: false }),
-			revert: ([index, invite]) => friendsState.addInviteAtIndex(index, invite),
-			errorMessage: 'There was a problem canceling the invite. Try again.',
-			toastMessages
-		});
-	}
+	const {
+		cancelInvite: handleCancelInvite,
+		removeFriend,
+		acceptInvite: handleAcceptInvite,
+		rejectInvite: handleRejectInvite
+	} = createFriendsActions(friendsState, toastMessages);
 
 	async function handleRemoveFriend(id: string) {
 		if (!confirm('Are you sure you want to remove this friend?')) {
 			return;
 		}
-		await runOptimisticUpdate({
-			apply: () => friendsState.removeFriend(id),
-			request: () => tryFetch(`/api/friends/${id}`, { method: 'DELETE' }, { shouldParse: false }),
-			revert: ([index, friend]) => friendsState.addFriendAtIndex(index, friend),
-			errorMessage: 'There was a problem removing the friend. Try again.',
-			toastMessages
-		});
+		await removeFriend(id);
 	}
-
-	async function handleAcceptInvite(id: string) {
-		const result = await runOptimisticUpdate({
-			apply: () => friendsState.acceptInvite(id),
-			request: () =>
-				tryFetch(
-					`/api/connections`,
-					{ method: 'POST', body: JSON.stringify({ inviteId: id }) },
-					{ clearQueueOnError: true }
-				),
-			revert: ([index, invite]) => {
-				friendsState.addReceivedInviteAtIndex(index, invite);
-				friendsState.removeFriend(invite.userId);
-			},
-			errorMessage: 'There was a problem removing the friend. Try again.',
-			toastMessages
-		});
-		if (result.type !== 'error') {
-			console.log('accepted invite', result.value);
-		}
-	}
-
-	async function handleRejectInvite(id: string) {
-		await runOptimisticUpdate({
-			apply: () => friendsState.rejectInvite(id),
-			request: () => tryFetch(`/api/friends/accept/${id}`, { method: 'POST' }),
-			revert: ([index, invite]) => friendsState.addReceivedInviteAtIndex(index, invite),
-			errorMessage: 'There was a problem removing the friend. Try again.',
-			toastMessages
-		});
-	}
-
-	type FriendSnippetProps = {
-		name: string;
-		picture?: string | null;
-		showPending: boolean;
-		actions?: Array<{
-			id: string;
-			label: string;
-			icon: LucideIcon;
-			onclick: (id: string) => void;
-		}>;
-	};
 </script>
-
-{#snippet Friend(props: FriendSnippetProps)}
-	<div
-		class="h-friend dark:bg-dark flex w-full items-center justify-between gap-2 p-4"
-		role="listitem"
-		in:fade
-		out:slide={{ duration: 250 }}
-	>
-		<div class="flex items-center gap-2">
-			{#if props.picture}
-				<UserAvatar picture={props.picture} name={props.name} size={8} showTooltip={false} />
-			{/if}
-
-			<div class:italic={props.showPending} class:text-gray-400={props.showPending}>
-				{props.name}
-				{#if props.showPending}
-					<span class="text-xs text-gray-400 italic">(pending)</span>
-				{/if}
-			</div>
-		</div>
-
-		<div class="flex gap-1">
-			{#if props.actions}
-				{#each props.actions as action}
-					{@const ActionIcon = action.icon}
-					<Button
-						variant="ghost"
-						label={action.label}
-						onclick={() => action.onclick(action.id)}
-						tooltip={action.label}
-					>
-						<ActionIcon />
-					</Button>
-				{/each}
-			{/if}
-		</div>
-	</div>
-{/snippet}
 
 <h1 class="text-2xl">Friends</h1>
 <p>Connect with your friends to share notes.</p>
@@ -197,34 +106,34 @@
 						</p>
 					{/if}
 					{#each friendsState.pendingSentInvites as invite (invite.id)}
-						{@render Friend({
-							name: invite.friendEmail,
-							showPending: true,
-							actions: [
+						<FriendListItem
+							name={invite.friendEmail}
+							showPending={true}
+							actions={[
 								{
 									id: invite.id,
 									icon: X,
 									label: 'Cancel',
 									onclick: handleCancelInvite
 								}
-							]
-						})}
+							]}
+						/>
 					{/each}
 
 					{#each friendsState.friends as friend (friend.id)}
-						{@render Friend({
-							name: friend.name!,
-							showPending: false,
-							picture: friend.picture,
-							actions: [
+						<FriendListItem
+							name={friend.name!}
+							showPending={false}
+							picture={friend.picture}
+							actions={[
 								{
 									id: friend.id,
 									icon: X,
 									label: 'Remove',
 									onclick: handleRemoveFriend
 								}
-							]
-						})}
+							]}
+						/>
 					{/each}
 				</div>
 			</Tabs.Content>
@@ -235,11 +144,11 @@
 						<p class="p-4">No incoming invites</p>
 					{:else}
 						{#each friendsState.pendingReceivedInvites as invite (invite.id)}
-							{@render Friend({
-								name: invite.user.name!,
-								picture: invite.user.picture,
-								showPending: false,
-								actions: [
+							<FriendListItem
+								name={invite.user.name!}
+								picture={invite.user.picture}
+								showPending={false}
+								actions={[
 									{
 										id: invite.id,
 										icon: Check,
@@ -252,8 +161,8 @@
 										label: 'Reject',
 										onclick: handleRejectInvite
 									}
-								]
-							})}
+								]}
+							/>
 						{/each}
 					{/if}
 				</div>
