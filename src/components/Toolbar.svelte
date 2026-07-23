@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { createSubscriber } from 'svelte/reactivity';
 	import type { Editor } from '@tiptap/core';
 	import { Bold, Italic, Underline } from '@lucide/svelte';
 
@@ -35,28 +36,27 @@
 		}
 	];
 
-	let transactionCount = $state(0);
+	// Re-renders activeMarks whenever the editor fires a transaction (e.g. the
+	// selection or formatting changes) - TipTap's own events aren't Svelte-reactive.
+	class EditorActiveMarks {
+		#editor: Editor;
+		#subscribe: () => void;
 
-	$effect(() => {
-		if (!editor) return;
+		constructor(editor: Editor) {
+			this.#editor = editor;
+			this.#subscribe = createSubscriber((update) => {
+				this.#editor.on('transaction', update);
+				return () => this.#editor.off('transaction', update);
+			});
+		}
 
-		const handleTransaction = () => {
-			transactionCount += 1;
-		};
+		isActive(mark: MarkName) {
+			this.#subscribe();
+			return this.#editor.isActive(mark);
+		}
+	}
 
-		editor.on('transaction', handleTransaction);
-		return () => editor.off('transaction', handleTransaction);
-	});
-
-	let activeMarks = $derived.by(() => {
-		// Reads transactionCount to register it as a dependency, forcing recompute on every TipTap transaction
-		const isTransactionTracked = transactionCount >= 0;
-		return {
-			bold: isTransactionTracked && (editor?.isActive('bold') ?? false),
-			italic: isTransactionTracked && (editor?.isActive('italic') ?? false),
-			underline: isTransactionTracked && (editor?.isActive('underline') ?? false)
-		};
-	});
+	let activeMarks = $derived(editor ? new EditorActiveMarks(editor) : null);
 </script>
 
 {#if editor}
@@ -70,7 +70,7 @@
 				variant="ghost"
 				size="sm"
 				{label}
-				active={activeMarks[mark]}
+				active={activeMarks?.isActive(mark) ?? false}
 				onclick={() => toggle(editor)}
 			>
 				<Icon size={iconSize} />
