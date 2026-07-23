@@ -6,9 +6,9 @@
 
 	import Input from '$components/Input.svelte';
 	import Button from '$components/Button.svelte';
+	import Label from '$components/Label.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { getUserState } from '$lib/state/userState.svelte';
-	import { preventLabelMultiClickSelect } from '$lib/preventLabelMultiClickSelect';
 
 	type Props = {
 		data: { name: string };
@@ -56,11 +56,7 @@
 	}}
 >
 	<div class="mt-4 flex w-full flex-col gap-2 lg:w-1/2">
-		<label
-			for="name"
-			class:text-error={!!props.form?.errors?.name}
-			{@attach preventLabelMultiClickSelect}>Display name</label
-		>
+		<Label for="name" invalid={!!props.form?.errors?.name}>Display name</Label>
 		<div class="flex-1">
 			<Input
 				id="name"

@@ -7,7 +7,7 @@
 
 	import Input from '$components/Input.svelte';
 	import Button from '$components/Button.svelte';
-	import { preventLabelMultiClickSelect } from '$lib/preventLabelMultiClickSelect';
+	import Label from '$components/Label.svelte';
 
 	let loading = $state(false);
 	let error = $state('');
@@ -40,9 +40,7 @@
 >
 	<input type="hidden" value={invitedToNoteId} name="invitedToNoteId" />
 	<div class="mt-4 flex w-full flex-col gap-2 lg:w-1/2">
-		<label for="email" class:text-error={!!error} {@attach preventLabelMultiClickSelect}
-			>Email</label
-		>
+		<Label for="email" invalid={!!error}>Email</Label>
 		<div class="flex-1">
 			<Input id="email" type="text" invalid={!!error} name="email" />
 		</div>
