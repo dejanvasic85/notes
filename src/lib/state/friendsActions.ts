@@ -24,7 +24,7 @@ export function createFriendsActions(friendsState: FriendsState, toastMessages: 
 	}
 
 	async function acceptInvite(id: string) {
-		const result = await runOptimisticUpdate({
+		await runOptimisticUpdate({
 			apply: () => friendsState.acceptInvite(id),
 			request: () =>
 				tryFetch(
@@ -39,9 +39,6 @@ export function createFriendsActions(friendsState: FriendsState, toastMessages: 
 			errorMessage: 'There was a problem removing the friend. Try again.',
 			toastMessages
 		});
-		if (result.type !== 'error') {
-			console.log('accepted invite', result.value);
-		}
 	}
 
 	async function rejectInvite(id: string) {
