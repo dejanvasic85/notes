@@ -2,20 +2,16 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { createLabel, melt } from '@melt-ui/svelte';
 
 	import { ArrowLeft } from '@lucide/svelte';
 
 	import Input from '$components/Input.svelte';
 	import Button from '$components/Button.svelte';
+	import Label from '$components/Label.svelte';
 
 	let loading = $state(false);
 	let error = $state('');
 	const invitedToNoteId = page.url.searchParams.get('noteId');
-
-	const {
-		elements: { root }
-	} = createLabel();
 </script>
 
 <div class="mb-4">
@@ -44,7 +40,7 @@
 >
 	<input type="hidden" value={invitedToNoteId} name="invitedToNoteId" />
 	<div class="mt-4 flex w-full flex-col gap-2 lg:w-1/2">
-		<label for="email" class:text-error={!!error} use:melt={$root}>Email</label>
+		<Label for="email" invalid={!!error}>Email</Label>
 		<div class="flex-1">
 			<Input id="email" type="text" invalid={!!error} name="email" />
 		</div>
