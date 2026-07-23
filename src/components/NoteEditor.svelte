@@ -163,7 +163,7 @@
 						tooltip="{note.owner.name} (owner)"
 					/>
 				{/if}
-				{#each editors as editor}
+				{#each editors as editor (editor.id)}
 					<UserAvatar picture={editor.picture || ''} name={editor.name || ''} size={7} />
 				{/each}
 			</div>
