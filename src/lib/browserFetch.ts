@@ -1,3 +1,6 @@
+import type { ToastMessages } from './state/toastMessages.svelte';
+import type { ToastMessage } from './types';
+
 interface FetchOptions {
 	shouldParse?: boolean;
 	clearQueueOnError?: boolean; // New option
@@ -124,4 +127,34 @@ export async function tryFetch<T>(
 	}
 
 	return thisRequest;
+}
+
+interface OptimisticUpdateParams<TApplied, TResult extends Result<unknown>> {
+	apply: () => TApplied;
+	request: (applied: TApplied) => Promise<TResult>;
+	revert: (applied: TApplied) => void;
+	errorMessage: string;
+	toastMessages: ToastMessages;
+}
+
+// Runs an optimistic local mutation, then reverts it and shows a toast if the
+// matching request fails. Returns the request result so callers can layer
+// extra success-only behaviour (e.g. navigation) on top.
+export async function runOptimisticUpdate<TApplied, TResult extends Result<unknown>>({
+	apply,
+	request,
+	revert,
+	errorMessage,
+	toastMessages
+}: OptimisticUpdateParams<TApplied, TResult>): Promise<TResult> {
+	const applied = apply();
+	const result = await request(applied);
+
+	if (result.type === 'error') {
+		revert(applied);
+		const errorMessageValue: ToastMessage = { type: 'error', message: errorMessage };
+		toastMessages.addMessage(errorMessageValue);
+	}
+
+	return result;
 }
