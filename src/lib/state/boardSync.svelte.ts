@@ -11,6 +11,18 @@ import type { FriendsState } from './friendsState.svelte';
 const maxReconcileAttempts = 3;
 const persistDebounceMs = 400;
 
+// This module is intentionally driven from the `my/+layout.svelte` onMount,
+// not a SvelteKit `load` function. Board/friends state hydrates from
+// IndexedDB first (see localCache.ts) for an instant repeat-visit paint, then
+// reconciles with the server via the retry loop below. That retry is gated on
+// an imperative "is the optimistic write queue idle" signal (browserFetch.ts)
+// so a server response never clobbers an in-flight write - SvelteKit's
+// `load`/`invalidate` model re-runs on declarative dependency invalidation,
+// not on watching a queue-idle flag, so this doesn't map cleanly onto `load`.
+// A `load` function would only help the true first-ever visit (empty
+// IndexedDB); every repeat visit already paints from cache before any network
+// round-trip. See issue #778 for the full evaluation.
+
 // Server is the source of truth, but only apply it when the optimistic
 // write queue is idle so in-flight local changes are not clobbered. If a
 // write races the fetch, retry so the re-fetch reflects the synced change.
