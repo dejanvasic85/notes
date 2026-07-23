@@ -1,47 +1,5 @@
 <script lang="ts">
-	import { slide } from 'svelte/transition';
-	import { createToaster, melt } from '@melt-ui/svelte';
-
-	import { getToastMessages } from '$lib/state/toastMessages.svelte';
-	import { X } from '@lucide/svelte';
-	import type { ToastMessage } from '$lib/types';
-
-	const toastMessages = getToastMessages();
-
-	const {
-		elements: { content, description, close },
-		helpers,
-		states: { toasts },
-		actions: { portal }
-	} = createToaster<ToastMessage>({});
-
-	$effect(() => {
-		toastMessages.messages
-			.filter((m) => m.isShown === false)
-			.forEach((message) => {
-				helpers.addToast({ type: 'background', data: message });
-				message.isShown = true;
-			});
-	});
+	import { Toaster as SonnerToaster } from 'svelte-sonner';
 </script>
 
-<div use:portal class="z-toaster fixed top-2 left-1/2 w-80 -translate-x-1/2 transform">
-	{#each $toasts as { id, data } (id)}
-		<div use:melt={$content(id)}>
-			<div
-				in:slide={{ duration: 200 }}
-				out:slide={{ duration: 200 }}
-				class="mb-2 flex items-center justify-between rounded-lg p-4 text-sm shadow-lg dark:text-gray-900"
-				class:bg-red-300={data.type === 'error'}
-				class:bg-green-300={data.type === 'success'}
-			>
-				<div use:melt={$description(id)}>
-					{data.message}
-				</div>
-				<button use:melt={$close(id)} aria-label="close notification">
-					<X />
-				</button>
-			</div>
-		</div>
-	{/each}
-</div>
+<SonnerToaster position="top-center" richColors />
