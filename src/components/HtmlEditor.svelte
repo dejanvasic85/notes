@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { Editor, Extension } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
 	import HardBreak from '@tiptap/extension-hard-break';
@@ -27,51 +28,52 @@
 		}
 	});
 
-	const initEditor: Attachment<HTMLDivElement> = (element) => {
-		const viewportWidth = window.innerWidth;
+	const initEditor: Attachment<HTMLDivElement> = (element) =>
+		untrack(() => {
+			const viewportWidth = window.innerWidth;
 
-		const editor = new Editor({
-			// Only focus on largrer screens
-			autofocus: viewportWidth < 1024 ? false : 'end',
-			editable: true,
-			editorProps: {
-				attributes: {
-					class: 'prose h-full p-4 focus:outline-hidden dark:prose-invert'
-				}
-			},
-			injectCSS: true,
-			element,
-			extensions: [
-				StarterKit.configure({
-					hardBreak: false // Disable default hard break to use custom one
-				}),
-				// Custom HardBreak that triggers on Enter instead of Shift+Enter
-				HardBreak.extend({
-					addKeyboardShortcuts() {
-						return {
-							Enter: () => this.editor.commands.setHardBreak()
-						};
+			const editor = new Editor({
+				// Only focus on largrer screens
+				autofocus: viewportWidth < 1024 ? false : 'end',
+				editable: true,
+				editorProps: {
+					attributes: {
+						class: 'prose h-full p-4 focus:outline-hidden dark:prose-invert'
 					}
-				}),
-				ShiftEnterParagraph,
-				Placeholder.configure({
-					placeholder: 'Write a note ...'
-				}),
-				Underline
-			],
-			content: initialContent,
+				},
+				injectCSS: true,
+				element,
+				extensions: [
+					StarterKit.configure({
+						hardBreak: false // Disable default hard break to use custom one
+					}),
+					// Custom HardBreak that triggers on Enter instead of Shift+Enter
+					HardBreak.extend({
+						addKeyboardShortcuts() {
+							return {
+								Enter: () => this.editor.commands.setHardBreak()
+							};
+						}
+					}),
+					ShiftEnterParagraph,
+					Placeholder.configure({
+						placeholder: 'Write a note ...'
+					}),
+					Underline
+				],
+				content: initialContent,
 
-			onUpdate: ({ editor }) => {
-				onupdate(editor.getHTML(), editor.getText());
-			}
+				onUpdate: ({ editor }) => {
+					onupdate(editor.getHTML(), editor.getText());
+				}
+			});
+
+			oneditorcreate?.(editor);
+
+			return () => {
+				editor.destroy();
+			};
 		});
-
-		oneditorcreate?.(editor);
-
-		return () => {
-			editor.destroy();
-		};
-	};
 </script>
 
 <div class="h-full" {id} {@attach initEditor}></div>
