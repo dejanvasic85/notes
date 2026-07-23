@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
 	import { Editor, Extension } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
 	import HardBreak from '@tiptap/extension-hard-break';
 	import Placeholder from '@tiptap/extension-placeholder';
 	import Underline from '@tiptap/extension-underline';
+	import type { Attachment } from 'svelte/attachments';
 
 	type Props = {
 		id: string;
@@ -14,8 +14,6 @@
 	};
 
 	let { initialContent, id, onupdate, oneditorcreate }: Props = $props();
-	let element: HTMLDivElement;
-	let editor: Editor;
 
 	// Custom extension to make Shift+Enter create a new paragraph
 	const ShiftEnterParagraph = Extension.create({
@@ -29,10 +27,10 @@
 		}
 	});
 
-	onMount(() => {
+	const initEditor: Attachment<HTMLDivElement> = (element) => {
 		const viewportWidth = window.innerWidth;
 
-		editor = new Editor({
+		const editor = new Editor({
 			// Only focus on largrer screens
 			autofocus: viewportWidth < 1024 ? false : 'end',
 			editable: true,
@@ -42,7 +40,7 @@
 				}
 			},
 			injectCSS: true,
-			element: element,
+			element,
 			extensions: [
 				StarterKit.configure({
 					hardBreak: false // Disable default hard break to use custom one
@@ -69,13 +67,11 @@
 		});
 
 		oneditorcreate?.(editor);
-	});
 
-	onDestroy(() => {
-		if (editor) {
+		return () => {
 			editor.destroy();
-		}
-	});
+		};
+	};
 </script>
 
-<div class="h-full" {id} bind:this={element}></div>
+<div class="h-full" {id} {@attach initEditor}></div>
