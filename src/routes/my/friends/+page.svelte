@@ -11,7 +11,7 @@
 	import UserAvatar from '$components/UserAvatar.svelte';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
-	import { tryFetch } from '$lib/browserFetch';
+	import { runOptimisticUpdate, tryFetch } from '$lib/browserFetch';
 
 	const tabs = {
 		friends: 'Friends',
@@ -34,74 +34,57 @@
 	let loading = $derived(friendsState.loading);
 
 	async function handleCancelInvite(id: string) {
-		const [index, invite] = friendsState.cancelInvite(id);
-		const result = await tryFetch(
-			`/api/invites/${id}`,
-			{ method: 'DELETE' },
-			{ shouldParse: false }
-		);
-		if (result.type === 'error') {
-			toastMessages.addMessage({
-				type: 'error',
-				message: 'There was a problem canceling the invite. Try again.'
-			});
-			friendsState.addInviteAtIndex(index, invite);
-		}
+		await runOptimisticUpdate({
+			apply: () => friendsState.cancelInvite(id),
+			request: () => tryFetch(`/api/invites/${id}`, { method: 'DELETE' }, { shouldParse: false }),
+			revert: ([index, invite]) => friendsState.addInviteAtIndex(index, invite),
+			errorMessage: 'There was a problem canceling the invite. Try again.',
+			toastMessages
+		});
 	}
 
 	async function handleRemoveFriend(id: string) {
 		if (!confirm('Are you sure you want to remove this friend?')) {
 			return;
 		}
-		const [index, friend] = friendsState.removeFriend(id);
-		const result = await tryFetch(
-			`/api/friends/${id}`,
-			{ method: 'DELETE' },
-			{ shouldParse: false }
-		);
-		if (result.type === 'error') {
-			toastMessages.addMessage({
-				type: 'error',
-				message: 'There was a problem removing the friend. Try again.'
-			});
-			friendsState.addFriendAtIndex(index, friend);
-		}
+		await runOptimisticUpdate({
+			apply: () => friendsState.removeFriend(id),
+			request: () => tryFetch(`/api/friends/${id}`, { method: 'DELETE' }, { shouldParse: false }),
+			revert: ([index, friend]) => friendsState.addFriendAtIndex(index, friend),
+			errorMessage: 'There was a problem removing the friend. Try again.',
+			toastMessages
+		});
 	}
 
 	async function handleAcceptInvite(id: string) {
-		const [index, invite] = friendsState.acceptInvite(id);
-		const result = await tryFetch(
-			`/api/connections`,
-			{
-				method: 'POST',
-				body: JSON.stringify({
-					inviteId: id
-				})
+		const result = await runOptimisticUpdate({
+			apply: () => friendsState.acceptInvite(id),
+			request: () =>
+				tryFetch(
+					`/api/connections`,
+					{ method: 'POST', body: JSON.stringify({ inviteId: id }) },
+					{ clearQueueOnError: true }
+				),
+			revert: ([index, invite]) => {
+				friendsState.addReceivedInviteAtIndex(index, invite);
+				friendsState.removeFriend(invite.userId);
 			},
-			{ clearQueueOnError: true }
-		);
-		if (result.type === 'error') {
-			toastMessages.addMessage({
-				type: 'error',
-				message: 'There was a problem removing the friend. Try again.'
-			});
-			friendsState.addReceivedInviteAtIndex(index, invite);
-			friendsState.removeFriend(invite.userId);
-		} else {
+			errorMessage: 'There was a problem removing the friend. Try again.',
+			toastMessages
+		});
+		if (result.type !== 'error') {
 			console.log('accepted invite', result.value);
 		}
 	}
 
 	async function handleRejectInvite(id: string) {
-		const [index, invite] = friendsState.rejectInvite(id);
-		const result = await tryFetch(`/api/friends/accept/${id}`, { method: 'POST' });
-		if (result.type === 'error') {
-			toastMessages.addMessage({
-				type: 'error',
-				message: 'There was a problem removing the friend. Try again.'
-			});
-			friendsState.addReceivedInviteAtIndex(index, invite);
-		}
+		await runOptimisticUpdate({
+			apply: () => friendsState.rejectInvite(id),
+			request: () => tryFetch(`/api/friends/accept/${id}`, { method: 'POST' }),
+			revert: ([index, invite]) => friendsState.addReceivedInviteAtIndex(index, invite),
+			errorMessage: 'There was a problem removing the friend. Try again.',
+			toastMessages
+		});
 	}
 
 	type FriendSnippetProps = {

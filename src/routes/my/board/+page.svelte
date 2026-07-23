@@ -3,8 +3,8 @@
 	import { page } from '$app/state';
 	import { onMount, tick } from 'svelte';
 
-	import type { Note, NoteOrdered, ToggleFriendShare } from '$lib/types';
-	import { tryFetch } from '$lib/browserFetch';
+	import type { Board as BoardModel, Note, NoteOrdered, ToggleFriendShare } from '$lib/types';
+	import { runOptimisticUpdate, tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 
@@ -61,43 +61,45 @@
 	}
 
 	async function handleUpdate({ note }: { note: NoteOrdered }) {
-		const [updatedNote, original] = boardState.updateNote(note);
-		const { type } = await tryFetch<Note>(`/api/notes/${note.id}`, {
-			method: 'PATCH',
-			body: JSON.stringify(updatedNote)
+		await runOptimisticUpdate({
+			apply: () => boardState.updateNote(note),
+			request: ([updatedNote]) =>
+				tryFetch<Note>(`/api/notes/${note.id}`, {
+					method: 'PATCH',
+					body: JSON.stringify(updatedNote)
+				}),
+			revert: ([, original]) => boardState.updateNote(original),
+			errorMessage: 'Failed to update note. Try again.',
+			toastMessages
 		});
-		if (type === 'error') {
-			boardState.updateNote(original);
-			toastMessages.addMessage({ message: 'Failed to update note. Try again.', type: 'error' });
-		}
 	}
 
 	async function handleDelete({ note }: { note: NoteOrdered }) {
-		const [deletedNote, index] = boardState.deleteNoteById(note.id);
-		const resp = await tryFetch(
-			`/api/notes/${note.id}`,
-			{ method: 'DELETE' },
-			{ shouldParse: false }
-		);
-		if (resp.type === 'error') {
-			boardState.createNoteAtIndex(index, deletedNote);
-			toastMessages.addMessage({ message: 'Failed to delete note. Try again.', type: 'error' });
-		} else {
+		const result = await runOptimisticUpdate({
+			apply: () => boardState.deleteNoteById(note.id),
+			request: () =>
+				tryFetch(`/api/notes/${note.id}`, { method: 'DELETE' }, { shouldParse: false }),
+			revert: ([deletedNote, index]) => boardState.createNoteAtIndex(index, deletedNote),
+			errorMessage: 'Failed to delete note. Try again.',
+			toastMessages
+		});
+		if (result.type !== 'error') {
 			pushState(`/my/board`, { selectedNoteId: null });
 		}
 	}
 
 	async function handleReorder({ fromIndex, toIndex }: { fromIndex: number; toIndex: number }) {
-		const [noteOrder] = boardState.reorderNotes(fromIndex, toIndex);
-		const boardPatch = { noteOrder };
-		const result = await tryFetch<Board>(`/api/board/${boardState.boardId}`, {
-			method: 'PATCH',
-			body: JSON.stringify(boardPatch)
+		await runOptimisticUpdate({
+			apply: () => boardState.reorderNotes(fromIndex, toIndex),
+			request: ([noteOrder]) =>
+				tryFetch<BoardModel>(`/api/board/${boardState.boardId}`, {
+					method: 'PATCH',
+					body: JSON.stringify({ noteOrder })
+				}),
+			revert: () => boardState.reorderNotes(toIndex, fromIndex),
+			errorMessage: 'Failed to reorder notes. Try again.',
+			toastMessages
 		});
-		if (result.type === 'error') {
-			boardState.reorderNotes(toIndex, fromIndex);
-			toastMessages.addMessage({ message: 'Failed to reorder notes. Try again.', type: 'error' });
-		}
 	}
 </script>
 
