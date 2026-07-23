@@ -228,7 +228,7 @@
 						})}
 					{/each}
 
-					{#each friendsState.friends as friend}
+					{#each friendsState.friends as friend (friend.id)}
 						{@render Friend({
 							name: friend.name!,
 							showPending: false,
@@ -251,7 +251,7 @@
 					{#if friendsState.pendingReceivedInvites.length === 0}
 						<p class="p-4">No incoming invites</p>
 					{:else}
-						{#each friendsState.pendingReceivedInvites as invite}
+						{#each friendsState.pendingReceivedInvites as invite (invite.id)}
 							{@render Friend({
 								name: invite.user.name!,
 								picture: invite.user.picture,
