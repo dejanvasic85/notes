@@ -18,12 +18,26 @@
 		8: 'size-8'
 	};
 
+	function getInitials(fullName: string): string {
+		return fullName
+			.trim()
+			.split(/\s+/)
+			.slice(0, 2)
+			.map((part) => part[0]?.toUpperCase() ?? '')
+			.join('');
+	}
+
 	const imageClass = $derived(`m-0 rounded-full ring-2 ring-white ${sizeMap[size]}`);
+	const fallbackClass = $derived(
+		`bg-secondary m-0 flex items-center justify-center rounded-full text-xs font-medium text-white ring-2 ring-white ${sizeMap[size]}`
+	);
+	const initials = $derived(getInitials(name));
 </script>
 
 {#snippet avatarImage(triggerProps?: Record<string, unknown>)}
-	<Avatar.Root>
-		<Avatar.Image {...triggerProps} src={picture} alt={`Avatar of ${name}`} class={imageClass} />
+	<Avatar.Root {...triggerProps} class="inline-flex {sizeMap[size]}">
+		<Avatar.Image src={picture} alt={`Avatar of ${name}`} class={imageClass} />
+		<Avatar.Fallback class={fallbackClass}>{initials}</Avatar.Fallback>
 	</Avatar.Root>
 {/snippet}
 
