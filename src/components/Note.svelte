@@ -11,9 +11,19 @@
 		isDraggable?: boolean;
 		friends?: Friend[];
 		onclick: () => void;
+		ondragstart?: (index: number) => void;
+		ondragend?: () => void;
 	};
 
-	let { note, index, friends = [], isDraggable = true, onclick }: Props = $props();
+	let {
+		note,
+		index,
+		friends = [],
+		isDraggable = true,
+		onclick,
+		ondragstart,
+		ondragend
+	}: Props = $props();
 	let isDragging = $state(false);
 	let isHovering = $state(false);
 	let editors = $derived(
@@ -29,10 +39,12 @@
 	function handleDragStart(event: DragEvent) {
 		event.dataTransfer?.setData('text/plain', index.toString());
 		isDragging = true;
+		ondragstart?.(index);
 	}
 
 	function handleDragEnd() {
 		isDragging = false;
+		ondragend?.();
 	}
 </script>
 
