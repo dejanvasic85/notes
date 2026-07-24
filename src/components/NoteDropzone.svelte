@@ -4,10 +4,11 @@
 	type Props = {
 		children: Snippet<[]>;
 		index: number;
+		draggedIndex?: number | null;
 		ondropped: (toIndex: number, sourceIndex: number) => void;
 	};
 
-	let { children, index, ondropped }: Props = $props();
+	let { children, index, draggedIndex = null, ondropped }: Props = $props();
 
 	let dragOverDepth = $state(0);
 
@@ -15,18 +16,20 @@
 		event.preventDefault();
 	}
 
+	// dataTransfer.getData() is only readable during `dragstart`/`drop` - browsers
+	// return an empty string during dragenter/dragleave/dragover, so the dragged
+	// item's index has to come from draggedIndex (tracked by the parent via
+	// Note's ondragstart/ondragend) instead of the DragEvent itself.
 	function handleDragEnter(event: DragEvent) {
 		event.preventDefault();
-		const sourceIndex = parseInt(event.dataTransfer?.getData('text/plain') ?? '');
-		if (sourceIndex !== index) {
+		if (draggedIndex !== index) {
 			dragOverDepth += 1;
 		}
 	}
 
 	function handleDragLeave(event: DragEvent) {
 		event.preventDefault();
-		const sourceIndex = parseInt(event.dataTransfer?.getData('text/plain') ?? '');
-		if (sourceIndex !== index) {
+		if (draggedIndex !== index) {
 			dragOverDepth -= 1;
 		}
 	}

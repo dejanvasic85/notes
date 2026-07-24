@@ -60,6 +60,8 @@
 		}
 	}
 
+	let draggedIndex: number | null = $state(null);
+
 	let selectedNoteFriends = $derived(
 		friends.map((f) => {
 			const editor = selectedNote?.editors?.find((e) => e.userId === f.id);
@@ -94,8 +96,16 @@
 	<NoteList>
 		{#each notes as note, index}
 			<NoteContainer>
-				<NoteDropzone {index} ondropped={handleDrop}>
-					<Note {note} {friends} {index} isDraggable={true} onclick={() => handleEdit(note.id)} />
+				<NoteDropzone {index} {draggedIndex} ondropped={handleDrop}>
+					<Note
+						{note}
+						{friends}
+						{index}
+						isDraggable={true}
+						onclick={() => handleEdit(note.id)}
+						ondragstart={(i) => (draggedIndex = i)}
+						ondragend={() => (draggedIndex = null)}
+					/>
 				</NoteDropzone>
 			</NoteContainer>
 		{/each}
