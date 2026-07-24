@@ -17,12 +17,20 @@
 		href: string;
 		text: string;
 		borderTop?: boolean;
+		reload?: boolean;
 		icon: LucideIcon;
 		itemProps: Record<string, unknown>;
 	};
 </script>
 
-{#snippet MenuLink({ borderTop = false, href, icon: Icon, text, itemProps }: MenuLinkProps)}
+{#snippet MenuLink({
+	borderTop = false,
+	href,
+	icon: Icon,
+	text,
+	itemProps,
+	reload = false
+}: MenuLinkProps)}
 	{#if borderTop}
 		<div class="dark:border-dark-border mt-2 border-t border-gray-200"></div>
 	{/if}
@@ -30,6 +38,7 @@
 		{...itemProps}
 		class="hover:bg-slate hover:bg-background dark:hover:bg-dark-hover mt-2 flex w-full gap-2 rounded-lg p-2"
 		{href}
+		data-sveltekit-reload={reload ? true : undefined}
 	>
 		<Icon />
 		<span>{text}</span>
@@ -74,6 +83,7 @@
 										href: '/api/auth/logout',
 										icon: LogOut,
 										borderTop: true,
+										reload: true,
 										itemProps
 									})}
 								{/snippet}
