@@ -40,7 +40,7 @@
 		"eslint-plugin-svelte": "3.22.0",
 		"globals": "17.7.0",
 		"husky": "9.1.7",
-		"lint-staged": "17.1.1",
+		"lint-staged": "17.2.0",
 		"postcss": "8.5.22",
 		"prettier": "3.9.6",
 		"prettier-plugin-svelte": "4.1.1",
@@ -58,8 +58,8 @@
 	"type": "module",
 	"dependencies": {
 		"@auth0/auth0-spa-js": "2.24.0",
-		"@aws-sdk/client-ses": "3.1093.0",
-		"@lucide/svelte": "1.25.0",
+		"@aws-sdk/client-ses": "3.1094.0",
+		"@lucide/svelte": "1.26.0",
 		"@prisma/client": "6.19.3",
 		"@tiptap/core": "3.28.0",
 		"@tiptap/extension-hard-break": "3.28.0",
@@ -85,5 +85,5 @@
 	"engines": {
 		"node": "24.x"
 	},
-	"packageManager": "pnpm@11.16.0"
+	"packageManager": "pnpm@11.17.0"
 }
