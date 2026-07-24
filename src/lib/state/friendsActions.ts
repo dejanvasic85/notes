@@ -44,9 +44,10 @@ export function createFriendsActions(friendsState: FriendsState, toastMessages: 
 	async function rejectInvite(id: string) {
 		await runOptimisticUpdate({
 			apply: () => friendsState.rejectInvite(id),
-			request: () => tryFetch(`/api/friends/accept/${id}`, { method: 'POST' }),
+			request: () =>
+				tryFetch(`/api/invites/${id}/reject`, { method: 'POST' }, { shouldParse: false }),
 			revert: ([index, invite]) => friendsState.addReceivedInviteAtIndex(index, invite),
-			errorMessage: 'There was a problem removing the friend. Try again.',
+			errorMessage: 'There was a problem rejecting the invite. Try again.',
 			toastMessages
 		});
 	}
