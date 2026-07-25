@@ -1,0 +1,260 @@
+/*
+ * Notes — design tokens
+ * =====================
+ * Proposal, not yet wired into the app. To adopt, move the `@theme` block
+ * into src/routes/app.css so Tailwind v4 generates utilities from it.
+ *
+ * Naming follows Tailwind v4 theme namespaces (--color-*, --radius-*,
+ * --shadow-*, --text-*, --ease-*) so every token becomes a utility class
+ * automatically: --color-paper -> bg-paper, --radius-card -> rounded-card.
+ */
+
+@theme {
+	/* ---------------------------------------------------------------
+	 * 1. NEUTRALS — a cool, violet-leaning grey ramp
+	 *
+	 * The thesis: chrome is cool and quiet, content is warm. Notes are
+	 * the only warm thing on screen, so they read as human against a
+	 * calm ground. Replaces the four competing grey families currently
+	 * in use (gray-*, slate-*, dark-*, and the #f5f5f7 one-offs).
+	 * --------------------------------------------------------------- */
+	--color-canvas: #efedf1; /* app background */
+	--color-paper: #fcfbfd; /* cards, sheets, bars */
+	--color-raised: #ffffff; /* menus, popovers above paper */
+
+	/* All three text levels clear 4.5:1 on ALL THREE surfaces, so any of them
+	 * is safe anywhere without checking. Verified, not eyeballed — re-run
+	 * `node docs/design-system/check-contrast.mjs` after changing any of these. */
+	--color-ink: #1d1b21; /* primary text        — 14.7:1 on canvas */
+	--color-ink-muted: #5c5764; /* secondary text, meta — 6.0:1 on canvas */
+	--color-ink-faint: #6e6979; /* placeholder, disabled — 4.6:1 on canvas */
+	--color-line: #ddd9e3; /* borders */
+	--color-line-soft: #e9e6ed; /* dividers, hairlines */
+
+	/* ---------------------------------------------------------------
+	 * 2. ACCENT — dusty plum
+	 *
+	 * Kept in the family of the existing #8f5bbd so the logo, PWA theme
+	 * colour and installed-app icon stay coherent, but desaturated so it
+	 * can appear more often without shouting.
+	 * --------------------------------------------------------------- */
+	--color-accent: #7d5aa6; /* fills */
+	--color-accent-strong: #654484; /* hover/pressed, and accent text on paper — 7.5:1 */
+	--color-accent-soft: #ece5f5; /* tint fills, active nav pill */
+	--color-accent-ring: #b79ad6; /* focus rings */
+
+	/* Text/icons sitting ON an accent fill. This MUST be a token, not a
+	 * hardcoded white: the dark-mode accent is light, so white on it is
+	 * only 3.5:1 and fails AA. Always use this, never `text-white`. */
+	--color-on-accent: #ffffff; /* 5.4:1 on --color-accent */
+
+	/* Semantic — separate from accent, never used decoratively.
+	 * Each foreground clears 4.5:1 on its own -soft ground. */
+	--color-success: #376e50; /* 5.1:1 on success-soft */
+	--color-success-soft: #e2efe7;
+	--color-warning: #8b5f20; /* 4.8:1 on warning-soft */
+	--color-warning-soft: #f7ecd9;
+	--color-danger: #a9452f; /* 4.9:1 on danger-soft */
+	--color-danger-soft: #f7e6e1;
+
+	/* ---------------------------------------------------------------
+	 * 3. NOTE PASTELS — warm, paper-dyed
+	 *
+	 * Hand-tuned rather than stock Tailwind *-100, which skew cool and
+	 * plasticky. Every light shade clears 13:1 against --color-ink and every
+	 * dark shade clears 10:1 against the dark ink, so note text is AA at any
+	 * size without per-colour text overrides.
+	 * Dark shades are the same hue rotated to ~12% lightness.
+	 * --------------------------------------------------------------- */
+	--color-note-butter: #fbf0cf;
+	--color-note-butter-dark: #3a3220;
+	--color-note-blush: #fadfdc;
+	--color-note-blush-dark: #3b2725;
+	--color-note-sage: #dfeadb;
+	--color-note-sage-dark: #242e23;
+	--color-note-sky: #dce7f4;
+	--color-note-sky-dark: #1f2a36;
+	--color-note-lilac: #e8e2f3;
+	--color-note-lilac-dark: #2a2436;
+	--color-note-clay: #f7e3d5;
+	--color-note-clay-dark: #3a2a20;
+
+	/* ---------------------------------------------------------------
+	 * 4. TYPE
+	 *
+	 * Two roles. Poppins keeps the brand voice but is demoted to display
+	 * sizes only, where its wide geometric lowercase is an asset. Figtree
+	 * takes over everything below 20px, where Poppins currently costs
+	 * readability. Both self-hosted — see §8.
+	 *
+	 * Also fixes a live bug: Poppins is loaded at 400/500 only while
+	 * `font-bold` (700) is used in several places, so the browser is
+	 * synthesising faux bold today.
+	 * --------------------------------------------------------------- */
+	--font-display: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+	--font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+
+	--text-display: 2.75rem;
+	--text-display--line-height: 1.05;
+	--text-display--letter-spacing: -0.03em;
+	--text-display--font-weight: 600;
+
+	--text-title: 1.75rem;
+	--text-title--line-height: 1.15;
+	--text-title--letter-spacing: -0.02em;
+	--text-title--font-weight: 600;
+
+	--text-heading: 1.125rem;
+	--text-heading--line-height: 1.35;
+	--text-heading--letter-spacing: -0.01em;
+	--text-heading--font-weight: 600;
+
+	--text-body: 1rem;
+	--text-body--line-height: 1.6;
+
+	--text-small: 0.875rem;
+	--text-small--line-height: 1.55;
+
+	--text-label: 0.75rem;
+	--text-label--line-height: 1.4;
+	--text-label--letter-spacing: 0.06em;
+	--text-label--font-weight: 500;
+
+	/* ---------------------------------------------------------------
+	 * 5. RADIUS
+	 *
+	 * One rule: a container's radius is never smaller than its children's.
+	 * Today buttons (rounded-xl, 12px) are rounder than the cards that
+	 * contain them (rounded-lg, 8px), which reads as an accident.
+	 * --------------------------------------------------------------- */
+	--radius-chip: 8px; /* tags, small inputs */
+	--radius-control: 12px; /* buttons, inputs, menu items */
+	--radius-card: 18px; /* note cards, panels */
+	--radius-sheet: 26px; /* bottom sheets, floating bars */
+	--radius-pill: 999px;
+
+	/* ---------------------------------------------------------------
+	 * 6. ELEVATION
+	 *
+	 * Shadows are tinted with the ink hue, never pure black — that is
+	 * most of what makes an interface feel calm rather than harsh.
+	 * In dark mode shadow is nearly useless, so elevation there is
+	 * carried by surface lightness plus --color-line (see §9).
+	 * --------------------------------------------------------------- */
+	--shadow-rest: 0 1px 2px rgba(29, 27, 33, 0.05);
+	--shadow-card: 0 1px 2px rgba(29, 27, 33, 0.04), 0 3px 8px rgba(29, 27, 33, 0.05);
+	--shadow-lifted: 0 2px 4px rgba(29, 27, 33, 0.05), 0 8px 20px rgba(29, 27, 33, 0.07);
+	--shadow-float: 0 4px 10px rgba(29, 27, 33, 0.08), 0 16px 36px rgba(29, 27, 33, 0.14);
+	--shadow-sheet: 0 -2px 8px rgba(29, 27, 33, 0.04), 0 -12px 40px rgba(29, 27, 33, 0.12);
+
+	/* ---------------------------------------------------------------
+	 * 7. MOTION
+	 *
+	 * Calm = decelerate on arrival, leave quickly. Only one easing
+	 * overshoots, and only on direct manipulation (button press, FAB),
+	 * never on content appearing.
+	 * --------------------------------------------------------------- */
+	--ease-exit: cubic-bezier(0.4, 0, 1, 1); /* leaving — accelerate away */
+	--ease-enter: cubic-bezier(0.22, 1, 0.36, 1); /* arriving — long settle */
+	--ease-move: cubic-bezier(0.65, 0, 0.35, 1); /* moving between two states */
+	--ease-press: cubic-bezier(0.34, 1.56, 0.64, 1); /* direct manipulation only */
+
+	--duration-tap: 100ms;
+	--duration-fast: 160ms;
+	--duration-base: 240ms;
+	--duration-slow: 360ms;
+	--duration-sheet: 420ms;
+
+	/* Layering — carried over from the current app, unchanged */
+	--z-index-menu: 10;
+	--z-index-overlay: 20;
+	--z-index-dialog: 25;
+	--z-index-dropdown: 30;
+	--z-index-toaster: 40;
+}
+
+/* -------------------------------------------------------------------
+ * 8. FONT LOADING
+ *
+ * Self-hosted, replacing the render-blocking Google Fonts @import
+ * currently at the top of app.css. Install with:
+ *   pnpm add @fontsource/poppins @fontsource-variable/figtree
+ * then import the faces in app.css instead of hand-writing @font-face.
+ * `swap` keeps first paint immediate.
+ * ------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------
+ * 9. DARK MODE
+ *
+ * A warm-black ground rather than the current #282c34, which is a
+ * blue-grey and fights the pastels. Elevation is expressed as
+ * progressively lighter surfaces because shadow does not read here.
+ *
+ * The app has no theme toggle today — this is written for a class or
+ * data-attribute strategy so one can be added without reworking tokens.
+ * Add to app.css:  @custom-variant dark (&:where(.dark, .dark *));
+ * ------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-canvas: #141317;
+		--color-paper: #1c1a20;
+		--color-raised: #26232c;
+
+		--color-ink: #e8e5ec;
+		--color-ink-muted: #a29daa;
+		--color-ink-faint: #948f9c; /* lightened from #726d7a, which failed AA */
+		--color-line: #322e3a;
+		--color-line-soft: #272430;
+
+		--color-accent: #9b7bc4;
+		--color-accent-strong: #b49ad4;
+		--color-accent-soft: #2b2338;
+		--color-accent-ring: #9b7bc4;
+
+		/* Flips to near-black: the dark accent is a light violet, so white
+		 * on it is 3.5:1 and fails. Dark ink on it is 4.9:1. */
+		--color-on-accent: #1d1b21;
+
+		--color-success: #7fb894;
+		--color-success-soft: #1c2a22;
+		--color-warning: #d3a45f;
+		--color-warning-soft: #2c2418;
+		--color-danger: #dd8a76;
+		--color-danger-soft: #2e1e1a;
+
+		--shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.4);
+		--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
+		--shadow-lifted: 0 4px 14px rgba(0, 0, 0, 0.55);
+		--shadow-float: 0 8px 28px rgba(0, 0, 0, 0.6);
+		--shadow-sheet: 0 -10px 40px rgba(0, 0, 0, 0.6);
+	}
+}
+
+/* -------------------------------------------------------------------
+ * 10. BASE
+ * ------------------------------------------------------------------- */
+@layer base {
+	:root {
+		color-scheme: light dark;
+	}
+
+	/* Restores the focus ring the current `focus:outline-hidden` in
+	 * lib/button.ts removes without replacement — keyboard focus is
+	 * invisible on every button and link in the app today. */
+	:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+		outline: 2px solid var(--color-accent-ring);
+		outline-offset: 2px;
+		border-radius: var(--radius-control);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
+	}
+}

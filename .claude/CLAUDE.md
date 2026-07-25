@@ -9,6 +9,12 @@
 
 Please read all the latest documentation for (Svelte Kit)[svelte.dev/llms.txt] and Tailwind CSS to ensure you are familiar with the latest features and best practices before implementing any new features or changes in these areas.
 
+# Design
+
+- Invoke the `design-system` skill before any UI work — components, Tailwind classes, `app.css`, layouts, or picking a colour, radius, shadow, size or animation timing
+- The design language lives in `docs/design-system/` (`README.md` for the rules, `tokens.css` for values, `preview.html` for the visual reference)
+- It supersedes the generic `frontend-design` skill for this repo
+
 # Code style
 
 - Use ES modules (import/export) syntax, not CommonJS (require)
