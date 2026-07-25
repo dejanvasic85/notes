@@ -3,8 +3,8 @@
 	"version": "1.0.0",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "prisma generate && vite build",
-		"build:migrate": "prisma generate && prisma migrate deploy && vite build",
+		"build": "svelte-kit sync && prisma generate && vite build",
+		"build:migrate": "svelte-kit sync && prisma generate && prisma migrate deploy && vite build",
 		"build:tsc": "tsc --noEmit",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -16,7 +16,7 @@
 		"lint-staged": "lint-staged",
 		"format": "prettier . --write .",
 		"prepare": "husky",
-		"postinstall": "prisma generate"
+		"postinstall": "svelte-kit sync && prisma generate"
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "3.3.6",
@@ -75,6 +75,7 @@
 		"jose": "6.2.4",
 		"nanoid": "6.0.0",
 		"neverthrow": "8.2.0",
+		"pg": "8.22.0",
 		"svelte-sonner": "1.1.1",
 		"zod": "4.4.3"
 	},

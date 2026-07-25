@@ -20,4 +20,14 @@ describe('encryptField / decryptField', () => {
 
 		expect(first).not.toBe(second);
 	});
+
+	it('decrypts a ciphertext produced independently of the current encryptField call site', async () => {
+		// Fixed fixture, encrypted ahead of time with the same key/algorithm the retired
+		// prisma-field-encryption plugin used (AES-GCM via @47ng/cloak), to guard against
+		// regressions that would make previously-written data unreadable.
+		const legacyCiphertext =
+			'v1.aesgcm256.42b02640.fiJd1H9NnQdYSP8W.sTcXqP4VBYJkv0pQ-rbDVMuJs6yn67K_GUf5X0GZCrZAjDpASA==';
+
+		expect(await decryptField(legacyCiphertext)).toBe('legacy plaintext note');
+	});
 });
