@@ -17,7 +17,7 @@ UI changes that conform to one coherent system instead of adding another ad-hoc 
 | `docs/design-system/README.md`          | You need the reasoning, the full token tables, or the component rules. **Read this before any non-trivial UI work.**                     |
 | `docs/design-system/tokens.css`         | You need exact token names and values.                                                                                                   |
 | `docs/design-system/preview.html`       | You want to see it — swatches, type specimens, screen mockups. Self-contained; open in a browser.                                        |
-| `docs/design-system/check-contrast.mjs` | You changed a colour token. Run `node docs/design-system/check-contrast.mjs` — it asserts all 56 AA pairs and exits non-zero on failure. |
+| `docs/design-system/check-contrast.mjs` | You changed a colour token. Run `node docs/design-system/check-contrast.mjs` — it asserts all 58 AA pairs and exits non-zero on failure. |
 
 > **The system is proposed, not yet adopted.** `src/routes/app.css` still holds the old
 > tokens (`--color-primary: #8f5bbd`, `--color-dark`, `--color-background`). Check which

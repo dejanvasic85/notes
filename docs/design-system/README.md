@@ -50,11 +50,13 @@ custom `dark-*` set, and the one-off hexes `#f5f5f7` / `#e0e0e2`.
 | `--color-accent-soft`   | `#ece5f5` | `#2b2338` | Tint fills, active nav pill                     |
 | `--color-accent-ring`   | `#b79ad6` | `#9b7bc4` | Focus rings                                     |
 | `--color-on-accent`     | `#ffffff` | `#1d1b21` | Text/icons on an accent fill                    |
+| `--color-on-danger`     | `#ffffff` | `#1d1b21` | Text/icons on a danger fill                     |
 
-> **Never hardcode `text-white` on an accent fill.** The dark-mode accent is a _light_
+> **Never hardcode `text-white` on a coloured fill.** The dark-mode accent is a _light_
 > violet, so white on it is 3.5:1 and fails AA. `--color-on-accent` flips to near-black in
-> dark mode, which is 4.9:1. This is the one place the light and dark tokens are not simply
-> lighter/darker versions of each other.
+> dark mode, which is 4.9:1. `--color-on-danger` does the same for danger fills — the dark
+> danger is a light salmon where white drops to 2.6:1. These are the only tokens where the
+> light and dark values are not simply lighter/darker versions of each other.
 
 **Why plum and not terracotta.** The visual references lean orange, but `#8f5bbd` is the
 logo, the PWA `theme_color` in `static/manifest.json`, and the installed app icon. Moving to
@@ -177,6 +179,11 @@ Then `data-theme` is stamped on `<html>` and the app supports three states —
 **System / Light / Dark** — with `System` as the default so current behaviour is preserved
 for anyone who never opens the setting.
 
+`tokens.css` already applies the dark palette under **both** the media query and
+`:root[data-theme='dark']`, and scopes the media query with `:not([data-theme='light'])` so
+an explicit light choice wins over a dark OS. The token file therefore needs no change when
+the switcher lands — only `app.css` gains the `@custom-variant` line above.
+
 Implementation notes for whoever picks this up:
 
 - Needs a blocking inline script in `src/app.html` that reads `localStorage` and sets the
@@ -184,8 +191,9 @@ Implementation notes for whoever picks this up:
 - `src/components/Menu.svelte` has a `@media (prefers-color-scheme: dark)` block in its
   scoped `<style>`. Media queries do not respond to an attribute toggle, so that block must
   move to tokens or to a `dark:` utility, or the nav will disagree with the rest of the app.
-- `src/app.html` should also carry `<meta name="color-scheme">` / the `color-scheme` CSS
-  property so native form controls and scrollbars follow the theme. Neither exists today.
+- `color-scheme` is already wired in `tokens.css` §10 for all three states, so native form
+  controls and scrollbars follow the toggle rather than only the OS. Nothing in the app sets
+  it today.
 - The manifest's `theme_color` is a single static value and can't follow the toggle; leave
   it on the light brand colour.
 
@@ -313,7 +321,7 @@ These are bugs, not preferences. Verified against the built CSS.
 node docs/design-system/check-contrast.mjs
 ```
 
-It asserts **56 pairs** — every text level on every surface, both themes, plus accent,
+It asserts **58 pairs** — every text level on every surface, both themes, plus accent,
 semantic and all twelve note colours — against 4.5:1 for normal text. It exits non-zero on
 failure, so it can be wired into CI once the tokens land in `app.css`.
 

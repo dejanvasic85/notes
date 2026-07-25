@@ -47,6 +47,7 @@
 	 * hardcoded white: the dark-mode accent is light, so white on it is
 	 * only 3.5:1 and fails AA. Always use this, never `text-white`. */
 	--color-on-accent: #ffffff; /* 5.4:1 on --color-accent */
+	--color-on-danger: #ffffff; /* 5.9:1 on --color-danger */
 
 	/* Semantic — separate from accent, never used decoratively.
 	 * Each foreground clears 4.5:1 on its own -soft ground. */
@@ -190,12 +191,25 @@
  * blue-grey and fights the pastels. Elevation is expressed as
  * progressively lighter surfaces because shadow does not read here.
  *
- * The app has no theme toggle today — this is written for a class or
- * data-attribute strategy so one can be added without reworking tokens.
- * Add to app.css:  @custom-variant dark (&:where(.dark, .dark *));
+ * STRATEGY: data-attribute, matching README §4. The app has no toggle
+ * today, so the media query alone would be enough — but a media query
+ * cannot be overridden by a switcher, so the palette is applied under
+ * BOTH selectors from the start. Adding the toggle later then needs no
+ * change to this file.
+ *
+ *   System (default) -> the media query below, unless overridden
+ *   Explicit dark    -> :root[data-theme='dark']
+ *   Explicit light   -> :not([data-theme='light']) keeps the media query off
+ *
+ * Add to app.css so `dark:` utilities follow the attribute too:
+ *   @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+ *
+ * The two blocks below are intentionally identical. `light-dark()` would
+ * collapse them into one, but is left out until it can be verified against
+ * Tailwind v4's opacity modifiers (`bg-accent/50`).
  * ------------------------------------------------------------------- */
 @media (prefers-color-scheme: dark) {
-	:root {
+	:root:not([data-theme='light']) {
 		--color-canvas: #141317;
 		--color-paper: #1c1a20;
 		--color-raised: #26232c;
@@ -214,6 +228,7 @@
 		/* Flips to near-black: the dark accent is a light violet, so white
 		 * on it is 3.5:1 and fails. Dark ink on it is 4.9:1. */
 		--color-on-accent: #1d1b21;
+		--color-on-danger: #1d1b21; /* dark danger is a light salmon — white is 2.6:1 */
 
 		--color-success: #7fb894;
 		--color-success-soft: #1c2a22;
@@ -230,21 +245,66 @@
 	}
 }
 
+/* Explicit dark — set by the theme switcher. Identical to the block above. */
+:root[data-theme='dark'] {
+	--color-canvas: #141317;
+	--color-paper: #1c1a20;
+	--color-raised: #26232c;
+
+	--color-ink: #e8e5ec;
+	--color-ink-muted: #a29daa;
+	--color-ink-faint: #948f9c;
+	--color-line: #322e3a;
+	--color-line-soft: #272430;
+
+	--color-accent: #9b7bc4;
+	--color-accent-strong: #b49ad4;
+	--color-accent-soft: #2b2338;
+	--color-accent-ring: #9b7bc4;
+	--color-on-accent: #1d1b21;
+	--color-on-danger: #1d1b21;
+
+	--color-success: #7fb894;
+	--color-success-soft: #1c2a22;
+	--color-warning: #d3a45f;
+	--color-warning-soft: #2c2418;
+	--color-danger: #dd8a76;
+	--color-danger-soft: #2e1e1a;
+
+	--shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.4);
+	--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
+	--shadow-lifted: 0 4px 14px rgba(0, 0, 0, 0.55);
+	--shadow-float: 0 8px 28px rgba(0, 0, 0, 0.6);
+	--shadow-sheet: 0 -10px 40px rgba(0, 0, 0, 0.6);
+}
+
 /* -------------------------------------------------------------------
  * 10. BASE
  * ------------------------------------------------------------------- */
 @layer base {
+	/* Keeps native controls and scrollbars in step with the theme. Must
+	 * track data-theme too, or a user on explicit light with a dark OS
+	 * gets dark scrollbars on a light page. */
 	:root {
 		color-scheme: light dark;
+	}
+	:root[data-theme='light'] {
+		color-scheme: light;
+	}
+	:root[data-theme='dark'] {
+		color-scheme: dark;
 	}
 
 	/* Restores the focus ring the current `focus:outline-hidden` in
 	 * lib/button.ts removes without replacement — keyboard focus is
-	 * invisible on every button and link in the app today. */
+	 * invisible on every button and link in the app today.
+	 *
+	 * Deliberately sets no border-radius: outlines already follow the
+	 * element's own radius, and forcing one here would square off pills
+	 * and circular buttons the moment they take focus. */
 	:where(a, button, input, textarea, select, [tabindex]):focus-visible {
 		outline: 2px solid var(--color-accent-ring);
 		outline-offset: 2px;
-		border-radius: var(--radius-control);
 	}
 
 	@media (prefers-reduced-motion: reduce) {

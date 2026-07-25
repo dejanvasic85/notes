@@ -22,6 +22,7 @@ const light = {
 	accentStrong: '#654484',
 	accentSoft: '#ece5f5',
 	onAccent: '#ffffff',
+	onDanger: '#ffffff',
 	success: '#376e50',
 	successSoft: '#e2efe7',
 	warning: '#8b5f20',
@@ -41,6 +42,7 @@ const dark = {
 	accentStrong: '#b49ad4',
 	accentSoft: '#2b2338',
 	onAccent: '#1d1b21',
+	onDanger: '#1d1b21',
 	success: '#7fb894',
 	successSoft: '#1c2a22',
 	warning: '#d3a45f',
@@ -104,6 +106,7 @@ const buildChecks = (theme, t) => {
 
 	checks.push(
 		[`${theme} on-accent on accent`, t.onAccent, t.accent, AA_TEXT],
+		[`${theme} on-danger on danger`, t.onDanger, t.danger, AA_TEXT],
 		[`${theme} accent-strong on paper`, t.accentStrong, t.paper, AA_TEXT],
 		[`${theme} ink on accent-soft`, t.ink, t.accentSoft, AA_TEXT],
 		[`${theme} success on success-soft`, t.success, t.successSoft, AA_TEXT],
