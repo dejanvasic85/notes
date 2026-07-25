@@ -10,12 +10,13 @@ import type {
 	CreateNoteInput,
 	NoteOwner
 } from '$lib/types';
+import { decryptNote, decryptNotes, encryptNoteFields } from './noteEncryption';
 import { fromNullableRecord, tryDbTask } from './utils';
 
 export const getNoteById = ({ id }: IdParams): ResultAsync<Note, ServerError> =>
-	tryDbTask(() => db.note.findFirst({ where: { id } })).andThen(
-		fromNullableRecord(`Note with id ${id} not found`)
-	);
+	tryDbTask(() => db.note.findFirst({ where: { id } }))
+		.andThen(fromNullableRecord(`Note with id ${id} not found`))
+		.andThen((note) => tryDbTask(() => decryptNote(note), 'Failed to decrypt note'));
 
 export const getNoteOwnerUserId = (noteId: string): ResultAsync<string, ServerError> =>
 	tryDbTask(() =>
@@ -28,34 +29,44 @@ export const getNoteOwnerUserId = (noteId: string): ResultAsync<string, ServerEr
 		.map((d) => d.board.userId);
 
 export const updateNote = (note: Note): ResultAsync<Note, ServerError> =>
-	tryDbTask(() =>
-		db.note.update({
-			where: { id: note.id },
-			data: {
-				...note,
-				boardId: note.boardId!,
-				updatedAt: new Date(),
-				editors: undefined
-			}
-		})
-	);
+	tryDbTask(() => encryptNoteFields(note), 'Failed to encrypt note')
+		.andThen((encryptedNote) =>
+			tryDbTask(() =>
+				db.note.update({
+					where: { id: note.id },
+					data: {
+						...encryptedNote,
+						boardId: note.boardId!,
+						updatedAt: new Date(),
+						editors: undefined
+					}
+				})
+			)
+		)
+		.map((updated) => ({ ...updated, text: note.text, textPlain: note.textPlain }));
 
 export const deleteNote = ({ id }: { id: string }): ResultAsync<Note, ServerError> =>
-	tryDbTask(() => db.note.delete({ where: { id } }));
+	tryDbTask(() => db.note.delete({ where: { id } })).andThen((note) =>
+		tryDbTask(() => decryptNote(note), 'Failed to decrypt note')
+	);
 
 type CreateNoteParams = CreateNoteInput & {
 	boardId: string;
 };
 
 export const createNote = (noteParams: CreateNoteParams): ResultAsync<Note, ServerError> =>
-	tryDbTask(() =>
-		db.note.create({
-			data: {
-				...noteParams,
-				editors: undefined
-			}
-		})
-	);
+	tryDbTask(() => encryptNoteFields(noteParams), 'Failed to encrypt note')
+		.andThen((encryptedNote) =>
+			tryDbTask(() =>
+				db.note.create({
+					data: {
+						...encryptedNote,
+						editors: undefined
+					}
+				})
+			)
+		)
+		.map((created) => ({ ...created, text: noteParams.text, textPlain: noteParams.textPlain }));
 
 export const createNoteEditor = (noteEditor: NoteEditor): ResultAsync<NoteEditor, ServerError> =>
 	tryDbTask(() => db.noteEditor.create({ data: noteEditor }));
@@ -98,7 +109,7 @@ export const getSharedNotes = ({
 			},
 			include: { editors: true }
 		})
-	);
+	).andThen((notes) => tryDbTask(() => decryptNotes(notes), 'Failed to decrypt notes'));
 
 export const getNoteOwners = (noteIds: string[]): ResultAsync<NoteOwner[], ServerError> =>
 	tryDbTask(() =>

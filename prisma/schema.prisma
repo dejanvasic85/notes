@@ -2,13 +2,12 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x", "debian-openssl-1.0.x"]
+  provider = "prisma-client"
+  output   = "../src/lib/server/db/generated"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -66,8 +65,8 @@ model Note {
   id        String       @id
   createdAt DateTime     @default(now()) @db.Timestamptz(6)
   updatedAt DateTime     @updatedAt @db.Timestamptz(6)
-  text      String       @db.Text /// @encrypted
-  textPlain String       @db.Text /// @encrypted
+  text      String       @db.Text
+  textPlain String       @db.Text
   colour    String?
   title     String?
   boardId   String

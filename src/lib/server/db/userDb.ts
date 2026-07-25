@@ -11,6 +11,7 @@ import type {
 	UserInviteWithUserProps
 } from '$lib/types';
 
+import { decryptNotes } from './noteEncryption';
 import { fromNullableRecord, tryDbTask } from './utils';
 
 interface GetUserByIdTaskParams {
@@ -37,12 +38,19 @@ export const getUser = ({
 		})
 	)
 		.andThen(fromNullableRecord(`User with id ${id} not found`))
-		.map((user) => ({
-			...user,
-			boards: !includeBoards
-				? []
-				: user.boards.map((board) => ({ ...board, notes: includeNotes ? board.notes : [] }))
-		}));
+		.andThen((user) =>
+			tryDbTask(async () => ({
+				...user,
+				boards: !includeBoards
+					? []
+					: await Promise.all(
+							user.boards.map(async (board) => ({
+								...board,
+								notes: includeNotes ? await decryptNotes(board.notes) : []
+							}))
+						)
+			}))
+		);
 
 export const getUserByEmail = (email: string): ResultAsync<User, ServerError> =>
 	tryDbTask(() => db.user.findFirst({ where: { email } }))

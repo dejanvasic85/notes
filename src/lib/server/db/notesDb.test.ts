@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, type Mocked } from 'vitest';
 
 import db from '$lib/server/db';
+import { encryptField } from './fieldEncryption';
 
 import { getNoteById, createNote } from './notesDb';
 
@@ -16,16 +17,20 @@ vi.mock('$lib/server/db', () => ({
 const dbNoteMock = db.note as Mocked<typeof db.note>;
 
 describe('getNoteById', () => {
-	it('should return a note when it exists', async () => {
+	it('should return a note with decrypted text when it exists', async () => {
 		dbNoteMock.findFirst.mockResolvedValue({
-			id: 'nid_123'
+			id: 'nid_123',
+			text: await encryptField('<p>hello</p>'),
+			textPlain: await encryptField('hello')
 		} as any);
 
 		const result = await getNoteById({ id: 'nid_123' });
 
 		expect(result.isOk()).toBe(true);
 		expect(result._unsafeUnwrap()).toEqual({
-			id: 'nid_123'
+			id: 'nid_123',
+			text: '<p>hello</p>',
+			textPlain: 'hello'
 		});
 	});
 
@@ -57,10 +62,8 @@ describe('getNoteById', () => {
 });
 
 describe('createNote', () => {
-	it('should return a note when it is created', async () => {
-		dbNoteMock.create.mockResolvedValue({
-			id: 'nid_123'
-		} as any);
+	it('should encrypt the note text before writing and return the plaintext note', async () => {
+		dbNoteMock.create.mockImplementation(({ data }) => Promise.resolve({ ...data }) as any);
 
 		const result = await createNote({
 			id: 'nid_123',
@@ -71,8 +74,17 @@ describe('createNote', () => {
 		});
 
 		expect(result._unsafeUnwrap()).toEqual({
-			id: 'nid_123'
+			id: 'nid_123',
+			boardId: 'bid_123',
+			text: 'foo',
+			textPlain: 'foo',
+			colour: null,
+			editors: undefined
 		});
+
+		const [{ data }] = dbNoteMock.create.mock.calls[0];
+		expect(data.text).not.toBe('foo');
+		expect(data.textPlain).not.toBe('foo');
 	});
 
 	it('should return DatabaseError when the db throws an error', async () => {
