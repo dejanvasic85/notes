@@ -80,7 +80,7 @@
 
 	{#if note.shared || editors.length > 0}
 		<div
-			class="absolute bottom-0 left-0 flex h-10 w-full items-center gap-2 bg-white/20 px-4 backdrop-blur-xs"
+			class="not-prose absolute bottom-0 left-0 flex h-10 w-full items-center gap-2 bg-white/20 px-4 backdrop-blur-xs"
 		>
 			{#if note.shared}
 				<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} />
