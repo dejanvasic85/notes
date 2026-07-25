@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Avatar, Tooltip } from 'bits-ui';
+	import { Tooltip } from 'bits-ui';
 
 	type Props = {
 		picture: string;
@@ -32,13 +32,25 @@
 		`bg-secondary m-0 flex items-center justify-center rounded-full text-xs font-medium text-white ring-2 ring-white ${sizeMap[size]}`
 	);
 	const initials = $derived(getInitials(name));
+
+	// Tracks the src that failed rather than a boolean, so a new picture is
+	// retried instead of staying stuck on the fallback.
+	let failedSrc = $state<string | null>(null);
+	const showFallback = $derived(!picture || failedSrc === picture);
+
+	function handleImageError() {
+		failedSrc = picture;
+	}
 </script>
 
 {#snippet avatarImage(triggerProps?: Record<string, unknown>)}
-	<Avatar.Root {...triggerProps} class="inline-flex {sizeMap[size]}">
-		<Avatar.Image src={picture} alt={`Avatar of ${name}`} class={imageClass} />
-		<Avatar.Fallback class={fallbackClass}>{initials}</Avatar.Fallback>
-	</Avatar.Root>
+	<span {...triggerProps} class="inline-flex {sizeMap[size]}">
+		{#if showFallback}
+			<span class={fallbackClass} aria-label={`Avatar of ${name}`} role="img">{initials}</span>
+		{:else}
+			<img src={picture} alt={`Avatar of ${name}`} class={imageClass} onerror={handleImageError} />
+		{/if}
+	</span>
 {/snippet}
 
 {#if showTooltip}
