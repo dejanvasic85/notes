@@ -134,17 +134,20 @@ interface OptimisticUpdateParams<TApplied, TResult extends Result<unknown>> {
 	request: (applied: TApplied) => Promise<TResult>;
 	revert: (applied: TApplied) => void;
 	errorMessage: string;
+	successMessage?: string;
 	toastMessages: ToastMessages;
 }
 
 // Runs an optimistic local mutation, then reverts it and shows a toast if the
-// matching request fails. Returns the request result so callers can layer
-// extra success-only behaviour (e.g. navigation) on top.
+// matching request fails, or shows a success toast if one was requested.
+// Returns the request result so callers can layer extra success-only
+// behaviour (e.g. navigation) on top.
 export async function runOptimisticUpdate<TApplied, TResult extends Result<unknown>>({
 	apply,
 	request,
 	revert,
 	errorMessage,
+	successMessage,
 	toastMessages
 }: OptimisticUpdateParams<TApplied, TResult>): Promise<TResult> {
 	const applied = apply();
@@ -154,6 +157,9 @@ export async function runOptimisticUpdate<TApplied, TResult extends Result<unkno
 		revert(applied);
 		const errorMessageValue: ToastMessage = { type: 'error', message: errorMessage };
 		toastMessages.addMessage(errorMessageValue);
+	} else if (successMessage) {
+		const successMessageValue: ToastMessage = { type: 'success', message: successMessage };
+		toastMessages.addMessage(successMessageValue);
 	}
 
 	return result;

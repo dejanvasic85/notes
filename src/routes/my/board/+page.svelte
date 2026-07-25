@@ -70,6 +70,7 @@
 				}),
 			revert: ([, original]) => boardState.updateNote(original),
 			errorMessage: 'Failed to update note. Try again.',
+			successMessage: 'Note updated',
 			toastMessages
 		});
 	}
@@ -81,6 +82,7 @@
 				tryFetch(`/api/notes/${note.id}`, { method: 'DELETE' }, { shouldParse: false }),
 			revert: ([deletedNote, index]) => boardState.createNoteAtIndex(index, deletedNote),
 			errorMessage: 'Failed to delete note. Try again.',
+			successMessage: 'Note deleted',
 			toastMessages
 		});
 		if (result.type !== 'error') {
