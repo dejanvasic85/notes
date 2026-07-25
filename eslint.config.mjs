@@ -32,7 +32,8 @@ export default [
 			'**/package-lock.json',
 			'**/yarn.lock',
 			'**/vitest.extend.d.ts',
-			'**/vitest.config.ts'
+			'**/vitest.config.ts',
+			'src/lib/server/db/generated/**'
 		]
 	},
 	...compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'),

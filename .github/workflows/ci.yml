@@ -23,6 +23,8 @@ jobs:
   build:
     name: Check and test
     runs-on: ubuntu-latest
+    environment:
+      name: preview
     steps:
       - uses: actions/checkout@v7
       - name: Setup mise tools
@@ -50,6 +52,8 @@ jobs:
     name: Test Playwright
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    environment:
+      name: preview
     container:
       image: mcr.microsoft.com/playwright:v1.61.1-jammy
     steps:

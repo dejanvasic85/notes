@@ -3,8 +3,8 @@
 	"version": "1.0.0",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "prisma generate && vite build",
-		"build:migrate": "prisma generate && prisma migrate deploy && vite build",
+		"build": "svelte-kit sync && prisma generate && vite build",
+		"build:migrate": "svelte-kit sync && prisma generate && prisma migrate deploy && vite build",
 		"build:tsc": "tsc --noEmit",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -16,7 +16,7 @@
 		"lint-staged": "lint-staged",
 		"format": "prettier . --write .",
 		"prepare": "husky",
-		"postinstall": "prisma generate"
+		"postinstall": "svelte-kit sync && prisma generate"
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "3.3.6",
@@ -35,6 +35,7 @@
 		"@typescript-eslint/eslint-plugin": "8.65.0",
 		"@typescript-eslint/parser": "8.65.0",
 		"@vitest/coverage-v8": "4.1.10",
+		"dotenv": "17.4.2",
 		"eslint": "10.7.0",
 		"eslint-config-prettier": "10.1.8",
 		"eslint-plugin-svelte": "3.22.0",
@@ -45,7 +46,7 @@
 		"prettier": "3.9.6",
 		"prettier-plugin-svelte": "4.1.1",
 		"prettier-plugin-tailwindcss": "0.8.1",
-		"prisma": "6.19.3",
+		"prisma": "7.9.0",
 		"svelte": "5.56.7",
 		"svelte-check": "4.7.3",
 		"svelte-eslint-parser": "1.8.0",
@@ -57,10 +58,12 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@47ng/cloak": "1.2.0",
 		"@auth0/auth0-spa-js": "2.24.0",
 		"@aws-sdk/client-ses": "3.1094.0",
 		"@lucide/svelte": "1.26.0",
-		"@prisma/client": "6.19.3",
+		"@prisma/adapter-pg": "7.9.0",
+		"@prisma/client": "7.9.0",
 		"@tiptap/core": "3.28.0",
 		"@tiptap/extension-hard-break": "3.28.0",
 		"@tiptap/extension-placeholder": "3.28.0",
@@ -72,7 +75,7 @@
 		"jose": "6.2.4",
 		"nanoid": "6.0.0",
 		"neverthrow": "8.2.0",
-		"prisma-field-encryption": "1.6.0",
+		"pg": "8.22.0",
 		"svelte-sonner": "1.1.1",
 		"zod": "4.4.3"
 	},
