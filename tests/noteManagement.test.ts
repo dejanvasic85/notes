@@ -36,8 +36,10 @@ test('basic note management', async ({ page }) => {
 
 	await page.getByRole('button', { name: 'Save note' }).click();
 
-	// Verify the success toast appears once the note is updated on the server
-	await expect(page.getByText('Note updated')).toBeVisible();
+	// Verify the success toast appears once the note is updated on the server.
+	// The colour change earlier in this test may have left its own "Note
+	// updated" toast still on screen, so target the most recent one.
+	await expect(page.getByText('Note updated').last()).toBeVisible();
 
 	// Wait for the note to be saved - verify the note appears on the board
 	await expect(page.getByText(noteTitle)).toBeVisible();

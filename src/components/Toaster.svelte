@@ -2,4 +2,4 @@
 	import { Toaster as SonnerToaster } from 'svelte-sonner';
 </script>
 
-<SonnerToaster position="bottom-center" richColors />
+<SonnerToaster position="bottom-center" richColors mobileOffset={{ bottom: '5rem' }} />
