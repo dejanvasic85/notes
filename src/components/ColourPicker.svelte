@@ -52,7 +52,7 @@
 									<button
 										aria-label={name}
 										title={name}
-										class="border-line h-12 w-12 rounded-full border-2 dark:border {cssClass}"
+										class="border-line h-12 w-12 rounded-full border-2 {cssClass}"
 										tabindex={-1}
 									></button>
 								</DropdownMenu.Item>

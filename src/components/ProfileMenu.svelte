@@ -57,7 +57,7 @@
 						<div
 							{...props}
 							transition:fly={{ duration: 150, y: -10 }}
-							class="menu z-dropdown bg-paper rounded-card flex w-72 flex-col justify-between border p-6"
+							class="menu z-dropdown bg-paper border-line rounded-card flex w-72 flex-col justify-between border p-6"
 						>
 							<div class="flex">
 								<UserAvatar picture={userPicture} {name} size={8} showTooltip={false} />

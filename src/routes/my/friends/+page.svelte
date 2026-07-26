@@ -99,7 +99,7 @@
 				<div class="flex justify-end">
 					<LinkButton variant="quiet" href="/my/friends/add">Add friend</LinkButton>
 				</div>
-				<div class="rounded-card mt-4 flex flex-col">
+				<div class="rounded-card flex flex-col">
 					{#if friendsState.friends.length === 0 && friendsState.pendingSentInvites.length === 0}
 						<p class="p-4">
 							No friends yet. Add a friend to invite someone to share your notes with.
