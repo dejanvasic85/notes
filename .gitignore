@@ -135,7 +135,5 @@ dist
 # Prisma generated client
 src/lib/server/db/generated/
 
-/docs
-
 # Playwright
 test-results/*
