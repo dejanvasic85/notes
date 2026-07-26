@@ -10,10 +10,10 @@
 
 	import Board from '$components/Board.svelte';
 	import NoteList from '$components/NoteList.svelte';
-	import NoteContainer from '$components/NoteContainer.svelte';
 	import Skeleton from '$components/Skeleton.svelte';
 
-	const numberOfSkeletons = 4;
+	// Uneven on purpose — the board it stands in for is content-sized.
+	const skeletonHeights = ['h-32', 'h-48', 'h-24', 'h-40', 'h-28', 'h-36'];
 	const boardState = getBoardState();
 	const toastMessages = getToastMessages();
 
@@ -111,13 +111,10 @@
 </svelte:head>
 
 {#if loading}
-	<NoteList>
-		<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-		{#each Array.from({ length: numberOfSkeletons }) as _}
-			<NoteContainer>
-				<Skeleton />
-			</NoteContainer>
-		{/each}
+	<NoteList items={skeletonHeights}>
+		{#snippet item(heightClass)}
+			<Skeleton {heightClass} />
+		{/snippet}
 	</NoteList>
 {:else}
 	<Board
