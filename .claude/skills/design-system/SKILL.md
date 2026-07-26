@@ -19,10 +19,6 @@ UI changes that conform to one coherent system instead of adding another ad-hoc 
 | `docs/design-system/preview.html`       | You want to see it — swatches, type specimens, screen mockups. Self-contained; open in a browser.                                        |
 | `docs/design-system/check-contrast.mjs` | You changed a colour token. Run `node docs/design-system/check-contrast.mjs` — it asserts all 58 AA pairs and exits non-zero on failure. |
 
-> **The system is proposed, not yet adopted.** `src/routes/app.css` still holds the old
-> tokens (`--color-primary: #8f5bbd`, `--color-dark`, `--color-background`). Check which
-> tokens actually exist before using a class name — see [Adoption state](#adoption-state).
-
 ## Before you write UI code
 
 1. **Check `src/components/` for an existing component** — `Button`, `Input`, `Label`,
@@ -56,21 +52,15 @@ These hold regardless of which part of the system is adopted yet.
 - **Respect the safe area** on anything pinned to a screen edge —
   `env(safe-area-inset-bottom)`. Use `dvh`, not `vh`.
 
-## Adoption state
+## Check the token exists
 
-Before writing a class like `bg-paper` or `rounded-card`, confirm the token exists in
-`src/routes/app.css`. If the token layer hasn't landed yet (step 1 of the adoption path),
-either land it first or use the current tokens and note the follow-up.
+The system is being adopted in stages, so not every token in `tokens.css` is live yet.
+**Before writing a class like `bg-paper` or `rounded-card`, confirm the token is in
+`src/routes/app.css`.** Tailwind silently generates nothing for a token it doesn't know, so
+a missing one fails invisibly rather than erroring.
 
-Adoption order — each step ships on its own:
-
-1. Token layer into `app.css`
-2. Self-hosted fonts + `:focus-visible` ring
-3. Repaint primitives (`lib/button.ts`, `lib/colours.ts`, `Input`, `Note`)
-4. Masonry board
-5. Floating editor toolbar
-6. Theme switcher (`@custom-variant dark` + anti-FOUC script + System/Light/Dark control)
-7. Motion
+If it isn't there, either land it as part of your change or use the current equivalent and
+note the follow-up. The remaining sequence is in README's adoption path.
 
 ## Relationship to other guidance
 
