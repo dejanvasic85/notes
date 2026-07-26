@@ -87,7 +87,7 @@
 							x: isDesktop ? 400 : 0
 						}}
 						class="z-dialog shadow-sheet fixed flex flex-col {className} {isDesktop
-							? 'rounded-l-sheet top-0 right-0 h-screen w-4/5'
+							? 'rounded-l-sheet top-0 right-0 h-screen w-4/5 max-w-3xl'
 							: 'rounded-t-sheet right-0 bottom-0 left-0 h-[90vh]'}"
 					>
 						<!-- header -->

@@ -124,7 +124,22 @@ used in several places, so those bolds are currently synthesised by the browser.
 | `text-small`   | Figtree 400 | 0.875rem | 1.55        | —                  |
 | `text-label`   | Figtree 500 | 0.75rem  | 1.4         | +0.06em, uppercase |
 
-Keep running text near 65 characters wide. Headings get `text-wrap: balance`.
+### Measure
+
+`--container-measure` is **65ch**, exposed as `max-w-measure`. WCAG 1.4.8 caps blocks of text
+at 80 characters; 65 is the classic measure and what `@tailwindcss/typography` already
+applies via `prose`.
+
+**Containers that hold running text are sized from the measure, not from the viewport.** The
+note editor sheet is `max-w-3xl` for exactly this reason — it used to be `w-4/5`, which on a
+wide screen left the text hugging the left edge of a mostly empty panel and made a
+deliberate measure look like a broken layout.
+
+Where an editing surface has to be both measured _and_ clickable, let the surface fill its
+container and constrain the children instead — see the `.tiptap > *` rule in `app.css`. That
+keeps the whole area clickable and lets the focus ring outline what's actually being edited.
+
+Headings get `text-wrap: balance`.
 
 ---
 

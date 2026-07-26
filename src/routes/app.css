@@ -96,6 +96,10 @@
 	--text-small: 0.875rem;
 	--text-small--line-height: 1.55;
 
+	/* Reading measure. WCAG 1.4.8 caps blocks of text at 80 characters; 65 is
+	 * the classic measure and what @tailwindcss/typography uses. */
+	--container-measure: 65ch;
+
 	--text-label: 0.75rem;
 	--text-label--line-height: 1.4;
 	--text-label--letter-spacing: 0.06em;
@@ -275,6 +279,15 @@
 			scroll-behavior: auto !important;
 		}
 	}
+}
+
+/*
+ * The editor surface fills the sheet, so the whole area is clickable and the
+ * focus ring outlines what you're actually editing. Text keeps the reading
+ * measure and stays left-aligned with the title above it.
+ */
+.tiptap > * {
+	max-width: var(--container-measure);
 }
 
 /* TipTap placeholder */

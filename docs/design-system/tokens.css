@@ -117,6 +117,10 @@
 	--text-small: 0.875rem;
 	--text-small--line-height: 1.55;
 
+	/* Reading measure — WCAG 1.4.8 caps text blocks at 80 characters. Size
+	 * text-holding containers from this, not from the viewport. */
+	--container-measure: 65ch;
+
 	--text-label: 0.75rem;
 	--text-label--line-height: 1.4;
 	--text-label--letter-spacing: 0.06em;
