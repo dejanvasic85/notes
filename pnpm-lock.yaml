@@ -18,10 +18,10 @@ importers:
         specifier: 3.1095.0
         version: 3.1095.0
       '@fontsource-variable/figtree':
-        specifier: ^5.3.0
+        specifier: 5.3.0
         version: 5.3.0
       '@fontsource/poppins':
-        specifier: ^5.3.0
+        specifier: 5.3.0
         version: 5.3.0
       '@lucide/svelte':
         specifier: 1.26.0
