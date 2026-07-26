@@ -32,11 +32,11 @@
 	reload = false
 }: MenuLinkProps)}
 	{#if borderTop}
-		<div class="dark:border-dark-border mt-2 border-t border-gray-200"></div>
+		<div class="border-line mt-2 border-t"></div>
 	{/if}
 	<a
 		{...itemProps}
-		class="hover:bg-slate hover:bg-background dark:hover:bg-dark-hover mt-2 flex w-full gap-2 rounded-lg p-2"
+		class="hover:bg-accent-soft rounded-control mt-2 flex w-full gap-2 p-2"
 		{href}
 		data-sveltekit-reload={reload ? true : undefined}
 	>
@@ -57,13 +57,13 @@
 						<div
 							{...props}
 							transition:fly={{ duration: 150, y: -10 }}
-							class="menu z-dropdown dark:border-dark-border dark:bg-dark flex w-72 flex-col justify-between rounded-lg border bg-white p-6"
+							class="menu z-dropdown bg-paper rounded-card flex w-72 flex-col justify-between border p-6"
 						>
 							<div class="flex">
 								<UserAvatar picture={userPicture} {name} size={8} showTooltip={false} />
 								<div class="ml-4 flex flex-col truncate">
 									<span class="truncate font-bold">{name}</span>
-									<span class="truncate text-xs text-gray-500">{email}</span>
+									<span class="text-ink-muted truncate text-xs">{email}</span>
 								</div>
 							</div>
 							<DropdownMenu.Item>

@@ -60,9 +60,7 @@
 
 <div class="flex min-h-screen flex-col">
 	<main>
-		<header
-			class="dark:border-b-dark-border dark:bg-dark h-20 border-b px-4 py-2 md:container md:mx-auto"
-		>
+		<header class="h-20 border-b px-4 py-2 md:container md:mx-auto">
 			<nav class="flex h-full w-full items-center justify-between">
 				<img src={logo} alt="Notes" class="size-14" />
 				<div>
@@ -88,23 +86,23 @@
 
 		<section class="container mx-auto px-20">
 			<div
-				class="flex flex-col items-center justify-between gap-14 rounded-xl pt-14 sm:pt-24 lg:flex-row lg:pt-32"
+				class="rounded-card flex flex-col items-center justify-between gap-14 pt-14 sm:pt-24 lg:flex-row lg:pt-32"
 			>
 				<h1 class="text-6xl md:text-7xl">
 					Take Notes
-					<span class="text-primary block font-bold">Privately</span>
+					<span class="text-accent font-display block font-semibold">Privately</span>
 				</h1>
 
 				<div class="flex flex-col gap-8">
 					<p class="text-lg md:text-xl">
-						Your Notes, Your <span class="border-secondary border-b-2 pb-1 font-semibold">Data</span
-						>, Your
-						<span class="border-primary border-b-2 pb-1 font-bold">Peace of Mind</span>.
+						Your Notes, Your <span class="border-success border-b-2 pb-1 font-semibold">Data</span>,
+						Your
+						<span class="border-accent border-b-2 pb-1 font-semibold">Peace of Mind</span>.
 					</p>
 
 					<div class="flex flex-col justify-end gap-2 md:flex-row">
 						{#if data.isAuthenticated}
-							<LinkButton variant="secondary" href="/my/board">
+							<LinkButton variant="quiet" href="/my/board">
 								<CircleArrowRight />
 								<span>Go to board</span>
 							</LinkButton>
@@ -116,7 +114,7 @@
 							<LinkButton href="/api/auth/login?returnUrl=/my/board&signup=true" variant="primary"
 								>Sign up</LinkButton
 							>
-							<LinkButton href="/api/auth/login?returnUrl=/my/board" variant="secondary"
+							<LinkButton href="/api/auth/login?returnUrl=/my/board" variant="quiet"
 								>Login</LinkButton
 							>
 						{/if}

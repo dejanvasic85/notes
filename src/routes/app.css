@@ -1,45 +1,138 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;1,400;1,500&display=swap')
-layer(base);
+@import '@fontsource/poppins/latin-600.css';
+@import '@fontsource-variable/figtree/wght.css';
 
 @import 'tailwindcss';
 
 @plugin '@tailwindcss/typography';
 
+/*
+ * The design-system docs quote class names in prose and in mockup markup.
+ * Tailwind's automatic content detection would otherwise treat those as real
+ * usage and emit utilities the app never references — including the very
+ * outline-suppressing utility this file replaces.
+ */
+@source not '../../docs';
+@source not '../../.claude';
+
+/*
+ * Design system tokens — see docs/design-system/README.md for the rules and
+ * rationale, and docs/design-system/preview.html for the visual reference.
+ *
+ * Re-run `node docs/design-system/check-contrast.mjs` after changing any colour.
+ */
 @theme {
-	--color-dark: #282c34;
-	--color-dark-hover: #334155;
-	--color-dark-border: #4b5563;
-	--color-dark-text: #cbd5e1;
-	--color-dark-loading: #3c424a;
-	--color-primary: #8f5bbd;
-	--color-secondary: #5c8d89;
-	--color-background: #f5f5f7;
-	--color-loading: #e0e0e2;
-	--color-error: #ef4444;
+	/* Neutrals — a cool, violet-leaning ramp. Chrome is quiet and slightly
+	 * cool so the warm note pastels advance against it.
+	 * All three text levels clear 4.5:1 on all three surfaces. */
+	--color-canvas: #efedf1;
+	--color-paper: #fcfbfd;
+	--color-raised: #ffffff;
 
+	--color-ink: #1d1b21;
+	--color-ink-muted: #5c5764;
+	--color-ink-faint: #6e6979;
+	--color-line: #ddd9e3;
+	--color-line-soft: #e9e6ed;
+
+	/* Accent — dusty plum, same hue family as the original #8f5bbd so the
+	 * logo and PWA icon stay coherent, desaturated so it can appear often. */
+	--color-accent: #7d5aa6;
+	--color-accent-strong: #654484;
+	--color-accent-soft: #ece5f5;
+	--color-accent-ring: #b79ad6;
+
+	/* Text/icons on a coloured fill. Never use text-white on accent or
+	 * danger — the dark-mode versions are light, where white fails AA. */
+	--color-on-accent: #ffffff;
+	--color-on-danger: #ffffff;
+
+	--color-success: #376e50;
+	--color-success-soft: #e2efe7;
+	--color-warning: #8b5f20;
+	--color-warning-soft: #f7ecd9;
+	--color-danger: #a9452f;
+	--color-danger-soft: #f7e6e1;
+
+	/* Note pastels. The names are persisted in the database (Note.colour),
+	 * so they must not be renamed — only their values change. */
+	--color-note-indigo: #e8e2f3;
+	--color-note-indigo-dark: #2a2436;
+	--color-note-blue: #dce7f4;
+	--color-note-blue-dark: #1f2a36;
+	--color-note-rose: #fadfdc;
+	--color-note-rose-dark: #3b2725;
+	--color-note-amber: #fbf0cf;
+	--color-note-amber-dark: #3a3220;
+	--color-note-teal: #dfeadb;
+	--color-note-teal-dark: #242e23;
+	--color-note-fuchsia: #f7e3d5;
+	--color-note-fuchsia-dark: #3a2a20;
+
+	/* Type — Poppins for display only, Figtree everywhere below 20px. */
+	--font-display: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+	--font-sans: 'Figtree Variable', ui-sans-serif, system-ui, sans-serif;
+
+	--text-display: 2.75rem;
+	--text-display--line-height: 1.05;
+	--text-display--letter-spacing: -0.03em;
+	--text-display--font-weight: 600;
+
+	--text-title: 1.75rem;
+	--text-title--line-height: 1.15;
+	--text-title--letter-spacing: -0.02em;
+	--text-title--font-weight: 600;
+
+	--text-heading: 1.125rem;
+	--text-heading--line-height: 1.35;
+	--text-heading--letter-spacing: -0.01em;
+	--text-heading--font-weight: 600;
+
+	--text-body: 1rem;
+	--text-body--line-height: 1.6;
+
+	--text-small: 0.875rem;
+	--text-small--line-height: 1.55;
+
+	--text-label: 0.75rem;
+	--text-label--line-height: 1.4;
+	--text-label--letter-spacing: 0.06em;
+	--text-label--font-weight: 500;
+
+	/* Radius — a container is never less round than its children. */
+	--radius-chip: 8px;
+	--radius-control: 12px;
+	--radius-card: 18px;
+	--radius-sheet: 26px;
+
+	/* Elevation — shadows are tinted with the ink hue, never pure black. */
+	--shadow-rest: 0 1px 2px rgba(29, 27, 33, 0.05);
+	--shadow-card: 0 1px 2px rgba(29, 27, 33, 0.04), 0 3px 8px rgba(29, 27, 33, 0.05);
+	--shadow-lifted: 0 2px 4px rgba(29, 27, 33, 0.05), 0 8px 20px rgba(29, 27, 33, 0.07);
+	--shadow-float: 0 4px 10px rgba(29, 27, 33, 0.08), 0 16px 36px rgba(29, 27, 33, 0.14);
+	--shadow-sheet: 0 -2px 8px rgba(29, 27, 33, 0.04), 0 -12px 40px rgba(29, 27, 33, 0.12);
+
+	/* Motion — arrive slowly, leave quickly. Only direct manipulation
+	 * overshoots; content never bounces. Applied per-component in #829. */
+	--ease-exit: cubic-bezier(0.4, 0, 1, 1);
+	--ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+	--ease-press: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+	--duration-tap: 100ms;
+	--duration-fast: 160ms;
+	--duration-base: 240ms;
+	--duration-slow: 360ms;
+	--duration-sheet: 420ms;
+
+	/* App layout — unchanged. --height-note/--width-note are retired in #826. */
 	--grid-template-columns-layout: [first-col] 5rem [second-col] auto;
-
 	--grid-template-rows-layout: [first-row] 5rem [second-row] auto;
-
 	--grid-column-second: second-col;
-
 	--grid-row-first-span-2: first-row / span 2;
-
 	--inset-auto-0-0: auto 0 0;
-
-	--font-sans: Poppins, sans-serif;
-
-	--min-height-0: 0;
-	--min-height-1: .;
-	--min-height-2: 2;
-	--min-height-3: 5;
-	--min-height-4: r;
-	--min-height-5: e;
-	--min-height-6: m;
 
 	--height-note: 18rem;
 	--height-friend: 5rem;
-
 	--width-note: 16rem;
 
 	--z-index-menu: 10;
@@ -50,26 +143,138 @@ layer(base);
 }
 
 /*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+ * Dark mode. Applied under both the media query and [data-theme='dark'] so
+ * the theme switcher (#828) needs no token changes — it only has to declare
+ * `@custom-variant dark` and stamp the attribute. The media query is scoped
+ * with :not([data-theme='light']) so an explicit light choice wins.
+ *
+ * Elevation is carried by lighter surfaces here because shadow barely reads.
+ */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		--color-canvas: #141317;
+		--color-paper: #1c1a20;
+		--color-raised: #26232c;
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+		--color-ink: #e8e5ec;
+		--color-ink-muted: #a29daa;
+		--color-ink-faint: #948f9c;
+		--color-line: #322e3a;
+		--color-line-soft: #272430;
+
+		--color-accent: #9b7bc4;
+		--color-accent-strong: #b49ad4;
+		--color-accent-soft: #2b2338;
+		--color-accent-ring: #9b7bc4;
+
+		/* Flip to near-black — the dark accent and danger are light, where
+		 * white would be 3.5:1 and 2.6:1. */
+		--color-on-accent: #1d1b21;
+		--color-on-danger: #1d1b21;
+
+		--color-success: #7fb894;
+		--color-success-soft: #1c2a22;
+		--color-warning: #d3a45f;
+		--color-warning-soft: #2c2418;
+		--color-danger: #dd8a76;
+		--color-danger-soft: #2e1e1a;
+
+		--shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.4);
+		--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
+		--shadow-lifted: 0 4px 14px rgba(0, 0, 0, 0.55);
+		--shadow-float: 0 8px 28px rgba(0, 0, 0, 0.6);
+		--shadow-sheet: 0 -10px 40px rgba(0, 0, 0, 0.6);
+	}
+}
+
+:root[data-theme='dark'] {
+	--color-canvas: #141317;
+	--color-paper: #1c1a20;
+	--color-raised: #26232c;
+
+	--color-ink: #e8e5ec;
+	--color-ink-muted: #a29daa;
+	--color-ink-faint: #948f9c;
+	--color-line: #322e3a;
+	--color-line-soft: #272430;
+
+	--color-accent: #9b7bc4;
+	--color-accent-strong: #b49ad4;
+	--color-accent-soft: #2b2338;
+	--color-accent-ring: #9b7bc4;
+
+	--color-on-accent: #1d1b21;
+	--color-on-danger: #1d1b21;
+
+	--color-success: #7fb894;
+	--color-success-soft: #1c2a22;
+	--color-warning: #d3a45f;
+	--color-warning-soft: #2c2418;
+	--color-danger: #dd8a76;
+	--color-danger-soft: #2e1e1a;
+
+	--shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.4);
+	--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
+	--shadow-lifted: 0 4px 14px rgba(0, 0, 0, 0.55);
+	--shadow-float: 0 8px 28px rgba(0, 0, 0, 0.6);
+	--shadow-sheet: 0 -10px 40px rgba(0, 0, 0, 0.6);
+}
+
 @layer base {
+	/* Keeps native controls and scrollbars in step with the theme. */
+	:root {
+		color-scheme: light dark;
+	}
+	:root[data-theme='light'] {
+		color-scheme: light;
+	}
+	:root[data-theme='dark'] {
+		color-scheme: dark;
+	}
+
 	*,
 	::after,
 	::before,
 	::backdrop,
 	::file-selector-button {
-		border-color: var(--color-gray-200, currentcolor);
+		border-color: var(--color-line);
+	}
+
+	/*
+	 * Keyboard focus. The button primitive used to suppress the outline with
+	 * no replacement, so focus was invisible app-wide.
+	 *
+	 * Nothing may re-suppress it: Tailwind's utilities beat this base-layer
+	 * rule on both layer order and specificity, so an outline-suppressing
+	 * utility anywhere silently defeats it.
+	 *
+	 * [tabindex='-1'] is excluded because bits-ui puts it on Dialog.Content
+	 * and DropdownMenu.Content — those take programmatic focus and would
+	 * otherwise draw an outline around the whole panel.
+	 *
+	 * No border-radius here: outlines already follow the element's own
+	 * radius, and forcing one would square off pills and circular buttons.
+	 */
+	:where(a, button, input, textarea, select, [tabindex]:not([tabindex='-1'])):focus-visible {
+		outline: 2px solid var(--color-accent-ring);
+		outline-offset: 2px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
 	}
 }
 
-/* tip tap styles */
+/* TipTap placeholder */
 p.is-editor-empty:first-child::before {
-	color: #999;
+	color: var(--color-ink-faint);
 	content: attr(data-placeholder);
 	float: left;
 	height: 0;

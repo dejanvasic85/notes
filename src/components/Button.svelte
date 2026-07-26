@@ -48,7 +48,7 @@
 	>
 		{#if loading}
 			<svg
-				class="mr-3 -ml-1 h-5 w-5 animate-spin dark:text-white"
+				class="mr-3 -ml-1 h-5 w-5 animate-spin"
 				xmlns="http://www.w3.org/2000/svg"
 				fill="none"
 				viewBox="0 0 24 24"
@@ -73,9 +73,13 @@
 				{@render buttonElement(props)}
 			{/snippet}
 		</Tooltip.Trigger>
-		<Tooltip.Content sideOffset={8} side="top" class="z-toaster rounded-lg bg-black shadow-sm">
+		<Tooltip.Content
+			sideOffset={8}
+			side="top"
+			class="z-toaster rounded-control bg-ink shadow-lifted"
+		>
 			<Tooltip.Arrow />
-			<p class="p-4 text-sm text-white">{tooltip}</p>
+			<p class="text-canvas p-4 text-sm">{tooltip}</p>
 		</Tooltip.Content>
 	</Tooltip.Root>
 {:else}

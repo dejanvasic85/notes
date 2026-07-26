@@ -1,17 +1,25 @@
-export type Variant = 'primary' | 'secondary' | 'ghost';
+export type Variant = 'primary' | 'quiet' | 'ghost' | 'danger';
 export type Size = 'sm' | 'md';
 
-const baseClasses = `flex items-center justify-center gap-2 transition-all duration-150 hover:scale-105 focus:outline-hidden`;
+const baseClasses = `flex items-center justify-center gap-2 transition-colors duration-150`;
 
 const sizeClasses = {
 	sm: 'min-h-8 min-w-8 p-1.5',
 	md: 'min-h-11 min-w-[44px] px-4 py-2'
 } as const;
 
+/*
+ * Hover shifts background rather than scale. The old scale-on-hover made
+ * adjacent controls jitter and did nothing for keyboard users.
+ *
+ * `text-on-accent` is never `text-white`: the dark-mode accent is a light
+ * violet where white drops to 3.5:1. Same for danger.
+ */
 const variantClasses = {
-	primary: 'bg-primary hover:bg-primary/90 text-white border-none',
-	secondary: 'bg-secondary hover:bg-secondary/90 text-white border-none',
-	ghost: 'dark:hover:darkHover hover:ring-2'
+	primary: 'bg-accent hover:bg-accent-strong text-on-accent border-none',
+	quiet: 'bg-paper hover:bg-accent-soft text-ink border border-line hover:border-accent-ring',
+	ghost: 'text-ink-muted hover:bg-accent-soft hover:text-accent-strong',
+	danger: 'text-danger border border-line hover:bg-danger hover:text-on-danger hover:border-danger'
 } as const;
 
 export const buildButtonClass = (
@@ -21,8 +29,8 @@ export const buildButtonClass = (
 	active = false,
 	size: Size = 'md'
 ) => {
-	const roundedClass = round ? 'rounded-full' : 'rounded-xl';
+	const roundedClass = round ? 'rounded-full' : 'rounded-control';
 	const loadingClass = loading ? 'opacity-50 pointer-events-none' : '';
-	const activeClass = active ? 'ring-2 ring-primary bg-primary/10' : '';
+	const activeClass = active ? 'bg-accent-soft text-accent-strong' : '';
 	return `${loadingClass} ${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${roundedClass} ${activeClass}`;
 };

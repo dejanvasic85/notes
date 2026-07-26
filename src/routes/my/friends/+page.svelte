@@ -71,7 +71,7 @@
 						<div
 							in:send={{ key: 'trigger' }}
 							out:receive={{ key: 'trigger' }}
-							class="bg-secondary absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full"
+							class="bg-accent absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full"
 						></div>
 					{/if}
 				</Tabs.Trigger>
@@ -82,7 +82,7 @@
 							<span
 								role="status"
 								aria-label="You have pending invites"
-								class="bg-secondary absolute top-0 right-0 h-3 w-3 rounded-full"
+								class="bg-accent absolute top-0 right-0 h-3 w-3 rounded-full"
 							></span>
 						{/if}
 					</div>
@@ -90,16 +90,16 @@
 						<div
 							in:send={{ key: 'trigger' }}
 							out:receive={{ key: 'trigger' }}
-							class="bg-secondary absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full"
+							class="bg-accent absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full"
 						></div>
 					{/if}
 				</Tabs.Trigger>
 			</Tabs.List>
 			<Tabs.Content value={tabs.friends} class="mt-4">
 				<div class="flex justify-end">
-					<LinkButton variant="secondary" href="/my/friends/add">Add friend</LinkButton>
+					<LinkButton variant="quiet" href="/my/friends/add">Add friend</LinkButton>
 				</div>
-				<div class="mt-4 flex flex-col rounded-lg">
+				<div class="rounded-card mt-4 flex flex-col">
 					{#if friendsState.friends.length === 0 && friendsState.pendingSentInvites.length === 0}
 						<p class="p-4">
 							No friends yet. Add a friend to invite someone to share your notes with.
@@ -139,7 +139,7 @@
 			</Tabs.Content>
 
 			<Tabs.Content value={tabs.invites} class="mt-4">
-				<div class="mt-4 flex flex-col rounded-lg">
+				<div class="rounded-card mt-4 flex flex-col">
 					{#if friendsState.pendingReceivedInvites.length === 0}
 						<p class="p-4">No incoming invites</p>
 					{:else}

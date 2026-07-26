@@ -60,11 +60,7 @@
 </script>
 
 {#if editor}
-	<div
-		class="dark:border-dark-border flex gap-2 border-b px-2 pt-2 pb-4"
-		role="toolbar"
-		aria-label="Text formatting"
-	>
+	<div class="flex gap-2 border-b px-2 pt-2 pb-4" role="toolbar" aria-label="Text formatting">
 		{#each toolbarItemsValue as { mark, label, Icon, toggle }}
 			<Button
 				variant="ghost"

@@ -23,7 +23,7 @@
 </script>
 
 <div
-	class="h-friend dark:bg-dark flex w-full items-center justify-between gap-2 p-4"
+	class="h-friend flex w-full items-center justify-between gap-2 p-4"
 	role="listitem"
 	in:fade
 	out:slide={{ duration: 250 }}
@@ -33,10 +33,10 @@
 			<UserAvatar {picture} {name} size={8} showTooltip={false} />
 		{/if}
 
-		<div class:italic={showPending} class:text-gray-400={showPending}>
+		<div class:italic={showPending} class:text-ink-faint={showPending}>
 			{name}
 			{#if showPending}
-				<span class="text-xs text-gray-400 italic">(pending)</span>
+				<span class="text-ink-faint text-xs italic">(pending)</span>
 			{/if}
 		</div>
 	</div>

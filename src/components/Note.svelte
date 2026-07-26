@@ -51,7 +51,7 @@
 <div
 	id={note.id}
 	aria-label={`Edit note ${index + 1}`}
-	class="prose dark:prose-invert h-full w-full overflow-hidden rounded-lg p-4 text-sm shadow-lg lg:text-base {className} dark:hover:ring-dark-text relative break-words select-none hover:cursor-grab hover:ring-2 {isDragging
+	class="prose dark:prose-invert rounded-card shadow-card h-full w-full overflow-hidden p-4 text-sm lg:text-base {className} relative break-words select-none hover:cursor-grab hover:ring-2 {isDragging
 		? 'opacity-50'
 		: ''}"
 	tabindex={index}
@@ -65,9 +65,7 @@
 	onmouseleave={() => (isHovering = false)}
 >
 	{#if isDraggable}
-		<div
-			class="absolute top-2 right-2 text-gray-700 dark:text-white {isHovering ? '' : 'md:hidden'}"
-		>
+		<div class="text-ink absolute top-2 right-2 {isHovering ? '' : 'md:hidden'}">
 			<GripVertical size={20} />
 		</div>
 	{/if}
@@ -80,7 +78,7 @@
 
 	{#if note.shared || editors.length > 0}
 		<div
-			class="not-prose absolute bottom-0 left-0 flex h-10 w-full items-center gap-2 bg-white/20 px-4 backdrop-blur-xs"
+			class="not-prose bg-paper/70 absolute bottom-0 left-0 flex h-10 w-full items-center gap-2 px-4 backdrop-blur-xs"
 		>
 			{#if note.shared}
 				<UserAvatar picture={note.owner.picture || ''} name={note.owner.name || ''} />

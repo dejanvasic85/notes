@@ -24,6 +24,6 @@
 	const { for: htmlFor, invalid = false, children }: Props = $props();
 </script>
 
-<label for={htmlFor} class:text-error={invalid} {@attach preventLabelMultiClickSelect}>
+<label for={htmlFor} class:text-danger={invalid} {@attach preventLabelMultiClickSelect}>
 	{@render children()}
 </label>

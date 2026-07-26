@@ -27,9 +27,9 @@
 			.join('');
 	}
 
-	const imageClass = $derived(`m-0 rounded-full ring-2 ring-white ${sizeMap[size]}`);
+	const imageClass = $derived(`ring-paper m-0 rounded-full ring-2 ${sizeMap[size]}`);
 	const fallbackClass = $derived(
-		`bg-secondary m-0 flex items-center justify-center rounded-full text-xs font-medium text-white ring-2 ring-white ${sizeMap[size]}`
+		`bg-accent text-on-accent ring-paper m-0 flex items-center justify-center rounded-full text-xs font-medium ring-2 ${sizeMap[size]}`
 	);
 	const initials = $derived(getInitials(name));
 
@@ -60,9 +60,13 @@
 				{@render avatarImage(props)}
 			{/snippet}
 		</Tooltip.Trigger>
-		<Tooltip.Content sideOffset={8} side="top" class="z-toaster rounded-lg bg-black shadow-sm">
+		<Tooltip.Content
+			sideOffset={8}
+			side="top"
+			class="z-toaster rounded-control bg-ink shadow-lifted"
+		>
 			<Tooltip.Arrow />
-			<p class="p-4 text-sm text-white">{tooltip}</p>
+			<p class="text-canvas p-4 text-sm">{tooltip}</p>
 		</Tooltip.Content>
 	</Tooltip.Root>
 {:else}

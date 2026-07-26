@@ -23,10 +23,7 @@
 		onopen
 	}: Props = $props();
 
-	const className = $derived(
-		colours.find((c) => c.name === colour)?.cssClass ??
-			'bg-white dark:bg-dark dark:text-dark-text border'
-	);
+	const className = $derived(colours.find((c) => c.name === colour)?.cssClass ?? 'bg-paper border');
 
 	onMount(() => {
 		if (typeof window !== 'undefined') {
@@ -89,10 +86,9 @@
 							y: isDesktop ? 0 : 400,
 							x: isDesktop ? 400 : 0
 						}}
-						class="z-dialog fixed flex flex-col shadow-lg {className}
-							{isDesktop
-							? 'top-0 right-0 h-screen w-4/5 rounded-l-lg'
-							: 'right-0 bottom-0 left-0 h-[90vh] rounded-t-lg'}"
+						class="z-dialog shadow-sheet fixed flex flex-col {className} {isDesktop
+							? 'rounded-l-sheet top-0 right-0 h-screen w-4/5'
+							: 'rounded-t-sheet right-0 bottom-0 left-0 h-[90vh]'}"
 					>
 						<!-- header -->
 						<div>
@@ -100,7 +96,7 @@
 						</div>
 
 						<!-- body -->
-						<div class="w-full flex-1 overflow-y-auto shadow-lg">
+						<div class="w-full flex-1 overflow-y-auto">
 							{@render body()}
 						</div>
 

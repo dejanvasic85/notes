@@ -141,7 +141,7 @@
 			type="text"
 			bind:value={noteTitle}
 			placeholder="Title"
-			class="w-full bg-transparent px-4 py-2 text-xl font-bold focus-visible:outline-hidden"
+			class="font-display placeholder:text-ink-faint w-full bg-transparent px-4 py-2 text-xl font-semibold"
 		/>
 		<Toolbar {editor} />
 		<HtmlEditor

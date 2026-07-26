@@ -99,7 +99,7 @@
 <div class="md:grid-cols-layout md:grid-rows-layout flex min-h-screen flex-col md:grid">
 	<!-- Header -->
 	<header
-		class="z-menu md:col-second dark:border-b-dark-border dark:bg-dark sticky top-0 flex h-20 items-center justify-between gap-4 border-b bg-white px-4 py-2"
+		class="z-menu md:col-second bg-paper sticky top-0 flex h-20 items-center justify-between gap-4 border-b px-4 py-2"
 	>
 		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
 		<Search />
@@ -113,9 +113,7 @@
 	</header>
 
 	<!-- Side menu -->
-	<div
-		class="md:row-first-span-2 dark:border-r-dark-border dark:bg-dark relative mx-auto hidden w-20 border-r bg-white md:flex"
-	>
+	<div class="md:row-first-span-2 bg-paper relative mx-auto hidden w-20 border-r md:flex">
 		<div class="fixed left-0 h-screen p-2">
 			<Menu oncreatenote={handleCreateNote} layout="vertical" />
 		</div>
@@ -125,9 +123,7 @@
 	<main class="mb-20 overflow-y-auto p-4 lg:p-8">{@render children()}</main>
 
 	<!-- Mobile Menu -->
-	<div
-		class="inset-auto-0-0 dark:border-t-dark-border dark:bg-dark fixed bottom-0 flex h-16 items-center border-t bg-white p-2 md:hidden"
-	>
+	<div class="inset-auto-0-0 bg-paper fixed bottom-0 flex h-16 items-center border-t p-2 md:hidden">
 		<Menu oncreatenote={handleCreateNote} layout="horizontal" />
 	</div>
 </div>
