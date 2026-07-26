@@ -18,6 +18,7 @@ const light = {
 	ink: '#1d1b21',
 	inkMuted: '#5c5764',
 	inkFaint: '#6e6979',
+	lineStrong: '#6e6979',
 	accent: '#7d5aa6',
 	accentStrong: '#654484',
 	accentSoft: '#ece5f5',
@@ -38,6 +39,7 @@ const dark = {
 	ink: '#e8e5ec',
 	inkMuted: '#a29daa',
 	inkFaint: '#948f9c',
+	lineStrong: '#948f9c',
 	accent: '#9b7bc4',
 	accentStrong: '#b49ad4',
 	accentSoft: '#2b2338',
@@ -118,6 +120,13 @@ const buildChecks = (theme, t) => {
 	for (const [name, bg] of Object.entries(notes[theme])) {
 		checks.push([`${theme} ink on note-${name}`, t.ink, bg, AA_TEXT]);
 		checks.push([`${theme} ink-muted on note-${name}`, t.inkMuted, bg, AA_TEXT]);
+		// 1.4.11: a colour swatch is a non-text UI component, so its border
+		// must stay distinguishable from both its own fill and the panel.
+		checks.push([`${theme} line-strong on note-${name}`, t.lineStrong, bg, AA_LARGE]);
+	}
+
+	for (const [name, bg] of surfaces) {
+		checks.push([`${theme} line-strong on ${name}`, t.lineStrong, bg, AA_LARGE]);
 	}
 
 	return checks;

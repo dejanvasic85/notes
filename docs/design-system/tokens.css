@@ -30,6 +30,7 @@
 	--color-ink-faint: #6e6979; /* placeholder, disabled — 4.6:1 on canvas */
 	--color-line: #ddd9e3; /* borders */
 	--color-line-soft: #e9e6ed; /* dividers, hairlines */
+	--color-line-strong: #6e6979; /* borders on interactive elements — 1.4.11 */
 
 	/* ---------------------------------------------------------------
 	 * 2. ACCENT — dusty plum
@@ -219,6 +220,7 @@
 		--color-ink-faint: #948f9c; /* lightened from #726d7a, which failed AA */
 		--color-line: #322e3a;
 		--color-line-soft: #272430;
+		--color-line-strong: #948f9c;
 
 		--color-accent: #9b7bc4;
 		--color-accent-strong: #b49ad4;
@@ -256,6 +258,7 @@
 	--color-ink-faint: #948f9c;
 	--color-line: #322e3a;
 	--color-line-soft: #272430;
+	--color-line-strong: #948f9c;
 
 	--color-accent: #9b7bc4;
 	--color-accent-strong: #b49ad4;

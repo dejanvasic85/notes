@@ -33,6 +33,9 @@
 	--color-ink-faint: #6e6979;
 	--color-line: #ddd9e3;
 	--color-line-soft: #e9e6ed;
+	/* Borders on interactive elements. --color-line is tuned for dividers and
+	 * fails WCAG 1.4.11 (3:1 for non-text UI) against pastel fills. */
+	--color-line-strong: #6e6979;
 
 	/* Accent — dusty plum, same hue family as the original #8f5bbd so the
 	 * logo and PWA icon stay coherent, desaturated so it can appear often. */
@@ -161,6 +164,7 @@
 		--color-ink-faint: #948f9c;
 		--color-line: #322e3a;
 		--color-line-soft: #272430;
+		--color-line-strong: #948f9c;
 
 		--color-accent: #9b7bc4;
 		--color-accent-strong: #b49ad4;
@@ -197,6 +201,7 @@
 	--color-ink-faint: #948f9c;
 	--color-line: #322e3a;
 	--color-line-soft: #272430;
+	--color-line-strong: #948f9c;
 
 	--color-accent: #9b7bc4;
 	--color-accent-strong: #b49ad4;

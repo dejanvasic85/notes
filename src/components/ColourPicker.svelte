@@ -41,7 +41,7 @@
 							<DropdownMenu.Item onSelect={() => handleColourClick(null)}>
 								<button
 									aria-label="No colour"
-									class="border-line bg-paper text-ink-muted flex h-12 w-12 items-center justify-center rounded-full border-2"
+									class="border-line-strong bg-paper text-ink-muted flex h-12 w-12 items-center justify-center rounded-full border-2"
 									tabindex={-1}
 								>
 									<Minus size={30} />
@@ -52,7 +52,7 @@
 									<button
 										aria-label={name}
 										title={name}
-										class="border-line h-12 w-12 rounded-full border-2 {cssClass}"
+										class="border-line-strong h-12 w-12 rounded-full border-2 {cssClass}"
 										tabindex={-1}
 									></button>
 								</DropdownMenu.Item>
