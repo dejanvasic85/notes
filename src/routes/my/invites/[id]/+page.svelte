@@ -13,7 +13,7 @@
 	<div>The two of you can collaborate on each others notes.</div>
 	{#if data.noteEditor}
 		<div>In fact, they have already shared one with you!</div>
-		<LinkButton variant="secondary" href={`/my/board?id=${data.noteEditor.noteId}`}
+		<LinkButton variant="quiet" href={`/my/board?id=${data.noteEditor.noteId}`}
 			>View note</LinkButton
 		>
 	{/if}

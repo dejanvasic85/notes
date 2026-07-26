@@ -1,3 +1,1 @@
-<div
-	class="bg-loading dark:bg-dark-loading h-full w-full animate-pulse rounded-lg transition-all"
-></div>
+<div class="bg-line-soft rounded-card h-full w-full animate-pulse"></div>

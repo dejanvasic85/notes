@@ -39,13 +39,13 @@
 						<div
 							{...props}
 							in:slide={{ duration: 100 }}
-							class="z-dropdown dark:bg-dark flex w-96 flex-col gap-1 rounded-lg border bg-white p-2 shadow-lg"
+							class="z-dropdown bg-paper rounded-control shadow-lifted flex w-96 flex-col gap-1 border p-2"
 						>
 							<DropdownMenu.Item>
 								{#snippet child({ props: itemProps })}
 									<a
 										{...itemProps}
-										class="dark:bg-dark flex items-center rounded-lg bg-white p-2 hover:ring-2"
+										class="bg-paper rounded-control flex items-center p-2 hover:ring-2"
 										href={`/my/friends/add?noteId=${noteId}`}
 									>
 										<CirclePlus size={30} /> &nbsp; Invite friend
@@ -59,7 +59,7 @@
 									onCheckedChange={() =>
 										ontogglefriend({ id: noteEditorId, friendUserId: id, selected: !selected })}
 									aria-label={selected ? `${name}, selected` : `${name}, not selected`}
-									class="dark:bg-dark flex items-center rounded-lg bg-white p-2 hover:ring-2"
+									class="bg-paper rounded-control flex items-center p-2 hover:ring-2"
 								>
 									{#if selected}
 										<Check /> &nbsp;

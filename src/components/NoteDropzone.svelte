@@ -55,7 +55,7 @@
 	</div>
 	<!-- Drop guide -->
 	<div
-		class="h-full w-full rounded-lg border-2 border-dashed {dragOverDepth === 0
+		class="rounded-card h-full w-full border-2 border-dashed {dragOverDepth === 0
 			? 'hidden'
 			: 'block'}"
 	></div>

@@ -32,9 +32,9 @@
 	{type}
 	{placeholder}
 	bind:value
-	class="dark:bg-dark w-full rounded-md border border-gray-300 bg-gray-50 p-2 text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:outline-hidden"
+	class="border-line bg-paper text-ink placeholder:text-ink-faint rounded-control w-full border p-2"
 	class:ring-2={invalid}
-	class:ring-red-500={invalid}
+	class:ring-danger={invalid}
 	class:h-10={size === 'sm'}
 	class:h-12={size === 'md'}
 	class:h-14={size === 'lg'}

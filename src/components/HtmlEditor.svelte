@@ -38,7 +38,7 @@
 				editable: true,
 				editorProps: {
 					attributes: {
-						class: 'prose h-full p-4 focus:outline-hidden dark:prose-invert'
+						class: 'prose dark:prose-invert h-full w-full max-w-none p-4'
 					}
 				},
 				injectCSS: true,

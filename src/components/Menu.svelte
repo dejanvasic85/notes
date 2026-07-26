@@ -49,12 +49,12 @@
 	<a
 		href="/my/board"
 		aria-label="My board"
-		class="rounded-xl transition-all"
+		class="rounded-control transition-colors"
 		class:pressed={iconPress === 'home'}
 		onclick={() => handleIconPress('home')}
 	>
 		<div
-			class="dark:border-dark flex h-full w-full border-b-4 border-white px-4 py-2"
+			class="flex h-full w-full border-b-4 border-transparent px-4 py-2"
 			class:selected={isSelected('home')}
 		>
 			<House
@@ -69,12 +69,12 @@
 	<a
 		href="/my/friends"
 		aria-label="My friends"
-		class="rounded-xl transition-all"
+		class="rounded-control transition-colors"
 		class:pressed={iconPress === 'friends'}
 		onclick={() => handleIconPress('friends')}
 	>
 		<div
-			class="dark:border-dark relative flex h-full w-full border-b-4 border-white px-4 py-2"
+			class="relative flex h-full w-full border-b-4 border-transparent px-4 py-2"
 			class:selected={isSelected('friends')}
 		>
 			<Users
@@ -83,7 +83,7 @@
 			/>
 			{#if numberOfInvites > 0}
 				<span
-					class="bg-primary absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"
+					class="bg-accent text-on-accent absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold"
 					aria-label="You have pending invites"
 				>
 					{numberOfInvites}
@@ -110,13 +110,15 @@
 		animation: shrink 0.3s ease;
 	}
 
+	/*
+	 * Was `var(--primary)`, which is not a token — the real name is
+	 * `--color-accent` — so this silently fell back to currentColor and the
+	 * active indicator was never the brand colour. It also set all four
+	 * borders where the utility next to it only sets border-b.
+	 *
+	 * The dark override is gone too: the token already flips per theme.
+	 */
 	.selected {
-		border: 4px solid var(--primary);
-	}
-
-	@media (prefers-color-scheme: dark) {
-		.selected {
-			border-bottom: 4px solid currentColor;
-		}
+		border-bottom-color: var(--color-accent);
 	}
 </style>
