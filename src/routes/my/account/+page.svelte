@@ -7,6 +7,7 @@
 	import Input from '$components/Input.svelte';
 	import Button from '$components/Button.svelte';
 	import Label from '$components/Label.svelte';
+	import ThemeSwitcher from '$components/ThemeSwitcher.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { getUserState } from '$lib/state/userState.svelte';
 
@@ -74,3 +75,5 @@
 		</div>
 	</div>
 </form>
+
+<ThemeSwitcher />

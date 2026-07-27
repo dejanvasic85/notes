@@ -15,6 +15,30 @@
 @source not '../../.claude';
 
 /*
+ * Dark variant. Mirrors exactly how the token block below is scoped, so a
+ * `dark:` utility and a token always agree about which theme is in effect.
+ *
+ * Matching only [data-theme='dark'] — Tailwind's documented data-attribute
+ * recipe — would break System mode: the tokens would flip from the media
+ * query while every `dark:` utility stayed light, giving dark chrome with
+ * light note pastels. Covering both conditions means System needs no
+ * attribute at all, so it resolves in pure CSS and can never flash.
+ *
+ * :not([data-theme='light']) lets an explicit light choice beat a dark OS.
+ */
+@custom-variant dark {
+	&:where([data-theme='dark'], [data-theme='dark'] *) {
+		@slot;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		&:where(:root:not([data-theme='light']), :root:not([data-theme='light']) *) {
+			@slot;
+		}
+	}
+}
+
+/*
  * Design system tokens — see docs/design-system/README.md for the rules and
  * rationale, and docs/design-system/preview.html for the visual reference.
  *
@@ -149,10 +173,10 @@
 }
 
 /*
- * Dark mode. Applied under both the media query and [data-theme='dark'] so
- * the theme switcher (#828) needs no token changes — it only has to declare
- * `@custom-variant dark` and stamp the attribute. The media query is scoped
- * with :not([data-theme='light']) so an explicit light choice wins.
+ * Dark mode. Applied under both the media query and [data-theme='dark'],
+ * scoped to match the `dark` variant above condition for condition. Keep the
+ * two in step: a token that flips under a condition the variant doesn't
+ * recognise gives a half-themed screen rather than an error.
  *
  * Elevation is carried by lighter surfaces here because shadow barely reads.
  */

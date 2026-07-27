@@ -6,6 +6,28 @@
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
 		<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--
+			Stamps an explicit theme choice before first paint, so a stored Light
+			or Dark never flashes the other one on load. Must stay blocking and
+			inline — a deferred or bundled script runs too late.
+
+			"System" stores nothing and needs no attribute: app.css resolves it
+			from prefers-color-scheme, so it cannot flash at all.
+
+			The key and attribute mirror themeStorageKey and themeAttribute in
+			src/lib/theme.ts. Storage throws in Safari private browsing, and an
+			uncaught throw here would block the rest of the head.
+		-->
+		<script>
+			try {
+				const storedTheme = localStorage.getItem('notes:theme');
+				if (storedTheme === 'light' || storedTheme === 'dark') {
+					document.documentElement.setAttribute('data-theme', storedTheme);
+				}
+			} catch {
+				/* no stored preference is recoverable — fall through to System */
+			}
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover" class="bg-canvas text-ink">

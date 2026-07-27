@@ -178,51 +178,72 @@ surfaces plus `--color-line`**. The tokens swap; components don't change.
 ## 4. Dark mode and theming
 
 The token layer defines a **complete dark ramp** — neutrals, accent, semantic, all six note
-colours, and shadows. Dark mode is not missing; what's missing is user control over it.
+colours, and shadows. The app supports three states: **System / Light / Dark**, with System
+the default.
 
-### Current behaviour
+### How the three states resolve
 
-The app has **no theme switcher**. `app.css` never declares `@custom-variant dark`, so
-Tailwind v4's default applies and every `dark:` utility compiles to
-`@media (prefers-color-scheme: dark)`. Theme follows the OS and cannot be overridden.
+`data-theme` on `<html>` carries an explicit choice. **System stamps nothing** — the absent
+attribute is the signal, and `prefers-color-scheme` does the rest in pure CSS.
 
-### Required change to support a switcher
+| State  | `data-theme` | Resolves via                                            |
+| ------ | ------------ | ------------------------------------------------------- |
+| System | absent       | `@media (prefers-color-scheme: dark)`                   |
+| Light  | `light`      | `:not([data-theme='light'])` excludes it from the query |
+| Dark   | `dark`       | the attribute selector                                  |
+
+Leaving System attribute-less buys two things: it cannot flash (no JS decides it), and it
+keeps following the OS while the page is open with no `matchMedia` listener.
+
+### The dark variant
 
 This is a **design-system-level decision**, because it changes how every `dark:` utility in
-the codebase resolves:
+the codebase resolves. It must match **both** conditions, mirroring how the tokens
+themselves are scoped:
 
 ```css
 /* app.css */
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant dark {
+	&:where([data-theme='dark'], [data-theme='dark'] *) {
+		@slot;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		&:where(:root:not([data-theme='light']), :root:not([data-theme='light']) *) {
+			@slot;
+		}
+	}
+}
 ```
 
-Then `data-theme` is stamped on `<html>` and the app supports three states —
-**System / Light / Dark** — with `System` as the default so current behaviour is preserved
-for anyone who never opens the setting.
+**Tailwind's documented one-liner —
+`@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *))` — is wrong
+here.** It resolves `dark:` on the attribute only, so in System mode on a dark OS the tokens
+flip from the media query while every `dark:` utility stays light: dark chrome, light note
+pastels. Keep the variant and the token block in step, condition for condition.
 
-`tokens.css` already applies the dark palette under **both** the media query and
-`:root[data-theme='dark']`, and scopes the media query with `:not([data-theme='light'])` so
-an explicit light choice wins over a dark OS. The token file therefore needs no change when
-the switcher lands — only `app.css` gains the `@custom-variant` line above.
+### Rules for whoever touches this
 
-Implementation notes for whoever picks this up:
-
-- Needs a blocking inline script in `src/app.html` that reads `localStorage` and sets the
-  attribute **before first paint**, or the page flashes the wrong theme on load.
-- `src/components/Menu.svelte` has a `@media (prefers-color-scheme: dark)` block in its
-  scoped `<style>`. Media queries do not respond to an attribute toggle, so that block must
-  move to tokens or to a `dark:` utility, or the nav will disagree with the rest of the app.
-- `color-scheme` is already wired in `tokens.css` §10 for all three states, so native form
-  controls and scrollbars follow the toggle rather than only the OS. Nothing in the app sets
-  it today.
-- The manifest's `theme_color` is a single static value and can't follow the toggle; leave
-  it on the light brand colour.
+- **A colour that must change with the theme belongs in a token, not a `dark:` utility.**
+  Tokens flip once, centrally. `dark:` is for the handful of cases with no token — the note
+  pastels (`dark:bg-note-*-dark`) and `dark:prose-invert`.
+- **Never put `@media (prefers-color-scheme: dark)` in a component's scoped `<style>`.** A
+  media query does not respond to the attribute, so that component silently disagrees with
+  the rest of the app in explicit Light or Dark.
+- The pre-paint script in `src/app.html` must stay **blocking and inline**, before
+  `%sveltekit.head%`. Deferred or bundled runs too late and the wrong theme paints first.
+  It mirrors `themeStorageKey` and `themeAttribute` in `src/lib/theme.ts` by hand — it
+  cannot import — so change both together.
+- `color-scheme` is wired in §10 for all three states, so native form controls and
+  scrollbars follow the choice rather than only the OS.
+- The manifest's `theme_color` is a single static value and can't follow the toggle; it
+  stays on the light brand colour.
 
 ### Where the switcher lives
 
 The **variant strategy above belongs to the design system.** The switcher **UI** is a
-product feature and belongs in `/my/account` alongside the display-name form — build it as
-its own piece of work, not as part of a token migration.
+product feature: `src/components/ThemeSwitcher.svelte`, rendered in `/my/account` alongside
+the display-name form.
 
 ---
 
@@ -295,6 +316,12 @@ bounces.
 
 Durations: `--duration-tap` 100ms · `--duration-fast` 160ms · `--duration-base` 240ms ·
 `--duration-slow` 360ms · `--duration-sheet` 420ms.
+
+**Write durations as `duration-(--duration-fast)`, not `duration-fast`.** `--ease-*` is a
+Tailwind theme namespace, so `ease-move` compiles; `--duration-*` is **not**, so
+`duration-fast` matches no utility and Tailwind silently emits nothing. The parenthesis
+form resolves to `transition-duration: var(--duration-fast)`. The square-bracket form
+(`duration-[--duration-fast]`) is also wrong — it emits the raw text, not a `var()`.
 
 ### Choreography
 
