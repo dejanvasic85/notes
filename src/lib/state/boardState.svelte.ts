@@ -64,7 +64,17 @@ export class BoardState {
 			colour: null,
 			title: null
 		};
-		this.notes.push({ ...newNote, order: this.notes.length, editors: [], shared: false });
+		// Stamped locally so the card's date line reads "Today" straight away.
+		// The server sets its own timestamps; the next refresh replaces these.
+		const now = new Date();
+		this.notes.push({
+			...newNote,
+			createdAt: now,
+			updatedAt: now,
+			order: this.notes.length,
+			editors: [],
+			shared: false
+		});
 		this.noteOrder.push(id);
 		return newNote;
 	}

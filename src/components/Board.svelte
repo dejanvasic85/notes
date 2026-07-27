@@ -4,7 +4,6 @@
 	import Note from './Note.svelte';
 	import NoteEditor from './NoteEditor.svelte';
 	import NoteDropzone from './NoteDropzone.svelte';
-	import NoteContainer from './NoteContainer.svelte';
 	import NoteList from './NoteList.svelte';
 
 	type Props = {
@@ -93,21 +92,19 @@
 {#if notes.length === 0}
 	<p>{emptyMessage}</p>
 {:else}
-	<NoteList>
-		{#each notes as note, index}
-			<NoteContainer>
-				<NoteDropzone {index} {draggedIndex} ondropped={handleDrop}>
-					<Note
-						{note}
-						{friends}
-						{index}
-						isDraggable={true}
-						onclick={() => handleEdit(note.id)}
-						ondragstart={(i) => (draggedIndex = i)}
-						ondragend={() => (draggedIndex = null)}
-					/>
-				</NoteDropzone>
-			</NoteContainer>
-		{/each}
+	<NoteList items={notes}>
+		{#snippet item(note, index)}
+			<NoteDropzone {index} {draggedIndex} ondropped={handleDrop}>
+				<Note
+					{note}
+					{friends}
+					{index}
+					isDraggable={true}
+					onclick={() => handleEdit(note.id)}
+					ondragstart={(i) => (draggedIndex = i)}
+					ondragend={() => (draggedIndex = null)}
+				/>
+			</NoteDropzone>
+		{/snippet}
 	</NoteList>
 {/if}

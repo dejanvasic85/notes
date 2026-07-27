@@ -48,13 +48,17 @@
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
 	);
 
+	// The server stamps updatedAt on every write, so the optimistic copy stamps
+	// it too — otherwise the board card keeps showing the previous edit's date
+	// until the next refresh.
 	function handleSave() {
 		onsavenote({
 			note: {
 				...note,
 				text: noteText,
 				textPlain: noteTextPlain,
-				title: noteTitle
+				title: noteTitle,
+				updatedAt: new Date()
 			}
 		});
 		if (navigator.vibrate) {
@@ -75,7 +79,8 @@
 		onupdateColour({
 			note: {
 				...note,
-				colour
+				colour,
+				updatedAt: new Date()
 			}
 		});
 	}

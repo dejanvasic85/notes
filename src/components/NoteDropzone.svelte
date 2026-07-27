@@ -43,20 +43,24 @@
 </script>
 
 <div
-	class="lg:w-note h-full w-full"
+	class="relative w-full"
 	role="listitem"
 	ondragover={handleDragOver}
 	ondrop={handleDrop}
 	ondragenter={handleDragEnter}
 	ondragleave={handleDragLeave}
 >
-	<div class="h-full w-full {dragOverDepth > 0 ? 'hidden' : 'block'}">
-		{@render children()}
-	</div>
-	<!-- Drop guide -->
-	<div
-		class="rounded-card h-full w-full border-2 border-dashed {dragOverDepth === 0
-			? 'hidden'
-			: 'block'}"
-	></div>
+	{@render children()}
+	<!--
+		Drop guide. The card stays put and the guide is overlaid rather than
+		swapped in: cards are content-sized now, so replacing one with a
+		different-sized placeholder would resize the column mid-drag and fire
+		another dragleave/dragenter pair, flickering the guide on and off.
+	-->
+	{#if dragOverDepth > 0}
+		<div
+			class="rounded-card border-accent pointer-events-none absolute inset-0 border-2 border-dashed"
+			aria-hidden="true"
+		></div>
+	{/if}
 </div>

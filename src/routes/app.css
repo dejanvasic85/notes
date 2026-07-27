@@ -131,16 +131,15 @@
 	--duration-slow: 360ms;
 	--duration-sheet: 420ms;
 
-	/* App layout — unchanged. --height-note/--width-note are retired in #826. */
+	/* App layout. Note cards size to their content, so there is no
+	 * --height-note/--width-note any more. */
 	--grid-template-columns-layout: [first-col] 5rem [second-col] auto;
 	--grid-template-rows-layout: [first-row] 5rem [second-row] auto;
 	--grid-column-second: second-col;
 	--grid-row-first-span-2: first-row / span 2;
 	--inset-auto-0-0: auto 0 0;
 
-	--height-note: 18rem;
 	--height-friend: 5rem;
-	--width-note: 16rem;
 
 	--z-index-menu: 10;
 	--z-index-overlay: 20;
