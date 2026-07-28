@@ -28,12 +28,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - name: Setup pnpm and Node
+        uses: pnpm/setup@v1
         with:
-          node-version: 24
+          install: false
       - name: Deploy
         run: |
-          npm install --global vercel@canary
+          pnpm add --global vercel@canary
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
           vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
