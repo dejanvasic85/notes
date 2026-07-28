@@ -27,8 +27,10 @@ jobs:
       name: preview
     steps:
       - uses: actions/checkout@v7
-      - name: Setup mise tools
-        uses: jdx/mise-action@v4
+      - name: Setup pnpm and Node
+        uses: pnpm/setup@v1
+        with:
+          install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Add Svelte Check annotator
@@ -60,8 +62,10 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.62.0-jammy
     steps:
       - uses: actions/checkout@v7
-      - name: Setup mise tools
-        uses: jdx/mise-action@v4
+      - name: Setup pnpm and Node
+        uses: pnpm/setup@v1
+        with:
+          install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build application
