@@ -70,7 +70,6 @@
 				}),
 			revert: ([, original]) => boardState.updateNote(original),
 			errorMessage: 'Failed to update note. Try again.',
-			successMessage: 'Note updated',
 			toastMessages
 		});
 	}

@@ -334,7 +334,7 @@ form resolves to `transition-duration: var(--duration-fast)`. The square-bracket
 | Button press | 100ms press | Scale to .94 then settle. Pairs with the existing 50ms haptic.                                          |
 | FAB          | 360ms press | Icon rotates 90° from plus to close as the sheet opens.                                                 |
 | Reorder      | 240ms move  | FLIP on surviving cards so neighbours slide rather than jump.                                           |
-| Toast        | 240ms enter | Rises 12px and fades in above the nav pill.                                                             |
+| Toast        | 240ms enter | Drops 12px and fades in at top centre, clearing the sticky header.                                      |
 | Save         | 160ms move  | Label crossfades to a check, holds 800ms, returns. No spinner for sub-second work.                      |
 
 **All of it sits behind `prefers-reduced-motion`,** which the app does not honour anywhere
