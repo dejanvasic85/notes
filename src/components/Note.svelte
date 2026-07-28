@@ -2,7 +2,7 @@
 	import { getNoteCssClass } from '$lib/colours';
 	import { formatNoteDate } from '$lib/noteDate';
 	import { getNotePreview } from '$lib/notePreview';
-	import type { NoteOrdered, Friend } from '$lib/types';
+	import type { NoteOrdered, Friend, UserProfile } from '$lib/types';
 	import { GripVertical } from '@lucide/svelte';
 
 	import UserAvatar from './UserAvatar.svelte';
@@ -22,6 +22,9 @@
 	const clipThresholdPx = 4;
 	const avatarSize = 6;
 	const labelPreviewLimit = 80;
+	// Beyond three faces the stack eats the whole footer of a mobile column,
+	// so the rest collapse into a count.
+	const maxVisibleAvatars = 3;
 
 	let {
 		note,
@@ -47,6 +50,17 @@
 	const previewText = $derived(getNotePreview(note.textPlain, note.text));
 	const isEmpty = $derived(!note.title && !previewText);
 	const hasFooter = $derived(note.shared || editors.length > 0);
+
+	/*
+	 * The owner leads the stack on a note shared with you, so the face you see
+	 * first is whose note it is. Deduped because an owner who is also a
+	 * selected editor would otherwise repeat a key in the each block.
+	 */
+	const sharedWith = $derived<UserProfile[]>([
+		...new Map((note.shared ? [note.owner, ...editors] : editors).map((p) => [p.id, p])).values()
+	]);
+	const visibleAvatars = $derived(sharedWith.slice(0, maxVisibleAvatars));
+	const overflowCount = $derived(sharedWith.length - visibleAvatars.length);
 
 	/*
 	 * A role="button" element has presentational children, so none of the text
@@ -157,24 +171,32 @@
 	{/if}
 
 	{#if hasFooter}
-		<div class="mt-3 flex items-center gap-1.5">
-			{#if note.shared}
-				<UserAvatar
-					size={avatarSize}
-					picture={note.owner.picture || ''}
-					name={note.owner.name || ''}
-				/>
-			{/if}
-			{#each editors as editor (editor.id)}
-				<UserAvatar size={avatarSize} picture={editor.picture || ''} name={editor.name || ''} />
-			{/each}
+		<!--
+			Wrapping rather than shrinking: on a narrow column the chip drops to
+			its own line instead of squeezing the faces into ovals.
+		-->
+		<div class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+			<!-- Overlapped so a fourth person costs 18px, not a whole avatar. -->
+			<div class="flex shrink-0 items-center -space-x-2">
+				{#each visibleAvatars as person (person.id)}
+					<UserAvatar size={avatarSize} picture={person.picture || ''} name={person.name || ''} />
+				{/each}
+				{#if overflowCount > 0}
+					<span
+						class="text-label bg-ink/10 text-ink ring-paper flex size-6 shrink-0 items-center justify-center rounded-full pl-1 ring-2"
+						aria-hidden="true"
+					>
+						+{overflowCount}
+					</span>
+				{/if}
+			</div>
 			<!--
 				The chip tints whatever note colour is underneath rather than
 				using a fixed surface token, so it works on all six pastels.
 				text-ink, not text-ink-muted: muted on the tinted pastels falls
 				to 3.65:1 in dark mode.
 			-->
-			<span class="text-label bg-ink/10 text-ink rounded-chip ml-1 px-2 py-0.5 uppercase">
+			<span class="text-label bg-ink/10 text-ink rounded-chip shrink-0 px-2 py-0.5 uppercase">
 				Shared
 			</span>
 		</div>

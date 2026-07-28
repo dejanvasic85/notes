@@ -27,7 +27,7 @@
 			.join('');
 	}
 
-	const imageClass = $derived(`ring-paper m-0 rounded-full ring-2 ${sizeMap[size]}`);
+	const imageClass = $derived(`ring-paper m-0 rounded-full object-cover ring-2 ${sizeMap[size]}`);
 	const fallbackClass = $derived(
 		`bg-accent text-on-accent ring-paper m-0 flex items-center justify-center rounded-full text-xs font-medium ring-2 ${sizeMap[size]}`
 	);
@@ -44,7 +44,7 @@
 </script>
 
 {#snippet avatarImage(triggerProps?: Record<string, unknown>)}
-	<span {...triggerProps} class="inline-flex {sizeMap[size]}">
+	<span {...triggerProps} class="inline-flex shrink-0 {sizeMap[size]}">
 		{#if showFallback}
 			<span class={fallbackClass} aria-label={`Avatar of ${name}`} role="img">{initials}</span>
 		{:else}
