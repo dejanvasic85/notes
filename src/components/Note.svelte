@@ -54,13 +54,24 @@
 	/*
 	 * The owner leads the stack on a note shared with you, so the face you see
 	 * first is whose note it is. Deduped because an owner who is also a
-	 * selected editor would otherwise repeat a key in the each block.
+	 * selected editor would otherwise repeat a key in the each block — first
+	 * occurrence wins so the owner's own profile stays authoritative over the
+	 * possibly staler snapshot in the friend list.
 	 */
-	const sharedWith = $derived<UserProfile[]>([
-		...new Map((note.shared ? [note.owner, ...editors] : editors).map((p) => [p.id, p])).values()
-	]);
+	const sharedWith = $derived<UserProfile[]>(
+		(note.shared ? [note.owner, ...editors] : editors).filter(
+			(person, index, all) => all.findIndex((other) => other.id === person.id) === index
+		)
+	);
 	const visibleAvatars = $derived(sharedWith.slice(0, maxVisibleAvatars));
 	const overflowCount = $derived(sharedWith.length - visibleAvatars.length);
+	// The +N badge is decorative, so the count only reaches assistive tech
+	// through the card's own label.
+	const sharedLabel = $derived(
+		sharedWith.length > 0
+			? `Shared with ${sharedWith.length} ${sharedWith.length === 1 ? 'person' : 'people'}`
+			: ''
+	);
 
 	/*
 	 * A role="button" element has presentational children, so none of the text
@@ -72,7 +83,7 @@
 			`Edit note ${index + 1}`,
 			note.title || previewText.slice(0, labelPreviewLimit) || 'Empty note',
 			dateLabel,
-			hasFooter ? 'Shared' : ''
+			sharedLabel
 		]
 			.filter(Boolean)
 			.join(', ')
