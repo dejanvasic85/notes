@@ -9,9 +9,12 @@
 
 	type Props = {
 		onselect: (colour: Colour | null) => void;
+		side?: 'top' | 'bottom';
 	};
 
-	let { onselect }: Props = $props();
+	// `side` exists for the editor toolbar, which sits at the bottom of the
+	// sheet and has to open upward.
+	let { onselect, side = 'bottom' }: Props = $props();
 
 	function handleColourClick(colour: Colour | null) {
 		onselect(colour);
@@ -29,7 +32,7 @@
 		{/snippet}
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Portal>
-		<DropdownMenu.Content forceMount loop side="bottom">
+		<DropdownMenu.Content forceMount loop {side}>
 			{#snippet child({ props, open, wrapperProps })}
 				{#if open}
 					<div {...wrapperProps}>

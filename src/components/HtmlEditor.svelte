@@ -3,8 +3,8 @@
 	import { Editor, Extension } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
 	import HardBreak from '@tiptap/extension-hard-break';
+	import { TaskItem, TaskList } from '@tiptap/extension-list';
 	import Placeholder from '@tiptap/extension-placeholder';
-	import Underline from '@tiptap/extension-underline';
 	import type { Attachment } from 'svelte/attachments';
 
 	type Props = {
@@ -15,6 +15,12 @@
 	};
 
 	let { initialContent, id, onupdate, oneditorcreate }: Props = $props();
+
+	const listItemTypes = ['listItem', 'taskItem'];
+	const desktopBreakpoint = 1024;
+	// The toolbar pill stands about 62px off the bottom of the sheet; the rest
+	// is slack so the caret isn't flush against it as you type.
+	const caretClearance = 96;
 
 	// Custom extension to make Shift+Enter create a new paragraph
 	const ShiftEnterParagraph = Extension.create({
@@ -33,13 +39,21 @@
 			const viewportWidth = window.innerWidth;
 
 			const editor = new Editor({
-				// Only focus on largrer screens
-				autofocus: viewportWidth < 1024 ? false : 'end',
+				// Only focus on larger screens — autofocusing on mobile summons the
+				// keyboard the moment a note opens, before you've asked to type.
+				autofocus: viewportWidth < desktopBreakpoint ? false : 'end',
 				editable: true,
 				editorProps: {
 					attributes: {
 						class: 'prose dark:prose-invert h-full w-full max-w-none p-4'
-					}
+					},
+					/*
+					 * The floating toolbar hovers over the bottom of the editor, so
+					 * ProseMirror has to stop scrolling the caret to the very edge or
+					 * you end up typing underneath the pill.
+					 */
+					scrollThreshold: { top: 0, right: 0, bottom: caretClearance, left: 0 },
+					scrollMargin: { top: 0, right: 0, bottom: caretClearance, left: 0 }
 				},
 				injectCSS: true,
 				element,
@@ -51,7 +65,19 @@
 					HardBreak.extend({
 						addKeyboardShortcuts() {
 							return {
-								Enter: () => this.editor.commands.setHardBreak()
+								Enter: () => {
+									/*
+									 * Inside a list, Enter has to keep its usual job — split
+									 * the item, or lift out of an empty one. Returning false
+									 * hands the key to the list keymap instead of swallowing
+									 * it, which would make lists impossible to leave.
+									 */
+									if (listItemTypes.some((type) => this.editor.isActive(type))) {
+										return false;
+									}
+
+									return this.editor.commands.setHardBreak();
+								}
 							};
 						}
 					}),
@@ -59,7 +85,8 @@
 					Placeholder.configure({
 						placeholder: 'Write a note ...'
 					}),
-					Underline
+					TaskList,
+					TaskItem.configure({ nested: true })
 				],
 				content: initialContent,
 

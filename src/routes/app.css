@@ -313,6 +313,43 @@
 	max-width: var(--container-measure);
 }
 
+/*
+ * Checklists. @tailwindcss/typography styles ul/li but knows nothing about
+ * TipTap's task list, which renders a checkbox in a label alongside the
+ * content, so it would otherwise inherit bullets and list indentation.
+ */
+.tiptap ul[data-type='taskList'] {
+	list-style: none;
+	padding-left: 0;
+}
+
+.tiptap ul[data-type='taskList'] li {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+}
+
+.tiptap ul[data-type='taskList'] li > label {
+	/* Cancels the flex baseline shift so the box lines up with the first line. */
+	margin-top: 0.3em;
+	user-select: none;
+}
+
+.tiptap ul[data-type='taskList'] li > div {
+	flex: 1 1 auto;
+}
+
+.tiptap ul[data-type='taskList'] input[type='checkbox'] {
+	accent-color: var(--color-accent);
+	height: 1rem;
+	width: 1rem;
+}
+
+.tiptap ul[data-type='taskList'] li[data-checked='true'] > div {
+	color: var(--color-ink-faint);
+	text-decoration: line-through;
+}
+
 /* TipTap placeholder */
 p.is-editor-empty:first-child::before {
 	color: var(--color-ink-faint);

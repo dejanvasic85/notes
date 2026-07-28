@@ -6,7 +6,6 @@
 	import { X, Trash2 } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
-	import ColourPicker from './ColourPicker.svelte';
 	import Dialog from './Dialog.svelte';
 	import Share from './Share.svelte';
 	import HtmlEditor from './HtmlEditor.svelte';
@@ -130,7 +129,6 @@
 								})}
 						/>
 					{/if}
-					<ColourPicker onselect={handleColourPick} />
 					{#if !note.shared}
 						<Button variant="ghost" onclick={handleDeleteClick} label="Delete note">
 							<Trash2 />
@@ -148,13 +146,16 @@
 			placeholder="Title"
 			class="font-display placeholder:text-ink-faint w-full bg-transparent px-4 py-2 text-xl font-semibold"
 		/>
-		<Toolbar {editor} />
 		<HtmlEditor
 			id="note-editor"
 			initialContent={noteText}
 			onupdate={handleContentUpdate}
 			oneditorcreate={(e) => (editor = e)}
 		/>
+	{/snippet}
+
+	{#snippet floating()}
+		<Toolbar {editor} oncolourpick={handleColourPick} />
 	{/snippet}
 
 	{#snippet footer()}
