@@ -46,6 +46,10 @@ To run the app locally, follow these steps:
    pnpm install
    ```
 
+   You don't need a separate Node version manager. The Node version is declared in
+   `devEngines.runtime` in `package.json`, and `pnpm install` downloads it and uses it
+   for every `pnpm` script, so no extra tooling is required.
+
 2. **Run the development server**:
 
    ```bash
