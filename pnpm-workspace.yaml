@@ -4,3 +4,12 @@ allowBuilds:
   browser-tabs-lock: true
   esbuild: true
   prisma: true
+
+# Every TipTap package resolves @tiptap/pm 3.29.0, but the tree ended up with
+# two prosemirror-model instances behind it. ProseMirror compares node types by
+# object identity, so a second copy makes any command that builds a fragment —
+# toggleBulletList, toggleTaskList — throw "Can not convert <> to a Fragment".
+# Nothing dedupes this on its own; the versions are only a patch apart and both
+# satisfy every range asking for them.
+overrides:
+  prosemirror-model: 1.25.11

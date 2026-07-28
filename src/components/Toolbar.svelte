@@ -1,44 +1,64 @@
 <script lang="ts">
 	import { createSubscriber } from 'svelte/reactivity';
 	import type { Editor } from '@tiptap/core';
-	import { Bold, Italic, Underline } from '@lucide/svelte';
+	import { Bold, Italic, List, ListChecks, Underline } from '@lucide/svelte';
+
+	import { type Colour } from '$lib/colours';
 
 	import Button from './Button.svelte';
+	import ColourPicker from './ColourPicker.svelte';
 
 	type Props = {
 		editor: Editor | null;
+		oncolourpick: (colour: Colour | null) => void;
 	};
 
-	type MarkName = 'bold' | 'italic' | 'underline';
+	/*
+	 * `bold` and friends are marks; `bulletList` and `taskList` are nodes. Both
+	 * answer to editor.isActive(), so the toolbar treats them the same.
+	 */
+	type ToolbarItemName = 'bold' | 'italic' | 'underline' | 'bulletList' | 'taskList';
 
-	let { editor }: Props = $props();
+	let { editor, oncolourpick }: Props = $props();
 
-	const iconSize = 16;
+	const iconSize = 20;
 
 	const toolbarItemsValue = [
 		{
-			mark: 'bold' as MarkName,
+			name: 'bold' as ToolbarItemName,
 			label: 'Bold',
 			Icon: Bold,
 			toggle: (e: Editor) => e.chain().focus().toggleBold().run()
 		},
 		{
-			mark: 'italic' as MarkName,
+			name: 'italic' as ToolbarItemName,
 			label: 'Italic',
 			Icon: Italic,
 			toggle: (e: Editor) => e.chain().focus().toggleItalic().run()
 		},
 		{
-			mark: 'underline' as MarkName,
+			name: 'underline' as ToolbarItemName,
 			label: 'Underline',
 			Icon: Underline,
 			toggle: (e: Editor) => e.chain().focus().toggleUnderline().run()
+		},
+		{
+			name: 'bulletList' as ToolbarItemName,
+			label: 'Bullet list',
+			Icon: List,
+			toggle: (e: Editor) => e.chain().focus().toggleBulletList().run()
+		},
+		{
+			name: 'taskList' as ToolbarItemName,
+			label: 'Checklist',
+			Icon: ListChecks,
+			toggle: (e: Editor) => e.chain().focus().toggleTaskList().run()
 		}
 	];
 
-	// Re-renders activeMarks whenever the editor fires a transaction (e.g. the
+	// Re-renders activeItems whenever the editor fires a transaction (e.g. the
 	// selection or formatting changes) - TipTap's own events aren't Svelte-reactive.
-	class EditorActiveMarks {
+	class EditorActiveItems {
 		#editor: Editor;
 		#subscribe: () => void;
 
@@ -50,23 +70,36 @@
 			});
 		}
 
-		isActive(mark: MarkName) {
+		isActive(name: ToolbarItemName) {
 			this.#subscribe();
-			return this.#editor.isActive(mark);
+			return this.#editor.isActive(name);
 		}
 	}
 
-	let activeMarks = $derived(editor ? new EditorActiveMarks(editor) : null);
+	let activeItems = $derived(editor ? new EditorActiveItems(editor) : null);
 </script>
 
 {#if editor}
-	<div class="flex gap-2 border-b px-2 pt-2 pb-4" role="toolbar" aria-label="Text formatting">
-		{#each toolbarItemsValue as { mark, label, Icon, toggle }}
+	<div
+		role="toolbar"
+		aria-label="Text formatting"
+		class="border-line bg-raised shadow-float pointer-events-auto flex items-center gap-1 rounded-full border p-1"
+	>
+		<ColourPicker onselect={oncolourpick} side="top" />
+
+		<span class="bg-line mx-1 h-6 w-px shrink-0" aria-hidden="true"></span>
+
+		{#each toolbarItemsValue as { name, label, Icon, toggle } (name)}
+			{@const isActive = activeItems?.isActive(name) ?? false}
+			<!--
+				No tooltip: this is a touch-first surface and bits-ui opens tooltips
+				on focus, so every tap would flash one over the pill. `label` still
+				gives each icon its accessible name.
+			-->
 			<Button
-				variant="ghost"
-				size="sm"
+				variant={isActive ? 'primary' : 'ghost'}
+				rounded
 				{label}
-				active={activeMarks?.isActive(mark) ?? false}
 				onclick={() => toggle(editor)}
 			>
 				<Icon size={iconSize} />
