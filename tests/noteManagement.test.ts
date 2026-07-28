@@ -34,12 +34,19 @@ test('basic note management', async ({ page }) => {
 	const editor = page.getByRole('textbox').nth(2);
 	await editor.fill(noteContent);
 
-	await page.getByRole('button', { name: 'Save note' }).click();
+	// Updates are silent — no success toast — so wait on the request itself.
+	// Match on the title so an in-flight PATCH from the earlier colour change
+	// can't satisfy this wait.
+	const updateNotePromise = page.waitForResponse(
+		(response) =>
+			response.url().includes('/api/notes') &&
+			response.request().method() === 'PATCH' &&
+			response.request().postDataJSON()?.title === noteTitle &&
+			response.status() < 400
+	);
 
-	// Verify the success toast appears once the note is updated on the server.
-	// The colour change earlier in this test may have left its own "Note
-	// updated" toast still on screen, so target the most recent one.
-	await expect(page.getByText('Note updated').last()).toBeVisible();
+	await page.getByRole('button', { name: 'Save note' }).click();
+	await updateNotePromise;
 
 	// Wait for the note to be saved - verify the note appears on the board
 	await expect(page.getByText(noteTitle)).toBeVisible();
