@@ -16,6 +16,7 @@
 		colour?: Colour | null;
 		originRect?: OriginRect | null;
 		onopen?: () => void;
+		onclose?: () => void;
 	};
 
 	const floatingGap = '0.5rem';
@@ -34,10 +35,40 @@
 		show = $bindable(false),
 		colour = $bindable(null),
 		originRect = null,
-		onopen
+		onopen,
+		onclose
 	}: Props = $props();
 
 	const className = $derived(colours.find((c) => c.name === colour)?.cssClass ?? 'bg-paper border');
+
+	/*
+	 * bits-ui's `open` is already true on this component's very first render —
+	 * a fresh Dialog instance is created the moment a note is selected, with
+	 * `show` true from the start. Svelte only plays an intro when a block's
+	 * condition flips from false to true; a condition that's true on its very
+	 * first evaluation is treated as "already there", so both the intro and
+	 * (since it was never properly registered) the later outro silently no-op.
+	 * Gating on `open && isPresent`, where `isPresent` starts false and flips
+	 * true one tick after mount, gives Svelte that genuine flip to animate.
+	 *
+	 * The same problem hits closing from the other direction: the consumer
+	 * unmounts this whole component (Board's `{#if selectedNote}`) as soon as
+	 * it decides to close, which tears down this subtree before a nested
+	 * block's own outro would ever get a chance to run. So closing doesn't
+	 * call `onclose` directly — it sets `show` false, which this effect
+	 * notices and turns into a genuine local `isPresent` true->false flip
+	 * (correctly animating the still-mounted elements), only calling the
+	 * real `onclose` once that exit animation has had time to finish.
+	 */
+	let isPresent = $state(false);
+
+	$effect(() => {
+		if (!show && isPresent) {
+			isPresent = false;
+			const timeout = setTimeout(() => onclose?.(), durationBaseMs);
+			return () => clearTimeout(timeout);
+		}
+	});
 
 	let footerHeight = $state(0);
 	let keyboardInset = $state(0);
@@ -88,6 +119,7 @@
 		// iOS fires scroll, not resize, when the visual viewport merely shifts.
 		viewport?.addEventListener('scroll', handleViewportChange);
 		keyboardInset = readKeyboardInset();
+		isPresent = true;
 
 		if (show) {
 			onopen?.();
@@ -107,7 +139,7 @@
 	<BitsDialog.Portal>
 		<BitsDialog.Overlay forceMount>
 			{#snippet child({ props, open })}
-				{#if open}
+				{#if open && isPresent}
 					<div
 						{...props}
 						in:fade={{ duration: durationBaseMs, easing: easeEnter }}
@@ -124,7 +156,7 @@
 			preventScroll={true}
 		>
 			{#snippet child({ props, open })}
-				{#if open}
+				{#if open && isPresent}
 					<div
 						{...props}
 						in:growFromOrigin={{ origin: originRect, direction: 'in' }}

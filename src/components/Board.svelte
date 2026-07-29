@@ -91,17 +91,26 @@
 </script>
 
 {#if selectedNote}
-	<NoteEditor
-		{enableSharing}
-		{ondeletenote}
-		{originRect}
-		note={selectedNote}
-		friends={selectedNoteFriends}
-		onclose={handleModalClose}
-		ontogglefriendshare={(params) => ontogglefriend?.(params)}
-		onsavenote={handleSave}
-		onupdateColour={handleUpdateColour}
-	/>
+	<!--
+		Keyed by id: switching directly from one open note to another (same
+		truthy -> truthy transition) would otherwise reuse this instance and
+		leave its local open/close animation state (Dialog's isPresent,
+		NoteEditor's dialogShow) stuck from the note that was just closed,
+		instead of starting fresh for the new one.
+	-->
+	{#key selectedNote.id}
+		<NoteEditor
+			{enableSharing}
+			{ondeletenote}
+			{originRect}
+			note={selectedNote}
+			friends={selectedNoteFriends}
+			onclose={handleModalClose}
+			ontogglefriendshare={(params) => ontogglefriend?.(params)}
+			onsavenote={handleSave}
+			onupdateColour={handleUpdateColour}
+		/>
+	{/key}
 {/if}
 
 {#if notes.length === 0}

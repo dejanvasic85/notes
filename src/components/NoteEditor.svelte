@@ -49,6 +49,9 @@
 	let noteTitle: string | null = $state(note.title);
 	let editor: Editor | null = $state(null);
 	let justSaved = $state(false);
+	// Dialog owns turning this into the real onclose once its own exit
+	// animation has played — see Dialog.svelte.
+	let dialogShow = $state(true);
 	let savedHoldTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	onDestroy(() => {
@@ -122,7 +125,7 @@
 			}
 		}
 
-		onclose();
+		dialogShow = false;
 
 		if (navigator.vibrate) {
 			navigator.vibrate(50);
@@ -137,7 +140,7 @@
 
 <svelte:window onkeydown={(e) => e.code === 'Escape' && handleClose()} />
 
-<Dialog show={true} colour={note.colour} {originRect}>
+<Dialog bind:show={dialogShow} colour={note.colour} {originRect} {onclose}>
 	{#snippet header()}
 		<div class="px-2 pt-2">
 			<div class="flex justify-between">
