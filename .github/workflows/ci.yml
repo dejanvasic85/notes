@@ -6,7 +6,6 @@ env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
   PUBLIC_BUILD: ${{ github.ref_name }}-${{ github.run_number }}
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
-  PREVIEW_DOMAIN: notes-dev.vasic.com.au
   PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL }}
   SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
   SES_AWS_ACCESS_KEY_ID: ${{ secrets.SES_AWS_ACCESS_KEY_ID }}
@@ -85,10 +84,10 @@ jobs:
     name: Deploy Preview
     runs-on: ubuntu-latest
     needs: [build, test]
-    concurrency: preview_deploy
+    concurrency: preview_deploy-${{ github.ref }}
     environment:
       name: preview
-      url: https://${{ env.PREVIEW_DOMAIN }}
+      url: ${{ steps.deploy.outputs.deployment_url }}
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm and Node
@@ -96,10 +95,13 @@ jobs:
         with:
           install: false
       - name: Deploy
+        id: deploy
         run: |
           pnpm add --global vercel@canary
           vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
           vercel build --token=${{ secrets.VERCEL_TOKEN }}
           url="$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
-          # vercel alias --token=${{ secrets.VERCEL_TOKEN }} set "$url" ${{ env.PREVIEW_DOMAIN }}
-          echo "deployment_url=$url" >> $GITHUB_ENV
+          # VERCEL_TOKEN doesn't have access to alias custom domains, so notes-dev.vasic.com.au
+          # can't be repointed here. Not needed anyway — Auth0 allows the whole
+          # *-dejan-vasics-projects.vercel.app range, so login works on this per-deploy URL.
+          echo "deployment_url=$url" >> $GITHUB_OUTPUT
