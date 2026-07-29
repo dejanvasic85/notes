@@ -1,6 +1,7 @@
 import { ResultAsync } from 'neverthrow';
 import type { RequestHandler } from '@sveltejs/kit';
 
+import { getAuthBaseUrl } from '$lib/auth/baseUrl';
 import { getToken } from '$lib/auth/getToken';
 import type { AuthUserProfile } from '$lib/types';
 import { getOrCreateUser } from '$lib/server/services/userService';
@@ -19,7 +20,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		return new Response('Invalid state', { status: 403 });
 	}
 
-	const result = await getToken({ code })
+	const result = await getToken({ code, baseUrl: getAuthBaseUrl(url) })
 		.andThen((token) => tryVerifyToken<AuthUserProfile>(token.id_token))
 		.andThen((authUser) => getOrCreateUser({ email: authUser.email, authUserProfile: authUser }))
 		.andThen((user) =>
