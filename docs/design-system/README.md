@@ -1,8 +1,7 @@
 # Notes Design System
 
-> **Status: proposed.** Nothing here is wired into the app yet. `src/routes/app.css` still
-> holds the old tokens. Adoption is tracked as separate pieces of work — see
-> [Adoption path](#adoption-path).
+> **Status: adopted.** All seven steps of the [Adoption path](#adoption-path) have landed,
+> #824 through #829. This document now describes the app as built, not a proposal.
 
 The direction is **"cool room, warm paper."** The interface around your notes is quiet and
 slightly cool; the notes themselves are warm. That contrast is the whole idea — the only
@@ -301,7 +300,7 @@ fades.
 
 ## 7. Motion
 
-**Specified, not yet built.** The rule that makes motion feel calm rather than busy: things
+**Landed in #829.** The rule that makes motion feel calm rather than busy: things
 **arrive slowly and leave quickly.** Only direct manipulation may overshoot — content never
 bounces.
 
@@ -330,15 +329,29 @@ form resolves to `transition-duration: var(--duration-fast)`. The square-bracket
 | Board load   | 240ms enter | Cards fade up 8px at scale .98, staggered 30ms in reading order. Caps at 8 cards.                       |
 | Open a note  | 420ms enter | The card's colour and radius expand into the sheet — the note grows rather than a panel flying over it. |
 | Close        | 240ms exit  | Reverses, faster. The asymmetry is the point.                                                           |
-| Toolbar mark | 240ms move  | The filled pill slides between icons instead of two fades.                                              |
+| Toolbar mark | 240ms move  | The filled pill slides between icons instead of two fades. Nav only — see note below.¹                  |
 | Button press | 100ms press | Scale to .94 then settle. Pairs with the existing 50ms haptic.                                          |
-| FAB          | 360ms press | Icon rotates 90° from plus to close as the sheet opens.                                                 |
+| FAB          | 360ms press | Icon rotates on press as a tap flourish, not a persistent open/close swap.²                             |
 | Reorder      | 240ms move  | FLIP on surviving cards so neighbours slide rather than jump.                                           |
-| Toast        | 240ms enter | Drops 12px and fades in at top centre, clearing the sticky header.                                      |
+| Toast        | —           | Left on svelte-sonner's own defaults. Consciously dropped — see note below.³                            |
 | Save         | 160ms move  | Label crossfades to a check, holds 800ms, returns. No spinner for sub-second work.                      |
 
-**All of it sits behind `prefers-reduced-motion`,** which the app does not honour anywhere
-today.
+**All of it sits behind `prefers-reduced-motion`**, honoured globally in `app.css` (zeroes
+`animation-duration`/`transition-duration`), which covers every transition and animation on
+this page including Svelte's `css`-function transitions and `animate:flip`.
+
+Three rows shipped narrower than specced, in #829:
+
+1. The sliding pill applies to the Home/Friends nav mark, which is genuinely
+   single-selection. The rich-text toolbar's Bold/Italic/Underline/List buttons are
+   independent toggles — several can be active at once — so a single shared pill can't
+   represent them; they get a smooth colour transition on the same tokens instead.
+2. The create button's action never changes to "close" (the header `X` remains the only
+   close control), so a lingering close glyph after the rotate would be a false affordance.
+   The rotate is a tap flourish that returns to the plus.
+3. svelte-sonner owns its toast's internal transition timing. Its default translate+fade
+   already reads calm; retargeting a vendored `<style global>` block was judged too fragile
+   for the payoff.
 
 ---
 
@@ -346,18 +359,17 @@ today.
 
 These are bugs, not preferences. Verified against the built CSS.
 
-| Where                                                       | Problem                                                                                                                 |
-| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `src/lib/button.ts:4`                                       | `focus:outline-hidden` with no replacement — keyboard focus invisible app-wide                                          |
-| `src/lib/button.ts:14`                                      | `dark:hover:darkHover` is not a Tailwind class; 0 matches in built CSS. Ghost buttons have no dark hover                |
-| `src/components/Menu.svelte:114`                            | `.selected { border: 4px solid var(--primary) }` — the token is `--color-primary`, so this falls back to `currentColor` |
-| `src/components/ProfileMenu.svelte:39`                      | `hover:bg-slate` has no shade → 0 matches; also two conflicting light hover backgrounds                                 |
-| `src/routes/app.css`                                        | `--min-height-0…6` is the string `.25rem` split one character per line                                                  |
-| `src/routes/privacy/+page.svelte:6`, `terms/+page.svelte:6` | `prose-lg` without the base `prose` class — typography is inert                                                         |
-| `src/routes/app.css`                                        | Poppins loaded at 400/500 while `font-bold` (700) is used — faux bold                                                   |
-| `package.json`                                              | `@fontsource/fira-mono` and `@neoconfetti/svelte` are never imported                                                    |
-| `src/app.html`                                              | No `initial-scale=1`, no `viewport-fit=cover`, no `color-scheme`                                                        |
-| Throughout                                                  | Zero `env(safe-area-inset-*)` usage; `h-screen` / `h-[90vh]` instead of `dvh`                                           |
+| Where                                                       | Problem                                                                                                  |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `src/lib/button.ts:4`                                       | `focus:outline-hidden` with no replacement — keyboard focus invisible app-wide                           |
+| `src/lib/button.ts:14`                                      | `dark:hover:darkHover` is not a Tailwind class; 0 matches in built CSS. Ghost buttons have no dark hover |
+| `src/components/ProfileMenu.svelte:39`                      | `hover:bg-slate` has no shade → 0 matches; also two conflicting light hover backgrounds                  |
+| `src/routes/app.css`                                        | `--min-height-0…6` is the string `.25rem` split one character per line                                   |
+| `src/routes/privacy/+page.svelte:6`, `terms/+page.svelte:6` | `prose-lg` without the base `prose` class — typography is inert                                          |
+| `src/routes/app.css`                                        | Poppins loaded at 400/500 while `font-bold` (700) is used — faux bold                                    |
+| `package.json`                                              | `@fontsource/fira-mono` and `@neoconfetti/svelte` are never imported                                     |
+| `src/app.html`                                              | No `initial-scale=1`, no `viewport-fit=cover`, no `color-scheme`                                         |
+| Throughout                                                  | Zero `env(safe-area-inset-*)` usage; `h-screen` / `h-[90vh]` instead of `dvh`                            |
 
 ---
 

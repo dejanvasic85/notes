@@ -1,7 +1,12 @@
 export type Variant = 'primary' | 'quiet' | 'ghost' | 'danger';
 export type Size = 'sm' | 'md';
 
-const baseClasses = `flex items-center justify-center gap-2 transition-colors duration-150`;
+/*
+ * Press: scale to .94 then settle, pairing with the existing 50ms haptic on
+ * click. ease-press is the one curve allowed to overshoot, so easing the
+ * release with it too gives the settle its little bounce back to 1.
+ */
+const baseClasses = `flex items-center justify-center gap-2 transition-[color,background-color,border-color,transform] duration-(--duration-fast) active:scale-[0.94] active:duration-(--duration-tap) ease-press`;
 
 const sizeClasses = {
 	sm: 'min-h-8 min-w-8 p-1.5',

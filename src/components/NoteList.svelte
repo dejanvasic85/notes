@@ -1,17 +1,21 @@
 <script lang="ts" generics="T">
 	import type { Snippet } from 'svelte';
+	import { flip } from 'svelte/animate';
 	import { MediaQuery } from 'svelte/reactivity';
+
+	import { durationBaseMs, easeMove } from '$lib/motion';
 
 	type Props = {
 		items: T[];
 		item: Snippet<[T, number]>;
+		key: (item: T) => string | number;
 	};
 
 	const narrowColumnCount = 2;
 	const mediumColumnCount = 3;
 	const wideColumnCount = 4;
 
-	let { items, item }: Props = $props();
+	let { items, item, key }: Props = $props();
 
 	/*
 	 * Columns are built here rather than with CSS `columns` because the board
@@ -37,8 +41,10 @@
 <div class="flex items-start gap-3 lg:gap-4">
 	{#each columns as column, columnIndex (columnIndex)}
 		<div class="flex min-w-0 flex-1 flex-col gap-3 lg:gap-4" role="list">
-			{#each column as entry (entry.index)}
-				{@render item(entry.value, entry.index)}
+			{#each column as entry (key(entry.value))}
+				<div animate:flip={{ duration: durationBaseMs, easing: easeMove }}>
+					{@render item(entry.value, entry.index)}
+				</div>
 			{/each}
 		</div>
 	{/each}

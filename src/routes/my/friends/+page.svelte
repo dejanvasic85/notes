@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { crossfade } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
 	import { Tabs } from 'bits-ui';
 
 	import { Check, X } from '@lucide/svelte';
@@ -8,6 +7,7 @@
 	import Skeleton from '$components/Skeleton.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
 	import FriendListItem from '$components/FriendListItem.svelte';
+	import { durationBaseMs, easeMove } from '$lib/motion';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { createFriendsActions } from '$lib/state/friendsActions';
@@ -22,8 +22,8 @@
 	let activeTab: TabValue = $state(tabs.friends);
 
 	const [send, receive] = crossfade({
-		duration: 250,
-		easing: cubicInOut
+		duration: durationBaseMs,
+		easing: easeMove
 	});
 
 	const friendsState = getFriendsState();

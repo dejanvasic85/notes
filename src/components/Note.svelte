@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getNoteCssClass } from '$lib/colours';
+	import { boardEnterDelayMs } from '$lib/motion';
 	import { formatNoteDate } from '$lib/noteDate';
 	import { getNotePreview } from '$lib/notePreview';
 	import type { NoteOrdered, Friend, UserProfile } from '$lib/types';
@@ -12,7 +13,7 @@
 		index: number;
 		isDraggable?: boolean;
 		friends?: Friend[];
-		onclick: () => void;
+		onclick: (originRect: DOMRect) => void;
 		ondragstart?: (index: number) => void;
 		ondragend?: () => void;
 	};
@@ -35,6 +36,8 @@
 		ondragstart,
 		ondragend
 	}: Props = $props();
+
+	const enterDelayMs = $derived(boardEnterDelayMs(index));
 
 	let isDragging = $state(false);
 	let isHovering = $state(false);
@@ -123,21 +126,26 @@
 	function handleKeyDown(event: KeyboardEvent) {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			onclick();
+			onclick((event.currentTarget as HTMLElement).getBoundingClientRect());
 		}
+	}
+
+	function handleClick(event: MouseEvent) {
+		onclick((event.currentTarget as HTMLElement).getBoundingClientRect());
 	}
 </script>
 
 <div
 	id={note.id}
 	aria-label={accessibleLabel}
-	class="rounded-card shadow-card hover:shadow-lifted w-full break-words select-none hover:cursor-grab {className} p-3.5 lg:p-4 {isDragging
+	class="rounded-card shadow-card hover:shadow-lifted animate-card-enter w-full break-words select-none hover:cursor-grab {className} p-3.5 lg:p-4 {isDragging
 		? 'opacity-50'
 		: ''}"
+	style:animation-delay="{enterDelayMs}ms"
 	tabindex="0"
 	role="button"
 	draggable={isDraggable}
-	{onclick}
+	onclick={handleClick}
 	onkeydown={handleKeyDown}
 	ondragstart={handleDragStart}
 	ondragend={handleDragEnd}

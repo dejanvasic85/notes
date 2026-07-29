@@ -110,7 +110,7 @@
 </svelte:head>
 
 {#if loading}
-	<NoteList items={skeletonHeights}>
+	<NoteList items={skeletonHeights} key={(heightClass) => heightClass}>
 		{#snippet item(heightClass)}
 			<Skeleton {heightClass} />
 		{/snippet}

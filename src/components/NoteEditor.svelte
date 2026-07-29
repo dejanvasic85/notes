@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { Editor } from '@tiptap/core';
+	import { fade } from 'svelte/transition';
 
 	import { type Colour } from '$lib/colours';
+	import { durationFastMs, easeMove, type OriginRect } from '$lib/motion';
 	import type { FriendSelection, NoteOrdered, ToggleFriendShare } from '$lib/types';
-	import { X, Trash2 } from '@lucide/svelte';
+	import { X, Trash2, Check } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
 	import Dialog from './Dialog.svelte';
@@ -12,10 +14,16 @@
 	import Toolbar from './Toolbar.svelte';
 	import UserAvatar from './UserAvatar.svelte';
 
+	// Save: label crossfades to a check, holds, then returns. No spinner for
+	// sub-second work.
+	const savedHoldMs = 800;
+	const saveIconSize = 20;
+
 	type Props = {
 		enableSharing?: boolean;
 		note: NoteOrdered;
 		friends: FriendSelection[];
+		originRect?: OriginRect | null;
 		onclose: () => void;
 		ondeletenote: (params: { note: NoteOrdered }) => void;
 		onsavenote: (params: { note: NoteOrdered }) => void;
@@ -27,6 +35,7 @@
 		enableSharing = false,
 		note,
 		friends = [],
+		originRect = null,
 		onclose,
 		ondeletenote,
 		onsavenote,
@@ -38,6 +47,7 @@
 	let noteTextPlain: string = $state(note.textPlain);
 	let noteTitle: string | null = $state(note.title);
 	let editor: Editor | null = $state(null);
+	let justSaved = $state(false);
 
 	let hasUnsavedChanges = $derived(
 		noteText !== note.text || noteTextPlain !== note.textPlain || noteTitle !== note.title
@@ -63,6 +73,14 @@
 		if (navigator.vibrate) {
 			navigator.vibrate(50);
 		}
+
+		justSaved = true;
+		setTimeout(() => {
+			justSaved = false;
+			// handleClose, not onclose directly: further edits typed during the
+			// hold would otherwise be discarded with no unsaved-changes prompt.
+			handleClose();
+		}, savedHoldMs);
 	}
 
 	function handleDeleteClick() {
@@ -106,7 +124,7 @@
 
 <svelte:window onkeydown={(e) => e.code === 'Escape' && handleClose()} />
 
-<Dialog show={true} colour={note.colour}>
+<Dialog show={true} colour={note.colour} {originRect}>
 	{#snippet header()}
 		<div class="px-2 pt-2">
 			<div class="flex justify-between">
@@ -174,7 +192,21 @@
 				{/each}
 			</div>
 			<div class="ml-auto">
-				<Button onclick={handleSave}>Save note</Button>
+				<Button onclick={handleSave} label={justSaved ? 'Note saved' : 'Save note'}>
+					{#key justSaved}
+						<span
+							class="inline-flex items-center"
+							in:fade={{ duration: durationFastMs, easing: easeMove }}
+							out:fade={{ duration: durationFastMs, easing: easeMove }}
+						>
+							{#if justSaved}
+								<Check size={saveIconSize} aria-hidden="true" />
+							{:else}
+								Save note
+							{/if}
+						</span>
+					{/key}
+				</Button>
 			</div>
 		</div>
 	{/snippet}

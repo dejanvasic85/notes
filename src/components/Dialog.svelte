@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { onMount, type Snippet } from 'svelte';
-	import { fade, fly } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import { Dialog as BitsDialog } from 'bits-ui';
 
 	import { type Colour, colours } from '$lib/colours';
+	import { durationBaseMs, durationFastMs, easeEnter, easeExit, growFromOrigin } from '$lib/motion';
+	import type { OriginRect } from '$lib/motion';
 
 	type Props = {
 		header: Snippet<[]>;
@@ -12,10 +14,10 @@
 		floating?: Snippet<[]>;
 		show: boolean;
 		colour?: Colour | null;
+		originRect?: OriginRect | null;
 		onopen?: () => void;
 	};
 
-	const desktopQuery = '(min-width: 1024px)';
 	const floatingGap = '0.5rem';
 	/*
 	 * The keyboard maths below only describes a keyboard while the page sits at
@@ -31,18 +33,12 @@
 		floating,
 		show = $bindable(false),
 		colour = $bindable(null),
+		originRect = null,
 		onopen
 	}: Props = $props();
 
 	const className = $derived(colours.find((c) => c.name === colour)?.cssClass ?? 'bg-paper border');
 
-	/*
-	 * Only the fly direction reads this. The sheet's geometry is plain `lg:`
-	 * utilities, so the server renders the same shape the client hydrates —
-	 * the old `window.innerWidth` check was always false during SSR and made
-	 * desktop flip from a bottom sheet to a side panel on hydrate.
-	 */
-	let isDesktop = $state(false);
 	let footerHeight = $state(0);
 	let keyboardInset = $state(0);
 	let frame: number | null = null;
@@ -87,12 +83,6 @@
 	}
 
 	onMount(() => {
-		const desktop = window.matchMedia(desktopQuery);
-		const handleBreakpointChange = (event: MediaQueryListEvent) => (isDesktop = event.matches);
-
-		isDesktop = desktop.matches;
-		desktop.addEventListener('change', handleBreakpointChange);
-
 		const viewport = window.visualViewport;
 		viewport?.addEventListener('resize', handleViewportChange);
 		// iOS fires scroll, not resize, when the visual viewport merely shifts.
@@ -104,7 +94,6 @@
 		}
 
 		return () => {
-			desktop.removeEventListener('change', handleBreakpointChange);
 			viewport?.removeEventListener('resize', handleViewportChange);
 			viewport?.removeEventListener('scroll', handleViewportChange);
 			if (frame !== null) {
@@ -121,7 +110,8 @@
 				{#if open}
 					<div
 						{...props}
-						transition:fade={{ duration: 150 }}
+						in:fade={{ duration: durationBaseMs, easing: easeEnter }}
+						out:fade={{ duration: durationFastMs, easing: easeExit }}
 						class="z-overlay fixed inset-0 bg-black/50 backdrop-blur-xs"
 					></div>
 				{/if}
@@ -137,11 +127,8 @@
 				{#if open}
 					<div
 						{...props}
-						transition:fly={{
-							duration: 200,
-							y: isDesktop ? 0 : 400,
-							x: isDesktop ? 400 : 0
-						}}
+						in:growFromOrigin={{ origin: originRect, direction: 'in' }}
+						out:growFromOrigin={{ origin: originRect, direction: 'out' }}
 						class="z-dialog shadow-sheet rounded-t-sheet lg:rounded-l-sheet fixed right-0 bottom-0 left-0 flex h-[90dvh] flex-col pb-[env(safe-area-inset-bottom)] lg:top-0 lg:bottom-auto lg:left-auto lg:h-dvh lg:w-4/5 lg:max-w-3xl lg:rounded-t-none {className}"
 					>
 						<!-- header -->
