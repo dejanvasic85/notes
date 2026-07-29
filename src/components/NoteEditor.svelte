@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import type { Editor } from '@tiptap/core';
 	import { fade } from 'svelte/transition';
 
@@ -48,6 +49,13 @@
 	let noteTitle: string | null = $state(note.title);
 	let editor: Editor | null = $state(null);
 	let justSaved = $state(false);
+	let savedHoldTimeout: ReturnType<typeof setTimeout> | null = null;
+
+	onDestroy(() => {
+		if (savedHoldTimeout !== null) {
+			clearTimeout(savedHoldTimeout);
+		}
+	});
 
 	let hasUnsavedChanges = $derived(
 		noteText !== note.text || noteTextPlain !== note.textPlain || noteTitle !== note.title
@@ -74,8 +82,13 @@
 			navigator.vibrate(50);
 		}
 
+		if (savedHoldTimeout !== null) {
+			clearTimeout(savedHoldTimeout);
+		}
+
 		justSaved = true;
-		setTimeout(() => {
+		savedHoldTimeout = setTimeout(() => {
+			savedHoldTimeout = null;
 			justSaved = false;
 			// handleClose, not onclose directly: further edits typed during the
 			// hold would otherwise be discarded with no unsaved-changes prompt.

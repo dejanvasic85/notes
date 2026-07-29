@@ -1,7 +1,8 @@
 # Notes Design System
 
-> **Status: adopted.** All seven steps of the [Adoption path](#adoption-path) have landed,
-> #824 through #829. This document now describes the app as built, not a proposal.
+> **Status: adopted.** All seven steps of the [Adoption path](#adoption-path) have landed
+> across six PRs, #824 through #829 (steps 1 and 2 shipped together in #824). This document
+> now describes the app as built, not a proposal.
 
 The direction is **"cool room, warm paper."** The interface around your notes is quiet and
 slightly cool; the notes themselves are warm. That contrast is the whole idea — the only
