@@ -65,6 +65,18 @@
 	$effect(() => {
 		if (!show && isPresent) {
 			isPresent = false;
+		}
+	});
+
+	/*
+	 * Deliberately a second, separate effect that only reads `show` — not
+	 * `isPresent`. An effect that both reads and writes the same piece of
+	 * state (as above) reruns itself the instant it writes, and Svelte calls
+	 * the *previous* run's cleanup before that rerun — which would clear this
+	 * timeout before it ever fires, silently dropping the real `onclose`.
+	 */
+	$effect(() => {
+		if (!show) {
 			const timeout = setTimeout(() => onclose?.(), durationBaseMs);
 			return () => clearTimeout(timeout);
 		}
