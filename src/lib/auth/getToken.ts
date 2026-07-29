@@ -7,7 +7,7 @@ import { tryFetchJson } from '$lib/server/serverFetch';
 
 interface GetTokenParams {
 	code: string;
-	baseUrl: string;
+	redirectUri: string;
 }
 
 export const GetTokenResponseSchema = z.object({
@@ -22,7 +22,7 @@ export type GetTokenResponse = z.infer<typeof GetTokenResponseSchema>;
 
 export const getToken = ({
 	code,
-	baseUrl
+	redirectUri
 }: GetTokenParams): ResultAsync<GetTokenResponse, ServerError> => {
 	return tryFetchJson(`https://${AUTH0_DOMAIN}/oauth/token`, {
 		method: 'POST',
@@ -30,7 +30,7 @@ export const getToken = ({
 			code,
 			client_id: AUTH0_CLIENT_ID,
 			client_secret: AUTH0_CLIENT_SECRET,
-			redirect_uri: `${baseUrl}/api/auth/callback`,
+			redirect_uri: redirectUri,
 			grant_type: 'authorization_code'
 		}),
 		headers: {

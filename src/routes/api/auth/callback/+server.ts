@@ -20,7 +20,11 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		return new Response('Invalid state', { status: 403 });
 	}
 
-	const result = await getToken({ code, baseUrl: getAuthBaseUrl(url) })
+	// Must match the redirect_uri sent to /authorize (including the returnUrl query)
+	// exactly, or Auth0 rejects the code exchange.
+	const redirectUri = `${getAuthBaseUrl(url)}/api/auth/callback?returnUrl=${encodeURIComponent(returnUrl)}`;
+
+	const result = await getToken({ code, redirectUri })
 		.andThen((token) => tryVerifyToken<AuthUserProfile>(token.id_token))
 		.andThen((authUser) => getOrCreateUser({ email: authUser.email, authUserProfile: authUser }))
 		.andThen((user) =>
