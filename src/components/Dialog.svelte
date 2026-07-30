@@ -56,29 +56,39 @@
 	 * first evaluation is treated as "already there", so both the intro and
 	 * (since it was never properly registered) the later outro silently no-op.
 	 * Gating on `open && isPresent`, where `isPresent` starts false and flips
-	 * true one tick after mount, gives Svelte that genuine flip to animate.
+	 * true one tick after mount (via the effect below, once `hasMounted`),
+	 * gives Svelte that genuine flip to animate.
 	 *
 	 * The same problem hits closing from the other direction: the consumer
 	 * unmounts this whole component (Board's `{#if selectedNote}`) as soon as
 	 * it decides to close, which tears down this subtree before a nested
 	 * block's own outro would ever get a chance to run. So closing doesn't
-	 * call `onclose` directly — it sets `show` false, which this effect
-	 * notices and turns into a genuine local `isPresent` true->false flip,
-	 * correctly animating the still-mounted elements. The real `onclose`
-	 * only fires once that exit animation actually finishes, via the
-	 * panel's own `onoutroend` below — not a timer guessing the duration,
-	 * which would drift from reality under `prefers-reduced-motion` (the
-	 * CSS override collapses the real animation to ~0ms, but a JS timer
-	 * sized for the un-reduced duration wouldn't know that, so closing
-	 * would visually finish instantly while the app kept treating the note
-	 * as still open for another 240ms).
+	 * call `onclose` directly — it sets `show` false, which this effect turns
+	 * into a genuine local `isPresent` true->false flip, correctly animating
+	 * the still-mounted elements. Syncing both directions (not just false)
+	 * also means a `show` that goes back to true on an already-mounted
+	 * instance — not exercised by NoteEditor today, but not ruled out by this
+	 * component's own contract either — re-opens instead of staying stuck.
+	 *
+	 * The real `onclose` only fires once the exit animation actually
+	 * finishes, via the panel's own `onoutroend` below — not a timer guessing
+	 * the duration, which would drift from reality under
+	 * `prefers-reduced-motion` (the CSS override collapses the real animation
+	 * to ~0ms, but a JS timer sized for the un-reduced duration wouldn't know
+	 * that, so closing would visually finish instantly while the app kept
+	 * treating the note as still open for another 240ms).
 	 */
 	let isPresent = $state(false);
+	// Plain, not $state: read inside the effect below to gate it without
+	// becoming one of its own dependencies. isPresent itself must stay out of
+	// that effect's reads too — an effect that both reads and writes the same
+	// state reruns itself the instant it writes, and Svelte would call this
+	// effect's own cleanup (if it had one) before that rerun.
+	let hasMounted = false;
 
 	$effect(() => {
-		if (!show && isPresent) {
-			isPresent = false;
-		}
+		if (!hasMounted) return;
+		isPresent = show;
 	});
 
 	function handlePanelOutroEnd() {
@@ -136,7 +146,8 @@
 		// iOS fires scroll, not resize, when the visual viewport merely shifts.
 		viewport?.addEventListener('scroll', handleViewportChange);
 		keyboardInset = readKeyboardInset();
-		isPresent = true;
+		hasMounted = true;
+		isPresent = show;
 
 		if (show) {
 			onopen?.();
