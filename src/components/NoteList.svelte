@@ -4,7 +4,7 @@
 	import { fade } from 'svelte/transition';
 	import { MediaQuery } from 'svelte/reactivity';
 
-	import { durationBaseMs, easeMove } from '$lib/motion';
+	import { durationBaseMs, easeMove, reduceMotion } from '$lib/motion';
 
 	type Props = {
 		items: T[];
@@ -53,9 +53,9 @@
 					soft cross-fade instead of a hard jump.
 				-->
 				<div
-					animate:flip={{ duration: durationBaseMs, easing: easeMove }}
-					in:fade={{ duration: durationBaseMs, easing: easeMove }}
-					out:fade={{ duration: durationBaseMs, easing: easeMove }}
+					animate:flip={{ duration: reduceMotion(durationBaseMs), easing: easeMove }}
+					in:fade={{ duration: reduceMotion(durationBaseMs), easing: easeMove }}
+					out:fade={{ duration: reduceMotion(durationBaseMs), easing: easeMove }}
 				>
 					{@render item(entry.value, entry.index)}
 				</div>

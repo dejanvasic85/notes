@@ -2,7 +2,7 @@
 	import { fly } from 'svelte/transition';
 	import { DropdownMenu } from 'bits-ui';
 
-	import { durationFastMs, easeMove } from '$lib/motion';
+	import { durationFastMs, easeMove, reduceMotion } from '$lib/motion';
 	import { Settings, LogOut, type LucideIcon } from '@lucide/svelte';
 	import UserAvatar from './UserAvatar.svelte';
 
@@ -57,7 +57,7 @@
 					<div {...wrapperProps}>
 						<div
 							{...props}
-							transition:fly={{ duration: durationFastMs, y: -10, easing: easeMove }}
+							transition:fly={{ duration: reduceMotion(durationFastMs), y: -10, easing: easeMove }}
 							class="menu z-dropdown bg-paper border-line rounded-card flex w-72 flex-col justify-between border p-6"
 						>
 							<div class="flex">

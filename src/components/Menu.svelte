@@ -4,7 +4,7 @@
 	import { House, CirclePlus, Users } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
-	import { durationBaseMs, durationSlowMs, easeMove } from '$lib/motion';
+	import { durationBaseMs, durationSlowMs, easeMove, reduceMotion } from '$lib/motion';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 
 	type Props = {
@@ -24,8 +24,10 @@
 
 	// Same technique as the friends-page tab indicator: the filled mark slides
 	// between Home and Friends instead of the border just snapping colour.
+	// The per-call duration below is what actually takes effect; this default
+	// only guards a call site that forgets to pass one.
 	const [sendActiveMark, receiveActiveMark] = crossfade({
-		duration: durationBaseMs,
+		duration: reduceMotion(durationBaseMs),
 		easing: easeMove
 	});
 	let isCreatePressed = $state(false);
@@ -45,7 +47,7 @@
 		isCreatePressed = true;
 		setTimeout(() => {
 			isCreatePressed = false;
-		}, durationSlowMs);
+		}, reduceMotion(durationSlowMs));
 
 		if (navigator.vibrate) {
 			navigator.vibrate(50);
@@ -77,8 +79,8 @@
 			/>
 			{#if isSelected('home')}
 				<div
-					in:sendActiveMark={{ key: activeMarkKey }}
-					out:receiveActiveMark={{ key: activeMarkKey }}
+					in:sendActiveMark={{ key: activeMarkKey, duration: reduceMotion(durationBaseMs) }}
+					out:receiveActiveMark={{ key: activeMarkKey, duration: reduceMotion(durationBaseMs) }}
 					class="bg-accent absolute bottom-0 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full"
 					aria-hidden="true"
 				></div>
@@ -109,8 +111,8 @@
 			{/if}
 			{#if isSelected('friends')}
 				<div
-					in:sendActiveMark={{ key: activeMarkKey }}
-					out:receiveActiveMark={{ key: activeMarkKey }}
+					in:sendActiveMark={{ key: activeMarkKey, duration: reduceMotion(durationBaseMs) }}
+					out:receiveActiveMark={{ key: activeMarkKey, duration: reduceMotion(durationBaseMs) }}
 					class="bg-accent absolute bottom-0 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full"
 					aria-hidden="true"
 				></div>

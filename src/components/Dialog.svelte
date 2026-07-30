@@ -4,7 +4,14 @@
 	import { Dialog as BitsDialog } from 'bits-ui';
 
 	import { type Colour, colours } from '$lib/colours';
-	import { durationBaseMs, durationFastMs, easeEnter, easeExit, growFromOrigin } from '$lib/motion';
+	import {
+		durationBaseMs,
+		durationFastMs,
+		easeEnter,
+		easeExit,
+		growFromOrigin,
+		reduceMotion
+	} from '$lib/motion';
 	import type { OriginRect } from '$lib/motion';
 
 	type Props = {
@@ -56,9 +63,15 @@
 	 * it decides to close, which tears down this subtree before a nested
 	 * block's own outro would ever get a chance to run. So closing doesn't
 	 * call `onclose` directly — it sets `show` false, which this effect
-	 * notices and turns into a genuine local `isPresent` true->false flip
-	 * (correctly animating the still-mounted elements), only calling the
-	 * real `onclose` once that exit animation has had time to finish.
+	 * notices and turns into a genuine local `isPresent` true->false flip,
+	 * correctly animating the still-mounted elements. The real `onclose`
+	 * only fires once that exit animation actually finishes, via the
+	 * panel's own `onoutroend` below — not a timer guessing the duration,
+	 * which would drift from reality under `prefers-reduced-motion` (the
+	 * CSS override collapses the real animation to ~0ms, but a JS timer
+	 * sized for the un-reduced duration wouldn't know that, so closing
+	 * would visually finish instantly while the app kept treating the note
+	 * as still open for another 240ms).
 	 */
 	let isPresent = $state(false);
 
@@ -68,19 +81,11 @@
 		}
 	});
 
-	/*
-	 * Deliberately a second, separate effect that only reads `show` — not
-	 * `isPresent`. An effect that both reads and writes the same piece of
-	 * state (as above) reruns itself the instant it writes, and Svelte calls
-	 * the *previous* run's cleanup before that rerun — which would clear this
-	 * timeout before it ever fires, silently dropping the real `onclose`.
-	 */
-	$effect(() => {
+	function handlePanelOutroEnd() {
 		if (!show) {
-			const timeout = setTimeout(() => onclose?.(), durationBaseMs);
-			return () => clearTimeout(timeout);
+			onclose?.();
 		}
-	});
+	}
 
 	let footerHeight = $state(0);
 	let keyboardInset = $state(0);
@@ -154,8 +159,8 @@
 				{#if open && isPresent}
 					<div
 						{...props}
-						in:fade={{ duration: durationBaseMs, easing: easeEnter }}
-						out:fade={{ duration: durationFastMs, easing: easeExit }}
+						in:fade={{ duration: reduceMotion(durationBaseMs), easing: easeEnter }}
+						out:fade={{ duration: reduceMotion(durationFastMs), easing: easeExit }}
 						class="z-overlay fixed inset-0 bg-black/50 backdrop-blur-xs"
 					></div>
 				{/if}
@@ -173,6 +178,7 @@
 						{...props}
 						in:growFromOrigin={{ origin: originRect, direction: 'in' }}
 						out:growFromOrigin={{ origin: originRect, direction: 'out' }}
+						onoutroend={handlePanelOutroEnd}
 						class="z-dialog shadow-sheet rounded-t-sheet lg:rounded-l-sheet fixed right-0 bottom-0 left-0 flex h-[90dvh] flex-col pb-[env(safe-area-inset-bottom)] lg:top-0 lg:bottom-auto lg:left-auto lg:h-dvh lg:w-4/5 lg:max-w-3xl lg:rounded-t-none {className}"
 					>
 						<!-- header -->

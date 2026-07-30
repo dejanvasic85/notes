@@ -4,7 +4,7 @@
 	import { fade } from 'svelte/transition';
 
 	import { type Colour } from '$lib/colours';
-	import { durationFastMs, easeMove, type OriginRect } from '$lib/motion';
+	import { durationFastMs, easeMove, reduceMotion, type OriginRect } from '$lib/motion';
 	import type { FriendSelection, NoteOrdered, ToggleFriendShare } from '$lib/types';
 	import { X, Trash2, Check } from '@lucide/svelte';
 
@@ -212,8 +212,8 @@
 					{#key justSaved}
 						<span
 							class="inline-flex items-center"
-							in:fade={{ duration: durationFastMs, easing: easeMove }}
-							out:fade={{ duration: durationFastMs, easing: easeMove }}
+							in:fade={{ duration: reduceMotion(durationFastMs), easing: easeMove }}
+							out:fade={{ duration: reduceMotion(durationFastMs), easing: easeMove }}
 						>
 							{#if justSaved}
 								<Check size={saveIconSize} aria-hidden="true" />

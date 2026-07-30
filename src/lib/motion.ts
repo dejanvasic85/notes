@@ -1,4 +1,5 @@
 import { cubicIn, cubicInOut, cubicOut } from 'svelte/easing';
+import { prefersReducedMotion } from 'svelte/motion';
 import type { TransitionConfig } from 'svelte/transition';
 
 /*
@@ -21,6 +22,18 @@ export const easeExit = cubicIn;
 // cubicInOut is closest, and is already what the friends-page tab indicator
 // uses for the same kind of move.
 export const easeMove = cubicInOut;
+
+/*
+ * Svelte's transition/animate/crossfade directives compile to Web Animations
+ * API calls, which run entirely independently of CSS — the global
+ * `prefers-reduced-motion` override in app.css only forces `animation-
+ * duration`/`transition-duration` on real CSS animations/transitions, so it
+ * cannot reach any of these. Every duration handed to one of those
+ * directives needs to be wrapped in this instead.
+ */
+export function reduceMotion(ms: number): number {
+	return prefersReducedMotion.current ? 0 : ms;
+}
 
 const boardStaggerMs = 30;
 const boardStaggerCap = 8;
@@ -53,7 +66,7 @@ const rootStyle = () => getComputedStyle(document.documentElement);
  * fade, since there is nothing to grow from.
  */
 export function growFromOrigin(node: Element, { origin, direction }: GrowParams): TransitionConfig {
-	const duration = direction === 'in' ? durationSheetMs : durationBaseMs;
+	const duration = reduceMotion(direction === 'in' ? durationSheetMs : durationBaseMs);
 	const easing = direction === 'in' ? easeEnter : easeExit;
 
 	if (!origin) {

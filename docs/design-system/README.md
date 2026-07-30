@@ -337,9 +337,16 @@ form resolves to `transition-duration: var(--duration-fast)`. The square-bracket
 | Toast        | —           | Left on svelte-sonner's own defaults. Consciously dropped — see note below.³                            |
 | Save         | 160ms move  | Label crossfades to a check, holds 800ms, returns. No spinner for sub-second work.                      |
 
-**All of it sits behind `prefers-reduced-motion`**, honoured globally in `app.css` (zeroes
-`animation-duration`/`transition-duration`), which covers every transition and animation on
-this page including Svelte's `css`-function transitions and `animate:flip`.
+**All of it sits behind `prefers-reduced-motion`** — two different ways, because one
+mechanism doesn't cover both cases. The global rule in `app.css` (zeroing `animation-
+duration`/`transition-duration`) reaches genuine CSS animations and transitions: the board's
+`animate-card-enter` keyframe and every plain Tailwind `transition-*` (button press, nav
+press). It does **not** reach anything driven by a Svelte `transition:`/`in:`/`out:`/
+`animate:`/`crossfade` directive — those compile to Web Animations API calls, which run
+independently of CSS and ignore that rule entirely. Every duration fed to one of those
+(`growFromOrigin`, the overlay fade, FLIP, the nav crossfade, the save crossfade, and the
+smaller slide/fly transitions elsewhere) goes through `reduceMotion()` in `src/lib/motion.ts`,
+which reads `prefersReducedMotion` from `svelte/motion` and collapses the duration to zero.
 
 Three rows shipped narrower than specced, in #829:
 
