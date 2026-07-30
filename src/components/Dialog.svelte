@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, type Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { Dialog as BitsDialog } from 'bits-ui';
 
 	import { type Colour, colours } from '$lib/colours';
@@ -9,8 +10,8 @@
 		durationFastMs,
 		easeEnter,
 		easeExit,
-		growFromOrigin,
-		reduceMotion
+		reduceMotion,
+		sheetTransition
 	} from '$lib/motion';
 	import type { OriginRect } from '$lib/motion';
 
@@ -27,6 +28,14 @@
 	};
 
 	const floatingGap = '0.5rem';
+	/*
+	 * Matches the `lg:` breakpoint the panel's own geometry switches at, so the
+	 * drawer motion and the side-panel shape always agree about which layout is
+	 * in effect. MediaQuery (not a hand-rolled matchMedia) so it resolves to the
+	 * mobile default during SSR and re-evaluates on the client; the transition
+	 * itself only ever runs after mount, by which point it is accurate.
+	 */
+	const desktopQuery = new MediaQuery('min-width: 64rem');
 	/*
 	 * The keyboard maths below only describes a keyboard while the page sits at
 	 * its natural scale — pinch-zoom shrinks the visual viewport for reasons
@@ -187,8 +196,16 @@
 				{#if open && isPresent}
 					<div
 						{...props}
-						in:growFromOrigin={{ origin: originRect, direction: 'in' }}
-						out:growFromOrigin={{ origin: originRect, direction: 'out' }}
+						in:sheetTransition={{
+							origin: originRect,
+							direction: 'in',
+							drawer: desktopQuery.current
+						}}
+						out:sheetTransition={{
+							origin: originRect,
+							direction: 'out',
+							drawer: desktopQuery.current
+						}}
 						onoutroend={handlePanelOutroEnd}
 						class="z-dialog shadow-sheet rounded-t-sheet lg:rounded-l-sheet fixed right-0 bottom-0 left-0 flex h-[90dvh] flex-col pb-[env(safe-area-inset-bottom)] lg:top-0 lg:bottom-auto lg:left-auto lg:h-dvh lg:w-4/5 lg:max-w-3xl lg:rounded-t-none {className}"
 					>

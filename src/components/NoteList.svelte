@@ -1,10 +1,6 @@
 <script lang="ts" generics="T">
 	import type { Snippet } from 'svelte';
-	import { flip } from 'svelte/animate';
-	import { fade } from 'svelte/transition';
 	import { MediaQuery } from 'svelte/reactivity';
-
-	import { durationBaseMs, easeMove, reduceMotion } from '$lib/motion';
 
 	type Props = {
 		items: T[];
@@ -42,23 +38,18 @@
 <div class="flex items-start gap-3 lg:gap-4">
 	{#each columns as column, columnIndex (columnIndex)}
 		<div class="flex min-w-0 flex-1 flex-col gap-3 lg:gap-4" role="list">
+			<!--
+				No reorder animation on purpose. animate:flip only slides a move
+				within one column's own keyed list, but reading order is dealt
+				round-robin across N separate column arrays (see above), so a
+				reorder that changes an item's column is a remove from one list
+				plus an add to another — not a move Svelte can FLIP. Animating
+				only the same-column case looked worse than animating nothing
+				(neighbouring cards sliding while others cut), so the drop is
+				instant for now. Tracked in #851.
+			-->
 			{#each column as entry (key(entry.value))}
-				<!--
-					animate:flip only slides a move within this one column's own
-					keyed list. Reading order is dealt round-robin across N separate
-					column arrays (see above), so a reorder that changes which column
-					an item lands in is a remove from one list and an add to another,
-					not a move Svelte can FLIP — content-sized masonry columns rule out
-					a single flat list here (see #826). in/out fade keeps that case a
-					soft cross-fade instead of a hard jump.
-				-->
-				<div
-					animate:flip={{ duration: reduceMotion(durationBaseMs), easing: easeMove }}
-					in:fade={{ duration: reduceMotion(durationBaseMs), easing: easeMove }}
-					out:fade={{ duration: reduceMotion(durationBaseMs), easing: easeMove }}
-				>
-					{@render item(entry.value, entry.index)}
-				</div>
+				{@render item(entry.value, entry.index)}
 			{/each}
 		</div>
 	{/each}

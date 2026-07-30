@@ -56,7 +56,38 @@ type GrowParams = {
 	direction: 'in' | 'out';
 };
 
+type SheetParams = GrowParams & {
+	/*
+	 * At desktop width the sheet is a side panel pinned to the right edge, so
+	 * it reads as a drawer sliding in from off-screen. Growing it out of a card
+	 * is the mobile behaviour, where the sheet covers the board bottom-up.
+	 */
+	drawer: boolean;
+};
+
 const rootStyle = () => getComputedStyle(document.documentElement);
+
+/*
+ * The note sheet's open/close motion, in whichever form the current layout
+ * calls for: a right-edge drawer on desktop, growing out of the tapped card
+ * on mobile. One transition function rather than two directives because
+ * Svelte resolves `in:`/`out:` at compile time — the layout has to be
+ * branched on inside the transition, not around it.
+ */
+export function sheetTransition(node: Element, params: SheetParams): TransitionConfig {
+	if (!params.drawer) {
+		return growFromOrigin(node, params);
+	}
+
+	const { direction } = params;
+	return {
+		duration: reduceMotion(direction === 'in' ? durationSheetMs : durationBaseMs),
+		easing: direction === 'in' ? easeEnter : easeExit,
+		// The panel is already `fixed right-0`, so a full-width nudge parks it
+		// just off the right edge with no layout knowledge needed here.
+		css: (_, u) => `transform: translateX(${u * 100}%);`
+	};
+}
 
 /*
  * Grows the sheet out of the note card it opened from — the card's colour

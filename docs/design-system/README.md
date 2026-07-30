@@ -325,17 +325,17 @@ form resolves to `transition-duration: var(--duration-fast)`. The square-bracket
 
 ### Choreography
 
-| Moment       | Timing      | Behaviour                                                                                               |
-| ------------ | ----------- | ------------------------------------------------------------------------------------------------------- |
-| Board load   | 240ms enter | Cards fade up 8px at scale .98, staggered 30ms in reading order. Caps at 8 cards.                       |
-| Open a note  | 420ms enter | The card's colour and radius expand into the sheet — the note grows rather than a panel flying over it. |
-| Close        | 240ms exit  | Reverses, faster. The asymmetry is the point.                                                           |
-| Toolbar mark | 240ms move  | The filled pill slides between icons instead of two fades. Nav only — see note below.¹                  |
-| Button press | 100ms press | Scale to .94 then settle. Pairs with the existing 50ms haptic.                                          |
-| FAB          | 360ms press | Icon rotates on press as a tap flourish, not a persistent open/close swap.²                             |
-| Reorder      | 240ms move  | FLIP on surviving cards so neighbours slide rather than jump.                                           |
-| Toast        | —           | Left on svelte-sonner's own defaults. Consciously dropped — see note below.³                            |
-| Save         | 160ms move  | Label crossfades to a check, holds 800ms, returns. No spinner for sub-second work.                      |
+| Moment       | Timing      | Behaviour                                                                                                                                                                                                                                                                                                                                                 |
+| ------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Board load   | 240ms enter | Cards fade up 8px at scale .98, staggered 30ms in reading order. Caps at 8 cards.                                                                                                                                                                                                                                                                         |
+| Open a note  | 420ms enter | Layout-dependent, because the sheet is a different object in each. Mobile: the card's colour and radius expand into the sheet — the note grows rather than a panel flying over it. Desktop (`lg:` and up), where the sheet is a right-pinned side panel: it slides in from the right edge like a drawer, which is what a panel in that position reads as. |
+| Close        | 240ms exit  | Reverses whichever form opened, faster. The asymmetry is the point.                                                                                                                                                                                                                                                                                       |
+| Toolbar mark | 240ms move  | The filled pill slides between icons instead of two fades. Nav only — see note below.¹                                                                                                                                                                                                                                                                    |
+| Button press | 100ms press | Scale to .94 then settle. Pairs with the existing 50ms haptic.                                                                                                                                                                                                                                                                                            |
+| FAB          | 360ms press | Icon rotates on press as a tap flourish, not a persistent open/close swap.²                                                                                                                                                                                                                                                                               |
+| Reorder      | —           | Not built. Consciously dropped — see note below.⁴                                                                                                                                                                                                                                                                                                         |
+| Toast        | —           | Left on svelte-sonner's own defaults. Consciously dropped — see note below.³                                                                                                                                                                                                                                                                              |
+| Save         | 160ms move  | Label crossfades to a check, holds 800ms, returns. No spinner for sub-second work.                                                                                                                                                                                                                                                                        |
 
 **All of it sits behind `prefers-reduced-motion`** — two different ways, because one
 mechanism doesn't cover both cases. The global rule in `app.css` (zeroing `animation-
@@ -348,7 +348,7 @@ independently of CSS and ignore that rule entirely. Every duration fed to one of
 smaller slide/fly transitions elsewhere) goes through `reduceMotion()` in `src/lib/motion.ts`,
 which reads `prefersReducedMotion` from `svelte/motion` and collapses the duration to zero.
 
-Three rows shipped narrower than specced, in #829:
+Four rows shipped narrower than specced, in #829:
 
 1. The sliding pill applies to the Home/Friends nav mark, which is genuinely
    single-selection. The rich-text toolbar's Bold/Italic/Underline/List buttons are
@@ -360,6 +360,13 @@ Three rows shipped narrower than specced, in #829:
 3. svelte-sonner owns its toast's internal transition timing. Its default translate+fade
    already reads calm; retargeting a vendored `<style global>` block was judged too fragile
    for the payoff.
+4. **Reorder.** `animate:flip` only animates a move within one keyed list, but the board
+   deals reading order round-robin across N separate per-column arrays (see §6 — the columns
+   exist so drag targets match visual position, and content-sized masonry rules out one flat
+   list). A reorder that changes an item's column is therefore a remove plus an add, not a
+   move Svelte can FLIP. Animating only the same-column case looked actively worse than
+   animating nothing — neighbouring cards sliding while others cut — so the drop is instant.
+   Tracked in #851; wants a real masonry primitive, not a motion tweak.
 
 ---
 
