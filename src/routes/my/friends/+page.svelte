@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { crossfade } from 'svelte/transition';
-	import { cubicInOut } from 'svelte/easing';
 	import { Tabs } from 'bits-ui';
 
 	import { Check, X } from '@lucide/svelte';
@@ -8,6 +7,7 @@
 	import Skeleton from '$components/Skeleton.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
 	import FriendListItem from '$components/FriendListItem.svelte';
+	import { durationBaseMs, easeMove, reduceMotion } from '$lib/motion';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { createFriendsActions } from '$lib/state/friendsActions';
@@ -21,9 +21,11 @@
 
 	let activeTab: TabValue = $state(tabs.friends);
 
+	// The per-call duration below is what actually takes effect; this default
+	// only guards a call site that forgets to pass one.
 	const [send, receive] = crossfade({
-		duration: 250,
-		easing: cubicInOut
+		duration: reduceMotion(durationBaseMs),
+		easing: easeMove
 	});
 
 	const friendsState = getFriendsState();
@@ -69,8 +71,8 @@
 					<div class="relative p-2">Friends</div>
 					{#if activeTab === tabs.friends}
 						<div
-							in:send={{ key: 'trigger' }}
-							out:receive={{ key: 'trigger' }}
+							in:send={{ key: 'trigger', duration: reduceMotion(durationBaseMs) }}
+							out:receive={{ key: 'trigger', duration: reduceMotion(durationBaseMs) }}
 							class="bg-accent absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full"
 						></div>
 					{/if}
@@ -88,8 +90,8 @@
 					</div>
 					{#if activeTab === tabs.invites}
 						<div
-							in:send={{ key: 'trigger' }}
-							out:receive={{ key: 'trigger' }}
+							in:send={{ key: 'trigger', duration: reduceMotion(durationBaseMs) }}
+							out:receive={{ key: 'trigger', duration: reduceMotion(durationBaseMs) }}
 							class="bg-accent absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full"
 						></div>
 					{/if}

@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { crossfade } from 'svelte/transition';
 	import { House, CirclePlus, Users } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
+	import { durationBaseMs, durationSlowMs, easeMove, reduceMotion } from '$lib/motion';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
 
 	type Props = {
@@ -12,23 +14,46 @@
 
 	type MenuItem = 'home' | 'friends';
 
+	const activeMarkKey = 'nav-active';
+
+	// Press: scale to .94 via ease-press, same treatment as Button.svelte.
+	const pressClasses =
+		'rounded-control transition-transform duration-(--duration-fast) active:scale-[0.94] active:duration-(--duration-tap) ease-press';
+
 	let { oncreatenote, layout }: Props = $props();
-	let iconPress = $state<null | MenuItem>(null);
+
+	// Same technique as the friends-page tab indicator: the filled mark slides
+	// between Home and Friends instead of the border just snapping colour.
+	// The per-call duration below is what actually takes effect; this default
+	// only guards a call site that forgets to pass one.
+	const [sendActiveMark, receiveActiveMark] = crossfade({
+		duration: reduceMotion(durationBaseMs),
+		easing: easeMove
+	});
+	let isCreatePressed = $state(false);
 	const friendsState = getFriendsState();
 	const numberOfInvites = $derived(friendsState.pendingReceivedInvites.length);
 	const iconSize = 32;
 	const activeStrokeWidth = 2.5;
 	const inactiveStrokeWidth = 2;
 
-	function handleIconPress(name: MenuItem) {
-		iconPress = name;
+	function handleNavClick() {
+		if (navigator.vibrate) {
+			navigator.vibrate(50);
+		}
+	}
+
+	function handleCreateClick() {
+		isCreatePressed = true;
 		setTimeout(() => {
-			iconPress = null;
-		}, 300);
+			isCreatePressed = false;
+		}, reduceMotion(durationSlowMs));
 
 		if (navigator.vibrate) {
 			navigator.vibrate(50);
 		}
+
+		oncreatenote();
 	}
 
 	function isSelected(path: MenuItem) {
@@ -46,37 +71,32 @@
 		? 'justify-evenly'
 		: 'flex-col justify-center gap-8'}"
 >
-	<a
-		href="/my/board"
-		aria-label="My board"
-		class="rounded-control transition-colors"
-		class:pressed={iconPress === 'home'}
-		onclick={() => handleIconPress('home')}
-	>
-		<div
-			class="flex h-full w-full border-b-4 border-transparent px-4 py-2"
-			class:selected={isSelected('home')}
-		>
+	<a href="/my/board" aria-label="My board" class={pressClasses} onclick={handleNavClick}>
+		<div class="relative flex h-full w-full px-4 py-2">
 			<House
 				size={iconSize}
 				strokeWidth={isSelected('home') ? activeStrokeWidth : inactiveStrokeWidth}
 			/>
+			{#if isSelected('home')}
+				<div
+					in:sendActiveMark={{ key: activeMarkKey, duration: reduceMotion(durationBaseMs) }}
+					out:receiveActiveMark={{ key: activeMarkKey, duration: reduceMotion(durationBaseMs) }}
+					class="bg-accent absolute bottom-0 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full"
+					aria-hidden="true"
+				></div>
+			{/if}
 		</div>
 	</a>
-	<Button onclick={oncreatenote} variant="primary" label="Create a new note">
-		<CirclePlus size={iconSize} />
+	<Button onclick={handleCreateClick} variant="primary" label="Create a new note">
+		<CirclePlus
+			size={iconSize}
+			class="ease-press transition-transform duration-(--duration-slow) {isCreatePressed
+				? 'rotate-90'
+				: 'rotate-0'}"
+		/>
 	</Button>
-	<a
-		href="/my/friends"
-		aria-label="My friends"
-		class="rounded-control transition-colors"
-		class:pressed={iconPress === 'friends'}
-		onclick={() => handleIconPress('friends')}
-	>
-		<div
-			class="relative flex h-full w-full border-b-4 border-transparent px-4 py-2"
-			class:selected={isSelected('friends')}
-		>
+	<a href="/my/friends" aria-label="My friends" class={pressClasses} onclick={handleNavClick}>
+		<div class="relative flex h-full w-full px-4 py-2">
 			<Users
 				size={iconSize}
 				strokeWidth={isSelected('friends') ? activeStrokeWidth : inactiveStrokeWidth}
@@ -89,36 +109,14 @@
 					{numberOfInvites}
 				</span>
 			{/if}
+			{#if isSelected('friends')}
+				<div
+					in:sendActiveMark={{ key: activeMarkKey, duration: reduceMotion(durationBaseMs) }}
+					out:receiveActiveMark={{ key: activeMarkKey, duration: reduceMotion(durationBaseMs) }}
+					class="bg-accent absolute bottom-0 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full"
+					aria-hidden="true"
+				></div>
+			{/if}
 		</div>
 	</a>
 </nav>
-
-<style>
-	@keyframes shrink {
-		0% {
-			transform: scale(1);
-		}
-		50% {
-			transform: scale(0.8);
-		}
-		100% {
-			transform: scale(1);
-		}
-	}
-
-	.pressed {
-		animation: shrink 0.3s ease;
-	}
-
-	/*
-	 * Was `var(--primary)`, which is not a token — the real name is
-	 * `--color-accent` — so this silently fell back to currentColor and the
-	 * active indicator was never the brand colour. It also set all four
-	 * borders where the utility next to it only sets border-b.
-	 *
-	 * The dark override is gone too: the token already flips per theme.
-	 */
-	.selected {
-		border-bottom-color: var(--color-accent);
-	}
-</style>

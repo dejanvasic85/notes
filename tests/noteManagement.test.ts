@@ -48,6 +48,13 @@ test('basic note management', async ({ page }) => {
 	await page.getByRole('button', { name: 'Save note' }).click();
 	await updateNotePromise;
 
+	// Save holds the sheet open on a "Saved" checkmark before closing itself
+	// (see docs/design-system §7) - wait for it to actually close before
+	// interacting with the board again.
+	await expect(page.getByRole('button', { name: 'Cancel note edit' })).not.toBeVisible({
+		timeout: 3000
+	});
+
 	// Wait for the note to be saved - verify the note appears on the board
 	await expect(page.getByText(noteTitle)).toBeVisible();
 

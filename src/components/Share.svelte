@@ -5,6 +5,7 @@
 
 	import Button from './Button.svelte';
 	import { slide } from 'svelte/transition';
+	import { durationTapMs, reduceMotion } from '$lib/motion';
 
 	type ToggleFriendEvent = {
 		id?: string;
@@ -38,7 +39,7 @@
 					<div {...wrapperProps}>
 						<div
 							{...props}
-							in:slide={{ duration: 100 }}
+							in:slide={{ duration: reduceMotion(durationTapMs) }}
 							class="z-dropdown bg-paper rounded-control shadow-lifted flex w-96 flex-col gap-1 border p-2"
 						>
 							<DropdownMenu.Item>

@@ -5,13 +5,14 @@
 	type Props = {
 		items: T[];
 		item: Snippet<[T, number]>;
+		key: (item: T) => string | number;
 	};
 
 	const narrowColumnCount = 2;
 	const mediumColumnCount = 3;
 	const wideColumnCount = 4;
 
-	let { items, item }: Props = $props();
+	let { items, item, key }: Props = $props();
 
 	/*
 	 * Columns are built here rather than with CSS `columns` because the board
@@ -37,7 +38,17 @@
 <div class="flex items-start gap-3 lg:gap-4">
 	{#each columns as column, columnIndex (columnIndex)}
 		<div class="flex min-w-0 flex-1 flex-col gap-3 lg:gap-4" role="list">
-			{#each column as entry (entry.index)}
+			<!--
+				No reorder animation on purpose. animate:flip only slides a move
+				within one column's own keyed list, but reading order is dealt
+				round-robin across N separate column arrays (see above), so a
+				reorder that changes an item's column is a remove from one list
+				plus an add to another — not a move Svelte can FLIP. Animating
+				only the same-column case looked worse than animating nothing
+				(neighbouring cards sliding while others cut), so the drop is
+				instant for now. Tracked in #851.
+			-->
+			{#each column as entry (key(entry.value))}
 				{@render item(entry.value, entry.index)}
 			{/each}
 		</div>

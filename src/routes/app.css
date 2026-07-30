@@ -305,6 +305,22 @@
 }
 
 /*
+ * Board load — see docs/design-system §7. Cards fade up 8px at scale .98;
+ * the stagger itself (30ms per card, capped at 8) is applied per-card as an
+ * animation-delay, since that value is dynamic and a keyframe can't express it.
+ */
+@keyframes card-enter {
+	from {
+		opacity: 0;
+		transform: translateY(8px) scale(0.98);
+	}
+}
+
+@utility animate-card-enter {
+	animation: card-enter var(--duration-base) var(--ease-enter) both;
+}
+
+/*
  * The editor surface fills the sheet, so the whole area is clickable and the
  * focus ring outlines what you're actually editing. Text keeps the reading
  * measure and stays left-aligned with the title above it.

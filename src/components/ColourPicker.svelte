@@ -3,6 +3,7 @@
 	import { DropdownMenu } from 'bits-ui';
 
 	import { colours, type Colour } from '$lib/colours';
+	import { durationTapMs, reduceMotion } from '$lib/motion';
 	import { Paintbrush, Minus } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
@@ -39,7 +40,7 @@
 						<div
 							{...props}
 							class="z-dropdown flex flex-col gap-1 bg-transparent"
-							in:slide={{ duration: 100 }}
+							in:slide={{ duration: reduceMotion(durationTapMs) }}
 						>
 							<DropdownMenu.Item onSelect={() => handleColourClick(null)}>
 								<button

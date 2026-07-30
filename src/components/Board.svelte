@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { OriginRect } from '$lib/motion';
 	import type { Friend, NoteOrdered, ToggleFriendShare } from '$lib/types';
 
 	import Note from './Note.svelte';
@@ -38,19 +39,32 @@
 		onclosenote();
 	}
 
+	// Closing is NoteEditor's call, not this one — it holds the sheet open
+	// through the "Saved" checkmark before closing itself.
 	function handleSave({ note }: { note: NoteOrdered }) {
 		onupdatenote({ note });
-		handleModalClose();
 	}
 
 	function handleUpdateColour({ note }: { note: NoteOrdered }) {
 		onupdatenote({ note });
 	}
 
-	function handleEdit(id?: string) {
-		if (id) {
-			onselect({ id });
+	// Keyed to the note it was captured for — otherwise a note opened by a
+	// route other than clicking its card (creating one, a deep link) would
+	// grow from whatever card was last clicked instead of falling back to a
+	// plain fade.
+	type ClickedOrigin = { noteId: string; rect: OriginRect };
+	let clickedOrigin = $state<ClickedOrigin | null>(null);
+	let originRect = $derived.by(() => {
+		if (!clickedOrigin || !selectedNote || clickedOrigin.noteId !== selectedNote.id) {
+			return null;
 		}
+		return clickedOrigin.rect;
+	});
+
+	function handleEdit(id: string, rect: DOMRect) {
+		clickedOrigin = { noteId: id, rect };
+		onselect({ id });
 	}
 
 	function handleDrop(toIndex: number, sourceIndex: number) {
@@ -77,22 +91,32 @@
 </script>
 
 {#if selectedNote}
-	<NoteEditor
-		{enableSharing}
-		{ondeletenote}
-		note={selectedNote}
-		friends={selectedNoteFriends}
-		onclose={handleModalClose}
-		ontogglefriendshare={(params) => ontogglefriend?.(params)}
-		onsavenote={handleSave}
-		onupdateColour={handleUpdateColour}
-	/>
+	<!--
+		Keyed by id: switching directly from one open note to another (same
+		truthy -> truthy transition) would otherwise reuse this instance and
+		leave its local open/close animation state (Dialog's isPresent,
+		NoteEditor's dialogShow) stuck from the note that was just closed,
+		instead of starting fresh for the new one.
+	-->
+	{#key selectedNote.id}
+		<NoteEditor
+			{enableSharing}
+			{ondeletenote}
+			{originRect}
+			note={selectedNote}
+			friends={selectedNoteFriends}
+			onclose={handleModalClose}
+			ontogglefriendshare={(params) => ontogglefriend?.(params)}
+			onsavenote={handleSave}
+			onupdateColour={handleUpdateColour}
+		/>
+	{/key}
 {/if}
 
 {#if notes.length === 0}
 	<p>{emptyMessage}</p>
 {:else}
-	<NoteList items={notes}>
+	<NoteList items={notes} key={(note) => note.id}>
 		{#snippet item(note, index)}
 			<NoteDropzone {index} {draggedIndex} ondropped={handleDrop}>
 				<Note
@@ -100,7 +124,7 @@
 					{friends}
 					{index}
 					isDraggable={true}
-					onclick={() => handleEdit(note.id)}
+					onclick={(rect) => handleEdit(note.id, rect)}
 					ondragstart={(i) => (draggedIndex = i)}
 					ondragend={() => (draggedIndex = null)}
 				/>
