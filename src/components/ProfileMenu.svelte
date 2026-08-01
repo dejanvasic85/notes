@@ -3,8 +3,10 @@
 	import { DropdownMenu } from 'bits-ui';
 
 	import { durationFastMs, easeMove, reduceMotion } from '$lib/motion';
-	import { Settings, LogOut, type LucideIcon } from '@lucide/svelte';
+	import { Download, Settings, LogOut, type LucideIcon } from '@lucide/svelte';
 	import UserAvatar from './UserAvatar.svelte';
+	import InstallInstructions from './InstallInstructions.svelte';
+	import { getInstallState } from '$lib/state/installState.svelte';
 
 	type Props = {
 		userPicture: string;
@@ -13,6 +15,19 @@
 	};
 
 	let { userPicture, email, name }: Props = $props();
+
+	const installState = getInstallState();
+
+	let showInstructions = $state(false);
+
+	function handleInstall() {
+		if (installState.needsManualSteps) {
+			showInstructions = true;
+			return;
+		}
+
+		installState.promptInstall();
+	}
 
 	type MenuLinkProps = {
 		href: string;
@@ -46,6 +61,23 @@
 	</a>
 {/snippet}
 
+{#snippet MenuButton({
+	icon: Icon,
+	text,
+	itemProps,
+	onclick
+}: Omit<MenuLinkProps, 'href' | 'reload' | 'borderTop'> & { onclick: () => void })}
+	<button
+		{...itemProps}
+		type="button"
+		{onclick}
+		class="hover:bg-accent-soft rounded-control mt-2 flex w-full gap-2 p-2"
+	>
+		<Icon />
+		<span>{text}</span>
+	</button>
+{/snippet}
+
 <DropdownMenu.Root>
 	<DropdownMenu.Trigger aria-label="user menu">
 		<UserAvatar picture={userPicture} {name} size={8} showTooltip={false} />
@@ -77,6 +109,18 @@
 									})}
 								{/snippet}
 							</DropdownMenu.Item>
+							{#if installState.canInstall}
+								<DropdownMenu.Item>
+									{#snippet child({ props: itemProps })}
+										{@render MenuButton({
+											text: 'Install app',
+											icon: Download,
+											onclick: handleInstall,
+											itemProps
+										})}
+									{/snippet}
+								</DropdownMenu.Item>
+							{/if}
 							<DropdownMenu.Item>
 								{#snippet child({ props: itemProps })}
 									{@render MenuLink({
@@ -96,3 +140,5 @@
 		</DropdownMenu.Content>
 	</DropdownMenu.Portal>
 </DropdownMenu.Root>
+
+<InstallInstructions bind:show={showInstructions} />
