@@ -12,6 +12,7 @@
 		"test": "vitest run --coverage",
 		"test:unit": "vitest",
 		"test:playwright": "playwright test",
+		"test:playwright:offline": "playwright test --config playwright.offline.config.ts",
 		"lint": "prettier . --check . && eslint .",
 		"lint-staged": "lint-staged",
 		"format": "prettier . --write .",

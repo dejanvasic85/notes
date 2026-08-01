@@ -36,6 +36,7 @@ Please read all the latest documentation for (Svelte Kit)[svelte.dev/llms.txt] a
 
 # Workflow
 
+- Always stop the dev server before starting new work, and restart it when you're done. Don't leave a stale server running on port 3377 and don't let vite bump to another port — the Auth0 callback is only whitelisted for 3377, so anything on a different port cannot log in
 - Be sure to run `pnpm check` when you’re done making a series of code changes
 - Use `pnpm format` whenever the format is not correct
 - Prefer running single tests, and not the whole test suite, for performance
