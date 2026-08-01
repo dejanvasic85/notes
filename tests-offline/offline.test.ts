@@ -83,3 +83,26 @@ test('never serves API responses from the cache', async ({ page, context }) => {
 	expect(apiReachable).toBe(false);
 	expect(findCache(await readCacheKeys(page), pageCachePrefix)).not.toContain('/api/user/board');
 });
+
+// Cached documents hold SSR-rendered user data, so logging out has to drop them.
+// The service worker keys this off the request path rather than the session, so
+// it is reachable without logging in — which this suite cannot do, because Auth0
+// only whitelists the dev port.
+test('purges cached pages on logout', async ({ page }) => {
+	await openControlledPage(page, '/');
+	expect(findCache(await readCacheKeys(page), pageCachePrefix)).toContain('/');
+
+	await page.evaluate(async () => {
+		try {
+			await fetch('/api/auth/logout');
+		} catch {
+			// Logout redirects to Auth0, so the request itself fails cross-origin.
+			// Only the purge the service worker performs before it matters here.
+		}
+	});
+
+	// The purge runs in `waitUntil`, so it completes independently of the request.
+	await expect
+		.poll(async () => findCache(await readCacheKeys(page), pageCachePrefix))
+		.not.toContain('/');
+});
