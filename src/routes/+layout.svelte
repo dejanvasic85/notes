@@ -1,6 +1,7 @@
 <script lang="ts">
 	import './app.css';
 	import { Tooltip } from 'bits-ui';
+	import AppUpdatePrompt from '$components/AppUpdatePrompt.svelte';
 	import Toaster from '$components/Toaster.svelte';
 	import { setBoardState } from '$lib/state/boardState.svelte';
 	import { setToastMessages } from '$lib/state/toastMessages.svelte';
@@ -15,5 +16,6 @@
 
 <Tooltip.Provider>
 	<Toaster />
+	<AppUpdatePrompt />
 	{@render children()}
 </Tooltip.Provider>

@@ -374,3 +374,33 @@ p.is-editor-empty:first-child::before {
 	height: 0;
 	pointer-events: none;
 }
+
+/*
+ * Toast action button. Sonner ships a near-black fill that belongs to no token.
+ * Its own rule is [data-sonner-toast][data-styled='true'] [data-button] and its
+ * stylesheet is injected after app.css, so matching that selector still loses on
+ * source order — hence the repeated [data-button], which buys one specificity
+ * point without resorting to !important. Matches the primary button in
+ * src/lib/button.ts, including the 44px minimum target.
+ */
+[data-sonner-toast][data-styled='true'] [data-button][data-button] {
+	background-color: var(--color-accent);
+	border-radius: var(--radius-control);
+	color: var(--color-on-accent);
+	font-weight: 500;
+	min-height: 44px;
+	padding-inline: 1rem;
+	transition:
+		background-color var(--duration-fast),
+		transform var(--duration-fast);
+	transition-timing-function: var(--ease-press);
+}
+
+[data-sonner-toast][data-styled='true'] [data-button][data-button]:hover {
+	background-color: var(--color-accent-strong);
+}
+
+[data-sonner-toast][data-styled='true'] [data-button][data-button]:active {
+	transform: scale(0.94);
+	transition-duration: var(--duration-tap);
+}

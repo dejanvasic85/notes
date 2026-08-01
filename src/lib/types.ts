@@ -181,3 +181,8 @@ export type ToastMessage = {
 	message: string;
 	type: 'success' | 'error';
 };
+
+export type ToastAction = {
+	label: string;
+	onClick: () => void;
+};

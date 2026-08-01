@@ -7,6 +7,13 @@
 		<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<!--
+			Browser and status bar chrome, tracking --color-paper in app.css so it
+			meets the header rather than sitting against it. The manifest carries
+			only the light value; these override it per scheme.
+		-->
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fcfbfd" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1c1a20" />
+		<!--
 			Stamps an explicit theme choice before first paint, so a stored Light
 			or Dark never flashes the other one on load. Must stay blocking and
 			inline — a deferred or bundled script runs too late.

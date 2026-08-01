@@ -3,12 +3,29 @@
 	"short_name": "My Notes",
 	"description": "A simple note-taking app perfect for families and friends",
 	"icons": [
-		{ "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
-		{ "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+		{
+			"src": "/android-chrome-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/android-chrome-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/maskable-icon-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		}
 	],
-	"theme_color": "#7d5aa6",
+	"theme_color": "#fcfbfd",
 	"background_color": "#efedf1",
 	"display": "standalone",
 	"start_url": "/my/board",
-	"id": "/my/board"
+	"id": "/my/board",
+	"scope": "/"
 }

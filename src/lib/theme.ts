@@ -22,6 +22,47 @@ export const resolveThemePreference = (stored: string | null): ThemePreference =
 
 const hasDom = () => typeof document !== 'undefined';
 
+const themeColorSelector = 'meta[name="theme-color"]';
+const paperProperty = '--color-paper';
+
+/*
+ * The two theme-color tags in app.html are scheme-scoped, so they follow the OS
+ * on their own. An explicit Light or Dark can disagree with the OS, though, and
+ * a media query cannot see the data-theme attribute — so point both tags at the
+ * resolved --color-paper instead, and hand them back when System returns.
+ *
+ * Reading the computed token rather than repeating the hex keeps this in step
+ * with app.css automatically.
+ */
+const originalThemeColors = new WeakMap<Element, string>();
+
+function syncThemeColorMeta(preference: ThemePreference): void {
+	const tags = document.querySelectorAll(themeColorSelector);
+
+	for (const tag of tags) {
+		if (!originalThemeColors.has(tag)) {
+			originalThemeColors.set(tag, tag.getAttribute('content') ?? '');
+		}
+
+		if (preference === 'system') {
+			tag.setAttribute('content', originalThemeColors.get(tag) ?? '');
+		}
+	}
+
+	if (preference === 'system') {
+		return;
+	}
+
+	const paper = getComputedStyle(document.documentElement).getPropertyValue(paperProperty).trim();
+	if (!paper) {
+		return;
+	}
+
+	for (const tag of tags) {
+		tag.setAttribute('content', paper);
+	}
+}
+
 export function readThemePreference(): ThemePreference {
 	if (!hasDom()) {
 		return 'system';
@@ -53,6 +94,8 @@ export function applyThemePreference(preference: ThemePreference): void {
 	} else {
 		document.documentElement.setAttribute(themeAttribute, preference);
 	}
+
+	syncThemeColorMeta(preference);
 
 	try {
 		if (preference === 'system') {
