@@ -169,14 +169,27 @@ test('renders the authenticated board while offline', async ({ page, context }) 
 		.poll(() => readSnapshotKeys(page))
 		.toEqual(expect.arrayContaining([boardKeyMatcher]));
 
-	const notesBefore = await page.getByRole('button', { name: /^Edit note/ }).count();
+	const notes = page.getByRole('button', { name: /^Edit note/ });
+	const notesBefore = await notes.count();
+
+	/*
+	 * Without this the comparison below is vacuous: an offline reload that
+	 * hydrated nothing would render zero notes and still match a zero baseline.
+	 * The account this suite signs in as is expected to hold at least one note.
+	 */
+	expect(notesBefore).toBeGreaterThan(0);
+	const firstNoteLabel = await notes.first().getAttribute('aria-label');
 
 	await context.setOffline(true);
 	await page.reload();
 
 	await expect(page.getByRole('heading', { name: offlineHeading })).toBeHidden();
 	await expect(createButton).toBeVisible();
-	expect(await page.getByRole('button', { name: /^Edit note/ }).count()).toBe(notesBefore);
+	expect(await notes.count()).toBe(notesBefore);
+
+	// The cached document renders an empty board — the notes themselves only
+	// exist in IndexedDB — so matching content proves hydration actually ran.
+	expect(await notes.first().getAttribute('aria-label')).toBe(firstNoteLabel);
 });
 
 async function login(page: Page) {
