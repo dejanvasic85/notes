@@ -12,7 +12,9 @@
 	const toastMessages = getToastMessages();
 
 	// A single waiting worker can announce itself more than once — on the initial
-	// check and again through `updatefound` — and one prompt is enough.
+	// check and again through `updatefound` — and one prompt is enough. Cleared
+	// when the toast goes away, so dismissing this update does not also silence
+	// the next one for the rest of the session.
 	let prompted = false;
 
 	function handleUpdateReady() {
@@ -21,12 +23,18 @@
 		}
 		prompted = true;
 
-		toastMessages.addActionMessage(updateMessage, {
-			label: updateActionLabel,
-			onClick: () => {
-				applyAppUpdate();
+		toastMessages.addActionMessage(
+			updateMessage,
+			{
+				label: updateActionLabel,
+				onClick: () => {
+					applyAppUpdate();
+				}
+			},
+			() => {
+				prompted = false;
 			}
-		});
+		);
 	}
 
 	/*

@@ -10,9 +10,23 @@
 			Browser and status bar chrome, tracking --color-paper in app.css so it
 			meets the header rather than sitting against it. The manifest carries
 			only the light value; these override it per scheme.
+
+			data-scheme-color repeats each tag's own value because `content` is
+			live — an explicit Light or Dark overwrites both tags, and this is what
+			System restores them from. Read by syncThemeColorMeta in lib/theme.ts.
 		-->
-		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fcfbfd" />
-		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1c1a20" />
+		<meta
+			name="theme-color"
+			media="(prefers-color-scheme: light)"
+			content="#fcfbfd"
+			data-scheme-color="#fcfbfd"
+		/>
+		<meta
+			name="theme-color"
+			media="(prefers-color-scheme: dark)"
+			content="#1c1a20"
+			data-scheme-color="#1c1a20"
+		/>
 		<!--
 			Stamps an explicit theme choice before first paint, so a stored Light
 			or Dark never flashes the other one on load. Must stay blocking and
@@ -30,10 +44,35 @@
 				const storedTheme = localStorage.getItem('notes:theme');
 				if (storedTheme === 'light' || storedTheme === 'dark') {
 					document.documentElement.setAttribute('data-theme', storedTheme);
+
+					// The tags above select by OS scheme, which an explicit choice can
+					// contradict. Point both at the chosen one now rather than waiting
+					// for hydration, or the chrome briefly wears the opposite colour.
+					const tags = document.querySelectorAll('meta[name="theme-color"]');
+					const chosen = document.querySelector(
+						`meta[name="theme-color"][media*="${storedTheme}"]`
+					);
+					if (chosen) {
+						for (const tag of tags) {
+							tag.setAttribute('content', chosen.dataset.schemeColor);
+						}
+					}
 				}
 			} catch {
 				/* no stored preference is recoverable — fall through to System */
 			}
+
+			/*
+			 * Chromium fires beforeinstallprompt once the install criteria are met,
+			 * which can be before Svelte hydrates. The event is the only way to open
+			 * the real install prompt later, so park it here for InstallState to
+			 * adopt — see src/lib/state/installState.svelte.ts.
+			 */
+			window.__notesInstallPrompt = null;
+			window.addEventListener('beforeinstallprompt', (event) => {
+				event.preventDefault();
+				window.__notesInstallPrompt = event;
+			});
 		</script>
 		%sveltekit.head%
 	</head>

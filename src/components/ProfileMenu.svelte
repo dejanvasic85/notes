@@ -64,16 +64,17 @@
 {#snippet MenuButton({
 	icon: Icon,
 	text,
-	itemProps,
-	onclick
-}: Omit<MenuLinkProps, 'href' | 'reload' | 'borderTop'> & { onclick: () => void })}
+	itemProps
+}: Omit<MenuLinkProps, 'href' | 'reload' | 'borderTop'>)}
+	<!-- itemProps carries bits-ui's own selection handling, so the action is wired
+	     through DropdownMenu.Item's onSelect rather than an onclick that would
+	     override it and leave the menu open. -->
 	<button
 		{...itemProps}
 		type="button"
-		{onclick}
 		class="hover:bg-accent-soft rounded-control mt-2 flex w-full gap-2 p-2"
 	>
-		<Icon />
+		<Icon aria-hidden="true" />
 		<span>{text}</span>
 	</button>
 {/snippet}
@@ -110,12 +111,11 @@
 								{/snippet}
 							</DropdownMenu.Item>
 							{#if installState.canInstall}
-								<DropdownMenu.Item>
+								<DropdownMenu.Item onSelect={handleInstall}>
 									{#snippet child({ props: itemProps })}
 										{@render MenuButton({
 											text: 'Install app',
 											icon: Download,
-											onclick: handleInstall,
 											itemProps
 										})}
 									{/snippet}

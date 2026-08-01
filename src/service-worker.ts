@@ -106,7 +106,14 @@ serviceWorker.addEventListener('fetch', (event) => {
  * localCache.ts. Only this app's snapshot keys are touched.
  */
 async function purgeLocalData(): Promise<void> {
-	await caches.delete(pageCacheName);
+	// Guarded separately from the snapshots below: these are two independent
+	// stores of user data, and a failure to drop one must not leave the other
+	// sitting on the device.
+	try {
+		await caches.delete(pageCacheName);
+	} catch {
+		// Cache storage can be unavailable; the snapshot purge still has to run.
+	}
 
 	try {
 		const storedKeys = await keys();

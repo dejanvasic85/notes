@@ -20,6 +20,11 @@ declare global {
 	interface Navigator {
 		standalone?: boolean;
 	}
+
+	// Stashed by the pre-hydration script in app.html — see below.
+	interface Window {
+		__notesInstallPrompt?: BeforeInstallPromptEvent | null;
+	}
 }
 
 export const promptDismissedKey = 'notes:install-dismissed';
@@ -29,6 +34,22 @@ const iosPattern = /iphone|ipad|ipod/i;
 // Chrome and Firefox on iOS are still WebKit, but neither can add to the home
 // screen, so the Safari-specific instructions would be wrong for them.
 const iosOtherBrowserPattern = /crios|fxios|edgios/i;
+
+/*
+ * iPadOS Safari reports a desktop macOS user-agent by default, so the string
+ * alone misses most iPads. A Mac that reports touch points is the standard
+ * tell-apart, since desktop Safari reports none.
+ */
+function isIosSafariBrowser(): boolean {
+	const agent = navigator.userAgent;
+
+	if (iosOtherBrowserPattern.test(agent)) {
+		return false;
+	}
+
+	const isIpadOs = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+	return iosPattern.test(agent) || isIpadOs;
+}
 
 function readDismissed(): boolean {
 	try {
@@ -51,10 +72,12 @@ export class InstallState {
 
 		this.#installed = window.matchMedia(standaloneQuery).matches || navigator.standalone === true;
 		this.#dismissed = readDismissed();
+		this.#isIosSafari = isIosSafariBrowser() && !this.#installed;
 
-		const agent = navigator.userAgent;
-		this.#isIosSafari =
-			iosPattern.test(agent) && !iosOtherBrowserPattern.test(agent) && !this.#installed;
+		// The event fires when the install criteria are met, which can be before
+		// Svelte hydrates — the pre-hydration script in app.html catches that case
+		// and parks it here.
+		this.#deferredPrompt = window.__notesInstallPrompt ?? null;
 
 		// Chromium fires this instead of showing its own mini-infobar. Holding on
 		// to the event is the only way to trigger the real prompt later, and it is
@@ -102,11 +125,20 @@ export class InstallState {
 		// Consumed either way: a declined prompt cannot be replayed, and Chromium
 		// issues a new event if the user becomes eligible again.
 		this.#deferredPrompt = null;
-		await deferred.prompt();
-		const { outcome } = await deferred.userChoice;
+		window.__notesInstallPrompt = null;
 
-		if (outcome === 'accepted') {
-			this.#installed = true;
+		// Both callers fire and forget, so a rejection here — the event already
+		// spent, or no user gesture attached — must not escape as an unhandled
+		// rejection.
+		try {
+			await deferred.prompt();
+			const { outcome } = await deferred.userChoice;
+
+			if (outcome === 'accepted') {
+				this.#installed = true;
+			}
+		} catch {
+			/* the prompt could not be shown; the menu entry still offers it */
 		}
 	}
 }

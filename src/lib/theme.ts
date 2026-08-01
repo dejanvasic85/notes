@@ -23,6 +23,7 @@ export const resolveThemePreference = (stored: string | null): ThemePreference =
 const hasDom = () => typeof document !== 'undefined';
 
 const themeColorSelector = 'meta[name="theme-color"]';
+const schemeColorAttribute = 'data-scheme-color';
 const paperProperty = '--color-paper';
 
 /*
@@ -33,23 +34,21 @@ const paperProperty = '--color-paper';
  *
  * Reading the computed token rather than repeating the hex keeps this in step
  * with app.css automatically.
+ *
+ * System restores from each tag's data-scheme-color, not from whatever `content`
+ * held at startup: the pre-paint script in app.html may already have overwritten
+ * it for a stored preference, so the live value is not a reliable original.
  */
-const originalThemeColors = new WeakMap<Element, string>();
-
 function syncThemeColorMeta(preference: ThemePreference): void {
 	const tags = document.querySelectorAll(themeColorSelector);
 
-	for (const tag of tags) {
-		if (!originalThemeColors.has(tag)) {
-			originalThemeColors.set(tag, tag.getAttribute('content') ?? '');
-		}
-
-		if (preference === 'system') {
-			tag.setAttribute('content', originalThemeColors.get(tag) ?? '');
-		}
-	}
-
 	if (preference === 'system') {
+		for (const tag of tags) {
+			const schemeColor = tag.getAttribute(schemeColorAttribute);
+			if (schemeColor) {
+				tag.setAttribute('content', schemeColor);
+			}
+		}
 		return;
 	}
 
