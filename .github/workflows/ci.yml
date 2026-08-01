@@ -82,7 +82,9 @@ jobs:
 
   test_offline:
     env:
-      PUBLIC_BASE_URL: http://localhost:4173
+      TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      PUBLIC_BASE_URL: http://localhost:3377
       HOME: /root
     name: Test offline mode
     timeout-minutes: 30
@@ -103,7 +105,9 @@ jobs:
         run: pnpm install --frozen-lockfile
       # The service worker precaches nothing in dev, so this suite builds and
       # serves the production output itself — see playwright.offline.config.ts.
-      # No login is involved, so it needs no test user or database migration.
+      # It runs on 3377 like the suite above, because Auth0 only accepts a
+      # callback on that origin and one test signs in to reach the board. The
+      # two jobs are on separate runners, so sharing the port costs nothing.
       - name: Run offline Playwright tests
         run: pnpm exec playwright test --config playwright.offline.config.ts --reporter=list
       - name: Upload offline test results
