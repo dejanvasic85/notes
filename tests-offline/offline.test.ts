@@ -3,6 +3,44 @@ import { expect, test, type Page } from '@playwright/test';
 const assetCachePrefix = 'assets-';
 const pageCachePrefix = 'pages-';
 const offlineHeading = "You're offline";
+const boardPath = '/my/board';
+const loginTimeoutMs = 15_000;
+// localCache.ts keys board snapshots as `board:<userId>`.
+const boardKeyMatcher = expect.stringMatching(/^board:/);
+
+/*
+ * idb-keyval's default database and store names. Hardcoded rather than imported
+ * because this runs in the page, outside the app bundle — if the library ever
+ * renames them this fails loudly, which is the point.
+ */
+const idbName = 'keyval-store';
+const idbStore = 'keyval';
+// Written directly rather than by the app, so the logout purge has something
+// deterministic to clear without needing a signed-in board first.
+const snapshotKey = 'board:test-user';
+
+function readSnapshotKeys(page: Page): Promise<string[]> {
+	return page.evaluate(
+		({ idbName, idbStore }) =>
+			new Promise<string[]>((resolve) => {
+				const open = indexedDB.open(idbName);
+				open.onerror = () => resolve([]);
+				open.onsuccess = () => {
+					if (!open.result.objectStoreNames.contains(idbStore)) {
+						resolve([]);
+						return;
+					}
+					const request = open.result
+						.transaction(idbStore, 'readonly')
+						.objectStore(idbStore)
+						.getAllKeys();
+					request.onerror = () => resolve([]);
+					request.onsuccess = () => resolve(request.result.map(String));
+				};
+			}),
+		{ idbName, idbStore }
+	);
+}
 
 // The first navigation to an origin is not intercepted, because the service
 // worker only starts controlling the page once it has activated. Reloading
@@ -32,15 +70,6 @@ function findCache(entries: Record<string, string[]>, prefix: string): string[] 
 	const key = Object.keys(entries).find((name) => name.startsWith(prefix));
 	return key ? entries[key] : [];
 }
-
-/*
- * idb-keyval's default database and store names. Hardcoded rather than imported
- * because these run in the page, outside the app bundle — if the library ever
- * renames them this fails loudly, which is the point.
- */
-const idbName = 'keyval-store';
-const idbStore = 'keyval';
-const snapshotKey = 'board:test-user';
 
 function withStore<T>(
 	page: Page,
@@ -128,8 +157,7 @@ test('never serves API responses from the cache', async ({ page, context }) => {
 // Logging out must leave nothing on the device: cached documents hold
 // SSR-rendered user data and the IndexedDB snapshots hold the notes themselves.
 // The service worker keys this off the request path rather than the session, so
-// it is reachable without logging in — which this suite cannot do, because Auth0
-// only whitelists the dev port.
+// this needs no session of its own.
 test('purges cached pages and stored snapshots on logout', async ({ page }) => {
 	await openControlledPage(page, '/');
 	expect(findCache(await readCacheKeys(page), pageCachePrefix)).toContain('/');
@@ -152,3 +180,61 @@ test('purges cached pages and stored snapshots on logout', async ({ page }) => {
 		.not.toContain('/');
 	await expect.poll(() => readSnapshotKey(page, snapshotKey)).toBeUndefined();
 });
+
+/*
+ * The whole point of #788: the board is what people actually open offline, and
+ * it is the one path the unauthenticated tests above cannot reach.
+ *
+ * Board state hydrates from IndexedDB (localCache.ts) rather than from the
+ * document, so this waits for that snapshot to be written before cutting the
+ * network — otherwise the page would render from cache with an empty board and
+ * the assertion would pass for the wrong reason.
+ */
+test('renders the authenticated board while offline', async ({ page, context }) => {
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	await page.evaluate(async () => {
+		await navigator.serviceWorker.ready;
+	});
+	await page.reload();
+	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
+
+	const createButton = page.getByRole('button', { name: 'Create a new note' });
+	await expect(createButton).toBeVisible();
+
+	expect(findCache(await readCacheKeys(page), pageCachePrefix)).toContain(boardPath);
+	await expect
+		.poll(() => readSnapshotKeys(page))
+		.toEqual(expect.arrayContaining([boardKeyMatcher]));
+
+	const notes = page.getByRole('button', { name: /^Edit note/ });
+	const notesBefore = await notes.count();
+
+	/*
+	 * Without this the comparison below is vacuous: an offline reload that
+	 * hydrated nothing would render zero notes and still match a zero baseline.
+	 * The account this suite signs in as is expected to hold at least one note.
+	 */
+	expect(notesBefore).toBeGreaterThan(0);
+	const firstNoteLabel = await notes.first().getAttribute('aria-label');
+
+	await context.setOffline(true);
+	await page.reload();
+
+	await expect(page.getByRole('heading', { name: offlineHeading })).toBeHidden();
+	await expect(createButton).toBeVisible();
+	expect(await notes.count()).toBe(notesBefore);
+
+	// The cached document renders an empty board — the notes themselves only
+	// exist in IndexedDB — so matching content proves hydration actually ran.
+	expect(await notes.first().getAttribute('aria-label')).toBe(firstNoteLabel);
+});
+
+async function login(page: Page) {
+	await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL!);
+	await page.getByRole('textbox', { name: 'Password' }).fill(process.env.TEST_USER_PASSWORD!);
+	await page.getByRole('button', { name: 'Continue', exact: true }).click();
+	await page.waitForURL(/\/my\/board/, { timeout: loginTimeoutMs });
+}
