@@ -15,6 +15,9 @@ const boardKeyMatcher = expect.stringMatching(/^board:/);
  */
 const idbName = 'keyval-store';
 const idbStore = 'keyval';
+// Written directly rather than by the app, so the logout purge has something
+// deterministic to clear without needing a signed-in board first.
+const snapshotKey = 'board:test-user';
 
 function readSnapshotKeys(page: Page): Promise<string[]> {
 	return page.evaluate(
@@ -68,6 +71,38 @@ function findCache(entries: Record<string, string[]>, prefix: string): string[] 
 	return key ? entries[key] : [];
 }
 
+function withStore<T>(
+	page: Page,
+	mode: IDBTransactionMode,
+	run: string,
+	key: string,
+	value?: string
+) {
+	return page.evaluate(
+		({ idbName, idbStore, mode, run, key, value }) =>
+			new Promise<T | undefined>((resolve, reject) => {
+				const open = indexedDB.open(idbName);
+				open.onupgradeneeded = () => open.result.createObjectStore(idbStore);
+				open.onerror = () => reject(open.error);
+				open.onsuccess = () => {
+					const store = open.result.transaction(idbStore, mode).objectStore(idbStore);
+					const request = run === 'put' ? store.put(value, key) : store.get(key);
+					request.onerror = () => reject(request.error);
+					request.onsuccess = () => resolve(request.result as T | undefined);
+				};
+			}),
+		{ idbName, idbStore, mode, run, key, value }
+	);
+}
+
+function writeSnapshotKey(page: Page, key: string, value: string) {
+	return withStore<void>(page, 'readwrite', 'put', key, value);
+}
+
+function readSnapshotKey(page: Page, key: string) {
+	return withStore<string>(page, 'readonly', 'get', key);
+}
+
 test('precaches the built app and the offline fallback on first visit', async ({ page }) => {
 	await openControlledPage(page, '/');
 
@@ -119,12 +154,16 @@ test('never serves API responses from the cache', async ({ page, context }) => {
 	expect(findCache(await readCacheKeys(page), pageCachePrefix)).not.toContain('/api/user/board');
 });
 
-// Cached documents hold SSR-rendered user data, so logging out has to drop them.
+// Logging out must leave nothing on the device: cached documents hold
+// SSR-rendered user data and the IndexedDB snapshots hold the notes themselves.
 // The service worker keys this off the request path rather than the session, so
 // this needs no session of its own.
-test('purges cached pages on logout', async ({ page }) => {
+test('purges cached pages and stored snapshots on logout', async ({ page }) => {
 	await openControlledPage(page, '/');
 	expect(findCache(await readCacheKeys(page), pageCachePrefix)).toContain('/');
+
+	await writeSnapshotKey(page, snapshotKey, 'cached notes');
+	expect(await readSnapshotKey(page, snapshotKey)).toBe('cached notes');
 
 	await page.evaluate(async () => {
 		try {
@@ -135,10 +174,11 @@ test('purges cached pages on logout', async ({ page }) => {
 		}
 	});
 
-	// The purge runs in `waitUntil`, so it completes independently of the request.
+	// Both purges run in `waitUntil`, independently of the request itself.
 	await expect
 		.poll(async () => findCache(await readCacheKeys(page), pageCachePrefix))
 		.not.toContain('/');
+	await expect.poll(() => readSnapshotKey(page, snapshotKey)).toBeUndefined();
 });
 
 /*

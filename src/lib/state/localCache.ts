@@ -1,6 +1,7 @@
-import { get, set, del } from 'idb-keyval';
+import { get, set } from 'idb-keyval';
 import { browser } from '$app/environment';
 
+import { boardKey, friendsKey } from './localCacheKeys';
 import type { NoteOrdered, Friend, UserInvite, UserInviteWithUserProps } from '$lib/types';
 
 const snapshotVersion = 1;
@@ -18,14 +19,6 @@ export interface FriendsSnapshot {
 	friends: Friend[];
 	pendingSentInvites: UserInvite[];
 	pendingReceivedInvites: UserInviteWithUserProps[];
-}
-
-function boardKey(userId: string) {
-	return `board:${userId}`;
-}
-
-function friendsKey(userId: string) {
-	return `friends:${userId}`;
 }
 
 async function readSnapshot<T extends { version: number }>(key: string): Promise<T | undefined> {
@@ -76,13 +69,9 @@ export function setFriendsSnapshot(
 	return writeSnapshot(friendsKey(userId), { version: snapshotVersion, ...snapshot });
 }
 
-export async function clearSnapshots(userId: string): Promise<void> {
-	if (!browser) {
-		return;
-	}
-	try {
-		await Promise.all([del(boardKey(userId)), del(friendsKey(userId))]);
-	} catch {
-		// Nothing to clean up if IndexedDB is unavailable.
-	}
-}
+/*
+ * Snapshots are cleared by the service worker when it sees the logout request
+ * (see src/service-worker.ts), not from here: logout is a plain link to
+ * /api/auth/logout in two places, and an async delete started during a
+ * navigation away is not guaranteed to finish.
+ */

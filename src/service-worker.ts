@@ -4,6 +4,10 @@
 /// <reference types="@sveltejs/kit" />
 
 import { build, files, version } from '$service-worker';
+import { delMany, keys } from 'idb-keyval';
+
+import { skipWaitingMessage } from '$lib/serviceWorkerMessages';
+import { snapshotKeyPrefixes } from '$lib/state/localCacheKeys';
 
 // The double assertion is the documented SvelteKit idiom: `self` is already
 // declared by lib.webworker as a WorkerGlobalScope, so it cannot be re-declared
@@ -21,6 +25,22 @@ const apiPrefix = '/api/';
 const logoutPath = '/api/auth/logout';
 
 const precachedPaths = [...build, ...files];
+
+/*
+ * A new version normally waits until every tab using the old one closes,
+ * because `activate` deletes the old caches and doing that under a running
+ * page would strip out the assets it still needs.
+ *
+ * This message is the one sanctioned way past that wait. `applyAppUpdate` in
+ * appUpdate.ts sends it only after the user accepts the update prompt, and
+ * reloads the moment control transfers — so no page keeps running against
+ * caches that are about to disappear.
+ */
+serviceWorker.addEventListener('message', (event) => {
+	if (event.data?.type === skipWaitingMessage) {
+		serviceWorker.skipWaiting();
+	}
+});
 
 serviceWorker.addEventListener('install', (event) => {
 	// `addAll` is all-or-nothing: if any one asset fails to download the install
@@ -60,10 +80,13 @@ serviceWorker.addEventListener('fetch', (event) => {
 		return;
 	}
 
-	// Logging out invalidates every cached page, which is where the SSR-rendered
-	// user data lives. Purge before handing the request back to the network.
+	// Logging out has to leave nothing behind on the device: the cached pages
+	// hold SSR-rendered user data, and the IndexedDB snapshots hold the notes
+	// themselves. Doing it here rather than in the page is what makes it
+	// reliable — logout is a plain link, and an async delete started while the
+	// browser is navigating away may never finish.
 	if (url.pathname === logoutPath) {
-		event.waitUntil(caches.delete(pageCacheName));
+		event.waitUntil(purgeLocalData());
 		return;
 	}
 
@@ -76,6 +99,36 @@ serviceWorker.addEventListener('fetch', (event) => {
 
 	event.respondWith(respond(request, url));
 });
+
+/*
+ * Goes through idb-keyval rather than deleting the database by name, so the
+ * store naming stays the library's business and cannot drift out of step with
+ * localCache.ts. Only this app's snapshot keys are touched.
+ */
+async function purgeLocalData(): Promise<void> {
+	// Guarded separately from the snapshots below: these are two independent
+	// stores of user data, and a failure to drop one must not leave the other
+	// sitting on the device.
+	try {
+		await caches.delete(pageCacheName);
+	} catch {
+		// Cache storage can be unavailable; the snapshot purge still has to run.
+	}
+
+	try {
+		const storedKeys = await keys();
+		const snapshotKeys = storedKeys.filter(
+			(key): key is string =>
+				typeof key === 'string' && snapshotKeyPrefixes.some((prefix) => key.startsWith(prefix))
+		);
+
+		if (snapshotKeys.length > 0) {
+			await delMany(snapshotKeys);
+		}
+	} catch {
+		// IndexedDB can be unavailable in private mode; the cache purge still ran.
+	}
+}
 
 async function respond(request: Request, url: URL): Promise<Response> {
 	if (precachedPaths.includes(url.pathname)) {

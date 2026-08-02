@@ -3,8 +3,10 @@
 	import { DropdownMenu } from 'bits-ui';
 
 	import { durationFastMs, easeMove, reduceMotion } from '$lib/motion';
-	import { Settings, LogOut, type LucideIcon } from '@lucide/svelte';
+	import { Download, Settings, LogOut, type LucideIcon } from '@lucide/svelte';
 	import UserAvatar from './UserAvatar.svelte';
+	import InstallInstructions from './InstallInstructions.svelte';
+	import { getInstallState } from '$lib/state/installState.svelte';
 
 	type Props = {
 		userPicture: string;
@@ -13,6 +15,19 @@
 	};
 
 	let { userPicture, email, name }: Props = $props();
+
+	const installState = getInstallState();
+
+	let showInstructions = $state(false);
+
+	function handleInstall() {
+		if (installState.needsManualSteps) {
+			showInstructions = true;
+			return;
+		}
+
+		installState.promptInstall();
+	}
 
 	type MenuLinkProps = {
 		href: string;
@@ -46,6 +61,24 @@
 	</a>
 {/snippet}
 
+{#snippet MenuButton({
+	icon: Icon,
+	text,
+	itemProps
+}: Omit<MenuLinkProps, 'href' | 'reload' | 'borderTop'>)}
+	<!-- itemProps carries bits-ui's own selection handling, so the action is wired
+	     through DropdownMenu.Item's onSelect rather than an onclick that would
+	     override it and leave the menu open. -->
+	<button
+		{...itemProps}
+		type="button"
+		class="hover:bg-accent-soft rounded-control mt-2 flex w-full gap-2 p-2"
+	>
+		<Icon aria-hidden="true" />
+		<span>{text}</span>
+	</button>
+{/snippet}
+
 <DropdownMenu.Root>
 	<DropdownMenu.Trigger aria-label="user menu">
 		<UserAvatar picture={userPicture} {name} size={8} showTooltip={false} />
@@ -77,6 +110,17 @@
 									})}
 								{/snippet}
 							</DropdownMenu.Item>
+							{#if installState.canInstall}
+								<DropdownMenu.Item onSelect={handleInstall}>
+									{#snippet child({ props: itemProps })}
+										{@render MenuButton({
+											text: 'Install app',
+											icon: Download,
+											itemProps
+										})}
+									{/snippet}
+								</DropdownMenu.Item>
+							{/if}
 							<DropdownMenu.Item>
 								{#snippet child({ props: itemProps })}
 									{@render MenuLink({
@@ -96,3 +140,5 @@
 		</DropdownMenu.Content>
 	</DropdownMenu.Portal>
 </DropdownMenu.Root>
+
+<InstallInstructions bind:show={showInstructions} />

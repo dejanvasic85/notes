@@ -96,8 +96,18 @@
 	let hasMounted = false;
 
 	$effect(() => {
+		/*
+		 * `show` is read before the guard on purpose. Returning first would end
+		 * the run without ever reading it, so Svelte would register no dependency
+		 * on it and never re-run this effect — and the first run always lands
+		 * before onMount, since effects fire in creation order and this one is
+		 * declared above it. That left a Dialog mounted with `show` false stuck
+		 * closed forever, which every caller happened to avoid by mounting a
+		 * fresh instance with `show` already true.
+		 */
+		const nextPresent = show;
 		if (!hasMounted) return;
-		isPresent = show;
+		isPresent = nextPresent;
 	});
 
 	function handlePanelOutroEnd() {
