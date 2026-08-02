@@ -60,8 +60,8 @@ importers:
         specifier: 6.3.0
         version: 6.3.0
       jose:
-        specifier: 6.2.6
-        version: 6.2.6
+        specifier: 6.2.7
+        version: 6.2.7
       nanoid:
         specifier: 6.0.0
         version: 6.0.0
@@ -1956,8 +1956,8 @@ packages:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
 
-  jose@6.2.6:
-    resolution: {integrity: sha512-HwMtbJjMw8rC8dUTwCNilHJD+fxTeKM3JV1eprSmTjS41qwXSSt6exJXgyPK1QOu0jB9eDYLESRDkB3qaT3jnw==}
+  jose@6.2.7:
+    resolution: {integrity: sha512-hq1OB1bALKfydZNoViyg6hPVGV4i93ny9Op+n4zP5RSf7SCZEXa/TsG2O3IEr7+WlHRTPnpqDmHfMH6qXAD60w==}
 
   js-tokens@10.0.0:
     resolution: {integrity: sha512-lM/UBzQmfJRo9ABXbPWemivdCW8V2G8FHaHdypQaIy523snUjog0W71ayWXTjiR+ixeMyVHN2XcpnTd/liPg/Q==}
@@ -3096,7 +3096,7 @@ snapshots:
 
   '@auth0/auth0-auth-js@1.10.0':
     dependencies:
-      jose: 6.2.6
+      jose: 6.2.7
       openid-client: 6.8.4
 
   '@auth0/auth0-spa-js@2.24.1':
@@ -4913,7 +4913,7 @@ snapshots:
 
   jiti@2.7.0: {}
 
-  jose@6.2.6: {}
+  jose@6.2.7: {}
 
   js-tokens@10.0.0: {}
 
@@ -5148,7 +5148,7 @@ snapshots:
 
   openid-client@6.8.4:
     dependencies:
-      jose: 6.2.6
+      jose: 6.2.7
       oauth4webapi: 3.8.6
 
   optionator@0.9.4:
