@@ -169,7 +169,7 @@
 	--duration-fast: 160ms;
 	--duration-base: 240ms;
 	--duration-slow: 360ms;
-	--duration-sheet: 420ms;
+	--duration-sheet: 320ms;
 
 	/* Layering — carried over from the current app, unchanged */
 	--z-index-menu: 10;

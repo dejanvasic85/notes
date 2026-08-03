@@ -153,7 +153,7 @@
 	--duration-fast: 160ms;
 	--duration-base: 240ms;
 	--duration-slow: 360ms;
-	--duration-sheet: 420ms;
+	--duration-sheet: 320ms;
 
 	/* App layout. Note cards size to their content, so there is no
 	 * --height-note/--width-note any more. */
