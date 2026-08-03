@@ -11,7 +11,7 @@ export const durationTapMs = 100;
 export const durationFastMs = 160;
 export const durationBaseMs = 240;
 export const durationSlowMs = 360;
-export const durationSheetMs = 420;
+export const durationSheetMs = 320;
 
 // --ease-enter is a long decelerate (cubic-bezier(.22,1,.36,1)); cubicOut is
 // the closest curve svelte/easing ships.
