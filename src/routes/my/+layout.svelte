@@ -4,10 +4,12 @@
 	import ProfileMenu from '$components/ProfileMenu.svelte';
 	import Menu from '$components/Menu.svelte';
 	import Note from '$components/Note.svelte';
+	import OfflineIndicator from '$components/OfflineIndicator.svelte';
 	import Search from '$components/Search.svelte';
 	import logo from '$lib/images/notes-main.png';
 	import { tryFetch } from '$lib/browserFetch';
 	import { getBoardState } from '$lib/state/boardState.svelte';
+	import { setConnectivityState } from '$lib/state/connectivityState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { setFriendsState, getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getUserState } from '$lib/state/userState.svelte';
@@ -27,6 +29,7 @@
 	const friendsState = getFriendsState();
 	const toastMessages = getToastMessages();
 	const userState = getUserState();
+	setConnectivityState();
 	const userId = data.userData?.id ?? '';
 
 	userState.setName(data.userData?.name ?? '');
@@ -103,13 +106,16 @@
 	>
 		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
 		<Search />
-		{#if data.userData}
-			<ProfileMenu
-				userPicture={data.userData.picture!}
-				email={data.userData.email!}
-				name={userState.name}
-			/>
-		{/if}
+		<div class="flex items-center gap-3">
+			<OfflineIndicator />
+			{#if data.userData}
+				<ProfileMenu
+					userPicture={data.userData.picture!}
+					email={data.userData.email!}
+					name={userState.name}
+				/>
+			{/if}
+		</div>
 	</header>
 
 	<!-- Side menu -->

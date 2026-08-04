@@ -3,6 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 const assetCachePrefix = 'assets-';
 const pageCachePrefix = 'pages-';
 const offlineHeading = "You're offline";
+const offlineIndicatorLabel = "You're offline. Changes will sync once you're back online.";
 const boardPath = '/my/board';
 const loginTimeoutMs = 15_000;
 // localCache.ts keys board snapshots as `board:<userId>`.
@@ -230,6 +231,26 @@ test('renders the authenticated board while offline', async ({ page, context }) 
 	// The cached document renders an empty board — the notes themselves only
 	// exist in IndexedDB — so matching content proves hydration actually ran.
 	expect(await notes.first().getAttribute('aria-label')).toBe(firstNoteLabel);
+});
+
+// Unlike the service-worker cases above, `online`/`offline` are live browser
+// events - no reload needed to see the header indicator react.
+test('shows and clears the header offline indicator as connectivity changes', async ({
+	page,
+	context
+}) => {
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	const indicator = page.getByLabel(offlineIndicatorLabel);
+	await expect(indicator).toBeHidden();
+
+	await context.setOffline(true);
+	await expect(indicator).toBeVisible();
+
+	await context.setOffline(false);
+	await expect(indicator).toBeHidden();
 });
 
 async function login(page: Page) {
