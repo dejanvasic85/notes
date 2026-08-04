@@ -31,8 +31,8 @@
 		"@tailwindcss/typography": "0.5.20",
 		"@tailwindcss/vite": "4.3.3",
 		"@types/node": "26.1.2",
-		"@typescript-eslint/eslint-plugin": "8.65.0",
-		"@typescript-eslint/parser": "8.65.0",
+		"@typescript-eslint/eslint-plugin": "8.66.0",
+		"@typescript-eslint/parser": "8.66.0",
 		"@vitest/coverage-v8": "4.1.10",
 		"dotenv": "17.4.2",
 		"eslint": "10.8.0",
@@ -59,7 +59,7 @@
 	"dependencies": {
 		"@47ng/cloak": "1.2.0",
 		"@auth0/auth0-spa-js": "2.24.1",
-		"@aws-sdk/client-ses": "3.1101.0",
+		"@aws-sdk/client-ses": "3.1102.0",
 		"@fontsource-variable/figtree": "5.3.0",
 		"@fontsource/poppins": "5.3.0",
 		"@lucide/svelte": "1.28.0",
@@ -73,8 +73,8 @@
 		"@tiptap/starter-kit": "3.29.2",
 		"bits-ui": "2.18.1",
 		"idb-keyval": "6.3.0",
-		"jose": "6.2.7",
-		"nanoid": "6.0.0",
+		"jose": "6.2.8",
+		"nanoid": "6.0.1",
 		"neverthrow": "8.2.0",
 		"pg": "8.22.0",
 		"svelte-sonner": "1.1.1",
@@ -96,5 +96,5 @@
 			"onFail": "download"
 		}
 	},
-	"packageManager": "pnpm@11.19.0"
+	"packageManager": "pnpm@11.20.0"
 }
