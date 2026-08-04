@@ -243,7 +243,7 @@ test('shows and clears the header offline indicator as connectivity changes', as
 	await page.getByRole('link', { name: 'Login' }).click();
 	await login(page);
 
-	const indicator = page.getByLabel(offlineIndicatorLabel);
+	const indicator = page.getByText(offlineIndicatorLabel);
 	await expect(indicator).toBeHidden();
 
 	await context.setOffline(true);

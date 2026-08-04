@@ -19,7 +19,8 @@
 -->
 <div role="status">
 	{#if connectivityState.isOffline}
-		<span aria-label={offlineLabel} transition:fade={{ duration: reduceMotion(durationFastMs) }}>
+		<span class="sr-only">{offlineLabel}</span>
+		<span transition:fade={{ duration: reduceMotion(durationFastMs) }}>
 			<WifiOff size={iconSize} aria-hidden="true" class="text-warning" />
 		</span>
 	{/if}
