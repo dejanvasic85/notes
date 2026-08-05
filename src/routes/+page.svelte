@@ -137,7 +137,8 @@
 				ondeletenote={handleDeleteNote}
 				onreorder={handleReorder}
 				onselect={handleSelect}
-				onupdatenote={handleUpdateNote}
+				onsavenote={handleUpdateNote}
+				onupdatecolour={handleUpdateNote}
 			/>
 		</div>
 	</main>

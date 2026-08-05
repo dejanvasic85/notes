@@ -4,9 +4,11 @@
 	import { onMount, tick } from 'svelte';
 
 	import type { Board as BoardModel, Note, NoteOrdered, ToggleFriendShare } from '$lib/types';
-	import { runOptimisticUpdate, tryFetch } from '$lib/browserFetch';
+	import { runOptimisticUpdate, tryFetch, NetworkUnavailableError } from '$lib/browserFetch';
+	import { generateId } from '$lib/identityGenerator';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
+	import { enqueue } from '$lib/state/writeQueue.svelte';
 
 	import Board from '$components/Board.svelte';
 	import NoteList from '$components/NoteList.svelte';
@@ -16,6 +18,7 @@
 	const skeletonHeights = ['h-32', 'h-48', 'h-24', 'h-40', 'h-28', 'h-36'];
 	const boardState = getBoardState();
 	const toastMessages = getToastMessages();
+	const userId = page.data.userData?.id ?? '';
 
 	let loading = $derived(boardState.loading);
 	let search = $derived(new URL(page.url).searchParams);
@@ -60,17 +63,59 @@
 		);
 	}
 
-	async function handleUpdate({ note }: { note: NoteOrdered }) {
+	async function handleSaveNote({ note }: { note: NoteOrdered }) {
 		await runOptimisticUpdate({
 			apply: () => boardState.updateNote(note),
 			request: ([updatedNote]) =>
 				tryFetch<Note>(`/api/notes/${note.id}`, {
 					method: 'PATCH',
-					body: JSON.stringify(updatedNote)
+					body: JSON.stringify({
+						text: updatedNote.text,
+						textPlain: updatedNote.textPlain,
+						title: updatedNote.title,
+						contentUpdatedAt: updatedNote.contentUpdatedAt
+					})
 				}),
 			revert: ([, original]) => boardState.updateNote(original),
 			errorMessage: 'Failed to update note. Try again.',
-			toastMessages
+			toastMessages,
+			onNetworkUnavailable: ([updatedNote]) =>
+				enqueue(userId, {
+					id: generateId('qm'),
+					type: 'update-content',
+					noteId: updatedNote.id,
+					text: updatedNote.text,
+					textPlain: updatedNote.textPlain,
+					title: updatedNote.title,
+					contentUpdatedAt: (updatedNote.contentUpdatedAt ?? new Date()).getTime(),
+					queuedAt: Date.now()
+				})
+		});
+	}
+
+	async function handleUpdateColour({ note }: { note: NoteOrdered }) {
+		await runOptimisticUpdate({
+			apply: () => boardState.updateNote(note),
+			request: ([updatedNote]) =>
+				tryFetch<Note>(`/api/notes/${note.id}`, {
+					method: 'PATCH',
+					body: JSON.stringify({
+						colour: updatedNote.colour,
+						colourUpdatedAt: updatedNote.colourUpdatedAt
+					})
+				}),
+			revert: ([, original]) => boardState.updateNote(original),
+			errorMessage: 'Failed to update note colour. Try again.',
+			toastMessages,
+			onNetworkUnavailable: ([updatedNote]) =>
+				enqueue(userId, {
+					id: generateId('qm'),
+					type: 'update-colour',
+					noteId: updatedNote.id,
+					colour: updatedNote.colour,
+					colourUpdatedAt: (updatedNote.colourUpdatedAt ?? new Date()).getTime(),
+					queuedAt: Date.now()
+				})
 		});
 	}
 
@@ -82,9 +127,19 @@
 			revert: ([deletedNote, index]) => boardState.createNoteAtIndex(index, deletedNote),
 			errorMessage: 'Failed to delete note. Try again.',
 			successMessage: 'Note deleted',
-			toastMessages
+			toastMessages,
+			onNetworkUnavailable: () =>
+				enqueue(userId, {
+					id: generateId('qm'),
+					type: 'delete',
+					noteId: note.id,
+					queuedAt: Date.now()
+				})
 		});
-		if (result.type !== 'error') {
+		// A queued-offline delete still removes the note locally, so the editor
+		// should close the same as a confirmed delete - only a genuine server
+		// error leaves the note (and its open editor) in place.
+		if (result.type !== 'error' || result.value instanceof NetworkUnavailableError) {
 			pushState(`/my/board`, { selectedNoteId: null });
 		}
 	}
@@ -99,7 +154,15 @@
 				}),
 			revert: () => boardState.reorderNotes(toIndex, fromIndex),
 			errorMessage: 'Failed to reorder notes. Try again.',
-			toastMessages
+			toastMessages,
+			onNetworkUnavailable: ([noteOrder]) =>
+				enqueue(userId, {
+					id: generateId('qm'),
+					type: 'reorder',
+					boardId: boardState.boardId,
+					noteOrder,
+					queuedAt: Date.now()
+				})
 		});
 	}
 </script>
@@ -124,7 +187,8 @@
 		enableSharing={true}
 		onselect={handleSelect}
 		onclosenote={handleClose}
-		onupdatenote={handleUpdate}
+		onsavenote={handleSaveNote}
+		onupdatecolour={handleUpdateColour}
 		ondeletenote={handleDelete}
 		onreorder={handleReorder}
 		ontogglefriend={handleToggleFriendShare}

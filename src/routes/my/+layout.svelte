@@ -7,10 +7,17 @@
 	import OfflineIndicator from '$components/OfflineIndicator.svelte';
 	import Search from '$components/Search.svelte';
 	import logo from '$lib/images/notes-main.png';
-	import { tryFetch } from '$lib/browserFetch';
+	import { tryFetch, NetworkUnavailableError } from '$lib/browserFetch';
+	import { generateId } from '$lib/identityGenerator';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { setConnectivityState } from '$lib/state/connectivityState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
+	import {
+		clearPausedNotes,
+		drain,
+		enqueue,
+		registerReplayOnReconnect
+	} from '$lib/state/writeQueue.svelte';
 	import { setFriendsState, getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getUserState } from '$lib/state/userState.svelte';
 	import {
@@ -29,7 +36,7 @@
 	const friendsState = getFriendsState();
 	const toastMessages = getToastMessages();
 	const userState = getUserState();
-	setConnectivityState();
+	const connectivityState = setConnectivityState();
 	const userId = data.userData?.id ?? '';
 
 	userState.setName(data.userData?.name ?? '');
@@ -47,7 +54,7 @@
 		friendsState.setLoading(!friendsHydrated);
 
 		try {
-			await refreshFromServer(boardState, friendsState);
+			await refreshFromServer(boardState, friendsState, connectivityState.isOffline);
 		} catch (err) {
 			console.error('Error loading data:', err);
 			if (!boardHydrated && !friendsHydrated) {
@@ -63,6 +70,29 @@
 	});
 
 	setupLocalCachePersistence(userId, boardState, friendsState);
+
+	// Once the write queue drains after reconnecting, pull the server's
+	// canonical state - a dropped conflict-losing field or a create's
+	// server-assigned values only show up locally after this refetch.
+	registerReplayOnReconnect(userId, () => {
+		refreshFromServer(boardState, friendsState, connectivityState.isOffline).catch((err) => {
+			console.error('Error reconciling after write queue drain:', err);
+		});
+	});
+
+	// Paused notes are deliberately excluded from automatic reconnect drains
+	// (a genuine failure shouldn't retry forever) - this is the explicit
+	// user-initiated retry from OfflineIndicator's toast action.
+	function handleRetrySync() {
+		clearPausedNotes();
+		drain(userId).then((result) => {
+			if (result.drainedAny) {
+				refreshFromServer(boardState, friendsState, connectivityState.isOffline).catch((err) => {
+					console.error('Error reconciling after retry:', err);
+				});
+			}
+		});
+	}
 
 	async function handleCreateNote() {
 		const newNote = boardState.createNewNote();
@@ -87,6 +117,16 @@
 		);
 
 		if (resp.type === 'error') {
+			if (resp.value instanceof NetworkUnavailableError) {
+				await enqueue(userId, {
+					id: generateId('qm'),
+					type: 'create',
+					note: newNote,
+					queuedAt: Date.now()
+				});
+				return;
+			}
+
 			boardState.deleteNoteById(newNote.id);
 			goto('/my/board');
 			toastMessages.addMessage({
@@ -107,7 +147,7 @@
 		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
 		<Search />
 		<div class="flex items-center gap-3">
-			<OfflineIndicator />
+			<OfflineIndicator onretry={handleRetrySync} />
 			{#if data.userData}
 				<ProfileMenu
 					userPicture={data.userData.picture!}

@@ -10,7 +10,7 @@ import {
 	getNoteOwnerUserId
 } from '$lib/server/db/notesDb';
 import { getUserByNoteId, getUser } from '$lib/server/db/userDb';
-import type { NoteEditor, NoteEditorInput, ServerError } from '$lib/types';
+import type { Note, NoteEditor, NoteEditorInput, NotePatchInput, ServerError } from '$lib/types';
 import { generateId } from '$lib/identityGenerator';
 import { createError } from '$lib/server/errorFactory';
 import { sendEmail } from './emailService';
@@ -74,6 +74,38 @@ export const isNoteEditorOrOwner = (params: NoteAuthParams): ResultAsync<boolean
 	isNoteOwner(params).andThen((isOwner) =>
 		isOwner ? okAsync<boolean, ServerError>(true) : isNoteEditor(params)
 	);
+
+const contentFields = ['text', 'textPlain', 'title'] as const;
+
+// The offline write queue (#855) sends field-scoped patches, each stamped with
+// the client's edit time for its group. A patch older than the note's current
+// group timestamp lost to a concurrent edit elsewhere - drop just that group,
+// not the whole patch, since the two groups are edited independently.
+export function resolveNotePatch(existing: Note, patch: NotePatchInput): Partial<Note> {
+	const resolved: Partial<Note> = { ...patch };
+
+	if (
+		patch.contentUpdatedAt &&
+		existing.contentUpdatedAt &&
+		existing.contentUpdatedAt > patch.contentUpdatedAt
+	) {
+		for (const field of contentFields) {
+			delete resolved[field];
+		}
+		delete resolved.contentUpdatedAt;
+	}
+
+	if (
+		patch.colourUpdatedAt &&
+		existing.colourUpdatedAt &&
+		existing.colourUpdatedAt > patch.colourUpdatedAt
+	) {
+		delete resolved.colour;
+		delete resolved.colourUpdatedAt;
+	}
+
+	return resolved;
+}
 
 export const canDeleteNote = (params: NoteAuthParams): ResultAsync<boolean, ServerError> =>
 	isNoteOwner(params).andThen((canDelete) =>

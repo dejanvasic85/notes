@@ -14,6 +14,7 @@ interface Success<T> {
 interface Fail {
 	type: 'error';
 	value: Error;
+	status?: number;
 }
 
 export type Result<T> = Success<T> | Fail;
@@ -25,11 +26,24 @@ export function success<T>(value: T): Success<T> {
 	};
 }
 
-export function fail(message: string): Fail {
+export function fail(message: string, status?: number): Fail {
 	return {
 		type: 'error',
-		value: new Error(message)
+		value: new Error(message),
+		status
 	};
+}
+
+// Thrown when fetch() itself never got a response - offline, DNS failure,
+// captive portal - as opposed to the server responding with an error status.
+// tryFetch normalizes this into a Result instead of letting it escape as an
+// unhandled rejection, so callers can distinguish "try again later" from a
+// genuine server error and enqueue the mutation instead of losing it.
+export class NetworkUnavailableError extends Error {
+	constructor(message: string, options?: ErrorOptions) {
+		super(message, options);
+		this.name = 'NetworkUnavailableError';
+	}
 }
 
 const maxRetries = 3;
@@ -77,7 +91,7 @@ async function fetchWithRetry(func: () => Promise<Response>, retryCount = 0): Pr
 			await new Promise((resolve) => setTimeout(resolve, retryDelay));
 			return fetchWithRetry(func, retryCount + 1);
 		}
-		throw err;
+		throw new NetworkUnavailableError('Network unavailable after retries', { cause: err });
 	}
 }
 
@@ -90,7 +104,7 @@ export async function tryFetch<T>(
 	const clearQueueOnError = options?.clearQueueOnError ?? false;
 
 	pending++;
-	const thisRequest = queueTail
+	const thisRequest: Promise<Result<T>> = queueTail
 		.then(() =>
 			fetchWithRetry(() =>
 				fetch(input, {
@@ -100,31 +114,42 @@ export async function tryFetch<T>(
 						...init?.headers
 					}
 				})
-			).then(async (resp) => {
+			).then(async (resp): Promise<Result<T>> => {
 				if (!resp.ok) {
 					const rawText = await resp.text();
-					return fail(rawText);
+					return fail(rawText, resp.status);
 				}
 
 				if (shouldParse) {
 					return resp.json().then((json) => success(json));
 				} else {
-					return success(resp);
+					return success(resp as T);
 				}
 			})
 		)
+		.catch((err: unknown): Result<T> => {
+			if (err instanceof NetworkUnavailableError) {
+				return { type: 'error', value: err };
+			}
+			throw err;
+		})
 		.finally(() => {
 			pending--;
 		});
 
-	if (clearQueueOnError) {
-		queueTail = thisRequest.catch(() => {
-			queueTail = Promise.resolve();
-			return undefined;
-		});
-	} else {
-		queueTail = thisRequest.catch(() => undefined);
-	}
+	// A genuinely unexpected rejection (not the normalized NetworkUnavailableError
+	// case above) must still not permanently wedge the next queued call.
+	queueTail = thisRequest
+		.then((result) => {
+			if (
+				clearQueueOnError &&
+				result.type === 'error' &&
+				result.value instanceof NetworkUnavailableError
+			) {
+				queueTail = Promise.resolve();
+			}
+		})
+		.catch(() => undefined);
 
 	return thisRequest;
 }
@@ -136,6 +161,11 @@ interface OptimisticUpdateParams<TApplied, TResult extends Result<unknown>> {
 	errorMessage: string;
 	successMessage?: string;
 	toastMessages: ToastMessages;
+	// Called instead of revert/toast when the request failed because the
+	// network was unreachable, not because the server rejected it - the
+	// optimistic change stays applied and the caller is expected to durably
+	// queue the mutation for replay once back online.
+	onNetworkUnavailable?: (applied: TApplied) => void;
 }
 
 // Runs an optimistic local mutation, then reverts it and shows a toast if the
@@ -148,12 +178,18 @@ export async function runOptimisticUpdate<TApplied, TResult extends Result<unkno
 	revert,
 	errorMessage,
 	successMessage,
-	toastMessages
+	toastMessages,
+	onNetworkUnavailable
 }: OptimisticUpdateParams<TApplied, TResult>): Promise<TResult> {
 	const applied = apply();
 	const result = await request(applied);
 
 	if (result.type === 'error') {
+		if (onNetworkUnavailable && result.value instanceof NetworkUnavailableError) {
+			onNetworkUnavailable(applied);
+			return result;
+		}
+
 		revert(applied);
 		const errorMessageValue: ToastMessage = { type: 'error', message: errorMessage };
 		toastMessages.addMessage(errorMessageValue);

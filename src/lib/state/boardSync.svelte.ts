@@ -26,7 +26,19 @@ const persistDebounceMs = 400;
 // Server is the source of truth, but only apply it when the optimistic
 // write queue is idle so in-flight local changes are not clobbered. If a
 // write races the fetch, retry so the re-fetch reflects the synced change.
-export async function refreshFromServer(boardState: BoardState, friendsState: FriendsState) {
+//
+// Skipped entirely while offline: with no network there is nothing to
+// reconcile, and the 3 failed attempts below would otherwise throw a
+// misleading error on every offline mount.
+export async function refreshFromServer(
+	boardState: BoardState,
+	friendsState: FriendsState,
+	isOffline: boolean
+) {
+	if (isOffline) {
+		return;
+	}
+
 	for (let attempt = 0; attempt < maxReconcileAttempts; attempt++) {
 		await whenWriteQueueIdle();
 

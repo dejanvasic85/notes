@@ -253,6 +253,106 @@ test('shows and clears the header offline indicator as connectivity changes', as
 	await expect(indicator).toBeHidden();
 });
 
+// localCache.ts keys the board snapshot as `board:<userId>` - stripping the
+// prefix gives the real signed-in user's id without hardcoding a test account.
+async function getSignedInUserId(page: Page): Promise<string> {
+	await expect
+		.poll(() => readSnapshotKeys(page))
+		.toEqual(expect.arrayContaining([boardKeyMatcher]));
+	const keys = await readSnapshotKeys(page);
+	const boardSnapshotKey = keys.find((key) => key.startsWith('board:'))!;
+	return boardSnapshotKey.slice('board:'.length);
+}
+
+async function openFirstNote(page: Page) {
+	await page
+		.getByRole('button', { name: /^Edit note/ })
+		.first()
+		.click();
+	const titleInput = page.getByPlaceholder('Title');
+	await expect(titleInput).toBeVisible();
+	const noteId = new URL(page.url()).searchParams.get('id')!;
+	return { titleInput, noteId };
+}
+
+test('queues a note edit made offline and replays it once back online', async ({
+	page,
+	context
+}) => {
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	const userId = await getSignedInUserId(page);
+	const { titleInput, noteId } = await openFirstNote(page);
+	const queueKey = `queue:${userId}`;
+
+	await context.setOffline(true);
+
+	const offlineTitle = `Offline edit ${Date.now()}`;
+	await titleInput.fill(offlineTitle);
+	await page.getByRole('button', { name: 'Save note' }).click();
+
+	// Optimistic UI stays applied - a genuine failure would revert and toast.
+	await expect(page.getByText('Failed to update note')).toBeHidden();
+	await expect
+		.poll(() => withStore<{ type: string; title: string }[]>(page, 'readonly', 'get', queueKey))
+		.toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ type: 'update-content', title: offlineTitle })
+			])
+		);
+
+	await context.setOffline(false);
+
+	await expect.poll(() => withStore(page, 'readonly', 'get', queueKey)).toEqual([]);
+
+	const serverNote = await page.request.get(`/api/notes/${noteId}`);
+	expect((await serverNote.json()).title).toBe(offlineTitle);
+});
+
+test('a stale offline edit loses to a newer server-side edit on the same field group', async ({
+	page,
+	context
+}) => {
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	const userId = await getSignedInUserId(page);
+	const { titleInput, noteId } = await openFirstNote(page);
+	const queueKey = `queue:${userId}`;
+
+	await context.setOffline(true);
+
+	const staleTitle = `Stale offline edit ${Date.now()}`;
+	await titleInput.fill(staleTitle);
+	await page.getByRole('button', { name: 'Save note' }).click();
+
+	await expect
+		.poll(() => withStore<{ type: string }[]>(page, 'readonly', 'get', queueKey))
+		.toEqual(expect.arrayContaining([expect.objectContaining({ type: 'update-content' })]));
+
+	/*
+	 * A concurrent edit from "another device" - `page.request` makes a real
+	 * HTTP call directly from the test process rather than through the page's
+	 * network stack, so `context.setOffline` does not block it. It lands
+	 * after the queued edit above, so its contentUpdatedAt is newer.
+	 */
+	const winningTitle = `Server wins ${Date.now()}`;
+	await page.request.patch(`/api/notes/${noteId}`, {
+		data: { title: winningTitle, contentUpdatedAt: new Date().toISOString() }
+	});
+
+	await context.setOffline(false);
+
+	await expect.poll(() => withStore(page, 'readonly', 'get', queueKey)).toEqual([]);
+	await expect(page.getByText("Some changes couldn't be synced.")).toBeHidden();
+
+	const finalNote = await page.request.get(`/api/notes/${noteId}`);
+	expect((await finalNote.json()).title).toBe(winningTitle);
+});
+
 async function login(page: Page) {
 	await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL!);
 	await page.getByRole('textbox', { name: 'Password' }).fill(process.env.TEST_USER_PASSWORD!);
