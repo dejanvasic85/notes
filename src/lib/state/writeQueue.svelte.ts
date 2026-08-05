@@ -161,17 +161,26 @@ export function clearPausedNotes(): void {
 // Drains on reconnect (own `online` listener, independent of ConnectivityState
 // so the indicator and the queue stay separately testable) and once up front
 // if already online - covers reopening the app after being closed offline.
+// Must be called during component initialization (top-level script, not
+// inside an async callback) since it registers an onDestroy cleanup.
 export function registerReplayOnReconnect(userId: string, onDrained: () => void): void {
 	if (!browser) {
 		return;
 	}
 
 	const handleOnline = () => {
-		drain(userId).then((result) => {
-			if (result.drainedAny) {
-				onDrained();
-			}
-		});
+		drain(userId)
+			.then((result) => {
+				if (result.drainedAny) {
+					onDrained();
+				}
+			})
+			.catch((err: unknown) => {
+				// Unexpected failure, not the normal offline/paused paths (those
+				// resolve rather than reject) - the queue is untouched and the
+				// next `online` event retries it.
+				console.error('Error draining write queue:', err);
+			});
 	};
 
 	window.addEventListener('online', handleOnline);

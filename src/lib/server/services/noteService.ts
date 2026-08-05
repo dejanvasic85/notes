@@ -77,6 +77,21 @@ export const isNoteEditorOrOwner = (params: NoteAuthParams): ResultAsync<boolean
 
 const contentFields = ['text', 'textPlain', 'title'] as const;
 
+// True when a group's change should be dropped: either it lost to a
+// concurrent edit stamped later, or it has no timestamp at all. The latter
+// matters as much as the former - without it, a patch that touches a group
+// without its timestamp would bypass conflict resolution entirely and always
+// win, since there'd be nothing to compare against `existing`.
+function isStaleOrUntimed(
+	patchTimestamp: Date | undefined,
+	existingTimestamp: Date | null | undefined
+): boolean {
+	if (!patchTimestamp) {
+		return true;
+	}
+	return !!existingTimestamp && existingTimestamp > patchTimestamp;
+}
+
 // The offline write queue (#855) sends field-scoped patches, each stamped with
 // the client's edit time for its group. A patch older than the note's current
 // group timestamp lost to a concurrent edit elsewhere - drop just that group,
@@ -84,11 +99,9 @@ const contentFields = ['text', 'textPlain', 'title'] as const;
 export function resolveNotePatch(existing: Note, patch: NotePatchInput): Partial<Note> {
 	const resolved: Partial<Note> = { ...patch };
 
-	if (
-		patch.contentUpdatedAt &&
-		existing.contentUpdatedAt &&
-		existing.contentUpdatedAt > patch.contentUpdatedAt
-	) {
+	const touchesContent =
+		patch.text !== undefined || patch.textPlain !== undefined || patch.title !== undefined;
+	if (touchesContent && isStaleOrUntimed(patch.contentUpdatedAt, existing.contentUpdatedAt)) {
 		for (const field of contentFields) {
 			delete resolved[field];
 		}
@@ -96,9 +109,8 @@ export function resolveNotePatch(existing: Note, patch: NotePatchInput): Partial
 	}
 
 	if (
-		patch.colourUpdatedAt &&
-		existing.colourUpdatedAt &&
-		existing.colourUpdatedAt > patch.colourUpdatedAt
+		patch.colour !== undefined &&
+		isStaleOrUntimed(patch.colourUpdatedAt, existing.colourUpdatedAt)
 	) {
 		delete resolved.colour;
 		delete resolved.colourUpdatedAt;

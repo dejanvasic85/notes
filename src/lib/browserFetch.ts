@@ -116,12 +116,19 @@ export async function tryFetch<T>(
 				})
 			).then(async (resp): Promise<Result<T>> => {
 				if (!resp.ok) {
-					const rawText = await resp.text();
+					const rawText = await resp.text().catch(() => resp.statusText);
 					return fail(rawText, resp.status);
 				}
 
 				if (shouldParse) {
-					return resp.json().then((json) => success(json));
+					// A malformed body (empty 200, a proxy's HTML error page) must
+					// resolve to a Fail like any other bad response, not reject -
+					// the same escaped-rejection class this module exists to fix.
+					try {
+						return success((await resp.json()) as T);
+					} catch {
+						return fail('Malformed response body', resp.status);
+					}
 				} else {
 					return success(resp as T);
 				}
@@ -138,18 +145,22 @@ export async function tryFetch<T>(
 		});
 
 	// A genuinely unexpected rejection (not the normalized NetworkUnavailableError
-	// case above) must still not permanently wedge the next queued call.
-	queueTail = thisRequest
+	// case above) must still not permanently wedge the next queued call. Guarded
+	// by identity: if another tryFetch call has already chained its own tail on
+	// in the meantime, this reset must not clobber it.
+	const tail = thisRequest
 		.then((result) => {
 			if (
 				clearQueueOnError &&
 				result.type === 'error' &&
-				result.value instanceof NetworkUnavailableError
+				result.value instanceof NetworkUnavailableError &&
+				queueTail === tail
 			) {
 				queueTail = Promise.resolve();
 			}
 		})
 		.catch(() => undefined);
+	queueTail = tail;
 
 	return thisRequest;
 }

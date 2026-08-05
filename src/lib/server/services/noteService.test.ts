@@ -172,4 +172,16 @@ describe('resolveNotePatch', () => {
 
 		expect(resolveNotePatch(existing, patch)).toEqual({});
 	});
+
+	it('drops a content change sent without its timestamp, even against a note that has never been edited', () => {
+		const patch = { text: 'sneaky', textPlain: 'sneaky', title: 'sneaky' };
+
+		expect(resolveNotePatch(baseNote, patch)).toEqual({});
+	});
+
+	it('drops a colour change sent without its timestamp', () => {
+		const patch = { colour: 'sneaky colour' };
+
+		expect(resolveNotePatch(baseNote, patch)).toEqual({});
+	});
 });
