@@ -27,7 +27,7 @@
 	let offered = false;
 
 	$effect(() => {
-		if (!hasPausedNotes) {
+		if (!hasPausedNotes || connectivityState.isOffline) {
 			offered = false;
 			return;
 		}
@@ -46,14 +46,7 @@
 	});
 </script>
 
-<!--
-	The role="status" region stays mounted whether online or offline so a
-	screen reader has already registered it before the content inside changes
-	- toggling the whole element in and out of the DOM does not reliably
-	announce the update. Fixed size regardless of content: an icon mounting
-	or unmounting must not resize this slot, or the header's justify-between
-	redistributes space and the search box shifts.
--->
+<!-- Stays mounted for reliable announcements; fixed size stops header shift. -->
 <div role="status" class="flex size-5 items-center justify-center">
 	{#if connectivityState.isOffline}
 		<span class="sr-only">{offlineLabel}</span>

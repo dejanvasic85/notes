@@ -77,7 +77,7 @@ function withStore<T>(
 	mode: IDBTransactionMode,
 	run: string,
 	key: string,
-	value?: string
+	value?: unknown
 ) {
 	return page.evaluate(
 		({ idbName, idbStore, mode, run, key, value }) =>
@@ -344,6 +344,48 @@ test('a stale offline edit loses to a newer server-side edit on the same field g
 
 	const finalNote = await page.request.get(`/api/notes/${noteId}`);
 	expect((await finalNote.json()).title).toBe(winningTitle);
+});
+
+test('does not replay a later mutation for a note that already failed genuinely in the same drain pass', async ({
+	page,
+	context
+}) => {
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	const userId = await getSignedInUserId(page);
+	const queueKey = `queue:${userId}`;
+	const missingNoteId = 'nid_does_not_exist_regression_test';
+	const now = Date.now();
+
+	// Seeded directly, bypassing the UI: an update on a note that doesn't
+	// exist 404s (a genuine failure), and a queued delete for the same note
+	// must not replay in this pass - a 404 on delete is normally treated as
+	// success, so the old bug would remove it from the queue here.
+	await withStore(page, 'readwrite', 'put', queueKey, [
+		{
+			id: 'qm_regression_1',
+			type: 'update-content',
+			noteId: missingNoteId,
+			text: 'x',
+			textPlain: 'x',
+			title: 'x',
+			contentUpdatedAt: now,
+			queuedAt: now
+		},
+		{ id: 'qm_regression_2', type: 'delete', noteId: missingNoteId, queuedAt: now + 1 }
+	]);
+
+	await context.setOffline(true);
+	await context.setOffline(false);
+
+	await expect
+		.poll(() => withStore<{ id: string }[]>(page, 'readonly', 'get', queueKey))
+		.toEqual([
+			expect.objectContaining({ id: 'qm_regression_1' }),
+			expect.objectContaining({ id: 'qm_regression_2' })
+		]);
 });
 
 async function login(page: Page) {

@@ -82,15 +82,15 @@
 
 	// Manual retry from OfflineIndicator's toast - paused notes skip auto-drain.
 	async function handleRetrySync() {
-		clearPausedNotes();
-		const result = await drain(userId);
-		if (!result.drainedAny) {
-			return;
-		}
 		try {
+			clearPausedNotes();
+			const result = await drain(userId);
+			if (!result.drainedAny) {
+				return;
+			}
 			await refreshFromServer(boardState, friendsState, connectivityState.isOffline);
 		} catch (err) {
-			console.error('Error reconciling after retry:', err);
+			console.error('Error retrying write queue sync:', err);
 		}
 	}
 

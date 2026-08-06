@@ -114,6 +114,11 @@ export function drain(userId: string): Promise<{ drainedAny: boolean }> {
 			let drainedAny = false;
 
 			for (const mutation of batch) {
+				const mutationNoteId = targetNoteId(mutation);
+				if (mutationNoteId && pausedNoteIds.has(mutationNoteId)) {
+					continue;
+				}
+
 				const result = await replay(mutation);
 
 				if (result.type === 'ok') {
@@ -133,9 +138,8 @@ export function drain(userId: string): Promise<{ drainedAny: boolean }> {
 					break;
 				}
 
-				const noteId = targetNoteId(mutation);
-				if (noteId) {
-					pausedNoteIds.add(noteId);
+				if (mutationNoteId) {
+					pausedNoteIds.add(mutationNoteId);
 				}
 			}
 
