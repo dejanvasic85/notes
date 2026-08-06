@@ -72,22 +72,26 @@
 	setupLocalCachePersistence(userId, boardState, friendsState);
 
 	// Refetch after a drain so any conflict-losing field gets corrected.
-	registerReplayOnReconnect(userId, () => {
-		refreshFromServer(boardState, friendsState, connectivityState.isOffline).catch((err) => {
+	registerReplayOnReconnect(userId, async () => {
+		try {
+			await refreshFromServer(boardState, friendsState, connectivityState.isOffline);
+		} catch (err) {
 			console.error('Error reconciling after write queue drain:', err);
-		});
+		}
 	});
 
 	// Manual retry from OfflineIndicator's toast - paused notes skip auto-drain.
-	function handleRetrySync() {
+	async function handleRetrySync() {
 		clearPausedNotes();
-		drain(userId).then((result) => {
-			if (result.drainedAny) {
-				refreshFromServer(boardState, friendsState, connectivityState.isOffline).catch((err) => {
-					console.error('Error reconciling after retry:', err);
-				});
-			}
-		});
+		const result = await drain(userId);
+		if (!result.drainedAny) {
+			return;
+		}
+		try {
+			await refreshFromServer(boardState, friendsState, connectivityState.isOffline);
+		} catch (err) {
+			console.error('Error reconciling after retry:', err);
+		}
 	}
 
 	async function handleCreateNote() {

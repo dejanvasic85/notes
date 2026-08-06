@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { coalesceReorders, nextDrainBatch } from './writeQueueLogic';
+import { coalesceReorders, nextDrainBatch } from './writeQueue';
 import type { QueuedMutation } from './writeQueueTypes';
 
 function reorder(id: string, boardId: string, queuedAt: number): QueuedMutation {

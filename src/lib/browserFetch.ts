@@ -70,24 +70,28 @@ export async function whenWriteQueueIdle(timeoutMs = defaultIdleTimeout): Promis
 	}
 }
 
-async function fetchWithRetry(func: () => Promise<Response>, retryCount = 0): Promise<Response> {
+async function fetchWithRetry(
+	func: () => Promise<Response>,
+	retryCount = 0
+): Promise<Result<Response>> {
 	try {
 		const response = await func();
 		// Retry server errors (500+)
-		if (!response.ok && response.status >= 500) {
-			if (retryCount < maxRetries) {
-				await new Promise((resolve) => setTimeout(resolve, retryDelay));
-				return fetchWithRetry(func, retryCount + 1);
-			}
+		if (!response.ok && response.status >= 500 && retryCount < maxRetries) {
+			await new Promise((resolve) => setTimeout(resolve, retryDelay));
+			return fetchWithRetry(func, retryCount + 1);
 		}
 
-		return response;
+		return success(response);
 	} catch (err: unknown) {
 		if (retryCount < maxRetries) {
 			await new Promise((resolve) => setTimeout(resolve, retryDelay));
 			return fetchWithRetry(func, retryCount + 1);
 		}
-		throw new NetworkUnavailableError('Network unavailable after retries', { cause: err });
+		return {
+			type: 'error',
+			value: new NetworkUnavailableError('Network unavailable after retries', { cause: err })
+		};
 	}
 }
 
@@ -101,8 +105,8 @@ export async function tryFetch<T>(
 
 	pending++;
 	const thisRequest: Promise<Result<T>> = queueTail
-		.then(() =>
-			fetchWithRetry(() =>
+		.then(async (): Promise<Result<T>> => {
+			const fetchResult = await fetchWithRetry(() =>
 				fetch(input, {
 					...init,
 					headers: {
@@ -110,29 +114,28 @@ export async function tryFetch<T>(
 						...init?.headers
 					}
 				})
-			).then(async (resp): Promise<Result<T>> => {
-				if (!resp.ok) {
-					const rawText = await resp.text().catch(() => resp.statusText);
-					return fail(rawText, resp.status);
-				}
+			);
 
-				if (shouldParse) {
-					// Malformed body must resolve to a Fail, not reject.
-					try {
-						return success((await resp.json()) as T);
-					} catch {
-						return fail('Malformed response body', resp.status);
-					}
-				} else {
-					return success(resp as T);
-				}
-			})
-		)
-		.catch((err: unknown): Result<T> => {
-			if (err instanceof NetworkUnavailableError) {
-				return { type: 'error', value: err };
+			if (fetchResult.type === 'error') {
+				return fetchResult;
 			}
-			throw err;
+
+			const resp = fetchResult.value;
+			if (!resp.ok) {
+				const rawText = await resp.text().catch(() => resp.statusText);
+				return fail(rawText, resp.status);
+			}
+
+			if (shouldParse) {
+				// Malformed body must resolve to a Fail, not reject.
+				try {
+					return success((await resp.json()) as T);
+				} catch {
+					return fail('Malformed response body', resp.status);
+				}
+			} else {
+				return success(resp as T);
+			}
 		})
 		.finally(() => {
 			pending--;
