@@ -61,13 +61,8 @@ test('basic note management', async ({ page }) => {
 	// Click on the note to edit it
 	await page.getByText(noteTitle).click();
 
-	// Handle the confirmation dialog by accepting it
-	page.once('dialog', async (dialog) => {
-		expect(dialog.type()).toBe('confirm');
-		await dialog.accept();
-	});
-
-	// Wait for the delete request to complete
+	// Delete is optimistic with a 3s undo window - the DELETE request only
+	// fires once that window elapses uncancelled.
 	const deleteNotePromise = page.waitForResponse(
 		(response) =>
 			response.url().includes('/api/notes') &&
@@ -76,10 +71,11 @@ test('basic note management', async ({ page }) => {
 	);
 
 	await page.getByRole('button', { name: 'Delete note' }).click();
-	await deleteNotePromise;
 
-	// Verify the success toast appears once the note is deleted on the server
+	// Undo toast appears immediately, before the request has even fired.
 	await expect(page.getByText('Note deleted')).toBeVisible();
+
+	await deleteNotePromise;
 
 	// Verify the note content is no longer visible on the page
 	await expect(page.getByText(noteTitle)).not.toBeVisible();

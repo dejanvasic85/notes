@@ -104,9 +104,7 @@
 		if (navigator.vibrate) {
 			navigator.vibrate(50);
 		}
-		if (confirm('Are you sure you want to delete this note?')) {
-			ondeletenote({ note });
-		}
+		ondeletenote({ note });
 	}
 
 	function handleColourPick(colour: Colour | null) {

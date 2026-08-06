@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { pushState } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onMount, tick } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 
 	import type { Board as BoardModel, Note, NoteOrdered, ToggleFriendShare } from '$lib/types';
-	import { runOptimisticUpdate, tryFetch, NetworkUnavailableError } from '$lib/browserFetch';
+	import { runOptimisticUpdate, tryFetch } from '$lib/browserFetch';
 	import { generateId } from '$lib/identityGenerator';
+	import { createBoardActions } from '$lib/state/boardActions';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
 	import { enqueue } from '$lib/state/writeQueue.svelte';
@@ -19,6 +20,9 @@
 	const boardState = getBoardState();
 	const toastMessages = getToastMessages();
 	const userId = page.data.userData?.id ?? '';
+	const boardActions = createBoardActions(boardState, toastMessages, userId);
+
+	onDestroy(() => boardActions.flushPendingDeletes());
 
 	let loading = $derived(boardState.loading);
 	let search = $derived(new URL(page.url).searchParams);
@@ -119,27 +123,9 @@
 		});
 	}
 
-	async function handleDelete({ note }: { note: NoteOrdered }) {
-		const result = await runOptimisticUpdate({
-			apply: () => boardState.deleteNoteById(note.id),
-			request: () =>
-				tryFetch(`/api/notes/${note.id}`, { method: 'DELETE' }, { shouldParse: false }),
-			revert: ([deletedNote, index]) => boardState.createNoteAtIndex(index, deletedNote),
-			errorMessage: 'Failed to delete note. Try again.',
-			successMessage: 'Note deleted',
-			toastMessages,
-			onNetworkUnavailable: () =>
-				enqueue(userId, {
-					id: generateId('qm'),
-					type: 'delete',
-					noteId: note.id,
-					queuedAt: Date.now()
-				})
-		});
-		// Queued-offline delete closes the editor too, same as a confirmed one.
-		if (result.type !== 'error' || result.value instanceof NetworkUnavailableError) {
-			pushState(`/my/board`, { selectedNoteId: null });
-		}
+	function handleDelete({ note }: { note: NoteOrdered }) {
+		boardActions.deleteNote(note);
+		pushState(`/my/board`, { selectedNoteId: null });
 	}
 
 	async function handleReorder({ fromIndex, toIndex }: { fromIndex: number; toIndex: number }) {

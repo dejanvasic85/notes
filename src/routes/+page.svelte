@@ -13,9 +13,14 @@
 	import logo from '$lib/images/notes-main.png';
 	import type { Note, NoteOrdered } from '$lib/types';
 	import { getBoardState } from '$lib/state/boardState.svelte';
+	import { getToastMessages } from '$lib/state/toastMessages.svelte';
+
+	const undoActionLabel = 'Undo';
+	const deletedMessage = 'Note deleted';
 
 	let { data } = $props();
 	const boardState = getBoardState();
+	const toastMessages = getToastMessages();
 
 	onMount(() => {
 		boardState.reset();
@@ -32,8 +37,12 @@
 	}
 
 	function handleDeleteNote({ note }: { note: Note }) {
-		boardState.deleteNoteById(note.id);
+		const [deletedNote, index] = boardState.deleteNoteById(note.id);
 		handleClose();
+		toastMessages.addActionMessage(deletedMessage, {
+			label: undoActionLabel,
+			onClick: () => boardState.createNoteAtIndex(index, deletedNote)
+		});
 	}
 
 	function handleClose() {

@@ -14,9 +14,14 @@ export class ToastMessages {
 	// Deliberately the neutral toast rather than `toast.info`: with richColors
 	// that renders blue, and the design system has no informational colour —
 	// semantic colour is reserved for success, warning and danger.
-	addActionMessage(message: string, action: ToastAction, onDismiss?: () => void) {
+	addActionMessage(
+		message: string,
+		action: ToastAction,
+		onDismiss?: () => void,
+		durationMs: number = Number.POSITIVE_INFINITY
+	) {
 		toast(message, {
-			duration: Number.POSITIVE_INFINITY,
+			duration: durationMs,
 			closeButton: true,
 			action: {
 				label: action.label,
