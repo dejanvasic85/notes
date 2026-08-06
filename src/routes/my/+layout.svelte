@@ -71,18 +71,14 @@
 
 	setupLocalCachePersistence(userId, boardState, friendsState);
 
-	// Once the write queue drains after reconnecting, pull the server's
-	// canonical state - a dropped conflict-losing field or a create's
-	// server-assigned values only show up locally after this refetch.
+	// Refetch after a drain so any conflict-losing field gets corrected.
 	registerReplayOnReconnect(userId, () => {
 		refreshFromServer(boardState, friendsState, connectivityState.isOffline).catch((err) => {
 			console.error('Error reconciling after write queue drain:', err);
 		});
 	});
 
-	// Paused notes are deliberately excluded from automatic reconnect drains
-	// (a genuine failure shouldn't retry forever) - this is the explicit
-	// user-initiated retry from OfflineIndicator's toast action.
+	// Manual retry from OfflineIndicator's toast - paused notes skip auto-drain.
 	function handleRetrySync() {
 		clearPausedNotes();
 		drain(userId).then((result) => {

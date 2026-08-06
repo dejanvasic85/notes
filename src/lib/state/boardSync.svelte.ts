@@ -27,9 +27,7 @@ const persistDebounceMs = 400;
 // write queue is idle so in-flight local changes are not clobbered. If a
 // write races the fetch, retry so the re-fetch reflects the synced change.
 //
-// Skipped entirely while offline: with no network there is nothing to
-// reconcile, and the 3 failed attempts below would otherwise throw a
-// misleading error on every offline mount.
+// Skipped entirely while offline.
 export async function refreshFromServer(
 	boardState: BoardState,
 	friendsState: FriendsState,

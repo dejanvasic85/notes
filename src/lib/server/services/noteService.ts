@@ -77,11 +77,7 @@ export const isNoteEditorOrOwner = (params: NoteAuthParams): ResultAsync<boolean
 
 const contentFields = ['text', 'textPlain', 'title'] as const;
 
-// True when a group's change should be dropped: either it lost to a
-// concurrent edit stamped later, or it has no timestamp at all. The latter
-// matters as much as the former - without it, a patch that touches a group
-// without its timestamp would bypass conflict resolution entirely and always
-// win, since there'd be nothing to compare against `existing`.
+// No timestamp counts as stale - otherwise it bypasses conflict resolution.
 function isStaleOrUntimed(
 	patchTimestamp: Date | undefined,
 	existingTimestamp: Date | null | undefined
@@ -92,10 +88,7 @@ function isStaleOrUntimed(
 	return !!existingTimestamp && existingTimestamp > patchTimestamp;
 }
 
-// The offline write queue (#855) sends field-scoped patches, each stamped with
-// the client's edit time for its group. A patch older than the note's current
-// group timestamp lost to a concurrent edit elsewhere - drop just that group,
-// not the whole patch, since the two groups are edited independently.
+// Content and colour resolve independently - each group has its own timestamp.
 export function resolveNotePatch(existing: Note, patch: NotePatchInput): Partial<Note> {
 	const resolved: Partial<Note> = { ...patch };
 

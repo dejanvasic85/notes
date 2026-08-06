@@ -136,9 +136,7 @@
 					queuedAt: Date.now()
 				})
 		});
-		// A queued-offline delete still removes the note locally, so the editor
-		// should close the same as a confirmed delete - only a genuine server
-		// error leaves the note (and its open editor) in place.
+		// Queued-offline delete closes the editor too, same as a confirmed one.
 		if (result.type !== 'error' || result.value instanceof NetworkUnavailableError) {
 			pushState(`/my/board`, { selectedNoteId: null });
 		}

@@ -253,8 +253,7 @@ test('shows and clears the header offline indicator as connectivity changes', as
 	await expect(indicator).toBeHidden();
 });
 
-// localCache.ts keys the board snapshot as `board:<userId>` - stripping the
-// prefix gives the real signed-in user's id without hardcoding a test account.
+// Strip the board: prefix to get the real signed-in user's id.
 async function getSignedInUserId(page: Page): Promise<string> {
 	await expect
 		.poll(() => readSnapshotKeys(page))
@@ -293,7 +292,6 @@ test('queues a note edit made offline and replays it once back online', async ({
 	await titleInput.fill(offlineTitle);
 	await page.getByRole('button', { name: 'Save note' }).click();
 
-	// Optimistic UI stays applied - a genuine failure would revert and toast.
 	await expect(page.getByText('Failed to update note')).toBeHidden();
 	await expect
 		.poll(() => withStore<{ type: string; title: string }[]>(page, 'readonly', 'get', queueKey))
@@ -333,12 +331,7 @@ test('a stale offline edit loses to a newer server-side edit on the same field g
 		.poll(() => withStore<{ type: string }[]>(page, 'readonly', 'get', queueKey))
 		.toEqual(expect.arrayContaining([expect.objectContaining({ type: 'update-content' })]));
 
-	/*
-	 * A concurrent edit from "another device" - `page.request` makes a real
-	 * HTTP call directly from the test process rather than through the page's
-	 * network stack, so `context.setOffline` does not block it. It lands
-	 * after the queued edit above, so its contentUpdatedAt is newer.
-	 */
+	// page.request bypasses context.setOffline, simulating another device.
 	const winningTitle = `Server wins ${Date.now()}`;
 	await page.request.patch(`/api/notes/${noteId}`, {
 		data: { title: winningTitle, contentUpdatedAt: new Date().toISOString() }

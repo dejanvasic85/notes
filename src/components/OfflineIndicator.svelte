@@ -22,8 +22,7 @@
 	const toastMessages = getToastMessages();
 
 	let hasPausedNotes = $derived(pausedNoteIds.size > 0);
-	// Plain variable, not $state - deliberately not a tracked dependency, so
-	// writing to it inside the effect below doesn't re-trigger that effect.
+	// Not $state - shouldn't retrigger the effect below.
 	let offered = false;
 
 	$effect(() => {

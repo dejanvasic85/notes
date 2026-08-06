@@ -34,11 +34,7 @@ export function fail(message: string, status?: number): Fail {
 	};
 }
 
-// Thrown when fetch() itself never got a response - offline, DNS failure,
-// captive portal - as opposed to the server responding with an error status.
-// tryFetch normalizes this into a Result instead of letting it escape as an
-// unhandled rejection, so callers can distinguish "try again later" from a
-// genuine server error and enqueue the mutation instead of losing it.
+// fetch() never got a response - offline, DNS failure, captive portal.
 export class NetworkUnavailableError extends Error {
 	constructor(message: string, options?: ErrorOptions) {
 		super(message, options);
@@ -121,9 +117,7 @@ export async function tryFetch<T>(
 				}
 
 				if (shouldParse) {
-					// A malformed body (empty 200, a proxy's HTML error page) must
-					// resolve to a Fail like any other bad response, not reject -
-					// the same escaped-rejection class this module exists to fix.
+					// Malformed body must resolve to a Fail, not reject.
 					try {
 						return success((await resp.json()) as T);
 					} catch {
@@ -144,10 +138,7 @@ export async function tryFetch<T>(
 			pending--;
 		});
 
-	// A genuinely unexpected rejection (not the normalized NetworkUnavailableError
-	// case above) must still not permanently wedge the next queued call. Guarded
-	// by identity: if another tryFetch call has already chained its own tail on
-	// in the meantime, this reset must not clobber it.
+	// Guard by identity so a newer tryFetch call's tail isn't clobbered.
 	const tail = thisRequest
 		.then((result) => {
 			if (
@@ -172,10 +163,7 @@ interface OptimisticUpdateParams<TApplied, TResult extends Result<unknown>> {
 	errorMessage: string;
 	successMessage?: string;
 	toastMessages: ToastMessages;
-	// Called instead of revert/toast when the request failed because the
-	// network was unreachable, not because the server rejected it - the
-	// optimistic change stays applied and the caller is expected to durably
-	// queue the mutation for replay once back online.
+	// Called instead of revert/toast when offline - caller should queue the mutation.
 	onNetworkUnavailable?: (applied: TApplied) => void;
 }
 

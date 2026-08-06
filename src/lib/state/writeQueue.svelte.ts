@@ -10,11 +10,7 @@ import { queueKey } from './localCacheKeys';
 import { coalesceReorders, nextDrainBatch } from './writeQueueLogic';
 import { targetNoteId, type QueuedMutation } from './writeQueueTypes';
 
-// Notes whose queued replay failed for a genuine (non-network) reason this
-// session - read reactively by OfflineIndicator to show a "sync failed" state.
-// $state(new Set()) would not do: Svelte's deep-proxy only covers arrays and
-// plain objects, not built-in classes like Set, so mutations wouldn't be
-// tracked - SvelteSet is the reactive implementation for this case.
+// Notes paused after a genuine replay failure - read by OfflineIndicator.
 export const pausedNoteIds = new SvelteSet<string>();
 
 async function readQueue(userId: string): Promise<QueuedMutation[]> {
@@ -35,20 +31,11 @@ async function writeQueueItems(userId: string, items: QueuedMutation[]): Promise
 	try {
 		await set(queueKey(userId), items);
 	} catch {
-		// IndexedDB may be unavailable (private mode, quota); the mutation only
-		// survives for this in-memory session.
+		// IndexedDB unavailable; mutation only survives this session.
 	}
 }
 
-/*
- * enqueue() and drain() both do a read-modify-write over the same persisted
- * array. Without serializing them, two calls close together (e.g. saving a
- * title then immediately picking a colour while offline, or an enqueue
- * landing mid-drain) can interleave their reads and writes so one silently
- * overwrites the other's addition - exactly the data loss this module exists
- * to prevent. Chaining every operation onto this promise, mirroring
- * browserFetch.ts's own queueTail, keeps them strictly sequential.
- */
+// Serializes enqueue/drain so concurrent read-modify-writes can't clobber each other.
 let queueOpChain: Promise<unknown> = Promise.resolve();
 
 function withQueueLock<T>(operation: () => Promise<T>): Promise<T> {
@@ -104,11 +91,7 @@ function replay(mutation: QueuedMutation) {
 	}
 }
 
-// Replays the queue strictly sequentially - required so a queued
-// create-then-update-then-delete chain on the same note replays in the
-// order it happened. A genuine (non-network) failure pauses further items
-// for that note only; a network failure means we went offline again
-// mid-pass, so the rest of this pass is abandoned for the next reconnect.
+// Replays sequentially for causal order; a network failure aborts the pass.
 export function drain(userId: string): Promise<{ drainedAny: boolean }> {
 	return withQueueLock(async () => {
 		if (!browser) {
@@ -129,7 +112,7 @@ export function drain(userId: string): Promise<{ drainedAny: boolean }> {
 				continue;
 			}
 
-			// Already gone - another device's delete beat us to it. Treat as done.
+			// 404 on delete = already gone, treat as success.
 			if (mutation.type === 'delete' && result.status === 404) {
 				remaining.delete(mutation);
 				drainedAny = true;
@@ -158,11 +141,7 @@ export function clearPausedNotes(): void {
 	pausedNoteIds.clear();
 }
 
-// Drains on reconnect (own `online` listener, independent of ConnectivityState
-// so the indicator and the queue stay separately testable) and once up front
-// if already online - covers reopening the app after being closed offline.
-// Must be called during component initialization (top-level script, not
-// inside an async callback) since it registers an onDestroy cleanup.
+// Call during component initialization - registers an onDestroy cleanup.
 export function registerReplayOnReconnect(userId: string, onDrained: () => void): void {
 	if (!browser) {
 		return;
@@ -176,9 +155,6 @@ export function registerReplayOnReconnect(userId: string, onDrained: () => void)
 				}
 			})
 			.catch((err: unknown) => {
-				// Unexpected failure, not the normal offline/paused paths (those
-				// resolve rather than reject) - the queue is untouched and the
-				// next `online` event retries it.
 				console.error('Error draining write queue:', err);
 			});
 	};

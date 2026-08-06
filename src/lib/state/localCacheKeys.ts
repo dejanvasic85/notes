@@ -6,11 +6,7 @@ export const boardKeyPrefix = 'board:';
 export const friendsKeyPrefix = 'friends:';
 export const queueKeyPrefix = 'queue:';
 
-/*
- * The write queue is included here deliberately, not just the read caches:
- * an unsynced queue surviving into a different user's session on a shared
- * device is worse than losing an edit made offline right before logging out.
- */
+// Queue included too - don't leak unsynced writes into another user's session.
 export const snapshotKeyPrefixes = [boardKeyPrefix, friendsKeyPrefix, queueKeyPrefix];
 
 export function boardKey(userId: string): string {

@@ -1,7 +1,6 @@
 import { targetNoteId, type QueuedMutation } from './writeQueueTypes';
 
-// Intermediate reorders are superseded by whichever one queued last for the
-// same board - replaying all of them is wasted round-trips for no benefit.
+// Keep only the latest queued reorder per board.
 export function coalesceReorders(items: QueuedMutation[]): QueuedMutation[] {
 	const latestReorderByBoard = new Map<string, QueuedMutation>();
 	for (const item of items) {
@@ -18,9 +17,7 @@ export function coalesceReorders(items: QueuedMutation[]): QueuedMutation[] {
 	});
 }
 
-// The items to actually send this drain pass, in original queued order -
-// everything except further items for a note whose replay already failed
-// for a genuine (non-network) reason this pass.
+// Excludes further items for a note already paused this pass.
 export function nextDrainBatch(
 	items: QueuedMutation[],
 	pausedNoteIds: ReadonlySet<string>
