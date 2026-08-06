@@ -10,3 +10,5 @@ Project-specific guidance for AI coding agents. See `.claude/CLAUDE.md` for the 
 ## Communication style
 
 Use as few words as possible — in chat replies, PR descriptions, comments, and issues. Code comments: only when the name isn't self-explanatory, and keep them to one short line.
+
+Prefix any PR or issue comment you post with 🤖, so it's clear at a glance it's from an agent, not a human.
