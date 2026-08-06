@@ -7,10 +7,17 @@
 	import OfflineIndicator from '$components/OfflineIndicator.svelte';
 	import Search from '$components/Search.svelte';
 	import logo from '$lib/images/notes-main.png';
-	import { tryFetch } from '$lib/browserFetch';
+	import { tryFetch, NetworkUnavailableError } from '$lib/browserFetch';
+	import { generateId } from '$lib/identityGenerator';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { setConnectivityState } from '$lib/state/connectivityState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
+	import {
+		clearPausedNotes,
+		drain,
+		enqueue,
+		registerReplayOnReconnect
+	} from '$lib/state/writeQueue.svelte';
 	import { setFriendsState, getFriendsState } from '$lib/state/friendsState.svelte';
 	import { getUserState } from '$lib/state/userState.svelte';
 	import {
@@ -29,7 +36,7 @@
 	const friendsState = getFriendsState();
 	const toastMessages = getToastMessages();
 	const userState = getUserState();
-	setConnectivityState();
+	const connectivityState = setConnectivityState();
 	const userId = data.userData?.id ?? '';
 
 	userState.setName(data.userData?.name ?? '');
@@ -47,7 +54,7 @@
 		friendsState.setLoading(!friendsHydrated);
 
 		try {
-			await refreshFromServer(boardState, friendsState);
+			await refreshFromServer(boardState, friendsState, connectivityState.isOffline);
 		} catch (err) {
 			console.error('Error loading data:', err);
 			if (!boardHydrated && !friendsHydrated) {
@@ -63,6 +70,29 @@
 	});
 
 	setupLocalCachePersistence(userId, boardState, friendsState);
+
+	// Refetch after a drain so any conflict-losing field gets corrected.
+	registerReplayOnReconnect(userId, async () => {
+		try {
+			await refreshFromServer(boardState, friendsState, connectivityState.isOffline);
+		} catch (err) {
+			console.error('Error reconciling after write queue drain:', err);
+		}
+	});
+
+	// Manual retry from OfflineIndicator's toast - paused notes skip auto-drain.
+	async function handleRetrySync() {
+		try {
+			clearPausedNotes();
+			const result = await drain(userId);
+			if (!result.drainedAny) {
+				return;
+			}
+			await refreshFromServer(boardState, friendsState, connectivityState.isOffline);
+		} catch (err) {
+			console.error('Error retrying write queue sync:', err);
+		}
+	}
 
 	async function handleCreateNote() {
 		const newNote = boardState.createNewNote();
@@ -87,6 +117,16 @@
 		);
 
 		if (resp.type === 'error') {
+			if (resp.value instanceof NetworkUnavailableError) {
+				await enqueue(userId, {
+					id: generateId('qm'),
+					type: 'create',
+					note: newNote,
+					queuedAt: Date.now()
+				});
+				return;
+			}
+
 			boardState.deleteNoteById(newNote.id);
 			goto('/my/board');
 			toastMessages.addMessage({
@@ -107,7 +147,7 @@
 		<a href="/"><img src={logo} alt="Notes" class="size-14" /></a>
 		<Search />
 		<div class="flex items-center gap-3">
-			<OfflineIndicator />
+			<OfflineIndicator onretry={handleRetrySync} />
 			{#if data.userData}
 				<ProfileMenu
 					userPicture={data.userData.picture!}

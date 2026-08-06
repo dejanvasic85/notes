@@ -14,6 +14,7 @@ interface Success<T> {
 interface Fail {
 	type: 'error';
 	value: Error;
+	status?: number;
 }
 
 export type Result<T> = Success<T> | Fail;
@@ -25,11 +26,20 @@ export function success<T>(value: T): Success<T> {
 	};
 }
 
-export function fail(message: string): Fail {
+export function fail(message: string, status?: number): Fail {
 	return {
 		type: 'error',
-		value: new Error(message)
+		value: new Error(message),
+		status
 	};
+}
+
+// fetch() never got a response - offline, DNS failure, captive portal.
+export class NetworkUnavailableError extends Error {
+	constructor(message: string, options?: ErrorOptions) {
+		super(message, options);
+		this.name = 'NetworkUnavailableError';
+	}
 }
 
 const maxRetries = 3;
@@ -60,24 +70,28 @@ export async function whenWriteQueueIdle(timeoutMs = defaultIdleTimeout): Promis
 	}
 }
 
-async function fetchWithRetry(func: () => Promise<Response>, retryCount = 0): Promise<Response> {
+async function fetchWithRetry(
+	func: () => Promise<Response>,
+	retryCount = 0
+): Promise<Result<Response>> {
 	try {
 		const response = await func();
 		// Retry server errors (500+)
-		if (!response.ok && response.status >= 500) {
-			if (retryCount < maxRetries) {
-				await new Promise((resolve) => setTimeout(resolve, retryDelay));
-				return fetchWithRetry(func, retryCount + 1);
-			}
+		if (!response.ok && response.status >= 500 && retryCount < maxRetries) {
+			await new Promise((resolve) => setTimeout(resolve, retryDelay));
+			return fetchWithRetry(func, retryCount + 1);
 		}
 
-		return response;
+		return success(response);
 	} catch (err: unknown) {
 		if (retryCount < maxRetries) {
 			await new Promise((resolve) => setTimeout(resolve, retryDelay));
 			return fetchWithRetry(func, retryCount + 1);
 		}
-		throw err;
+		return {
+			type: 'error',
+			value: new NetworkUnavailableError('Network unavailable after retries', { cause: err })
+		};
 	}
 }
 
@@ -90,9 +104,9 @@ export async function tryFetch<T>(
 	const clearQueueOnError = options?.clearQueueOnError ?? false;
 
 	pending++;
-	const thisRequest = queueTail
-		.then(() =>
-			fetchWithRetry(() =>
+	const thisRequest: Promise<Result<T>> = queueTail
+		.then(async (): Promise<Result<T>> => {
+			const fetchResult = await fetchWithRetry(() =>
 				fetch(input, {
 					...init,
 					headers: {
@@ -100,31 +114,47 @@ export async function tryFetch<T>(
 						...init?.headers
 					}
 				})
-			).then(async (resp) => {
-				if (!resp.ok) {
-					const rawText = await resp.text();
-					return fail(rawText);
-				}
+			);
 
-				if (shouldParse) {
-					return resp.json().then((json) => success(json));
-				} else {
-					return success(resp);
+			if (fetchResult.type === 'error') {
+				return fetchResult;
+			}
+
+			const resp = fetchResult.value;
+			if (!resp.ok) {
+				const rawText = await resp.text().catch(() => resp.statusText);
+				return fail(rawText, resp.status);
+			}
+
+			if (shouldParse) {
+				// Malformed body must resolve to a Fail, not reject.
+				try {
+					return success((await resp.json()) as T);
+				} catch {
+					return fail('Malformed response body', resp.status);
 				}
-			})
-		)
+			} else {
+				return success(resp as T);
+			}
+		})
 		.finally(() => {
 			pending--;
 		});
 
-	if (clearQueueOnError) {
-		queueTail = thisRequest.catch(() => {
-			queueTail = Promise.resolve();
-			return undefined;
-		});
-	} else {
-		queueTail = thisRequest.catch(() => undefined);
-	}
+	// Guard by identity so a newer tryFetch call's tail isn't clobbered.
+	const tail = thisRequest
+		.then((result) => {
+			if (
+				clearQueueOnError &&
+				result.type === 'error' &&
+				result.value instanceof NetworkUnavailableError &&
+				queueTail === tail
+			) {
+				queueTail = Promise.resolve();
+			}
+		})
+		.catch(() => undefined);
+	queueTail = tail;
 
 	return thisRequest;
 }
@@ -136,6 +166,8 @@ interface OptimisticUpdateParams<TApplied, TResult extends Result<unknown>> {
 	errorMessage: string;
 	successMessage?: string;
 	toastMessages: ToastMessages;
+	// Called instead of revert/toast when offline - caller should queue the mutation.
+	onNetworkUnavailable?: (applied: TApplied) => void;
 }
 
 // Runs an optimistic local mutation, then reverts it and shows a toast if the
@@ -148,12 +180,18 @@ export async function runOptimisticUpdate<TApplied, TResult extends Result<unkno
 	revert,
 	errorMessage,
 	successMessage,
-	toastMessages
+	toastMessages,
+	onNetworkUnavailable
 }: OptimisticUpdateParams<TApplied, TResult>): Promise<TResult> {
 	const applied = apply();
 	const result = await request(applied);
 
 	if (result.type === 'error') {
+		if (onNetworkUnavailable && result.value instanceof NetworkUnavailableError) {
+			onNetworkUnavailable(applied);
+			return result;
+		}
+
 		revert(applied);
 		const errorMessageValue: ToastMessage = { type: 'error', message: errorMessage };
 		toastMessages.addMessage(errorMessageValue);

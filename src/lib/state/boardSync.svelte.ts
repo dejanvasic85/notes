@@ -26,7 +26,17 @@ const persistDebounceMs = 400;
 // Server is the source of truth, but only apply it when the optimistic
 // write queue is idle so in-flight local changes are not clobbered. If a
 // write races the fetch, retry so the re-fetch reflects the synced change.
-export async function refreshFromServer(boardState: BoardState, friendsState: FriendsState) {
+//
+// Skipped entirely while offline.
+export async function refreshFromServer(
+	boardState: BoardState,
+	friendsState: FriendsState,
+	isOffline: boolean
+) {
+	if (isOffline) {
+		return;
+	}
+
 	for (let attempt = 0; attempt < maxReconcileAttempts; attempt++) {
 		await whenWriteQueueIdle();
 

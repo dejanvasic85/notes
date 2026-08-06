@@ -62,16 +62,18 @@ model Board {
 }
 
 model Note {
-  id        String       @id
-  createdAt DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime     @updatedAt @db.Timestamptz(6)
-  text      String       @db.Text
-  textPlain String       @db.Text
-  colour    String?
-  title     String?
-  boardId   String
-  board     Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  editors   NoteEditor[]
+  id               String       @id
+  createdAt        DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime     @updatedAt @db.Timestamptz(6)
+  text             String       @db.Text
+  textPlain        String       @db.Text
+  colour           String?
+  title            String?
+  boardId          String
+  contentUpdatedAt DateTime?    @db.Timestamptz(6)
+  colourUpdatedAt  DateTime?    @db.Timestamptz(6)
+  board            Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  editors          NoteEditor[]
 }
 
 model NoteEditor {

@@ -3,7 +3,11 @@ import { json, error, type RequestHandler } from '@sveltejs/kit';
 import { mapToApiError } from '$lib/server/apiResultMapper';
 import { getBoard, updateBoard } from '$lib/server/db/boardDb';
 import { getNoteById, updateNote, deleteNote } from '$lib/server/db/notesDb';
-import { isNoteEditorOrOwner, canDeleteNote } from '$lib/server/services/noteService';
+import {
+	isNoteEditorOrOwner,
+	canDeleteNote,
+	resolveNotePatch
+} from '$lib/server/services/noteService';
 import { parseRequest } from '$lib/server/requestParser';
 import { NotePatchInputSchema } from '$lib/types';
 
@@ -33,7 +37,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 				note
 			}))
 		)
-		.andThen(({ noteInput, note }) => updateNote({ ...note, ...noteInput }))
+		.andThen(({ noteInput, note }) => updateNote({ ...note, ...resolveNotePatch(note, noteInput) }))
 		.mapErr(mapToApiError);
 
 	return result.match(

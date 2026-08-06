@@ -78,7 +78,8 @@
 				text: noteText,
 				textPlain: noteTextPlain,
 				title: noteTitle,
-				updatedAt: new Date()
+				updatedAt: new Date(),
+				contentUpdatedAt: new Date()
 			}
 		});
 		if (navigator.vibrate) {
@@ -113,7 +114,8 @@
 			note: {
 				...note,
 				colour,
-				updatedAt: new Date()
+				updatedAt: new Date(),
+				colourUpdatedAt: new Date()
 			}
 		});
 	}

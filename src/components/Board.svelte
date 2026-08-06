@@ -14,7 +14,8 @@
 		emptyMessage?: string;
 		friends?: Friend[];
 		onclosenote: () => void;
-		onupdatenote: (params: { note: NoteOrdered }) => void;
+		onsavenote: (params: { note: NoteOrdered }) => void;
+		onupdatecolour: (params: { note: NoteOrdered }) => void;
 		onselect: (params: { id: string }) => void;
 		onreorder: (params: { fromIndex: number; toIndex: number }) => void;
 		ondeletenote: (params: { note: NoteOrdered }) => void;
@@ -27,7 +28,8 @@
 		enableSharing = false,
 		emptyMessage = 'Nothing to see yet! Go on create a note.',
 		friends = [],
-		onupdatenote,
+		onsavenote,
+		onupdatecolour,
 		onclosenote,
 		onselect,
 		onreorder,
@@ -42,11 +44,11 @@
 	// Closing is NoteEditor's call, not this one — it holds the sheet open
 	// through the "Saved" checkmark before closing itself.
 	function handleSave({ note }: { note: NoteOrdered }) {
-		onupdatenote({ note });
+		onsavenote({ note });
 	}
 
 	function handleUpdateColour({ note }: { note: NoteOrdered }) {
-		onupdatenote({ note });
+		onupdatecolour({ note });
 	}
 
 	// Keyed to the note it was captured for — otherwise a note opened by a

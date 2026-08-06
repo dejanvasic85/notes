@@ -3,7 +3,11 @@ import { okAsync, errAsync } from 'neverthrow';
 
 import { getNoteById, updateNote, deleteNote } from '$lib/server/db/notesDb';
 import { updateBoard, getBoard } from '$lib/server/db/boardDb';
-import { isNoteEditorOrOwner, canDeleteNote } from '$lib/server/services/noteService';
+import {
+	isNoteEditorOrOwner,
+	canDeleteNote,
+	resolveNotePatch
+} from '$lib/server/services/noteService';
 import type { NotePatchInput } from '$lib/types';
 
 import { GET, PATCH, DELETE } from './+server';
@@ -19,6 +23,7 @@ const mockUpdateBoard = updateBoard as MockedFunction<typeof updateBoard>;
 const mockIsNoteEditorOrOwner = isNoteEditorOrOwner as MockedFunction<typeof isNoteEditorOrOwner>;
 const mockCanDeleteNote = canDeleteNote as MockedFunction<typeof canDeleteNote>;
 const mockGetBoard = getBoard as MockedFunction<typeof getBoard>;
+const mockResolveNotePatch = resolveNotePatch as MockedFunction<typeof resolveNotePatch>;
 
 const mockNote = {
 	id: 'nid_123',
@@ -91,6 +96,7 @@ describe('PATCH', () => {
 		mockUpdateNote.mockReturnValue(okAsync(mockNote) as any);
 		mockGetNoteById.mockReturnValue(okAsync(mockNote) as any);
 		mockIsNoteEditorOrOwner.mockReturnValue(okAsync(true) as any);
+		mockResolveNotePatch.mockReturnValue(noteInput);
 
 		const request = {
 			json: vi.fn().mockResolvedValue(noteInput)
@@ -105,6 +111,7 @@ describe('PATCH', () => {
 		expect(result.status).toBe(200);
 		const data = await result.json();
 		expect(data).toEqual(mockNote);
+		expect(mockResolveNotePatch).toHaveBeenCalledWith(mockNote, noteInput);
 		expect(mockUpdateNote).toHaveBeenCalledWith({
 			colour: 'black',
 			text: 'Hello world!',

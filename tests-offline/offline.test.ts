@@ -77,7 +77,7 @@ function withStore<T>(
 	mode: IDBTransactionMode,
 	run: string,
 	key: string,
-	value?: string
+	value?: unknown
 ) {
 	return page.evaluate(
 		({ idbName, idbStore, mode, run, key, value }) =>
@@ -251,6 +251,141 @@ test('shows and clears the header offline indicator as connectivity changes', as
 
 	await context.setOffline(false);
 	await expect(indicator).toBeHidden();
+});
+
+// Strip the board: prefix to get the real signed-in user's id.
+async function getSignedInUserId(page: Page): Promise<string> {
+	await expect
+		.poll(() => readSnapshotKeys(page))
+		.toEqual(expect.arrayContaining([boardKeyMatcher]));
+	const keys = await readSnapshotKeys(page);
+	const boardSnapshotKey = keys.find((key) => key.startsWith('board:'))!;
+	return boardSnapshotKey.slice('board:'.length);
+}
+
+async function openFirstNote(page: Page) {
+	await page
+		.getByRole('button', { name: /^Edit note/ })
+		.first()
+		.click();
+	const titleInput = page.getByPlaceholder('Title');
+	await expect(titleInput).toBeVisible();
+	const noteId = new URL(page.url()).searchParams.get('id')!;
+	return { titleInput, noteId };
+}
+
+test('queues a note edit made offline and replays it once back online', async ({
+	page,
+	context
+}) => {
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	const userId = await getSignedInUserId(page);
+	const { titleInput, noteId } = await openFirstNote(page);
+	const queueKey = `queue:${userId}`;
+
+	await context.setOffline(true);
+
+	const offlineTitle = `Offline edit ${Date.now()}`;
+	await titleInput.fill(offlineTitle);
+	await page.getByRole('button', { name: 'Save note' }).click();
+
+	await expect(page.getByText('Failed to update note')).toBeHidden();
+	await expect
+		.poll(() => withStore<{ type: string; title: string }[]>(page, 'readonly', 'get', queueKey))
+		.toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ type: 'update-content', title: offlineTitle })
+			])
+		);
+
+	await context.setOffline(false);
+
+	await expect.poll(() => withStore(page, 'readonly', 'get', queueKey)).toEqual([]);
+
+	const serverNote = await page.request.get(`/api/notes/${noteId}`);
+	expect((await serverNote.json()).title).toBe(offlineTitle);
+});
+
+test('a stale offline edit loses to a newer server-side edit on the same field group', async ({
+	page,
+	context
+}) => {
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	const userId = await getSignedInUserId(page);
+	const { titleInput, noteId } = await openFirstNote(page);
+	const queueKey = `queue:${userId}`;
+
+	await context.setOffline(true);
+
+	const staleTitle = `Stale offline edit ${Date.now()}`;
+	await titleInput.fill(staleTitle);
+	await page.getByRole('button', { name: 'Save note' }).click();
+
+	await expect
+		.poll(() => withStore<{ type: string }[]>(page, 'readonly', 'get', queueKey))
+		.toEqual(expect.arrayContaining([expect.objectContaining({ type: 'update-content' })]));
+
+	// page.request bypasses context.setOffline, simulating another device.
+	const winningTitle = `Server wins ${Date.now()}`;
+	await page.request.patch(`/api/notes/${noteId}`, {
+		data: { title: winningTitle, contentUpdatedAt: new Date().toISOString() }
+	});
+
+	await context.setOffline(false);
+
+	await expect.poll(() => withStore(page, 'readonly', 'get', queueKey)).toEqual([]);
+	await expect(page.getByText("Some changes couldn't be synced.")).toBeHidden();
+
+	const finalNote = await page.request.get(`/api/notes/${noteId}`);
+	expect((await finalNote.json()).title).toBe(winningTitle);
+});
+
+test('does not replay a later mutation for a note that already failed genuinely in the same drain pass', async ({
+	page,
+	context
+}) => {
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	const userId = await getSignedInUserId(page);
+	const queueKey = `queue:${userId}`;
+	const missingNoteId = 'nid_does_not_exist_regression_test';
+	const now = Date.now();
+
+	// Seeded directly, bypassing the UI: an update on a note that doesn't
+	// exist 404s (a genuine failure), and a queued delete for the same note
+	// must not replay in this pass - a 404 on delete is normally treated as
+	// success, so the old bug would remove it from the queue here.
+	await withStore(page, 'readwrite', 'put', queueKey, [
+		{
+			id: 'qm_regression_1',
+			type: 'update-content',
+			noteId: missingNoteId,
+			text: 'x',
+			textPlain: 'x',
+			title: 'x',
+			contentUpdatedAt: now,
+			queuedAt: now
+		},
+		{ id: 'qm_regression_2', type: 'delete', noteId: missingNoteId, queuedAt: now + 1 }
+	]);
+
+	await context.setOffline(true);
+	await context.setOffline(false);
+
+	await expect
+		.poll(() => withStore<{ id: string }[]>(page, 'readonly', 'get', queueKey))
+		.toEqual([
+			expect.objectContaining({ id: 'qm_regression_1' }),
+			expect.objectContaining({ id: 'qm_regression_2' })
+		]);
 });
 
 async function login(page: Page) {

@@ -32,7 +32,9 @@ export const NoteSchema = EntitySchema.extend({
 	colour: z.string().nullable(),
 	boardId: z.string().nullable(),
 	editors: z.array(NoteEditorSchema).optional(),
-	title: z.string().nullable()
+	title: z.string().nullable(),
+	contentUpdatedAt: z.date().nullable().optional(),
+	colourUpdatedAt: z.date().nullable().optional()
 });
 
 export const CreateNoteInputSchema = NoteSchema.pick({
@@ -47,10 +49,12 @@ export type CreateNoteInput = z.infer<typeof CreateNoteInputSchema>;
 export type Note = z.infer<typeof NoteSchema>;
 
 export const NotePatchInputSchema = z.object({
-	text: z.string(),
-	textPlain: z.string(),
-	title: z.string().nullable(),
-	colour: z.string().nullable()
+	text: z.string().optional(),
+	textPlain: z.string().optional(),
+	title: z.string().nullable().optional(),
+	colour: z.string().nullable().optional(),
+	contentUpdatedAt: z.coerce.date().optional(),
+	colourUpdatedAt: z.coerce.date().optional()
 });
 
 export type NotePatchInput = z.infer<typeof NotePatchInputSchema>;

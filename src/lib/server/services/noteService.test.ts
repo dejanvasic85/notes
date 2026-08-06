@@ -3,10 +3,22 @@ import { okAsync, errAsync } from 'neverthrow';
 
 import { getNoteOwnerUserId, getNoteEditor } from '$lib/server/db/notesDb';
 import { createError } from '$lib/server/errorFactory';
+import type { Note } from '$lib/types';
 
-import { isNoteEditorOrOwner, canDeleteNote } from './noteService';
+import { isNoteEditorOrOwner, canDeleteNote, resolveNotePatch } from './noteService';
 
 vi.mock('$lib/server/db/notesDb');
+
+const baseNote: Note = {
+	id: 'nid_1',
+	text: 'existing text',
+	textPlain: 'existing text',
+	title: 'existing title',
+	colour: 'blue',
+	boardId: 'bid_1',
+	contentUpdatedAt: null,
+	colourUpdatedAt: null
+};
 
 const mockGetNoteOwnerId = getNoteOwnerUserId as MockedFunction<typeof getNoteOwnerUserId>;
 const mockGetEditor = getNoteEditor as MockedFunction<typeof getNoteEditor>;
@@ -93,5 +105,83 @@ describe('canDeleteNote', () => {
 			_tag: 'AuthorizationError',
 			message: 'Only note owner can delete note'
 		});
+	});
+});
+
+describe('resolveNotePatch', () => {
+	it('applies a content patch newer than the note', () => {
+		const existing = { ...baseNote, contentUpdatedAt: new Date('2026-08-01T00:00:00Z') };
+		const patch = {
+			text: 'new text',
+			textPlain: 'new text',
+			title: 'new title',
+			contentUpdatedAt: new Date('2026-08-02T00:00:00Z')
+		};
+
+		expect(resolveNotePatch(existing, patch)).toEqual(patch);
+	});
+
+	it('drops a content patch older than the note, keeping the rest of the patch', () => {
+		const existing = { ...baseNote, contentUpdatedAt: new Date('2026-08-02T00:00:00Z') };
+		const patch = {
+			text: 'stale text',
+			textPlain: 'stale text',
+			title: 'stale title',
+			contentUpdatedAt: new Date('2026-08-01T00:00:00Z'),
+			colour: 'red',
+			colourUpdatedAt: new Date('2026-08-03T00:00:00Z')
+		};
+
+		expect(resolveNotePatch(existing, patch)).toEqual({
+			colour: 'red',
+			colourUpdatedAt: patch.colourUpdatedAt
+		});
+	});
+
+	it('applies a content patch when the note has never had a content edit before', () => {
+		const patch = {
+			text: 'first edit',
+			textPlain: 'first edit',
+			title: 'first edit',
+			contentUpdatedAt: new Date('2026-08-01T00:00:00Z')
+		};
+
+		expect(resolveNotePatch(baseNote, patch)).toEqual(patch);
+	});
+
+	it('resolves the colour group independently of the content group', () => {
+		const existing = {
+			...baseNote,
+			contentUpdatedAt: new Date('2026-08-01T00:00:00Z'),
+			colourUpdatedAt: new Date('2026-08-01T00:00:00Z')
+		};
+		const patch = {
+			colour: 'green',
+			colourUpdatedAt: new Date('2026-08-02T00:00:00Z')
+		};
+
+		expect(resolveNotePatch(existing, patch)).toEqual(patch);
+	});
+
+	it('drops a colour patch older than the note', () => {
+		const existing = { ...baseNote, colourUpdatedAt: new Date('2026-08-02T00:00:00Z') };
+		const patch = {
+			colour: 'stale colour',
+			colourUpdatedAt: new Date('2026-08-01T00:00:00Z')
+		};
+
+		expect(resolveNotePatch(existing, patch)).toEqual({});
+	});
+
+	it('drops a content change sent without its timestamp, even against a note that has never been edited', () => {
+		const patch = { text: 'sneaky', textPlain: 'sneaky', title: 'sneaky' };
+
+		expect(resolveNotePatch(baseNote, patch)).toEqual({});
+	});
+
+	it('drops a colour change sent without its timestamp', () => {
+		const patch = { colour: 'sneaky colour' };
+
+		expect(resolveNotePatch(baseNote, patch)).toEqual({});
 	});
 });

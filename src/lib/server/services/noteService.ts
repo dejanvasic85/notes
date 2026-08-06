@@ -10,7 +10,7 @@ import {
 	getNoteOwnerUserId
 } from '$lib/server/db/notesDb';
 import { getUserByNoteId, getUser } from '$lib/server/db/userDb';
-import type { NoteEditor, NoteEditorInput, ServerError } from '$lib/types';
+import type { Note, NoteEditor, NoteEditorInput, NotePatchInput, ServerError } from '$lib/types';
 import { generateId } from '$lib/identityGenerator';
 import { createError } from '$lib/server/errorFactory';
 import { sendEmail } from './emailService';
@@ -74,6 +74,43 @@ export const isNoteEditorOrOwner = (params: NoteAuthParams): ResultAsync<boolean
 	isNoteOwner(params).andThen((isOwner) =>
 		isOwner ? okAsync<boolean, ServerError>(true) : isNoteEditor(params)
 	);
+
+const contentFields = ['text', 'textPlain', 'title'] as const;
+
+// No timestamp counts as stale - otherwise it bypasses conflict resolution.
+function isStaleOrUntimed(
+	patchTimestamp: Date | undefined,
+	existingTimestamp: Date | null | undefined
+): boolean {
+	if (!patchTimestamp) {
+		return true;
+	}
+	return !!existingTimestamp && existingTimestamp > patchTimestamp;
+}
+
+// Content and colour resolve independently - each group has its own timestamp.
+export function resolveNotePatch(existing: Note, patch: NotePatchInput): Partial<Note> {
+	const resolved: Partial<Note> = { ...patch };
+
+	const touchesContent =
+		patch.text !== undefined || patch.textPlain !== undefined || patch.title !== undefined;
+	if (touchesContent && isStaleOrUntimed(patch.contentUpdatedAt, existing.contentUpdatedAt)) {
+		for (const field of contentFields) {
+			delete resolved[field];
+		}
+		delete resolved.contentUpdatedAt;
+	}
+
+	if (
+		patch.colour !== undefined &&
+		isStaleOrUntimed(patch.colourUpdatedAt, existing.colourUpdatedAt)
+	) {
+		delete resolved.colour;
+		delete resolved.colourUpdatedAt;
+	}
+
+	return resolved;
+}
 
 export const canDeleteNote = (params: NoteAuthParams): ResultAsync<boolean, ServerError> =>
 	isNoteOwner(params).andThen((canDelete) =>

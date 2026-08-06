@@ -4,8 +4,10 @@
  */
 export const boardKeyPrefix = 'board:';
 export const friendsKeyPrefix = 'friends:';
+export const queueKeyPrefix = 'queue:';
 
-export const snapshotKeyPrefixes = [boardKeyPrefix, friendsKeyPrefix];
+// Queue included too - don't leak unsynced writes into another user's session.
+export const snapshotKeyPrefixes = [boardKeyPrefix, friendsKeyPrefix, queueKeyPrefix];
 
 export function boardKey(userId: string): string {
 	return `${boardKeyPrefix}${userId}`;
@@ -13,4 +15,8 @@ export function boardKey(userId: string): string {
 
 export function friendsKey(userId: string): string {
 	return `${friendsKeyPrefix}${userId}`;
+}
+
+export function queueKey(userId: string): string {
+	return `${queueKeyPrefix}${userId}`;
 }
