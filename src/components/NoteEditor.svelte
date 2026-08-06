@@ -104,7 +104,9 @@
 		if (navigator.vibrate) {
 			navigator.vibrate(50);
 		}
-		ondeletenote({ note });
+		ondeletenote({
+			note: { ...note, text: noteText, textPlain: noteTextPlain, title: noteTitle }
+		});
 	}
 
 	function handleColourPick(colour: Colour | null) {

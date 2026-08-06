@@ -17,6 +17,7 @@
 
 	const undoActionLabel = 'Undo';
 	const deletedMessage = 'Note deleted';
+	const undoWindowMs = 3000;
 
 	let { data } = $props();
 	const boardState = getBoardState();
@@ -39,10 +40,15 @@
 	function handleDeleteNote({ note }: { note: Note }) {
 		const [deletedNote, index] = boardState.deleteNoteById(note.id);
 		handleClose();
-		toastMessages.addActionMessage(deletedMessage, {
-			label: undoActionLabel,
-			onClick: () => boardState.createNoteAtIndex(index, deletedNote)
-		});
+		toastMessages.addActionMessage(
+			deletedMessage,
+			{
+				label: undoActionLabel,
+				onClick: () => boardState.createNoteAtIndex(index, deletedNote)
+			},
+			undefined,
+			undoWindowMs
+		);
 	}
 
 	function handleClose() {
