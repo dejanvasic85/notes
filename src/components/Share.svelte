@@ -113,11 +113,11 @@
 											<DropdownMenu.CheckboxItem
 												checked={selected}
 												closeOnSelect={false}
-												onCheckedChange={() =>
+												onCheckedChange={(checked) =>
 													ontogglefriend({
 														id: noteEditorId,
 														friendUserId: id,
-														selected: !selected
+														selected: checked
 													})}
 												class={rowClass}
 											>
