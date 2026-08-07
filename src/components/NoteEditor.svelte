@@ -1,24 +1,24 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import type { Editor } from '@tiptap/core';
-	import { fade } from 'svelte/transition';
 
 	import { type Colour } from '$lib/colours';
-	import { durationFastMs, easeMove, reduceMotion, type OriginRect } from '$lib/motion';
+	import type { OriginRect } from '$lib/motion';
 	import type { FriendSelection, NoteOrdered, ToggleFriendShare } from '$lib/types';
-	import { X, Trash2, Check } from '@lucide/svelte';
+	import { X, Trash2 } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
 	import Dialog from './Dialog.svelte';
+	import SaveStatus from './SaveStatus.svelte';
 	import Share from './Share.svelte';
 	import HtmlEditor from './HtmlEditor.svelte';
 	import Toolbar from './Toolbar.svelte';
 	import UserAvatar from './UserAvatar.svelte';
 
-	// Save: label crossfades to a check, holds, then returns. No spinner for
-	// sub-second work.
+	// Autosave fires this long after the last keystroke.
+	const autosaveDebounceMs = 1000;
+	// The "Saved" check holds this long before fading out.
 	const savedHoldMs = 800;
-	const saveIconSize = 20;
 
 	type Props = {
 		enableSharing?: boolean;
@@ -58,6 +58,10 @@
 		if (savedHoldTimeout !== null) {
 			clearTimeout(savedHoldTimeout);
 		}
+		// Safety net for any teardown path that doesn't go through handleClose.
+		if (hasUnsavedChanges) {
+			commitSave();
+		}
 	});
 
 	let hasUnsavedChanges = $derived(
@@ -68,10 +72,27 @@
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
 	);
 
+	// Debounced autosave: re-arms on every keystroke, fires once typing pauses.
+	// Computes the dirty check from the raw state directly rather than reading
+	// `hasUnsavedChanges` — Svelte skips effect reruns when a derived's own
+	// output value is unchanged, which would otherwise turn this into a
+	// periodic save (firing every ~autosaveDebounceMs while typing continues)
+	// instead of a true trailing debounce.
+	$effect(() => {
+		const isDirty =
+			noteText !== note.text || noteTextPlain !== note.textPlain || noteTitle !== note.title;
+
+		if (!isDirty) {
+			return;
+		}
+		const timer = setTimeout(handleSave, autosaveDebounceMs);
+		return () => clearTimeout(timer);
+	});
+
 	// The server stamps updatedAt on every write, so the optimistic copy stamps
 	// it too — otherwise the board card keeps showing the previous edit's date
 	// until the next refresh.
-	function handleSave() {
+	function commitSave() {
 		onsavenote({
 			note: {
 				...note,
@@ -82,9 +103,10 @@
 				contentUpdatedAt: new Date()
 			}
 		});
-		if (navigator.vibrate) {
-			navigator.vibrate(50);
-		}
+	}
+
+	function handleSave() {
+		commitSave();
 
 		if (savedHoldTimeout !== null) {
 			clearTimeout(savedHoldTimeout);
@@ -94,9 +116,6 @@
 		savedHoldTimeout = setTimeout(() => {
 			savedHoldTimeout = null;
 			justSaved = false;
-			// handleClose, not onclose directly: further edits typed during the
-			// hold would otherwise be discarded with no unsaved-changes prompt.
-			handleClose();
 		}, savedHoldMs);
 	}
 
@@ -122,10 +141,14 @@
 
 	const handleClose = () => {
 		if (hasUnsavedChanges) {
-			if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
-				return;
-			}
+			commitSave();
 		}
+
+		if (savedHoldTimeout !== null) {
+			clearTimeout(savedHoldTimeout);
+			savedHoldTimeout = null;
+		}
+		justSaved = false;
 
 		dialogShow = false;
 
@@ -210,21 +233,7 @@
 				{/each}
 			</div>
 			<div class="ml-auto">
-				<Button onclick={handleSave} label={justSaved ? 'Note saved' : 'Save note'}>
-					{#key justSaved}
-						<span
-							class="inline-flex items-center"
-							in:fade={{ duration: reduceMotion(durationFastMs), easing: easeMove }}
-							out:fade={{ duration: reduceMotion(durationFastMs), easing: easeMove }}
-						>
-							{#if justSaved}
-								<Check size={saveIconSize} aria-hidden="true" />
-							{:else}
-								Save note
-							{/if}
-						</span>
-					{/key}
-				</Button>
+				<SaveStatus {justSaved} />
 			</div>
 		</div>
 	{/snippet}

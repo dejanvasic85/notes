@@ -36,7 +36,8 @@ test('basic note management', async ({ page }) => {
 
 	// Updates are silent — no success toast — so wait on the request itself.
 	// Match on the title so an in-flight PATCH from the earlier colour change
-	// can't satisfy this wait.
+	// can't satisfy this wait. There's no Save button anymore — autosave fires
+	// the PATCH on its own once the debounce elapses.
 	const updateNotePromise = page.waitForResponse(
 		(response) =>
 			response.url().includes('/api/notes') &&
@@ -45,12 +46,10 @@ test('basic note management', async ({ page }) => {
 			response.status() < 400
 	);
 
-	await page.getByRole('button', { name: 'Save note' }).click();
 	await updateNotePromise;
 
-	// Save holds the sheet open on a "Saved" checkmark before closing itself
-	// (see docs/design-system §7) - wait for it to actually close before
-	// interacting with the board again.
+	// Autosave no longer auto-closes the sheet - close it explicitly.
+	await page.getByRole('button', { name: 'Cancel note edit' }).click();
 	await expect(page.getByRole('button', { name: 'Cancel note edit' })).not.toBeVisible({
 		timeout: 3000
 	});

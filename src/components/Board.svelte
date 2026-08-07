@@ -41,8 +41,8 @@
 		onclosenote();
 	}
 
-	// Closing is NoteEditor's call, not this one — it holds the sheet open
-	// through the "Saved" checkmark before closing itself.
+	// NoteEditor autosaves as the user types and flushes on close — this is
+	// just a pass-through, no save/close orchestration lives here.
 	function handleSave({ note }: { note: NoteOrdered }) {
 		onsavenote({ note });
 	}

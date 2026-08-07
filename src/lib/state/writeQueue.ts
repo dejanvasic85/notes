@@ -17,6 +17,24 @@ export function coalesceReorders(items: QueuedMutation[]): QueuedMutation[] {
 	});
 }
 
+// Keep only the latest queued content edit per note - autosave can enqueue
+// many of these in one offline session.
+export function coalesceUpdateContent(items: QueuedMutation[]): QueuedMutation[] {
+	const latestByNoteId = new Map<string, QueuedMutation>();
+	for (const item of items) {
+		if (item.type === 'update-content') {
+			latestByNoteId.set(item.noteId, item);
+		}
+	}
+
+	return items.filter((item) => {
+		if (item.type !== 'update-content') {
+			return true;
+		}
+		return latestByNoteId.get(item.noteId) === item;
+	});
+}
+
 // Excludes further items for a note already paused this pass.
 export function nextDrainBatch(
 	items: QueuedMutation[],

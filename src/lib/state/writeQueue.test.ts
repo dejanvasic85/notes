@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { coalesceReorders, nextDrainBatch } from './writeQueue';
+import { coalesceReorders, coalesceUpdateContent, nextDrainBatch } from './writeQueue';
 import type { QueuedMutation } from './writeQueueTypes';
 
 function reorder(id: string, boardId: string, queuedAt: number): QueuedMutation {
@@ -50,6 +50,38 @@ describe('coalesceReorders', () => {
 		];
 
 		expect(coalesceReorders(items)).toEqual([items[0], items[2]]);
+	});
+});
+
+describe('coalesceUpdateContent', () => {
+	it('keeps only the latest queued content edit per note', () => {
+		const items = [
+			updateContent('u1', 'nid_1', 1),
+			updateContent('u2', 'nid_1', 2),
+			updateContent('u3', 'nid_1', 3)
+		];
+
+		expect(coalesceUpdateContent(items)).toEqual([items[2]]);
+	});
+
+	it('keeps the latest edit per note independently across notes', () => {
+		const items = [
+			updateContent('u1', 'nid_1', 1),
+			updateContent('u2', 'nid_2', 1),
+			updateContent('u3', 'nid_1', 2)
+		];
+
+		expect(coalesceUpdateContent(items)).toEqual([items[1], items[2]]);
+	});
+
+	it('leaves non-content items untouched and in order', () => {
+		const items = [
+			reorder('r1', 'bid_1', 1),
+			updateContent('u1', 'nid_1', 2),
+			updateContent('u2', 'nid_1', 3)
+		];
+
+		expect(coalesceUpdateContent(items)).toEqual([items[0], items[2]]);
 	});
 });
 
