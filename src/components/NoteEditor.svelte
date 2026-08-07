@@ -9,7 +9,6 @@
 
 	import Button from './Button.svelte';
 	import Dialog from './Dialog.svelte';
-	import SaveStatus from './SaveStatus.svelte';
 	import Share from './Share.svelte';
 	import HtmlEditor from './HtmlEditor.svelte';
 	import Toolbar from './Toolbar.svelte';
@@ -191,21 +190,31 @@
 						<X />
 					</Button>
 				</div>
-				<div class="flex gap-2">
-					{#if enableSharing && !note.shared}
-						<Share
-							{friends}
-							noteId={note.id}
-							ontogglefriend={({ id, friendUserId, selected }) =>
-								ontogglefriendshare({
-									id,
-									friendUserId,
-									noteId: note.id,
-									selected
-								})}
+				<div class="flex items-center gap-2">
+					{#if note.shared}
+						<UserAvatar
+							picture={note.owner.picture || ''}
+							name={note.owner.name || ''}
+							size={7}
+							tooltip="{note.owner.name} (owner)"
 						/>
-					{/if}
-					{#if !note.shared}
+						{#each editors as editor (editor.id)}
+							<UserAvatar picture={editor.picture || ''} name={editor.name || ''} size={7} />
+						{/each}
+					{:else}
+						{#if enableSharing}
+							<Share
+								{friends}
+								noteId={note.id}
+								ontogglefriend={({ id, friendUserId, selected }) =>
+									ontogglefriendshare({
+										id,
+										friendUserId,
+										noteId: note.id,
+										selected
+									})}
+							/>
+						{/if}
 						<Button variant="ghost" onclick={handleDeleteClick} label="Delete note">
 							<Trash2 />
 						</Button>
@@ -231,27 +240,6 @@
 	{/snippet}
 
 	{#snippet floating()}
-		<Toolbar {editor} oncolourpick={handleColourPick} />
-	{/snippet}
-
-	{#snippet footer()}
-		<div class="flex justify-between py-2 pr-2 pl-4">
-			<div class="flex items-center gap-4">
-				{#if note.shared}
-					<UserAvatar
-						picture={note.owner.picture || ''}
-						name={note.owner.name || ''}
-						size={7}
-						tooltip="{note.owner.name} (owner)"
-					/>
-				{/if}
-				{#each editors as editor (editor.id)}
-					<UserAvatar picture={editor.picture || ''} name={editor.name || ''} size={7} />
-				{/each}
-			</div>
-			<div class="ml-auto">
-				<SaveStatus {justSaved} />
-			</div>
-		</div>
+		<Toolbar {editor} {justSaved} oncolourpick={handleColourPick} />
 	{/snippet}
 </Dialog>
