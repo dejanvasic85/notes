@@ -7,7 +7,7 @@ import { withError } from '$lib/server/errorFactory';
 import { SESSION_SECRET } from '$env/static/private';
 
 const COOKIE_NAME = 'session';
-const COOKIE_DURATION_SECONDS = 60 * 60 * 24 * 7;
+const COOKIE_DURATION_SECONDS = 60 * 60 * 24 * 30;
 
 const getSecretKey = () => new TextEncoder().encode(SESSION_SECRET);
 

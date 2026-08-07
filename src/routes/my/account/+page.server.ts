@@ -1,4 +1,4 @@
-import { fail, type Actions } from '@sveltejs/kit';
+import { error, fail, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { ResultAsync, Result, ok, err } from 'neverthrow';
 
@@ -10,19 +10,13 @@ import { createError } from '$lib/server/errorFactory';
 import { setAuthCookie } from '$lib/auth/session.js';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) {
-		return fail(401, {
-			errors: {
-				_: 'Unauthorized'
-			}
-		});
-	}
-
-	const result = await getUser({ id: locals.user.id }).mapErr(mapToApiError);
+	const result = await getUser({ id: locals.user!.id }).mapErr(mapToApiError);
 
 	return result.match(
 		(user) => ({ name: user.name }),
-		() => fail(404, { errors: { _: 'User not found' } })
+		({ status, message }) => {
+			throw error(status, message);
+		}
 	);
 };
 
