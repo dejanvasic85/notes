@@ -33,8 +33,9 @@
 		goto(`/?id=${newNote.id}`);
 	}
 
-	function handleUpdateNote({ note }: { note: NoteOrdered }) {
+	async function handleUpdateNote({ note }: { note: NoteOrdered }): Promise<boolean> {
 		boardState.updateNote(note);
+		return true;
 	}
 
 	function handleDeleteNote({ note }: { note: Note }) {
