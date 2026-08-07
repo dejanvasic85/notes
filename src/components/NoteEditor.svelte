@@ -56,6 +56,11 @@
 	let autosaveTimeout: ReturnType<typeof setTimeout> | null = null;
 	// Delete removes the note from board state immediately, so skip the teardown save.
 	let isDeleting = false;
+	// handleClose already attempts its own save - if that save fails, the revert
+	// makes hasUnsavedChanges true again while the exit animation is still
+	// playing, which would otherwise make the safety net below resubmit the
+	// same edit and double up the failure toast.
+	let closeHandled = false;
 
 	onDestroy(() => {
 		if (savedHoldTimeout !== null) {
@@ -65,7 +70,7 @@
 			clearTimeout(autosaveTimeout);
 		}
 		// Safety net for any teardown path that doesn't go through handleClose.
-		if (!isDeleting && hasUnsavedChanges) {
+		if (!isDeleting && !closeHandled && hasUnsavedChanges) {
 			commitSave();
 		}
 	});
@@ -158,6 +163,8 @@
 	}
 
 	const handleClose = () => {
+		closeHandled = true;
+
 		// Cancel first - a timer left running could fire mid exit-animation.
 		if (autosaveTimeout !== null) {
 			clearTimeout(autosaveTimeout);
