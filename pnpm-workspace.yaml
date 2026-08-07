@@ -1,3 +1,10 @@
+# Not a real workspace - this file only exists for allowBuilds/overrides below.
+# Some pnpm versions (Vercel's build resolves a different one than local/CI)
+# refuse to install at all without an explicit packages field once this file
+# is present.
+packages:
+  - '.'
+
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
