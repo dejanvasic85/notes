@@ -65,6 +65,12 @@
 	// while that save is in flight would otherwise fire a second commitSave
 	// for the same edit before the first one resolves.
 	let isClosing = false;
+	// The autosave debounce can fire and apply() its optimistic update - making
+	// hasUnsavedChanges false - before its request has actually resolved.
+	// handleClose needs to know a save is still in flight even when there's
+	// nothing left that looks unsaved, otherwise it closes immediately and any
+	// failure toast for that request lands after the dialog is already gone.
+	let pendingSave: Promise<boolean> | null = null;
 
 	onDestroy(() => {
 		if (savedHoldTimeout !== null) {
@@ -92,7 +98,11 @@
 		const isDirty =
 			noteText !== note.text || noteTextPlain !== note.textPlain || noteTitle !== note.title;
 
-		if (!isDirty) {
+		// A failed close-triggered save's revert makes this dirty again while
+		// handleClose is still deciding whether to retry or give up - it owns
+		// that retry itself, so don't race it with an independently re-armed
+		// autosave timer here.
+		if (!isDirty || isClosing) {
 			return;
 		}
 
@@ -116,7 +126,7 @@
 	// Returns whether the save succeeded (or was queued for offline sync) so
 	// handleClose can decide whether it's safe to dismiss the editor.
 	function commitSave(): Promise<boolean> {
-		return onsavenote({
+		const savePromise = onsavenote({
 			note: {
 				...note,
 				text: noteText,
@@ -126,6 +136,13 @@
 				contentUpdatedAt: new Date()
 			}
 		});
+		pendingSave = savePromise;
+		savePromise.finally(() => {
+			if (pendingSave === savePromise) {
+				pendingSave = null;
+			}
+		});
+		return savePromise;
 	}
 
 	function handleSave() {
@@ -179,6 +196,14 @@
 		if (autosaveTimeout !== null) {
 			clearTimeout(autosaveTimeout);
 			autosaveTimeout = null;
+		}
+
+		// An autosave already in flight has applied its optimistic update, so
+		// hasUnsavedChanges won't see it - wait for it to settle before deciding
+		// there's nothing left to save. If it fails, the revert below restores
+		// hasUnsavedChanges so the retry in the next block picks it back up.
+		if (pendingSave) {
+			await pendingSave;
 		}
 
 		if (hasUnsavedChanges) {
