@@ -81,8 +81,7 @@ test('basic note management', async ({ page }) => {
 });
 
 test('deleting a note with an unsaved edit does not throw or show an error', async ({ page }) => {
-	// The bug this guards against throws inside an unawaited async call, so it
-	// never reaches a toast - it only ever surfaces as an unhandled rejection.
+	// This bug surfaces as an unhandled rejection, not a toast, so track it directly.
 	const pageErrors: Error[] = [];
 	page.on('pageerror', (error) => pageErrors.push(error));
 
@@ -96,22 +95,29 @@ test('deleting a note with an unsaved edit does not throw or show an error', asy
 	await createButton.click();
 	await expect(page.getByText('Note created')).toBeVisible();
 
-	// Type then delete immediately, before the ~1s autosave debounce fires, so
-	// the note is removed from board state while the editor still considers it
-	// dirty - the teardown save must not try to update a note that's already gone.
 	const titleTextbox = page.getByRole('textbox', { name: 'Title' });
 	await expect(titleTextbox).toBeVisible();
+	const noteId = new URL(page.url()).searchParams.get('id')!;
+
+	// Delete before the ~1s autosave debounce fires, while the note is still dirty.
 	await titleTextbox.fill(faker.lorem.words(3));
+
+	const patchesAfterDelete: string[] = [];
+	page.on('request', (request) => {
+		if (request.method() === 'PATCH' && request.url().includes(`/api/notes/${noteId}`)) {
+			patchesAfterDelete.push(request.url());
+		}
+	});
 
 	await page.getByRole('button', { name: 'Delete note' }).click();
 	await expect(page.getByText('Note deleted')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Cancel note edit' })).not.toBeVisible();
 
-	// Give the (now-cancelled) autosave debounce and teardown save a chance to
-	// fire if they were going to.
+	// Let the (cancelled) autosave debounce and teardown save fire if they were going to.
 	await page.waitForTimeout(1500);
 
 	expect(pageErrors).toEqual([]);
+	expect(patchesAfterDelete).toEqual([]);
 });
 
 async function login(page: Page) {

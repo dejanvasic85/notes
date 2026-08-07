@@ -54,9 +54,7 @@
 	let dialogShow = $state(true);
 	let savedHoldTimeout: ReturnType<typeof setTimeout> | null = null;
 	let autosaveTimeout: ReturnType<typeof setTimeout> | null = null;
-	// Deleting removes the note from board state immediately (the undo window
-	// only delays the server call) - the teardown save below must not fire for
-	// a note that's already gone, or it 404s/throws trying to update it.
+	// Delete removes the note from board state immediately, so skip the teardown save.
 	let isDeleting = false;
 
 	onDestroy(() => {
@@ -80,12 +78,7 @@
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
 	);
 
-	// Debounced autosave: re-arms on every keystroke, fires once typing pauses.
-	// Computes the dirty check from the raw state directly rather than reading
-	// `hasUnsavedChanges` — Svelte skips effect reruns when a derived's own
-	// output value is unchanged, which would otherwise turn this into a
-	// periodic save (firing every ~autosaveDebounceMs while typing continues)
-	// instead of a true trailing debounce.
+	// Debounced autosave - reads raw state, not the derived, so it re-arms on every keystroke.
 	$effect(() => {
 		const isDirty =
 			noteText !== note.text || noteTextPlain !== note.textPlain || noteTitle !== note.title;
@@ -93,6 +86,14 @@
 		if (!isDirty) {
 			return;
 		}
+
+		// A new edit invalidates any "Saved" still on hold from the last one.
+		if (savedHoldTimeout !== null) {
+			clearTimeout(savedHoldTimeout);
+			savedHoldTimeout = null;
+		}
+		justSaved = false;
+
 		autosaveTimeout = setTimeout(handleSave, autosaveDebounceMs);
 		return () => {
 			if (autosaveTimeout !== null) {
@@ -102,9 +103,7 @@
 		};
 	});
 
-	// The server stamps updatedAt on every write, so the optimistic copy stamps
-	// it too — otherwise the board card keeps showing the previous edit's date
-	// until the next refresh.
+	// updatedAt/contentUpdatedAt are stamped locally so the board card reflects the edit before the next refresh.
 	function commitSave() {
 		onsavenote({
 			note: {
@@ -159,9 +158,7 @@
 	}
 
 	const handleClose = () => {
-		// Cancel the pending debounced autosave first - Dialog.svelte keeps this
-		// component mounted through its exit animation, so a timer left running
-		// could still fire mid-animation and send a second, redundant save.
+		// Cancel first - a timer left running could fire mid exit-animation.
 		if (autosaveTimeout !== null) {
 			clearTimeout(autosaveTimeout);
 			autosaveTimeout = null;
