@@ -8,6 +8,12 @@ env:
   PUBLIC_BASE_URL: http://localhost:3377
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  # TEMP diagnostic: whatever Vercel's Preview environment is handing back for
+  # this one doesn't match the real key (see fingerprint step below) even
+  # right after being re-saved there. Overriding it here isolates whether the
+  # problem is on Vercel's side or in our own pull/parse logic - process.env
+  # wins over .env.local either way. Revert once we know which it is.
+  PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
 
 on:
   workflow_dispatch:
@@ -43,9 +49,15 @@ jobs:
       - name: Debug PRISMA_FIELD_ENCRYPTION_KEY fingerprint
         run: |
           node -e "
-          require('dotenv').config({ path: '.env.local' });
+          // Reads the pulled file's raw content directly, not process.env -
+          // a job-level env override now also sets PRISMA_FIELD_ENCRYPTION_KEY,
+          // and dotenv won't clobber an already-set process.env var, so this
+          // must bypass that to still reflect what Vercel actually returned.
+          const fs = require('fs');
           const crypto = require('crypto');
-          const v = process.env.PRISMA_FIELD_ENCRYPTION_KEY || '';
+          const content = fs.readFileSync('.env.local', 'utf8');
+          const match = content.match(/^PRISMA_FIELD_ENCRYPTION_KEY=\"?([^\"\n]*)\"?/m);
+          const v = match ? match[1] : '';
           console.log('preview length=' + v.length);
           console.log('preview sha256[0:12]=' + crypto.createHash('sha256').update(v).digest('hex').slice(0,12));
           "
