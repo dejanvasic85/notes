@@ -37,7 +37,18 @@ jobs:
       - name: Pull environment variables from Vercel
         run: |
           pnpm add --global vercel@latest
-          vercel env pull .env.local --environment=preview --yes --token=${{ secrets.VERCEL_TOKEN }} --debug
+          vercel env pull .env.local --environment=preview --yes --token=${{ secrets.VERCEL_TOKEN }}
+      # TEMP: fingerprint-only comparison, never print the real key - this is a
+      # public repo, so raw secret values must never hit these logs.
+      - name: Debug PRISMA_FIELD_ENCRYPTION_KEY fingerprint
+        run: |
+          node -e "
+          require('dotenv').config({ path: '.env.local' });
+          const crypto = require('crypto');
+          const v = process.env.PRISMA_FIELD_ENCRYPTION_KEY || '';
+          console.log('preview length=' + v.length);
+          console.log('preview sha256[0:12]=' + crypto.createHash('sha256').update(v).digest('hex').slice(0,12));
+          "
       - name: Add Svelte Check annotator
         uses: prgm-dev/svelte-check-pr-annotator@main
       - name: Run Svelte-Check
