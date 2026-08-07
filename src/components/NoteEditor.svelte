@@ -27,7 +27,7 @@
 		originRect?: OriginRect | null;
 		onclose: () => void;
 		ondeletenote: (params: { note: NoteOrdered }) => void;
-		onsavenote: (params: { note: NoteOrdered }) => void;
+		onsavenote: (params: { note: NoteOrdered }) => Promise<boolean>;
 		ontogglefriendshare: (params: ToggleFriendShare) => void;
 		onupdateColour: (params: { note: NoteOrdered }) => void;
 	};
@@ -61,6 +61,10 @@
 	// playing, which would otherwise make the safety net below resubmit the
 	// same edit and double up the failure toast.
 	let closeHandled = false;
+	// handleClose now awaits its save, so a second X-click or Escape press
+	// while that save is in flight would otherwise fire a second commitSave
+	// for the same edit before the first one resolves.
+	let isClosing = false;
 
 	onDestroy(() => {
 		if (savedHoldTimeout !== null) {
@@ -109,8 +113,10 @@
 	});
 
 	// updatedAt/contentUpdatedAt are stamped locally so the board card reflects the edit before the next refresh.
-	function commitSave() {
-		onsavenote({
+	// Returns whether the save succeeded (or was queued for offline sync) so
+	// handleClose can decide whether it's safe to dismiss the editor.
+	function commitSave(): Promise<boolean> {
+		return onsavenote({
 			note: {
 				...note,
 				text: noteText,
@@ -162,7 +168,11 @@
 		});
 	}
 
-	const handleClose = () => {
+	const handleClose = async () => {
+		if (isClosing) {
+			return;
+		}
+		isClosing = true;
 		closeHandled = true;
 
 		// Cancel first - a timer left running could fire mid exit-animation.
@@ -172,7 +182,15 @@
 		}
 
 		if (hasUnsavedChanges) {
-			commitSave();
+			const saved = await commitSave();
+			if (!saved) {
+				// Save failed - the revert already restored hasUnsavedChanges and
+				// the failure toast fired. Keep the editor open, in context, instead
+				// of dismissing it and leaving the toast to land on a closed dialog.
+				closeHandled = false;
+				isClosing = false;
+				return;
+			}
 		}
 
 		if (savedHoldTimeout !== null) {

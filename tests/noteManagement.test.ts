@@ -120,6 +120,50 @@ test('deleting a note with an unsaved edit does not throw or show an error', asy
 	expect(patchesAfterDelete).toEqual([]);
 });
 
+test('closing a note whose save fails keeps the editor open instead of dismissing it', async ({
+	page
+}) => {
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	await page.waitForLoadState('networkidle');
+	const createButton = page.getByRole('button', { name: 'Create a new note' });
+	await expect(createButton).toBeVisible({ timeout: 10000 });
+	await createButton.click();
+	await expect(page.getByText('Note created')).toBeVisible();
+
+	const titleTextbox = page.getByRole('textbox', { name: 'Title' });
+	await expect(titleTextbox).toBeVisible();
+	const noteId = new URL(page.url()).searchParams.get('id')!;
+
+	// Force the content-save PATCH to fail so handleClose's own commitSave fails.
+	await page.route(`**/api/notes/${noteId}`, (route) => {
+		if (route.request().method() === 'PATCH') {
+			return route.fulfill({ status: 500, body: 'Internal Server Error' });
+		}
+		return route.continue();
+	});
+
+	await titleTextbox.fill(faker.lorem.words(3));
+
+	// Close before the autosave debounce fires - handleClose sends the only save.
+	await page.getByRole('button', { name: 'Cancel note edit' }).click();
+
+	await expect(page.getByText('Failed to update note. Try again.')).toBeVisible();
+
+	// The failed save must keep the editor open rather than dismiss it silently.
+	await expect(page.getByRole('button', { name: 'Cancel note edit' })).toBeVisible();
+	await expect(titleTextbox).toBeVisible();
+
+	// Once the request succeeds, closing should work normally.
+	await page.unroute(`**/api/notes/${noteId}`);
+	await page.getByRole('button', { name: 'Cancel note edit' }).click();
+	await expect(page.getByRole('button', { name: 'Cancel note edit' })).not.toBeVisible({
+		timeout: 3000
+	});
+});
+
 async function login(page: Page) {
 	await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL!);
 	await page.getByRole('textbox', { name: 'Password' }).fill(process.env.TEST_USER_PASSWORD!);

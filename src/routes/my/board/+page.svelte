@@ -4,7 +4,7 @@
 	import { onDestroy, onMount, tick } from 'svelte';
 
 	import type { Board as BoardModel, Note, NoteOrdered, ToggleFriendShare } from '$lib/types';
-	import { runOptimisticUpdate, tryFetch } from '$lib/browserFetch';
+	import { NetworkUnavailableError, runOptimisticUpdate, tryFetch } from '$lib/browserFetch';
 	import { generateId } from '$lib/identityGenerator';
 	import { createBoardActions } from '$lib/state/boardActions';
 	import { getBoardState } from '$lib/state/boardState.svelte';
@@ -67,8 +67,11 @@
 		);
 	}
 
-	async function handleSaveNote({ note }: { note: NoteOrdered }) {
-		await runOptimisticUpdate({
+	// Returns whether the caller can safely treat the note as saved - either the
+	// request succeeded, or it was queued for offline sync. NoteEditor uses this
+	// to decide whether closing on a failed save should be allowed.
+	async function handleSaveNote({ note }: { note: NoteOrdered }): Promise<boolean> {
+		const result = await runOptimisticUpdate({
 			apply: () => boardState.updateNote(note),
 			request: ([updatedNote]) =>
 				tryFetch<Note>(`/api/notes/${note.id}`, {
@@ -95,6 +98,8 @@
 					queuedAt: Date.now()
 				})
 		});
+
+		return result.type === 'ok' || result.value instanceof NetworkUnavailableError;
 	}
 
 	async function handleUpdateColour({ note }: { note: NoteOrdered }) {

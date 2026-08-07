@@ -14,7 +14,7 @@
 		emptyMessage?: string;
 		friends?: Friend[];
 		onclosenote: () => void;
-		onsavenote: (params: { note: NoteOrdered }) => void;
+		onsavenote: (params: { note: NoteOrdered }) => Promise<boolean>;
 		onupdatecolour: (params: { note: NoteOrdered }) => void;
 		onselect: (params: { id: string }) => void;
 		onreorder: (params: { fromIndex: number; toIndex: number }) => void;
@@ -43,8 +43,8 @@
 
 	// NoteEditor autosaves as the user types and flushes on close — this is
 	// just a pass-through, no save/close orchestration lives here.
-	function handleSave({ note }: { note: NoteOrdered }) {
-		onsavenote({ note });
+	function handleSave({ note }: { note: NoteOrdered }): Promise<boolean> {
+		return onsavenote({ note });
 	}
 
 	function handleUpdateColour({ note }: { note: NoteOrdered }) {
