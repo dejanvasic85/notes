@@ -1,4 +1,4 @@
 {
-	"installCommand": "npm install -g pnpm@11.20.0 && pnpm install --frozen-lockfile",
+	"installCommand": "npm install -g pnpm@11.20.0 && which pnpm && pnpm --version && pnpm install --frozen-lockfile",
 	"buildCommand": "pnpm build:migrate"
 }
