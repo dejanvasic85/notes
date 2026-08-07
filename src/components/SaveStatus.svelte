@@ -8,24 +8,24 @@
 		justSaved: boolean;
 	};
 
-	const iconSize = 14;
+	const iconSize = 12;
 	const savedLabel = 'Saved';
-	const popStart = 0.6;
+	const popStart = 0.85;
 
 	let { justSaved }: Props = $props();
 </script>
 
-<!-- Fixed size so its appearance/disappearance never shifts the header's other
-     buttons. -->
-<div role="status" class="flex size-11 items-center justify-center">
+<div role="status" class="flex h-11 items-center">
 	{#if justSaved}
-		<span class="sr-only">{savedLabel}</span>
+		<!-- Same chip convention as the board card's "Shared" chip - text-label,
+		     rounded-chip - just tinted success instead of neutral. -->
 		<span
-			class="bg-success-soft flex size-5 items-center justify-center rounded-full"
+			class="text-label bg-success-soft text-success rounded-chip flex items-center gap-1 px-2 py-0.5"
 			in:scale={{ start: popStart, duration: reduceMotion(durationFastMs), easing: easeEnter }}
 			out:scale={{ start: popStart, duration: reduceMotion(durationFastMs), easing: easeExit }}
 		>
-			<Check size={iconSize} aria-hidden="true" class="text-success" />
+			<Check size={iconSize} aria-hidden="true" />
+			{savedLabel}
 		</span>
 	{/if}
 </div>
