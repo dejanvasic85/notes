@@ -4,7 +4,7 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { matchesPrivateRoute } from '$lib/auth/privateRoutes';
 import { getSession, clearAuthCookie, setAuthCookie } from '$lib/auth/session';
 
-const handleSessionCookie: Handle = async ({ event, resolve }) => {
+export const handleSessionCookie: Handle = async ({ event, resolve }) => {
 	const url = new URL(event.request.url);
 	const result = await getSession(event.cookies);
 
@@ -13,7 +13,7 @@ const handleSessionCookie: Handle = async ({ event, resolve }) => {
 		if (err !== false) {
 			clearAuthCookie(event.cookies);
 		}
-		if (err === false && matchesPrivateRoute(url.pathname)) {
+		if (matchesPrivateRoute(url.pathname)) {
 			return new Response('LoginRequired', {
 				status: 302,
 				headers: { location: `/api/auth/login?returnUrl=${url.pathname}` }
