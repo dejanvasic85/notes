@@ -92,8 +92,8 @@
 	"devEngines": {
 		"runtime": {
 			"name": "node",
-			"version": "24.16.0",
-			"onFail": "download"
+			"version": "^24.0.0",
+			"onFail": "warn"
 		}
 	},
 	"packageManager": "pnpm@11.20.0"
