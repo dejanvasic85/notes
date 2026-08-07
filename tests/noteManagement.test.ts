@@ -36,7 +36,7 @@ test('basic note management', async ({ page }) => {
 
 	// Updates are silent — no success toast — so wait on the request itself.
 	// Match on the title so an in-flight PATCH from the earlier colour change
-	// can't satisfy this wait.
+	// can't satisfy this wait. Autosave fires it — there's no Save button.
 	const updateNotePromise = page.waitForResponse(
 		(response) =>
 			response.url().includes('/api/notes') &&
@@ -45,12 +45,10 @@ test('basic note management', async ({ page }) => {
 			response.status() < 400
 	);
 
-	await page.getByRole('button', { name: 'Save note' }).click();
 	await updateNotePromise;
 
-	// Save holds the sheet open on a "Saved" checkmark before closing itself
-	// (see docs/design-system §7) - wait for it to actually close before
-	// interacting with the board again.
+	// Autosave no longer auto-closes the sheet - close it explicitly.
+	await page.getByRole('button', { name: 'Cancel note edit' }).click();
 	await expect(page.getByRole('button', { name: 'Cancel note edit' })).not.toBeVisible({
 		timeout: 3000
 	});
@@ -80,6 +78,46 @@ test('basic note management', async ({ page }) => {
 	// Verify the note content is no longer visible on the page
 	await expect(page.getByText(noteTitle)).not.toBeVisible();
 	await expect(page.getByText(noteContent)).not.toBeVisible();
+});
+
+test('deleting a note with an unsaved edit does not throw or show an error', async ({ page }) => {
+	// This bug surfaces as an unhandled rejection, not a toast, so track it directly.
+	const pageErrors: Error[] = [];
+	page.on('pageerror', (error) => pageErrors.push(error));
+
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	await page.waitForLoadState('networkidle');
+	const createButton = page.getByRole('button', { name: 'Create a new note' });
+	await expect(createButton).toBeVisible({ timeout: 10000 });
+	await createButton.click();
+	await expect(page.getByText('Note created')).toBeVisible();
+
+	const titleTextbox = page.getByRole('textbox', { name: 'Title' });
+	await expect(titleTextbox).toBeVisible();
+	const noteId = new URL(page.url()).searchParams.get('id')!;
+
+	// Delete before the ~1s autosave debounce fires, while the note is still dirty.
+	await titleTextbox.fill(faker.lorem.words(3));
+
+	const patchesAfterDelete: string[] = [];
+	page.on('request', (request) => {
+		if (request.method() === 'PATCH' && request.url().includes(`/api/notes/${noteId}`)) {
+			patchesAfterDelete.push(request.url());
+		}
+	});
+
+	await page.getByRole('button', { name: 'Delete note' }).click();
+	await expect(page.getByText('Note deleted')).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Cancel note edit' })).not.toBeVisible();
+
+	// Let the (cancelled) autosave debounce and teardown save fire if they were going to.
+	await page.waitForTimeout(1500);
+
+	expect(pageErrors).toEqual([]);
+	expect(patchesAfterDelete).toEqual([]);
 });
 
 async function login(page: Page) {

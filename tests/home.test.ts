@@ -16,11 +16,9 @@ test('add a new note', async ({ page }) => {
 	await page.getByRole('button', { name: 'Create a note' }).click();
 	await page.waitForTimeout(1000);
 	await page.keyboard.type(' hello world');
-	await page.waitForTimeout(1000);
-	await page.getByRole('button', { name: 'Save note' }).click();
-	// Save holds the sheet open on a "Saved" checkmark before closing itself
-	// (see docs/design-system §7) - wait for it to actually close rather than
-	// assuming the old instant-close timing.
+
+	// No Save button — closing flushes any pending autosave immediately.
+	await page.getByRole('button', { name: 'Cancel note edit' }).click();
 	await expect(page.getByRole('button', { name: 'Cancel note edit' })).not.toBeVisible({
 		timeout: 3000
 	});

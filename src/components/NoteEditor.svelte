@@ -1,24 +1,24 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import type { Editor } from '@tiptap/core';
-	import { fade } from 'svelte/transition';
 
 	import { type Colour } from '$lib/colours';
-	import { durationFastMs, easeMove, reduceMotion, type OriginRect } from '$lib/motion';
+	import type { OriginRect } from '$lib/motion';
 	import type { FriendSelection, NoteOrdered, ToggleFriendShare } from '$lib/types';
-	import { X, Trash2, Check } from '@lucide/svelte';
+	import { X, Trash2 } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
 	import Dialog from './Dialog.svelte';
+	import SaveStatus from './SaveStatus.svelte';
 	import Share from './Share.svelte';
 	import HtmlEditor from './HtmlEditor.svelte';
 	import Toolbar from './Toolbar.svelte';
 	import UserAvatar from './UserAvatar.svelte';
 
-	// Save: label crossfades to a check, holds, then returns. No spinner for
-	// sub-second work.
+	// Autosave fires this long after the last keystroke.
+	const autosaveDebounceMs = 1000;
+	// The "Saved" check holds this long before fading out.
 	const savedHoldMs = 800;
-	const saveIconSize = 20;
 
 	type Props = {
 		enableSharing?: boolean;
@@ -53,10 +53,20 @@
 	// animation has played — see Dialog.svelte.
 	let dialogShow = $state(true);
 	let savedHoldTimeout: ReturnType<typeof setTimeout> | null = null;
+	let autosaveTimeout: ReturnType<typeof setTimeout> | null = null;
+	// Delete removes the note from board state immediately, so skip the teardown save.
+	let isDeleting = false;
 
 	onDestroy(() => {
 		if (savedHoldTimeout !== null) {
 			clearTimeout(savedHoldTimeout);
+		}
+		if (autosaveTimeout !== null) {
+			clearTimeout(autosaveTimeout);
+		}
+		// Safety net for any teardown path that doesn't go through handleClose.
+		if (!isDeleting && hasUnsavedChanges) {
+			commitSave();
 		}
 	});
 
@@ -68,10 +78,33 @@
 		friends.filter((f) => note.editors?.some((e) => e.userId === f.id && e.selected))
 	);
 
-	// The server stamps updatedAt on every write, so the optimistic copy stamps
-	// it too — otherwise the board card keeps showing the previous edit's date
-	// until the next refresh.
-	function handleSave() {
+	// Debounced autosave - reads raw state, not the derived, so it re-arms on every keystroke.
+	$effect(() => {
+		const isDirty =
+			noteText !== note.text || noteTextPlain !== note.textPlain || noteTitle !== note.title;
+
+		if (!isDirty) {
+			return;
+		}
+
+		// A new edit invalidates any "Saved" still on hold from the last one.
+		if (savedHoldTimeout !== null) {
+			clearTimeout(savedHoldTimeout);
+			savedHoldTimeout = null;
+		}
+		justSaved = false;
+
+		autosaveTimeout = setTimeout(handleSave, autosaveDebounceMs);
+		return () => {
+			if (autosaveTimeout !== null) {
+				clearTimeout(autosaveTimeout);
+				autosaveTimeout = null;
+			}
+		};
+	});
+
+	// updatedAt/contentUpdatedAt are stamped locally so the board card reflects the edit before the next refresh.
+	function commitSave() {
 		onsavenote({
 			note: {
 				...note,
@@ -82,9 +115,10 @@
 				contentUpdatedAt: new Date()
 			}
 		});
-		if (navigator.vibrate) {
-			navigator.vibrate(50);
-		}
+	}
+
+	function handleSave() {
+		commitSave();
 
 		if (savedHoldTimeout !== null) {
 			clearTimeout(savedHoldTimeout);
@@ -94,13 +128,16 @@
 		savedHoldTimeout = setTimeout(() => {
 			savedHoldTimeout = null;
 			justSaved = false;
-			// handleClose, not onclose directly: further edits typed during the
-			// hold would otherwise be discarded with no unsaved-changes prompt.
-			handleClose();
 		}, savedHoldMs);
 	}
 
 	function handleDeleteClick() {
+		isDeleting = true;
+		if (autosaveTimeout !== null) {
+			clearTimeout(autosaveTimeout);
+			autosaveTimeout = null;
+		}
+
 		if (navigator.vibrate) {
 			navigator.vibrate(50);
 		}
@@ -121,11 +158,21 @@
 	}
 
 	const handleClose = () => {
-		if (hasUnsavedChanges) {
-			if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
-				return;
-			}
+		// Cancel first - a timer left running could fire mid exit-animation.
+		if (autosaveTimeout !== null) {
+			clearTimeout(autosaveTimeout);
+			autosaveTimeout = null;
 		}
+
+		if (hasUnsavedChanges) {
+			commitSave();
+		}
+
+		if (savedHoldTimeout !== null) {
+			clearTimeout(savedHoldTimeout);
+			savedHoldTimeout = null;
+		}
+		justSaved = false;
 
 		dialogShow = false;
 
@@ -151,21 +198,32 @@
 						<X />
 					</Button>
 				</div>
-				<div class="flex gap-2">
-					{#if enableSharing && !note.shared}
-						<Share
-							{friends}
-							noteId={note.id}
-							ontogglefriend={({ id, friendUserId, selected }) =>
-								ontogglefriendshare({
-									id,
-									friendUserId,
-									noteId: note.id,
-									selected
-								})}
+				<div class="flex items-center gap-2">
+					<SaveStatus {justSaved} />
+					{#if note.shared}
+						<UserAvatar
+							picture={note.owner.picture || ''}
+							name={note.owner.name || ''}
+							size={7}
+							tooltip="{note.owner.name} (owner)"
 						/>
-					{/if}
-					{#if !note.shared}
+						{#each editors as editor (editor.id)}
+							<UserAvatar picture={editor.picture || ''} name={editor.name || ''} size={7} />
+						{/each}
+					{:else}
+						{#if enableSharing}
+							<Share
+								{friends}
+								noteId={note.id}
+								ontogglefriend={({ id, friendUserId, selected }) =>
+									ontogglefriendshare({
+										id,
+										friendUserId,
+										noteId: note.id,
+										selected
+									})}
+							/>
+						{/if}
 						<Button variant="ghost" onclick={handleDeleteClick} label="Delete note">
 							<Trash2 />
 						</Button>
@@ -192,40 +250,5 @@
 
 	{#snippet floating()}
 		<Toolbar {editor} oncolourpick={handleColourPick} />
-	{/snippet}
-
-	{#snippet footer()}
-		<div class="flex justify-between py-2 pr-2 pl-4">
-			<div class="flex items-center gap-4">
-				{#if note.shared}
-					<UserAvatar
-						picture={note.owner.picture || ''}
-						name={note.owner.name || ''}
-						size={7}
-						tooltip="{note.owner.name} (owner)"
-					/>
-				{/if}
-				{#each editors as editor (editor.id)}
-					<UserAvatar picture={editor.picture || ''} name={editor.name || ''} size={7} />
-				{/each}
-			</div>
-			<div class="ml-auto">
-				<Button onclick={handleSave} label={justSaved ? 'Note saved' : 'Save note'}>
-					{#key justSaved}
-						<span
-							class="inline-flex items-center"
-							in:fade={{ duration: reduceMotion(durationFastMs), easing: easeMove }}
-							out:fade={{ duration: reduceMotion(durationFastMs), easing: easeMove }}
-						>
-							{#if justSaved}
-								<Check size={saveIconSize} aria-hidden="true" />
-							{:else}
-								Save note
-							{/if}
-						</span>
-					{/key}
-				</Button>
-			</div>
-		</div>
 	{/snippet}
 </Dialog>

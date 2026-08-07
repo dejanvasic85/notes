@@ -290,7 +290,7 @@ test('queues a note edit made offline and replays it once back online', async ({
 
 	const offlineTitle = `Offline edit ${Date.now()}`;
 	await titleInput.fill(offlineTitle);
-	await page.getByRole('button', { name: 'Save note' }).click();
+	// No Save button — autosave enqueues this automatically after the debounce.
 
 	await expect(page.getByText('Failed to update note')).toBeHidden();
 	await expect
@@ -325,7 +325,7 @@ test('a stale offline edit loses to a newer server-side edit on the same field g
 
 	const staleTitle = `Stale offline edit ${Date.now()}`;
 	await titleInput.fill(staleTitle);
-	await page.getByRole('button', { name: 'Save note' }).click();
+	// No Save button — autosave enqueues this automatically after the debounce.
 
 	await expect
 		.poll(() => withStore<{ type: string }[]>(page, 'readonly', 'get', queueKey))

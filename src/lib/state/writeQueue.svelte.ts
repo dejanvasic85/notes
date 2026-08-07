@@ -7,7 +7,7 @@ import { tryFetch, NetworkUnavailableError } from '$lib/browserFetch';
 import type { Board, Note } from '$lib/types';
 
 import { queueKey } from './localCacheKeys';
-import { coalesceReorders, nextDrainBatch } from './writeQueue';
+import { coalesceReorders, coalesceUpdateContent, nextDrainBatch } from './writeQueue';
 import { targetNoteId, type QueuedMutation } from './writeQueueTypes';
 
 // Notes paused after a genuine replay failure - read by OfflineIndicator.
@@ -101,7 +101,7 @@ export function drain(userId: string): Promise<{ drainedAny: boolean }> {
 			return { drainedAny: false };
 		}
 
-		const queued = coalesceReorders(await readQueue(userId));
+		const queued = coalesceUpdateContent(coalesceReorders(await readQueue(userId)));
 		const batch = nextDrainBatch(queued, pausedNoteIds);
 
 		if (batch.length === 0) {
