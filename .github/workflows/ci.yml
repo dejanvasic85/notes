@@ -1,6 +1,5 @@
 name: CI
 env:
-  PUBLIC_BUILD: ${{ github.ref_name }}-${{ github.run_number }}
   # Not pulled from Vercel like the other app env vars: Preview deployments get
   # a dynamic per-build URL, so there's no one "correct" value, and the build
   # job never actually serves the app - it only needs *some* valid value to
