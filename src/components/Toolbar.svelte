@@ -7,11 +7,9 @@
 
 	import Button from './Button.svelte';
 	import ColourPicker from './ColourPicker.svelte';
-	import SaveStatus from './SaveStatus.svelte';
 
 	type Props = {
 		editor: Editor | null;
-		justSaved: boolean;
 		oncolourpick: (colour: Colour | null) => void;
 	};
 
@@ -21,7 +19,7 @@
 	 */
 	type ToolbarItemName = 'bold' | 'italic' | 'underline' | 'bulletList' | 'taskList';
 
-	let { editor, justSaved, oncolourpick }: Props = $props();
+	let { editor, oncolourpick }: Props = $props();
 
 	const iconSize = 20;
 
@@ -88,8 +86,6 @@
 		class="border-line bg-raised shadow-float pointer-events-auto flex items-center gap-1 rounded-full border p-1"
 	>
 		<ColourPicker onselect={oncolourpick} side="top" />
-
-		<SaveStatus {justSaved} />
 
 		<span class="bg-line mx-1 h-6 w-px shrink-0" aria-hidden="true"></span>
 

@@ -80,6 +80,40 @@ test('basic note management', async ({ page }) => {
 	await expect(page.getByText(noteContent)).not.toBeVisible();
 });
 
+test('deleting a note with an unsaved edit does not throw or show an error', async ({ page }) => {
+	// The bug this guards against throws inside an unawaited async call, so it
+	// never reaches a toast - it only ever surfaces as an unhandled rejection.
+	const pageErrors: Error[] = [];
+	page.on('pageerror', (error) => pageErrors.push(error));
+
+	await page.goto('/');
+	await page.getByRole('link', { name: 'Login' }).click();
+	await login(page);
+
+	await page.waitForLoadState('networkidle');
+	const createButton = page.getByRole('button', { name: 'Create a new note' });
+	await expect(createButton).toBeVisible({ timeout: 10000 });
+	await createButton.click();
+	await expect(page.getByText('Note created')).toBeVisible();
+
+	// Type then delete immediately, before the ~1s autosave debounce fires, so
+	// the note is removed from board state while the editor still considers it
+	// dirty - the teardown save must not try to update a note that's already gone.
+	const titleTextbox = page.getByRole('textbox', { name: 'Title' });
+	await expect(titleTextbox).toBeVisible();
+	await titleTextbox.fill(faker.lorem.words(3));
+
+	await page.getByRole('button', { name: 'Delete note' }).click();
+	await expect(page.getByText('Note deleted')).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Cancel note edit' })).not.toBeVisible();
+
+	// Give the (now-cancelled) autosave debounce and teardown save a chance to
+	// fire if they were going to.
+	await page.waitForTimeout(1500);
+
+	expect(pageErrors).toEqual([]);
+});
+
 async function login(page: Page) {
 	await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL!);
 	await page.getByRole('textbox', { name: 'Password' }).fill(process.env.TEST_USER_PASSWORD!);

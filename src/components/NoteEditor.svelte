@@ -9,6 +9,7 @@
 
 	import Button from './Button.svelte';
 	import Dialog from './Dialog.svelte';
+	import SaveStatus from './SaveStatus.svelte';
 	import Share from './Share.svelte';
 	import HtmlEditor from './HtmlEditor.svelte';
 	import Toolbar from './Toolbar.svelte';
@@ -53,6 +54,10 @@
 	let dialogShow = $state(true);
 	let savedHoldTimeout: ReturnType<typeof setTimeout> | null = null;
 	let autosaveTimeout: ReturnType<typeof setTimeout> | null = null;
+	// Deleting removes the note from board state immediately (the undo window
+	// only delays the server call) - the teardown save below must not fire for
+	// a note that's already gone, or it 404s/throws trying to update it.
+	let isDeleting = false;
 
 	onDestroy(() => {
 		if (savedHoldTimeout !== null) {
@@ -62,7 +67,7 @@
 			clearTimeout(autosaveTimeout);
 		}
 		// Safety net for any teardown path that doesn't go through handleClose.
-		if (hasUnsavedChanges) {
+		if (!isDeleting && hasUnsavedChanges) {
 			commitSave();
 		}
 	});
@@ -128,6 +133,12 @@
 	}
 
 	function handleDeleteClick() {
+		isDeleting = true;
+		if (autosaveTimeout !== null) {
+			clearTimeout(autosaveTimeout);
+			autosaveTimeout = null;
+		}
+
 		if (navigator.vibrate) {
 			navigator.vibrate(50);
 		}
@@ -191,6 +202,7 @@
 					</Button>
 				</div>
 				<div class="flex items-center gap-2">
+					<SaveStatus {justSaved} />
 					{#if note.shared}
 						<UserAvatar
 							picture={note.owner.picture || ''}
@@ -240,6 +252,6 @@
 	{/snippet}
 
 	{#snippet floating()}
-		<Toolbar {editor} {justSaved} oncolourpick={handleColourPick} />
+		<Toolbar {editor} oncolourpick={handleColourPick} />
 	{/snippet}
 </Dialog>

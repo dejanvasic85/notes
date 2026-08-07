@@ -293,11 +293,9 @@ Four reasons this beats the current top strip:
 4. **Room to grow.** Bullets, checklists and undo already exist in TipTap's StarterKit but
    have nowhere to live in a strip.
 
-Contents: colour swatch · save status · bold · italic · underline · bullet list · checklist.
-Active marks render as a **solid filled pill** that slides between positions rather than two
-separate fades. Save status sits right after the colour swatch rather than in a dedicated
-footer — with autosave there's no button left to anchor a bottom bar, and this is the one
-spot already proven to hold the user's attention while typing.
+Contents: colour swatch · bold · italic · underline · bullet list · checklist. Active marks
+render as a **solid filled pill** that slides between positions rather than two separate
+fades.
 
 ---
 
@@ -337,7 +335,7 @@ form resolves to `transition-duration: var(--duration-fast)`. The square-bracket
 | FAB          | 360ms press      | Icon rotates on press as a tap flourish, not a persistent open/close swap.²                                                                                                                                                                                                                                                                               |
 | Reorder      | —                | Not built. Consciously dropped — see note below.⁴                                                                                                                                                                                                                                                                                                         |
 | Toast        | —                | Left on svelte-sonner's own defaults. Consciously dropped — see note below.³                                                                                                                                                                                                                                                                              |
-| Autosave     | 160ms enter/exit | No button, no footer — saves ~1s after the last keystroke, and immediately on close. A small check pops in (scale + fade, no overshoot) next to the colour swatch in the floating toolbar, holds 800ms, then reverses out. No spinner for sub-second work.                                                                                                |
+| Autosave     | 160ms enter/exit | No button, no footer — saves ~1s after the last keystroke, and immediately on close. A small `success-soft` badge pops in (scale + fade, no overshoot) in the header, left of Delete, holds 800ms, then reverses out. No spinner for sub-second work.                                                                                                     |
 
 **All of it sits behind `prefers-reduced-motion`** — two different ways, because one
 mechanism doesn't cover both cases. The global rule in `app.css` (zeroing `animation-
