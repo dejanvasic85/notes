@@ -36,8 +36,7 @@ test('basic note management', async ({ page }) => {
 
 	// Updates are silent — no success toast — so wait on the request itself.
 	// Match on the title so an in-flight PATCH from the earlier colour change
-	// can't satisfy this wait. There's no Save button anymore — autosave fires
-	// the PATCH on its own once the debounce elapses.
+	// can't satisfy this wait. Autosave fires it — there's no Save button.
 	const updateNotePromise = page.waitForResponse(
 		(response) =>
 			response.url().includes('/api/notes') &&

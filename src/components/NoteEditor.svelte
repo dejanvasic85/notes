@@ -53,10 +53,14 @@
 	// animation has played — see Dialog.svelte.
 	let dialogShow = $state(true);
 	let savedHoldTimeout: ReturnType<typeof setTimeout> | null = null;
+	let autosaveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	onDestroy(() => {
 		if (savedHoldTimeout !== null) {
 			clearTimeout(savedHoldTimeout);
+		}
+		if (autosaveTimeout !== null) {
+			clearTimeout(autosaveTimeout);
 		}
 		// Safety net for any teardown path that doesn't go through handleClose.
 		if (hasUnsavedChanges) {
@@ -85,8 +89,13 @@
 		if (!isDirty) {
 			return;
 		}
-		const timer = setTimeout(handleSave, autosaveDebounceMs);
-		return () => clearTimeout(timer);
+		autosaveTimeout = setTimeout(handleSave, autosaveDebounceMs);
+		return () => {
+			if (autosaveTimeout !== null) {
+				clearTimeout(autosaveTimeout);
+				autosaveTimeout = null;
+			}
+		};
 	});
 
 	// The server stamps updatedAt on every write, so the optimistic copy stamps
@@ -140,6 +149,14 @@
 	}
 
 	const handleClose = () => {
+		// Cancel the pending debounced autosave first - Dialog.svelte keeps this
+		// component mounted through its exit animation, so a timer left running
+		// could still fire mid-animation and send a second, redundant save.
+		if (autosaveTimeout !== null) {
+			clearTimeout(autosaveTimeout);
+			autosaveTimeout = null;
+		}
+
 		if (hasUnsavedChanges) {
 			commitSave();
 		}

@@ -17,8 +17,7 @@ export function coalesceReorders(items: QueuedMutation[]): QueuedMutation[] {
 	});
 }
 
-// Keep only the latest queued content edit per note - autosave can enqueue
-// many of these in one offline session.
+// Keep only the latest queued content edit per note - autosave enqueues often.
 export function coalesceUpdateContent(items: QueuedMutation[]): QueuedMutation[] {
 	const latestByNoteId = new Map<string, QueuedMutation>();
 	for (const item of items) {
