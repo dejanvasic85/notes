@@ -73,13 +73,13 @@ jobs:
       - name: Build application
         run: pnpm build
   test:
-    # TEMP: disabled while we get the "Check and test" job passing again on
-    # the Vercel-native deploy migration - re-enable once that's stable.
-    if: false
+    permissions:
+      contents: read
+      deployments: read
+      statuses: read
     env:
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
       HOME: /root
     name: Test Playwright
     timeout-minutes: 20
@@ -98,18 +98,20 @@ jobs:
         run: pnpm install --frozen-lockfile
       # Vercel's git integration already built and deployed this commit in
       # parallel with this workflow - wait for that deployment instead of
-      # building the app a second time here.
+      # building the app a second time here. Official Vercel action - polls
+      # GitHub's Deployments API, so it only needs GITHUB_TOKEN, no Vercel
+      # token to provision.
       - name: Wait for Vercel preview deployment
-        uses: patrickedqvist/wait-for-vercel-preview@v1.3.3
-        id: wait_for_vercel
+        uses: vercel/wait-for-deployment-action@0e2b0c5c5cce31f1648108aeec56467187aca037
+        id: deployment
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 300
-          check_interval: 10
+          environment: preview
+          timeout: 300
+          check-interval: 10
       - name: Run Playwright tests
         run: pnpm exec playwright test --reporter=list
         env:
-          PLAYWRIGHT_TEST_BASE_URL: ${{ steps.wait_for_vercel.outputs.url }}
+          PLAYWRIGHT_TEST_BASE_URL: ${{ steps.deployment.outputs.deployment-url }}
       - name: Upload Playwright test results
         uses: actions/upload-artifact@v7
         if: always()
@@ -120,13 +122,13 @@ jobs:
           if-no-files-found: warn
 
   test_offline:
-    # TEMP: disabled while we get the "Check and test" job passing again on
-    # the Vercel-native deploy migration - re-enable once that's stable.
-    if: false
+    permissions:
+      contents: read
+      deployments: read
+      statuses: read
     env:
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
       HOME: /root
     name: Test offline mode
     timeout-minutes: 15
@@ -147,16 +149,16 @@ jobs:
       # service worker - what this suite needs (see playwright.offline.config.ts)
       # - so it can test against that instead of building its own copy locally.
       - name: Wait for Vercel preview deployment
-        uses: patrickedqvist/wait-for-vercel-preview@v1.3.3
-        id: wait_for_vercel
+        uses: vercel/wait-for-deployment-action@0e2b0c5c5cce31f1648108aeec56467187aca037
+        id: deployment
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 300
-          check_interval: 10
+          environment: preview
+          timeout: 300
+          check-interval: 10
       - name: Run offline Playwright tests
         run: pnpm exec playwright test --config playwright.offline.config.ts --reporter=list
         env:
-          PLAYWRIGHT_TEST_BASE_URL: ${{ steps.wait_for_vercel.outputs.url }}
+          PLAYWRIGHT_TEST_BASE_URL: ${{ steps.deployment.outputs.deployment-url }}
       - name: Upload offline test results
         uses: actions/upload-artifact@v7
         if: always()

@@ -24,7 +24,6 @@ const previewPort = 3377;
 const buildTimeoutMs = 240_000;
 const localBaseUrl = `http://localhost:${previewPort}`;
 const remoteBaseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL;
-const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
 const config: PlaywrightTestConfig = {
 	webServer: remoteBaseUrl
@@ -46,15 +45,7 @@ const config: PlaywrightTestConfig = {
 	use: {
 		baseURL: remoteBaseUrl || localBaseUrl,
 		trace: 'retain-on-failure',
-		screenshot: 'only-on-failure',
-		// Only set against a Vercel deployment with Deployment Protection on -
-		// see https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation.
-		...(bypassSecret && {
-			extraHTTPHeaders: {
-				'x-vercel-protection-bypass': bypassSecret,
-				'x-vercel-set-bypass-cookie': 'true'
-			}
-		})
+		screenshot: 'only-on-failure'
 	}
 };
 
