@@ -36,7 +36,7 @@ jobs:
       - name: Pull environment variables from Vercel
         run: |
           pnpm add --global vercel@latest
-          vercel env pull .env.local --environment=preview --yes --token=${{ secrets.VERCEL_TOKEN }}
+          vercel env pull .env.local --environment=preview --git-branch=${{ github.ref_name }} --yes --token=${{ secrets.VERCEL_TOKEN }}
       - name: Add Svelte Check annotator
         uses: prgm-dev/svelte-check-pr-annotator@main
       - name: Run Svelte-Check
