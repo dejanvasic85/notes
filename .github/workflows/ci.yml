@@ -1,15 +1,8 @@
 name: CI
 env:
-  # Not pulled from Vercel like the other app env vars: Preview deployments get
-  # a dynamic per-build URL, so there's no one "correct" value, and the build
-  # job never actually serves the app - it only needs *some* valid value to
-  # satisfy $env/static/public at build/check time.
   PUBLIC_BASE_URL: http://localhost:3377
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  # `vercel env pull` keeps returning a different value for this one than
-  # what Vercel's own build/runtime actually uses - unresolved so far even
-  # with --git-branch. Overriding it directly until we understand why.
   PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
 
 on:
@@ -31,12 +24,6 @@ jobs:
           install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      # Pulls the app's own env vars (AUTH0_*, DATABASE_URL, SESSION_SECRET, etc.)
-      # from Vercel's "Preview" environment into .env.local, which Vite loads
-      # automatically - single source of truth instead of duplicating them as
-      # GitHub secrets too. Needed here because this job builds/typechecks the
-      # app locally; the test jobs below don't - they run against the real
-      # Vercel preview deployment instead.
       - name: Pull environment variables from Vercel
         run: |
           pnpm add --global vercel@latest
@@ -66,8 +53,6 @@ jobs:
     timeout-minutes: 20
     runs-on: ubuntu-latest
     container:
-      # Keep in step with @playwright/test in package.json — the image ships the
-      # browser binaries, and Playwright refuses to launch against a mismatch.
       image: mcr.microsoft.com/playwright:v1.62.0-jammy
     steps:
       - uses: actions/checkout@v7
@@ -77,11 +62,6 @@ jobs:
           install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      # Vercel's git integration already built and deployed this commit in
-      # parallel with this workflow - wait for that deployment instead of
-      # building the app a second time here. Official Vercel action - polls
-      # GitHub's Deployments API, so it only needs GITHUB_TOKEN, no Vercel
-      # token to provision.
       - name: Wait for Vercel preview deployment
         uses: vercel/wait-for-deployment-action@0e2b0c5c5cce31f1648108aeec56467187aca037
         id: deployment
@@ -115,8 +95,6 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      # Keep in step with @playwright/test in package.json — the image ships the
-      # browser binaries, and Playwright refuses to launch against a mismatch.
       image: mcr.microsoft.com/playwright:v1.62.0-jammy
     steps:
       - uses: actions/checkout@v7
@@ -126,9 +104,6 @@ jobs:
           install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      # Vercel's deployment is already a production build with a working
-      # service worker - what this suite needs (see playwright.offline.config.ts)
-      # - so it can test against that instead of building its own copy locally.
       - name: Wait for Vercel preview deployment
         uses: vercel/wait-for-deployment-action@0e2b0c5c5cce31f1648108aeec56467187aca037
         id: deployment
