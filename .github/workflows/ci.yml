@@ -1,15 +1,8 @@
 name: CI
 env:
-  AUTH0_CLIENT_ID: ${{ vars.AUTH0_CLIENT_ID }}
-  AUTH0_DOMAIN: ${{ vars.AUTH0_DOMAIN }}
-  AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
   PUBLIC_BUILD: ${{ github.ref_name }}-${{ github.run_number }}
-  PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
-  PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL }}
-  SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-  SES_AWS_ACCESS_KEY_ID: ${{ secrets.SES_AWS_ACCESS_KEY_ID }}
-  SES_AWS_SECRET_ACCESS_KEY: ${{ secrets.SES_AWS_SECRET_ACCESS_KEY }}
+  VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
 
 on:
   workflow_dispatch:
@@ -30,6 +23,14 @@ jobs:
           install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      # Pulls the app's own env vars (AUTH0_*, DATABASE_URL, SESSION_SECRET, etc.)
+      # from Vercel's "Preview" environment into .env.local, which Vite loads
+      # automatically - single source of truth instead of duplicating them as
+      # GitHub secrets too.
+      - name: Pull environment variables from Vercel
+        run: |
+          pnpm add --global vercel@canary
+          vercel env pull .env.local --environment=preview --yes --token=${{ secrets.VERCEL_TOKEN }}
       - name: Add Svelte Check annotator
         uses: prgm-dev/svelte-check-pr-annotator@main
       - name: Run Svelte-Check
@@ -65,6 +66,10 @@ jobs:
           install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Pull environment variables from Vercel
+        run: |
+          pnpm add --global vercel@canary
+          vercel env pull .env.local --environment=preview --yes --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build application
         run: pnpm build:migrate
       - name: Run Playwright tests
@@ -101,6 +106,10 @@ jobs:
           install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Pull environment variables from Vercel
+        run: |
+          pnpm add --global vercel@canary
+          vercel env pull .env.local --environment=preview --yes --token=${{ secrets.VERCEL_TOKEN }}
       # The service worker precaches nothing in dev, so this suite builds and
       # serves the production output itself — see playwright.offline.config.ts.
       # It runs on 3377 like the suite above, because Auth0 only accepts a
