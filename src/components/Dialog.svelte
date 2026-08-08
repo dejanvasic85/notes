@@ -117,6 +117,7 @@
 	}
 
 	let footerHeight = $state(0);
+	let floatingHeight = $state(0);
 	let keyboardInset = $state(0);
 	let frame: number | null = null;
 
@@ -127,6 +128,16 @@
 	 */
 	const floatingOffset = $derived(
 		`calc(max(${footerHeight}px + env(safe-area-inset-bottom), ${keyboardInset}px) + ${floatingGap})`
+	);
+
+	/*
+	 * The body needs enough bottom padding to scroll its last line clear of the
+	 * floating layer, which sits on top of it rather than in flow. Measured
+	 * (via floatingHeight below) rather than guessed, so it stays correct as
+	 * the toolbar's own content changes.
+	 */
+	const bodyClearance = $derived(
+		floating ? `calc(${floatingOffset} + ${floatingHeight}px + ${floatingGap})` : undefined
 	);
 
 	/*
@@ -225,7 +236,7 @@
 						</div>
 
 						<!-- body — padded so the floating toolbar never sits over the caret -->
-						<div class="w-full flex-1 overflow-y-auto {floating ? 'pb-20' : ''}">
+						<div class="w-full flex-1 overflow-y-auto" style:padding-bottom={bodyClearance}>
 							{@render body()}
 						</div>
 
@@ -237,6 +248,7 @@
 						<!-- Floating layer — see floatingOffset for the positioning. -->
 						{#if floating}
 							<div
+								bind:clientHeight={floatingHeight}
 								class="pointer-events-none absolute inset-x-0 flex justify-center px-4"
 								style:bottom={floatingOffset}
 							>

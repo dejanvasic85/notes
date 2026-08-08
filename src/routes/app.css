@@ -321,12 +321,21 @@
 }
 
 /*
- * The editor surface fills the sheet, so the whole area is clickable and the
- * focus ring outlines what you're actually editing. Text keeps the reading
- * measure and stays left-aligned with the title above it.
+ * The editor surface fills the sheet, so the whole area is clickable. Text
+ * keeps the reading measure and stays left-aligned with the title above it.
  */
 .tiptap > * {
 	max-width: var(--container-measure);
+}
+
+/*
+ * The base focus-visible rule above outlines the whole full-bleed editing
+ * surface top-to-bottom, which reads as a stray purple bar rather than a
+ * focus indicator. The blinking caret already shows exactly where focus is,
+ * so this element doesn't need the box outline other controls do.
+ */
+.tiptap:focus-visible {
+	outline: none;
 }
 
 /*
