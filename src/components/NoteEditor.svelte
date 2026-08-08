@@ -235,9 +235,41 @@
 		noteText = html;
 		noteTextPlain = plaintext;
 	};
+
+	function handleManualSave() {
+		if (autosaveTimeout !== null) {
+			clearTimeout(autosaveTimeout);
+			autosaveTimeout = null;
+		}
+		handleSave();
+	}
+
+	function handleWindowKeydown(e: KeyboardEvent) {
+		if (e.code === 'Escape') {
+			handleClose();
+			return;
+		}
+
+		if (!(e.ctrlKey || e.metaKey)) {
+			return;
+		}
+
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			handleClose();
+			return;
+		}
+
+		if (e.key.toLowerCase() === 's') {
+			e.preventDefault();
+			if (hasUnsavedChanges) {
+				handleManualSave();
+			}
+		}
+	}
 </script>
 
-<svelte:window onkeydown={(e) => e.code === 'Escape' && handleClose()} />
+<svelte:window onkeydown={handleWindowKeydown} />
 
 <Dialog bind:show={dialogShow} colour={note.colour} {originRect} {onclose}>
 	{#snippet header()}
