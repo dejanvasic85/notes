@@ -5,6 +5,8 @@ import { defineConfig } from 'vitest/config';
 
 const sentryOrg = 'vasic-org';
 const sentryProject = 'my-notes';
+const vercelEnvironment = process.env.VERCEL_ENV;
+const vercelDeployUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined;
 
 export default defineConfig({
 	plugins: [
@@ -12,7 +14,11 @@ export default defineConfig({
 		sentrySvelteKit({
 			org: sentryOrg,
 			project: sentryProject,
-			authToken: process.env.SENTRY_AUTH_TOKEN
+			authToken: process.env.SENTRY_AUTH_TOKEN,
+			release: {
+				// Only Vercel builds set VERCEL_ENV, so local/CI builds skip deploy registration.
+				deploy: vercelEnvironment ? { env: vercelEnvironment, url: vercelDeployUrl } : false
+			}
 		}),
 		sveltekit()
 	],

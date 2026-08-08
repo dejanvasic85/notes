@@ -40,6 +40,7 @@ Please read all the latest documentation for (Svelte Kit)[svelte.dev/llms.txt] a
 - Be sure to run `pnpm check` when you’re done making a series of code changes
 - Use `pnpm format` whenever the format is not correct
 - Prefer running single tests, and not the whole test suite, for performance
+- After finishing a set of changes, push to a branch and open a PR (`gh pr create`) rather than leaving work uncommitted or handing it back unpushed
 - After pushing to a PR branch, watch the CI pipeline (`gh pr checks <pr-number>`) until it finishes and make sure it's passing. If a check fails, pull the logs (`gh run view <run-id> --log-failed`), fix the root cause, and push again — don't leave a PR with red CI or hand it back as done while checks are still failing or pending.
 
 # Dependency management
