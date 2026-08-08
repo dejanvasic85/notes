@@ -45,7 +45,13 @@
 				editable: true,
 				editorProps: {
 					attributes: {
-						class: 'prose dark:prose-invert h-full w-full max-w-none p-4'
+						/*
+						 * min-h-full, not h-full: a fixed height would cap the editable
+						 * element and let content taller than the sheet overflow it
+						 * uncontained, bypassing the scroll container's bottom padding
+						 * that keeps the floating toolbar off the last line.
+						 */
+						class: 'prose dark:prose-invert min-h-full w-full max-w-none p-4'
 					},
 					/*
 					 * The floating toolbar hovers over the bottom of the editor, so
@@ -103,4 +109,4 @@
 		});
 </script>
 
-<div class="h-full" {id} {@attach initEditor}></div>
+<div class="min-h-full" {id} {@attach initEditor}></div>
