@@ -37,5 +37,8 @@ export const handleSessionCookie: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle = sequence(Sentry.sentryHandle(), handleSessionCookie);
+export const handle = sequence(
+	Sentry.sentryHandle({ injectFetchProxyScript: false }),
+	handleSessionCookie
+);
 export const handleError = Sentry.handleErrorWithSentry();
