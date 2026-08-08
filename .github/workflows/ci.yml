@@ -1,17 +1,9 @@
 name: CI
 env:
-  AUTH0_CLIENT_ID: ${{ vars.AUTH0_CLIENT_ID }}
-  AUTH0_DOMAIN: ${{ vars.AUTH0_DOMAIN }}
-  AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  PUBLIC_BUILD: ${{ github.ref_name }}-${{ github.run_number }}
-  PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
-  PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL }}
-  SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-  SES_AWS_ACCESS_KEY_ID: ${{ secrets.SES_AWS_ACCESS_KEY_ID }}
-  SES_AWS_SECRET_ACCESS_KEY: ${{ secrets.SES_AWS_SECRET_ACCESS_KEY }}
+  PUBLIC_BASE_URL: http://localhost:3377
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  PRISMA_FIELD_ENCRYPTION_KEY: ${{ secrets.PRISMA_FIELD_ENCRYPTION_KEY }}
 
 on:
   workflow_dispatch:
@@ -32,6 +24,10 @@ jobs:
           install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Pull environment variables from Vercel
+        run: |
+          pnpm add --global vercel@latest
+          vercel env pull .env.local --environment=preview --git-branch=${{ github.ref_name }} --yes --token=${{ secrets.VERCEL_TOKEN }}
       - name: Add Svelte Check annotator
         uses: prgm-dev/svelte-check-pr-annotator@main
       - name: Run Svelte-Check
@@ -45,19 +41,18 @@ jobs:
       - name: Build application
         run: pnpm build
   test:
+    permissions:
+      contents: read
+      deployments: read
+      statuses: read
     env:
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      PUBLIC_BASE_URL: http://localhost:3377
       HOME: /root
     name: Test Playwright
-    timeout-minutes: 60
+    timeout-minutes: 20
     runs-on: ubuntu-latest
-    environment:
-      name: preview
     container:
-      # Keep in step with @playwright/test in package.json — the image ships the
-      # browser binaries, and Playwright refuses to launch against a mismatch.
       image: mcr.microsoft.com/playwright:v1.62.0-jammy
     steps:
       - uses: actions/checkout@v7
@@ -67,10 +62,17 @@ jobs:
           install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Build application
-        run: pnpm build:migrate
+      - name: Wait for Vercel preview deployment
+        uses: vercel/wait-for-deployment-action@0e2b0c5c5cce31f1648108aeec56467187aca037
+        id: deployment
+        with:
+          environment: preview
+          timeout: 300
+          check-interval: 10
       - name: Run Playwright tests
         run: pnpm exec playwright test --reporter=list
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: ${{ steps.deployment.outputs.deployment-url }}
       - name: Upload Playwright test results
         uses: actions/upload-artifact@v7
         if: always()
@@ -81,19 +83,18 @@ jobs:
           if-no-files-found: warn
 
   test_offline:
+    permissions:
+      contents: read
+      deployments: read
+      statuses: read
     env:
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      PUBLIC_BASE_URL: http://localhost:3377
       HOME: /root
     name: Test offline mode
-    timeout-minutes: 30
+    timeout-minutes: 15
     runs-on: ubuntu-latest
-    environment:
-      name: preview
     container:
-      # Keep in step with @playwright/test in package.json — the image ships the
-      # browser binaries, and Playwright refuses to launch against a mismatch.
       image: mcr.microsoft.com/playwright:v1.62.0-jammy
     steps:
       - uses: actions/checkout@v7
@@ -103,13 +104,17 @@ jobs:
           install: false
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      # The service worker precaches nothing in dev, so this suite builds and
-      # serves the production output itself — see playwright.offline.config.ts.
-      # It runs on 3377 like the suite above, because Auth0 only accepts a
-      # callback on that origin and one test signs in to reach the board. The
-      # two jobs are on separate runners, so sharing the port costs nothing.
+      - name: Wait for Vercel preview deployment
+        uses: vercel/wait-for-deployment-action@0e2b0c5c5cce31f1648108aeec56467187aca037
+        id: deployment
+        with:
+          environment: preview
+          timeout: 300
+          check-interval: 10
       - name: Run offline Playwright tests
         run: pnpm exec playwright test --config playwright.offline.config.ts --reporter=list
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: ${{ steps.deployment.outputs.deployment-url }}
       - name: Upload offline test results
         uses: actions/upload-artifact@v7
         if: always()
@@ -118,29 +123,3 @@ jobs:
           path: test-results/
           retention-days: 7
           if-no-files-found: warn
-
-  deploy_preview:
-    name: Deploy Preview
-    runs-on: ubuntu-latest
-    needs: [build, test, test_offline]
-    concurrency: preview_deploy-${{ github.ref }}
-    environment:
-      name: preview
-      url: ${{ steps.deploy.outputs.deployment_url }}
-    steps:
-      - uses: actions/checkout@v7
-      - name: Setup pnpm and Node
-        uses: pnpm/setup@v2
-        with:
-          install: false
-      - name: Deploy
-        id: deploy
-        run: |
-          pnpm add --global vercel@canary
-          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-          vercel build --token=${{ secrets.VERCEL_TOKEN }}
-          url="$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
-          # VERCEL_TOKEN doesn't have access to alias custom domains, so notes-dev.vasic.com.au
-          # can't be repointed here. Not needed anyway — Auth0 allows the whole
-          # *-dejan-vasics-projects.vercel.app range, so login works on this per-deploy URL.
-          echo "deployment_url=$url" >> $GITHUB_OUTPUT

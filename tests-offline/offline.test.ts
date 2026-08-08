@@ -263,11 +263,14 @@ async function getSignedInUserId(page: Page): Promise<string> {
 	return boardSnapshotKey.slice('board:'.length);
 }
 
-async function openFirstNote(page: Page) {
-	await page
-		.getByRole('button', { name: /^Edit note/ })
-		.first()
-		.click();
+// Creates a fresh note rather than opening whichever one is first on the
+// board: this account's notes are shared with every other suite that signs
+// in as the same test user (including concurrent CI jobs), so grabbing "the
+// first note" is a real cross-test interference risk, not just a theoretical
+// one - see #882.
+async function createIsolatedNote(page: Page) {
+	await page.getByRole('button', { name: 'Create a new note' }).click();
+	await expect(page.getByText('Note created')).toBeVisible();
 	const titleInput = page.getByPlaceholder('Title');
 	await expect(titleInput).toBeVisible();
 	const noteId = new URL(page.url()).searchParams.get('id')!;
@@ -283,7 +286,7 @@ test('queues a note edit made offline and replays it once back online', async ({
 	await login(page);
 
 	const userId = await getSignedInUserId(page);
-	const { titleInput, noteId } = await openFirstNote(page);
+	const { titleInput, noteId } = await createIsolatedNote(page);
 	const queueKey = `queue:${userId}`;
 
 	await context.setOffline(true);
@@ -318,7 +321,7 @@ test('a stale offline edit loses to a newer server-side edit on the same field g
 	await login(page);
 
 	const userId = await getSignedInUserId(page);
-	const { titleInput, noteId } = await openFirstNote(page);
+	const { titleInput, noteId } = await createIsolatedNote(page);
 	const queueKey = `queue:${userId}`;
 
 	await context.setOffline(true);

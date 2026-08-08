@@ -158,7 +158,7 @@
 			/>
 		</div>
 	</main>
-	<Footer />
+	<Footer build={data.build} />
 </div>
 
 <style>

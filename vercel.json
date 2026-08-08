@@ -1,3 +1,4 @@
 {
-	"installCommand": "corepack enable && pnpm install --frozen-lockfile"
+	"installCommand": "npx --yes pnpm@11.20.0 install --frozen-lockfile",
+	"buildCommand": "npx --yes pnpm@11.20.0 build:migrate"
 }
