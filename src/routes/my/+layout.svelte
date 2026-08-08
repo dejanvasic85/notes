@@ -137,7 +137,36 @@
 			toastMessages.addMessage({ type: 'success', message: 'Note created' });
 		}
 	}
+
+	function isEditableTarget(target: EventTarget | null): boolean {
+		if (!(target instanceof HTMLElement)) {
+			return false;
+		}
+		return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+	}
+
+	function handleWindowKeydown(e: KeyboardEvent) {
+		const isNoteEditorOpen = document.getElementById('note-editor') !== null;
+		if (!(e.ctrlKey || e.metaKey) || isEditableTarget(e.target) || isNoteEditorOpen) {
+			return;
+		}
+
+		const key = e.key.toLowerCase();
+
+		if (key === 'k') {
+			e.preventDefault();
+			document.getElementById('search')?.focus();
+			return;
+		}
+
+		if (key === 'n') {
+			e.preventDefault();
+			handleCreateNote();
+		}
+	}
 </script>
+
+<svelte:window onkeydown={handleWindowKeydown} />
 
 <div class="md:grid-cols-layout md:grid-rows-layout flex min-h-screen flex-col md:grid">
 	<!-- Header -->
