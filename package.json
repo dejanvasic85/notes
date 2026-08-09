@@ -15,7 +15,7 @@
 		"test:playwright:offline": "playwright test --config playwright.offline.config.ts",
 		"lint": "prettier . --check . && eslint . && pnpm lint:css",
 		"lint:css": "stylelint \"**/*.{css,svelte}\"",
-		"lint-staged": "lint-staged",
+		"lint-staged": "lint-staged --concurrent false",
 		"format": "prettier . --write .",
 		"prepare": "husky",
 		"postinstall": "svelte-kit sync && prisma generate"
