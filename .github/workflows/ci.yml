@@ -32,7 +32,7 @@ jobs:
         uses: prgm-dev/svelte-check-pr-annotator@main
       - name: Run Svelte-Check
         run: pnpm check
-      - name: Run ESLint
+      - name: Run linters
         run: pnpm lint
       - name: Run type check
         run: pnpm build:tsc

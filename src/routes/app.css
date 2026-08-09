@@ -1,6 +1,5 @@
 @import '@fontsource/poppins/latin-600.css';
 @import '@fontsource-variable/figtree/wght.css';
-
 @import 'tailwindcss';
 
 @plugin '@tailwindcss/typography';
@@ -50,13 +49,14 @@
 	 * All three text levels clear 4.5:1 on all three surfaces. */
 	--color-canvas: #efedf1;
 	--color-paper: #fcfbfd;
-	--color-raised: #ffffff;
+	--color-raised: #fff;
 
 	--color-ink: #1d1b21;
 	--color-ink-muted: #5c5764;
 	--color-ink-faint: #6e6979;
 	--color-line: #ddd9e3;
 	--color-line-soft: #e9e6ed;
+
 	/* Borders on interactive elements. --color-line is tuned for dividers and
 	 * fails WCAG 1.4.11 (3:1 for non-text UI) against pastel fills. */
 	--color-line-strong: #6e6979;
@@ -70,8 +70,8 @@
 
 	/* Text/icons on a coloured fill. Never use text-white on accent or
 	 * danger — the dark-mode versions are light, where white fails AA. */
-	--color-on-accent: #ffffff;
-	--color-on-danger: #ffffff;
+	--color-on-accent: #fff;
+	--color-on-danger: #fff;
 
 	--color-success: #376e50;
 	--color-success-soft: #e2efe7;
@@ -136,11 +136,11 @@
 	--radius-sheet: 26px;
 
 	/* Elevation — shadows are tinted with the ink hue, never pure black. */
-	--shadow-rest: 0 1px 2px rgba(29, 27, 33, 0.05);
-	--shadow-card: 0 1px 2px rgba(29, 27, 33, 0.04), 0 3px 8px rgba(29, 27, 33, 0.05);
-	--shadow-lifted: 0 2px 4px rgba(29, 27, 33, 0.05), 0 8px 20px rgba(29, 27, 33, 0.07);
-	--shadow-float: 0 4px 10px rgba(29, 27, 33, 0.08), 0 16px 36px rgba(29, 27, 33, 0.14);
-	--shadow-sheet: 0 -2px 8px rgba(29, 27, 33, 0.04), 0 -12px 40px rgba(29, 27, 33, 0.12);
+	--shadow-rest: 0 1px 2px rgb(29 27 33 / 5%);
+	--shadow-card: 0 1px 2px rgb(29 27 33 / 4%), 0 3px 8px rgb(29 27 33 / 5%);
+	--shadow-lifted: 0 2px 4px rgb(29 27 33 / 5%), 0 8px 20px rgb(29 27 33 / 7%);
+	--shadow-float: 0 4px 10px rgb(29 27 33 / 8%), 0 16px 36px rgb(29 27 33 / 14%);
+	--shadow-sheet: 0 -2px 8px rgb(29 27 33 / 4%), 0 -12px 40px rgb(29 27 33 / 12%);
 
 	/* Motion — arrive slowly, leave quickly. Only direct manipulation
 	 * overshoots; content never bounces. Applied per-component in #829. */
@@ -210,11 +210,11 @@
 		--color-danger: #dd8a76;
 		--color-danger-soft: #2e1e1a;
 
-		--shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.4);
-		--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
-		--shadow-lifted: 0 4px 14px rgba(0, 0, 0, 0.55);
-		--shadow-float: 0 8px 28px rgba(0, 0, 0, 0.6);
-		--shadow-sheet: 0 -10px 40px rgba(0, 0, 0, 0.6);
+		--shadow-rest: 0 1px 2px rgb(0 0 0 / 40%);
+		--shadow-card: 0 1px 3px rgb(0 0 0 / 50%);
+		--shadow-lifted: 0 4px 14px rgb(0 0 0 / 55%);
+		--shadow-float: 0 8px 28px rgb(0 0 0 / 60%);
+		--shadow-sheet: 0 -10px 40px rgb(0 0 0 / 60%);
 	}
 }
 
@@ -245,11 +245,11 @@
 	--color-danger: #dd8a76;
 	--color-danger-soft: #2e1e1a;
 
-	--shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.4);
-	--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
-	--shadow-lifted: 0 4px 14px rgba(0, 0, 0, 0.55);
-	--shadow-float: 0 8px 28px rgba(0, 0, 0, 0.6);
-	--shadow-sheet: 0 -10px 40px rgba(0, 0, 0, 0.6);
+	--shadow-rest: 0 1px 2px rgb(0 0 0 / 40%);
+	--shadow-card: 0 1px 3px rgb(0 0 0 / 50%);
+	--shadow-lifted: 0 4px 14px rgb(0 0 0 / 55%);
+	--shadow-float: 0 8px 28px rgb(0 0 0 / 60%);
+	--shadow-sheet: 0 -10px 40px rgb(0 0 0 / 60%);
 }
 
 @layer base {
@@ -257,9 +257,11 @@
 	:root {
 		color-scheme: light dark;
 	}
+
 	:root[data-theme='light'] {
 		color-scheme: light;
 	}
+
 	:root[data-theme='dark'] {
 		color-scheme: dark;
 	}

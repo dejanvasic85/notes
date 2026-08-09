@@ -1,0 +1,6 @@
+build
+.svelte-kit
+.vercel
+package
+coverage
+src/lib/server/db/generated

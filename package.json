@@ -13,8 +13,9 @@
 		"test:unit": "vitest",
 		"test:playwright": "playwright test",
 		"test:playwright:offline": "playwright test --config playwright.offline.config.ts",
-		"lint": "prettier . --check . && eslint .",
-		"lint-staged": "lint-staged",
+		"lint": "prettier . --check . && eslint . && pnpm lint:css",
+		"lint:css": "stylelint \"**/*.{css,svelte}\"",
+		"lint-staged": "lint-staged --concurrent false",
 		"format": "prettier . --write .",
 		"prepare": "husky",
 		"postinstall": "svelte-kit sync && prisma generate"
@@ -42,10 +43,14 @@
 		"husky": "9.1.7",
 		"lint-staged": "17.3.0",
 		"postcss": "8.5.26",
+		"postcss-html": "2.0.0",
 		"prettier": "3.9.6",
 		"prettier-plugin-svelte": "4.1.1",
 		"prettier-plugin-tailwindcss": "0.8.1",
 		"prisma": "7.9.0",
+		"stylelint": "17.14.1",
+		"stylelint-config-standard": "40.0.0",
+		"stylelint-config-tailwindcss": "1.0.1",
 		"svelte": "5.56.8",
 		"svelte-check": "4.7.5",
 		"svelte-eslint-parser": "1.8.0",
@@ -85,6 +90,9 @@
 		"*": [
 			"prettier . --write",
 			"eslint ."
+		],
+		"*.{css,svelte}": [
+			"stylelint --fix"
 		]
 	},
 	"engines": {
