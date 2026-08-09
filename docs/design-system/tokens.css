@@ -20,7 +20,7 @@
 	 * --------------------------------------------------------------- */
 	--color-canvas: #efedf1; /* app background */
 	--color-paper: #fcfbfd; /* cards, sheets, bars */
-	--color-raised: #ffffff; /* menus, popovers above paper */
+	--color-raised: #fff; /* menus, popovers above paper */
 
 	/* All three text levels clear 4.5:1 on ALL THREE surfaces, so any of them
 	 * is safe anywhere without checking. Verified, not eyeballed — re-run
@@ -47,8 +47,8 @@
 	/* Text/icons sitting ON an accent fill. This MUST be a token, not a
 	 * hardcoded white: the dark-mode accent is light, so white on it is
 	 * only 3.5:1 and fails AA. Always use this, never `text-white`. */
-	--color-on-accent: #ffffff; /* 5.4:1 on --color-accent */
-	--color-on-danger: #ffffff; /* 5.9:1 on --color-danger */
+	--color-on-accent: #fff; /* 5.4:1 on --color-accent */
+	--color-on-danger: #fff; /* 5.9:1 on --color-danger */
 
 	/* Semantic — separate from accent, never used decoratively.
 	 * Each foreground clears 4.5:1 on its own -soft ground. */
@@ -147,11 +147,11 @@
 	 * In dark mode shadow is nearly useless, so elevation there is
 	 * carried by surface lightness plus --color-line (see §9).
 	 * --------------------------------------------------------------- */
-	--shadow-rest: 0 1px 2px rgba(29, 27, 33, 0.05);
-	--shadow-card: 0 1px 2px rgba(29, 27, 33, 0.04), 0 3px 8px rgba(29, 27, 33, 0.05);
-	--shadow-lifted: 0 2px 4px rgba(29, 27, 33, 0.05), 0 8px 20px rgba(29, 27, 33, 0.07);
-	--shadow-float: 0 4px 10px rgba(29, 27, 33, 0.08), 0 16px 36px rgba(29, 27, 33, 0.14);
-	--shadow-sheet: 0 -2px 8px rgba(29, 27, 33, 0.04), 0 -12px 40px rgba(29, 27, 33, 0.12);
+	--shadow-rest: 0 1px 2px rgb(29 27 33 / 5%);
+	--shadow-card: 0 1px 2px rgb(29 27 33 / 4%), 0 3px 8px rgb(29 27 33 / 5%);
+	--shadow-lifted: 0 2px 4px rgb(29 27 33 / 5%), 0 8px 20px rgb(29 27 33 / 7%);
+	--shadow-float: 0 4px 10px rgb(29 27 33 / 8%), 0 16px 36px rgb(29 27 33 / 14%);
+	--shadow-sheet: 0 -2px 8px rgb(29 27 33 / 4%), 0 -12px 40px rgb(29 27 33 / 12%);
 
 	/* ---------------------------------------------------------------
 	 * 7. MOTION
@@ -243,11 +243,11 @@
 		--color-danger: #dd8a76;
 		--color-danger-soft: #2e1e1a;
 
-		--shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.4);
-		--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
-		--shadow-lifted: 0 4px 14px rgba(0, 0, 0, 0.55);
-		--shadow-float: 0 8px 28px rgba(0, 0, 0, 0.6);
-		--shadow-sheet: 0 -10px 40px rgba(0, 0, 0, 0.6);
+		--shadow-rest: 0 1px 2px rgb(0 0 0 / 40%);
+		--shadow-card: 0 1px 3px rgb(0 0 0 / 50%);
+		--shadow-lifted: 0 4px 14px rgb(0 0 0 / 55%);
+		--shadow-float: 0 8px 28px rgb(0 0 0 / 60%);
+		--shadow-sheet: 0 -10px 40px rgb(0 0 0 / 60%);
 	}
 }
 
@@ -278,11 +278,11 @@
 	--color-danger: #dd8a76;
 	--color-danger-soft: #2e1e1a;
 
-	--shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.4);
-	--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5);
-	--shadow-lifted: 0 4px 14px rgba(0, 0, 0, 0.55);
-	--shadow-float: 0 8px 28px rgba(0, 0, 0, 0.6);
-	--shadow-sheet: 0 -10px 40px rgba(0, 0, 0, 0.6);
+	--shadow-rest: 0 1px 2px rgb(0 0 0 / 40%);
+	--shadow-card: 0 1px 3px rgb(0 0 0 / 50%);
+	--shadow-lifted: 0 4px 14px rgb(0 0 0 / 55%);
+	--shadow-float: 0 8px 28px rgb(0 0 0 / 60%);
+	--shadow-sheet: 0 -10px 40px rgb(0 0 0 / 60%);
 }
 
 /* -------------------------------------------------------------------
@@ -295,9 +295,11 @@
 	:root {
 		color-scheme: light dark;
 	}
+
 	:root[data-theme='light'] {
 		color-scheme: light;
 	}
+
 	:root[data-theme='dark'] {
 		color-scheme: dark;
 	}
