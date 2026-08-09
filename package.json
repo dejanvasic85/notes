@@ -28,7 +28,7 @@
 		"@sveltejs/adapter-auto": "7.0.1",
 		"@sveltejs/adapter-vercel": "6.3.4",
 		"@sveltejs/kit": "2.70.2",
-		"@sveltejs/vite-plugin-svelte": "7.2.0",
+		"@sveltejs/vite-plugin-svelte": "7.3.0",
 		"@tailwindcss/typography": "0.5.20",
 		"@tailwindcss/vite": "4.3.3",
 		"@types/node": "26.2.0",
@@ -82,7 +82,7 @@
 		"jose": "6.2.8",
 		"nanoid": "6.0.1",
 		"neverthrow": "8.2.0",
-		"pg": "8.22.0",
+		"pg": "8.23.0",
 		"svelte-sonner": "1.1.1",
 		"zod": "4.4.3"
 	},
