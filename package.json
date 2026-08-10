@@ -67,7 +67,7 @@
 		"@aws-sdk/client-ses": "3.1106.0",
 		"@fontsource-variable/figtree": "5.3.0",
 		"@fontsource/poppins": "5.3.0",
-		"@lucide/svelte": "1.30.0",
+		"@lucide/svelte": "1.31.0",
 		"@prisma/adapter-pg": "7.9.1",
 		"@prisma/client": "7.9.1",
 		"@sentry/sveltekit": "10.69.0",
@@ -105,5 +105,5 @@
 			"onFail": "warn"
 		}
 	},
-	"packageManager": "pnpm@11.20.0"
+	"packageManager": "pnpm@11.21.0"
 }
