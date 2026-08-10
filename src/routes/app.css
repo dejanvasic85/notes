@@ -354,6 +354,12 @@
 	display: flex;
 	align-items: flex-start;
 	gap: 0.5rem;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.tiptap ul[data-type='taskList'] li + li {
+	margin-top: 0.375rem;
 }
 
 .tiptap ul[data-type='taskList'] li > label {
@@ -364,6 +370,19 @@
 
 .tiptap ul[data-type='taskList'] li > div {
 	flex: 1 1 auto;
+}
+
+/*
+ * TipTap wraps every task item's content in a <p>, which otherwise inherits
+ * @tailwindcss/typography's large first/last-child paragraph margins and
+ * stacks with the li margin above, producing huge gaps.
+ */
+.tiptap ul[data-type='taskList'] li > div > p:first-child {
+	margin-top: 0;
+}
+
+.tiptap ul[data-type='taskList'] li > div > p:last-child {
+	margin-bottom: 0;
 }
 
 .tiptap ul[data-type='taskList'] input[type='checkbox'] {
