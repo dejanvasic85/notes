@@ -24,8 +24,8 @@
 	const clipThresholdPx = 4;
 	const avatarSize = 6;
 	const labelPreviewLimit = 80;
-	// A few degrees reads as "picked up"; more starts to look like a spin.
-	const dragTiltDeg = 3;
+	// Trello-style: a confident tilt, not a subtle one.
+	const dragTiltDeg = 8;
 	// Beyond three faces the stack eats the whole footer of a mobile column,
 	// so the rest collapse into a count.
 	const maxVisibleAvatars = 3;
