@@ -5,6 +5,7 @@
 	import { getNotePreview } from '$lib/notePreview';
 	import type { NoteOrdered, Friend, UserProfile } from '$lib/types';
 	import { GripVertical } from '@lucide/svelte';
+	import { prefersReducedMotion } from 'svelte/motion';
 
 	import UserAvatar from './UserAvatar.svelte';
 
@@ -23,6 +24,8 @@
 	const clipThresholdPx = 4;
 	const avatarSize = 6;
 	const labelPreviewLimit = 80;
+	// A few degrees reads as "picked up"; more starts to look like a spin.
+	const dragTiltDeg = 3;
 	// Beyond three faces the stack eats the whole footer of a mobile column,
 	// so the rest collapse into a count.
 	const maxVisibleAvatars = 3;
@@ -112,10 +115,46 @@
 		return () => observer.disconnect();
 	});
 
+	/*
+	 * The browser's native drag image is a static snapshot taken at drag
+	 * start, not the live element, so it can't be styled with CSS once the
+	 * drag is underway. Handing setDragImage a pre-rotated, elevated clone is
+	 * the only way to make the thing following the cursor look picked up.
+	 */
+	function createTiltedDragImage(source: HTMLElement): HTMLElement {
+		const { width, height } = source.getBoundingClientRect();
+		const preview = source.cloneNode(true) as HTMLElement;
+
+		preview.removeAttribute('id');
+		preview.removeAttribute('tabindex');
+		preview.setAttribute('draggable', 'false');
+		preview.setAttribute('aria-hidden', 'true');
+		preview.classList.add('shadow-lifted');
+		preview.style.position = 'fixed';
+		preview.style.top = '-9999px';
+		preview.style.left = '-9999px';
+		preview.style.width = `${width}px`;
+		preview.style.height = `${height}px`;
+		preview.style.margin = '0';
+		preview.style.pointerEvents = 'none';
+		preview.style.transform = `rotate(${dragTiltDeg}deg)`;
+
+		return preview;
+	}
+
 	function handleDragStart(event: DragEvent) {
 		event.dataTransfer?.setData('text/plain', index.toString());
 		isDragging = true;
 		ondragstart?.(index);
+
+		if (prefersReducedMotion.current) return;
+
+		const preview = createTiltedDragImage(event.currentTarget as HTMLElement);
+		document.body.appendChild(preview);
+		event.dataTransfer?.setDragImage(preview, event.offsetX, event.offsetY);
+		// The browser needs at least one frame to snapshot the preview before
+		// it's safe to remove.
+		requestAnimationFrame(() => preview.remove());
 	}
 
 	function handleDragEnd() {
