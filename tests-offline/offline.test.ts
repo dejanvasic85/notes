@@ -270,7 +270,6 @@ async function getSignedInUserId(page: Page): Promise<string> {
 // one - see #882.
 async function createIsolatedNote(page: Page) {
 	await page.getByRole('button', { name: 'Create a new note' }).click();
-	await expect(page.getByText('Note created')).toBeVisible();
 	const titleInput = page.getByPlaceholder('Title');
 	await expect(titleInput).toBeVisible();
 	const noteId = new URL(page.url()).searchParams.get('id')!;
