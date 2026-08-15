@@ -20,9 +20,6 @@ test('basic note management', async ({ page }) => {
 	// Click the create button - the queue will handle request sequencing
 	await createButton.click();
 
-	// Verify the success toast appears once the note is created on the server
-	await expect(page.getByText('Note created')).toBeVisible();
-
 	await page.getByRole('button', { name: 'Choose colour' }).click();
 	await page.getByRole('button', { name: 'blue' }).click();
 
@@ -93,7 +90,6 @@ test('deleting a note with an unsaved edit does not throw or show an error', asy
 	const createButton = page.getByRole('button', { name: 'Create a new note' });
 	await expect(createButton).toBeVisible({ timeout: 10000 });
 	await createButton.click();
-	await expect(page.getByText('Note created')).toBeVisible();
 
 	const titleTextbox = page.getByRole('textbox', { name: 'Title' });
 	await expect(titleTextbox).toBeVisible();
@@ -131,7 +127,6 @@ test('closing a note whose save fails keeps the editor open instead of dismissin
 	const createButton = page.getByRole('button', { name: 'Create a new note' });
 	await expect(createButton).toBeVisible({ timeout: 10000 });
 	await createButton.click();
-	await expect(page.getByText('Note created')).toBeVisible();
 
 	const titleTextbox = page.getByRole('textbox', { name: 'Title' });
 	await expect(titleTextbox).toBeVisible();
@@ -186,7 +181,6 @@ test('closing right after a failing autosave already fired keeps the editor open
 	const createButton = page.getByRole('button', { name: 'Create a new note' });
 	await expect(createButton).toBeVisible({ timeout: 10000 });
 	await createButton.click();
-	await expect(page.getByText('Note created')).toBeVisible();
 
 	const titleTextbox = page.getByRole('textbox', { name: 'Title' });
 	await expect(titleTextbox).toBeVisible();

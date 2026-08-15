@@ -133,8 +133,6 @@
 				type: 'error',
 				message: 'There was a problem creating a note. Try again.'
 			});
-		} else {
-			toastMessages.addMessage({ type: 'success', message: 'Note created' });
 		}
 	}
 
