@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { OriginRect } from '$lib/motion';
+	import { playCue } from '$lib/sound';
 	import type { Friend, NoteOrdered, ToggleFriendShare } from '$lib/types';
 
 	import Note from './Note.svelte';
@@ -38,6 +39,7 @@
 	}: Props = $props();
 
 	function handleModalClose() {
+		playCue('whoosh');
 		onclosenote();
 	}
 
@@ -65,12 +67,14 @@
 	});
 
 	function handleEdit(id: string, rect: DOMRect) {
+		playCue('swoosh');
 		clickedOrigin = { noteId: id, rect };
 		onselect({ id });
 	}
 
 	function handleDrop(toIndex: number, sourceIndex: number) {
 		if (sourceIndex !== toIndex) {
+			playCue('thock');
 			onreorder({ fromIndex: sourceIndex, toIndex });
 		}
 	}
@@ -127,7 +131,10 @@
 					{index}
 					isDraggable={true}
 					onclick={(rect) => handleEdit(note.id, rect)}
-					ondragstart={(i) => (draggedIndex = i)}
+					ondragstart={(i) => {
+						playCue('press');
+						draggedIndex = i;
+					}}
 					ondragend={() => (draggedIndex = null)}
 				/>
 			</NoteDropzone>

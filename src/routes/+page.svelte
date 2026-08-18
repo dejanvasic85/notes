@@ -11,6 +11,7 @@
 	import Footer from '$components/Footer.svelte';
 	import LinkButton from '$components/LinkButton.svelte';
 	import logo from '$lib/images/notes-main.png';
+	import { playCue } from '$lib/sound';
 	import type { Note, NoteOrdered } from '$lib/types';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
@@ -30,6 +31,7 @@
 
 	function handleCreateNote() {
 		const newNote = boardState.createNewNote();
+		playCue('pop');
 		goto(`/?id=${newNote.id}`);
 	}
 
@@ -45,10 +47,14 @@
 			deletedMessage,
 			{
 				label: undoActionLabel,
-				onClick: () => boardState.createNoteAtIndex(index, deletedNote)
+				onClick: () => {
+					playCue('rise');
+					boardState.createNoteAtIndex(index, deletedNote);
+				}
 			},
 			undefined,
-			undoWindowMs
+			undoWindowMs,
+			'drop'
 		);
 	}
 

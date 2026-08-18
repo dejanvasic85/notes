@@ -1,10 +1,15 @@
 import { getContext, setContext } from 'svelte';
 import { toast } from 'svelte-sonner';
+import type { CueName } from '@foleyjs/core';
 
+import { playCue } from '$lib/sound';
 import { type ToastAction, type ToastMessage } from '$lib/types';
+
+const defaultActionCue: CueName = 'chime';
 
 export class ToastMessages {
 	addMessage(message: ToastMessage) {
+		playCue(message.type === 'success' ? 'success' : 'error');
 		toast[message.type](message.message);
 	}
 
@@ -18,8 +23,10 @@ export class ToastMessages {
 		message: string,
 		action: ToastAction,
 		onDismiss?: () => void,
-		durationMs: number = Number.POSITIVE_INFINITY
+		durationMs: number = Number.POSITIVE_INFINITY,
+		cue: CueName = defaultActionCue
 	) {
+		playCue(cue);
 		toast(message, {
 			duration: durationMs,
 			closeButton: true,

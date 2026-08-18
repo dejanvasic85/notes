@@ -41,7 +41,9 @@
 			{ label: retryActionLabel, onClick: onretry },
 			() => {
 				offered = false;
-			}
+			},
+			undefined,
+			'warning'
 		);
 	});
 </script>

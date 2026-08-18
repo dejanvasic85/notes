@@ -65,6 +65,7 @@
 		"@47ng/cloak": "1.2.0",
 		"@auth0/auth0-spa-js": "2.24.1",
 		"@aws-sdk/client-ses": "3.1110.0",
+		"@foleyjs/core": "2.8.0",
 		"@fontsource-variable/figtree": "5.3.0",
 		"@fontsource/poppins": "5.3.0",
 		"@lucide/svelte": "1.31.0",

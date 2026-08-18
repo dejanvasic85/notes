@@ -4,6 +4,7 @@
 
 	import { colours, type Colour } from '$lib/colours';
 	import { durationTapMs, reduceMotion } from '$lib/motion';
+	import { playCue } from '$lib/sound';
 	import { Paintbrush, Minus } from '@lucide/svelte';
 
 	import Button from './Button.svelte';
@@ -18,6 +19,7 @@
 	let { onselect, side = 'bottom' }: Props = $props();
 
 	function handleColourClick(colour: Colour | null) {
+		playCue('latch');
 		onselect(colour);
 	}
 </script>
