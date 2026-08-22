@@ -36,7 +36,7 @@
 		"@typescript-eslint/parser": "8.67.0",
 		"@vitest/coverage-v8": "4.1.11",
 		"dotenv": "17.4.2",
-		"eslint": "10.8.1",
+		"eslint": "10.9.0",
 		"eslint-config-prettier": "10.1.8",
 		"eslint-plugin-svelte": "3.23.0",
 		"globals": "17.11.0",
@@ -64,7 +64,7 @@
 	"dependencies": {
 		"@47ng/cloak": "1.2.0",
 		"@auth0/auth0-spa-js": "2.24.1",
-		"@aws-sdk/client-ses": "3.1115.0",
+		"@aws-sdk/client-ses": "3.1116.0",
 		"@fontsource-variable/figtree": "5.3.0",
 		"@fontsource/poppins": "5.3.0",
 		"@lucide/svelte": "1.33.0",
