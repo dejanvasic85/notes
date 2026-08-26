@@ -1,5 +1,6 @@
 import { NetworkUnavailableError, tryFetch } from '$lib/browserFetch';
 import { generateId } from '$lib/identityGenerator';
+import { playCue } from '$lib/sound';
 import type { NoteOrdered } from '$lib/types';
 
 import type { BoardState } from './boardState.svelte';
@@ -63,7 +64,8 @@ export function createBoardActions(
 			deletedMessage,
 			{ label: undoActionLabel, onClick: () => undoDelete(note.id) },
 			undefined,
-			undoWindowMs
+			undoWindowMs,
+			'drop'
 		);
 	}
 
@@ -74,6 +76,7 @@ export function createBoardActions(
 		}
 		clearTimeout(pending.timeoutId);
 		pendingDeletes.delete(noteId);
+		playCue('rise');
 		boardState.createNoteAtIndex(pending.index, pending.note);
 	}
 

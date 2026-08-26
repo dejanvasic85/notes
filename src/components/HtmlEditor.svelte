@@ -6,6 +6,7 @@
 	import { TaskItem, TaskList } from '@tiptap/extension-list';
 	import Placeholder from '@tiptap/extension-placeholder';
 	import type { Attachment } from 'svelte/attachments';
+	import { playCue } from '$lib/sound';
 
 	type Props = {
 		id: string;
@@ -103,7 +104,19 @@
 
 			oneditorcreate?.(editor);
 
+			// Tiptap renders a plain checkbox input for each task item, so a
+			// delegated click listener is simpler than a custom NodeView just
+			// to hear it toggle.
+			const handleTaskItemClick = (event: MouseEvent) => {
+				const target = event.target;
+				if (target instanceof HTMLInputElement && target.type === 'checkbox') {
+					playCue('switch');
+				}
+			};
+			element.addEventListener('click', handleTaskItemClick);
+
 			return () => {
+				element.removeEventListener('click', handleTaskItemClick);
 				editor.destroy();
 			};
 		});
