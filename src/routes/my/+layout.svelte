@@ -9,6 +9,7 @@
 	import logo from '$lib/images/notes-main.png';
 	import { tryFetch, NetworkUnavailableError } from '$lib/browserFetch';
 	import { generateId } from '$lib/identityGenerator';
+	import { playCue } from '$lib/sound';
 	import { getBoardState } from '$lib/state/boardState.svelte';
 	import { setConnectivityState } from '$lib/state/connectivityState.svelte';
 	import { getToastMessages } from '$lib/state/toastMessages.svelte';
@@ -96,6 +97,7 @@
 
 	async function handleCreateNote() {
 		const newNote = boardState.createNewNote();
+		playCue('pop');
 		goto(`/my/board?id=${newNote.id}`, {
 			state: { selectedNoteId: newNote.id },
 			replaceState: true

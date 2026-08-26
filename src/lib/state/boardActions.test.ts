@@ -59,7 +59,8 @@ describe('createBoardActions', () => {
 			'Note deleted',
 			expect.objectContaining({ label: 'Undo' }),
 			undefined,
-			3000
+			3000,
+			'drop'
 		);
 		expect(tryFetch).not.toHaveBeenCalled();
 	});

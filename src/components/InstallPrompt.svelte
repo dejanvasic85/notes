@@ -44,7 +44,9 @@
 		toastMessages.addActionMessage(
 			promptMessage,
 			{ label: promptActionLabel, onClick: handleInstall },
-			() => installState.dismissPrompt()
+			() => installState.dismissPrompt(),
+			undefined,
+			'ping'
 		);
 	});
 </script>
