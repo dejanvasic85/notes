@@ -11,4 +11,6 @@ Project-specific guidance for AI coding agents. See `.claude/CLAUDE.md` for the 
 
 Use as few words as possible — in chat replies, PR descriptions, comments, and issues. Code comments: only when the name isn't self-explanatory, and keep them to one short line.
 
+Write all user-facing text — chat replies, PR descriptions, comments, and issues — in plain language per ISO 24495-1:2023 (readers find what they need, understand it on first read, and can use it). This governs wording only; reasoning and analysis stay as thorough as the task needs.
+
 Prefix any PR or issue comment you post with 🤖, so it's clear at a glance it's from an agent, not a human.
