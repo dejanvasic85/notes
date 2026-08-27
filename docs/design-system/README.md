@@ -390,8 +390,8 @@ These are bugs, not preferences. Verified against the built CSS.
 
 ## 9. Contrast verification
 
-`.claude/CLAUDE.md` requires AA compliance, so the palette is checked with a script rather
-than judged by eye:
+`AGENTS.md` requires AA compliance, so the palette is checked with a script rather than
+judged by eye:
 
 ```bash
 node docs/design-system/check-contrast.mjs
