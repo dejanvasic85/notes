@@ -3,9 +3,9 @@
 ## Background
 
 `fp-ts` (`^2.16.5`) is used throughout the server-side codebase for typed, composable error
-handling. The library is being deprecated as the author pivots to the
-[Effect](https://effect.website) ecosystem. This document analyses the current usage, compares
-replacement options, and proposes a migration strategy.
+handling. The library is being deprecated because its author is now focused on the
+[Effect](https://effect.website) ecosystem instead. This document analyses the current usage,
+compares replacement options, and proposes a migration strategy.
 
 ---
 

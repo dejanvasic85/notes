@@ -28,7 +28,7 @@
 - **Tailwind CSS**: For styling.
 - **Prisma + Postgres**: Database and ORM.
 - **FP-TS**: Functional programming utilities.
-- **Vite**: Lightning-fast build tool.
+- **Vite**: Fast build tool.
 - **Playwright**: For end-to-end testing.
 - **Vercel**: Hosting and deployment.
 
@@ -75,4 +75,4 @@ To deploy the app, you can use Vercel or any other hosting provider. Make sure t
 
 ---
 
-This project is a labor of love and a way to explore modern web development. Contributions and feedback are welcome!
+I built this project because I enjoy it, and to explore modern web development. Contributions and feedback are welcome!
