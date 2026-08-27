@@ -31,7 +31,7 @@ UI changes that conform to one coherent system instead of adding another ad-hoc 
 
 ## Non-negotiables
 
-These hold regardless of which part of the system is adopted yet.
+These rules apply no matter how much of the system has been adopted so far.
 
 - **Focus is always visible.** Never `focus:outline-hidden` without a `:focus-visible`
   replacement. Invisible keyboard focus is an AA failure, and the repo currently has this
@@ -56,8 +56,8 @@ These hold regardless of which part of the system is adopted yet.
 
 The system is being adopted in stages, so not every token in `tokens.css` is live yet.
 **Before writing a class like `bg-paper` or `rounded-card`, confirm the token is in
-`src/routes/app.css`.** Tailwind silently generates nothing for a token it doesn't know, so
-a missing one fails invisibly rather than erroring.
+`src/routes/app.css`.** Tailwind generates nothing for a token it doesn't recognize, so a missing
+token fails silently instead of throwing an error.
 
 If it isn't there, either land it as part of your change or use the current equivalent and
 note the follow-up. The remaining sequence is in README's adoption path.

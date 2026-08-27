@@ -65,9 +65,9 @@ custom `dark-*` set, and the one-off hexes `#f5f5f7` / `#e0e0e2`.
 > light and dark values are not simply lighter/darker versions of each other.
 
 **Why plum and not terracotta.** The visual references lean orange, but `#8f5bbd` is the
-logo, the PWA `theme_color` in `static/manifest.json`, and the installed app icon. Moving to
-terracotta means re-cutting the brand. This accent is the same hue family, dropped in
-saturation so it can appear far more often without ever raising its voice.
+logo, the PWA `theme_color` in `static/manifest.json`, and the installed app icon. Switching
+to terracotta would mean redefining the brand colour. This accent uses the same hue family
+at lower saturation, so it can appear far more often without feeling too bold.
 
 ### Semantic
 
@@ -109,11 +109,11 @@ Two faces, split by job.
 - **Poppins 500/600 — display only.** Keeps the brand voice, and its wide geometric
   lowercase is an asset at large sizes. Not used below 20px.
 - **Figtree 400–600 — everything else.** Body, UI, labels, meta. Narrower and far more
-  readable at text sizes, which is where Poppins currently costs the app.
+  readable at text sizes, which is where Poppins currently hurts readability.
 
-Both **self-hosted**. This replaces the render-blocking Google Fonts `@import` at the top of
-`app.css` and fixes a live bug: Poppins loads at 400/500 today while `font-bold` (700) is
-used in several places, so those bolds are currently synthesised by the browser.
+Both are **self-hosted**, replacing the render-blocking Google Fonts `@import` at the top of
+`app.css`. This also fixes a live bug: Poppins currently loads at 400/500, but `font-bold`
+(700) is used in several places, so the browser synthesises those bolds today.
 
 | Role           | Face        | Size     | Line height | Tracking           |
 | -------------- | ----------- | -------- | ----------- | ------------------ |
@@ -127,13 +127,13 @@ used in several places, so those bolds are currently synthesised by the browser.
 ### Measure
 
 `--container-measure` is **65ch**, exposed as `max-w-measure`. WCAG 1.4.8 caps blocks of text
-at 80 characters; 65 is the classic measure and what `@tailwindcss/typography` already
+at 80 characters. 65 is the classic measure, and it's what `@tailwindcss/typography` already
 applies via `prose`.
 
 **Containers that hold running text are sized from the measure, not from the viewport.** The
-note editor sheet is `max-w-3xl` for exactly this reason — it used to be `w-4/5`, which on a
-wide screen left the text hugging the left edge of a mostly empty panel and made a
-deliberate measure look like a broken layout.
+note editor sheet is `max-w-3xl` for exactly this reason. It used to be `w-4/5`, which on a
+wide screen left the text hugging the left edge of a mostly empty panel — a deliberate
+measure ended up looking like a broken layout.
 
 Where an editing surface has to be both measured _and_ clickable, let the surface fill its
 container and constrain the children instead — see the `.tiptap > *` rule in `app.css`. That
@@ -170,8 +170,8 @@ Headings get `text-wrap: balance`.
 Shadows are **tinted with the ink hue, never pure black** — that alone is most of what
 separates a calm interface from a harsh one.
 
-In dark mode shadow barely reads, so elevation is carried by **progressively lighter
-surfaces plus `--color-line`**. The tokens swap; components don't change.
+In dark mode, shadows are barely visible, so elevation comes from **progressively lighter
+surfaces plus `--color-line`** instead. The tokens swap; the components don't change.
 
 ---
 
@@ -192,8 +192,8 @@ attribute is the signal, and `prefers-color-scheme` does the rest in pure CSS.
 | Light  | `light`      | `:not([data-theme='light'])` excludes it from the query |
 | Dark   | `dark`       | the attribute selector                                  |
 
-Leaving System attribute-less buys two things: it cannot flash (no JS decides it), and it
-keeps following the OS while the page is open with no `matchMedia` listener.
+Leaving System without an attribute has two benefits: it can't flash (no JS decides it), and
+it keeps following the OS while the page is open, with no `matchMedia` listener needed.
 
 ### The dark variant
 
@@ -390,7 +390,8 @@ These are bugs, not preferences. Verified against the built CSS.
 
 ## 9. Contrast verification
 
-`.claude/CLAUDE.md` requires AA compliance, so the palette is checked rather than eyeballed:
+`.claude/CLAUDE.md` requires AA compliance, so the palette is checked with a script rather
+than judged by eye:
 
 ```bash
 node docs/design-system/check-contrast.mjs
