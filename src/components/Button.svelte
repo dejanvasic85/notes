@@ -3,6 +3,7 @@
 	import { Tooltip } from 'bits-ui';
 
 	import { type Size, type Variant, buildButtonClass } from '$lib/button';
+	import { playCue } from '$lib/sound';
 
 	type Props = {
 		children: Snippet<[]>;
@@ -35,6 +36,11 @@
 	const buttonClass = $derived(
 		buildButtonClass(variant, rounded, loading || disabled, active, size)
 	);
+
+	function handleClick() {
+		playCue('press');
+		onclick?.();
+	}
 </script>
 
 {#snippet buttonElement(triggerProps?: Record<string, unknown>)}
@@ -42,7 +48,7 @@
 		{...triggerProps}
 		{type}
 		class={buttonClass}
-		{onclick}
+		onclick={handleClick}
 		aria-label={label}
 		disabled={loading || disabled}
 	>

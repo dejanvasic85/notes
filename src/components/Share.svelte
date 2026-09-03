@@ -7,6 +7,7 @@
 	import UserAvatar from './UserAvatar.svelte';
 	import { buildButtonClass } from '$lib/button';
 	import { durationFastMs, easeMove, reduceMotion } from '$lib/motion';
+	import { playCue } from '$lib/sound';
 
 	type ToggleFriendEvent = {
 		id?: string;
@@ -61,7 +62,7 @@
 	</span>
 {/snippet}
 
-<DropdownMenu.Root>
+<DropdownMenu.Root onOpenChange={(open) => open && playCue('press')}>
 	<DropdownMenu.Trigger>
 		{#snippet child({ props })}
 			<button {...props} type="button" class={triggerClass} aria-label={triggerLabel}>
@@ -113,12 +114,14 @@
 											<DropdownMenu.CheckboxItem
 												checked={selected}
 												closeOnSelect={false}
-												onCheckedChange={(checked) =>
+												onCheckedChange={(checked) => {
+													playCue('switch');
 													ontogglefriend({
 														id: noteEditorId,
 														friendUserId: id,
 														selected: checked
-													})}
+													});
+												}}
 												class={rowClass}
 											>
 												<!-- The row's own text already names the friend; without this the
@@ -139,7 +142,7 @@
 								{/if}
 							</DropdownMenu.Group>
 							<DropdownMenu.Separator class="border-line-soft my-2 border-t" />
-							<DropdownMenu.Item>
+							<DropdownMenu.Item onSelect={() => playCue('press')}>
 								{#snippet child({ props: itemProps })}
 									<a {...itemProps} class={rowClass} href={`/my/friends/add?noteId=${noteId}`}>
 										<!-- Sized to the avatars above it so every row shares one
