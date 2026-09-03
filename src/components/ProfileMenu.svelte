@@ -3,6 +3,7 @@
 	import { DropdownMenu } from 'bits-ui';
 
 	import { durationFastMs, easeMove, reduceMotion } from '$lib/motion';
+	import { playCue } from '$lib/sound';
 	import { Download, Settings, LogOut, type LucideIcon } from '@lucide/svelte';
 	import UserAvatar from './UserAvatar.svelte';
 	import InstallInstructions from './InstallInstructions.svelte';
@@ -21,6 +22,8 @@
 	let showInstructions = $state(false);
 
 	function handleInstall() {
+		playCue('press');
+
 		if (installState.needsManualSteps) {
 			showInstructions = true;
 			return;
@@ -79,7 +82,7 @@
 	</button>
 {/snippet}
 
-<DropdownMenu.Root>
+<DropdownMenu.Root onOpenChange={(open) => open && playCue('press')}>
 	<DropdownMenu.Trigger aria-label="user menu">
 		<UserAvatar picture={userPicture} {name} size={8} showTooltip={false} />
 	</DropdownMenu.Trigger>
@@ -100,7 +103,7 @@
 									<span class="text-ink-muted truncate text-xs">{email}</span>
 								</div>
 							</div>
-							<DropdownMenu.Item>
+							<DropdownMenu.Item onSelect={() => playCue('press')}>
 								{#snippet child({ props: itemProps })}
 									{@render MenuLink({
 										text: 'Account settings',
@@ -121,7 +124,7 @@
 									{/snippet}
 								</DropdownMenu.Item>
 							{/if}
-							<DropdownMenu.Item>
+							<DropdownMenu.Item onSelect={() => playCue('press')}>
 								{#snippet child({ props: itemProps })}
 									{@render MenuLink({
 										text: 'Logout',

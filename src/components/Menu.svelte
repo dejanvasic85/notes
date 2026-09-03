@@ -6,6 +6,7 @@
 	import Button from './Button.svelte';
 	import { durationBaseMs, durationSlowMs, easeMove, reduceMotion } from '$lib/motion';
 	import { getFriendsState } from '$lib/state/friendsState.svelte';
+	import { playCue } from '$lib/sound';
 
 	type Props = {
 		oncreatenote: () => void;
@@ -38,6 +39,8 @@
 	const inactiveStrokeWidth = 2;
 
 	function handleNavClick() {
+		playCue('press');
+
 		if (navigator.vibrate) {
 			navigator.vibrate(50);
 		}
