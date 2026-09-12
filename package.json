@@ -64,11 +64,11 @@
 	"dependencies": {
 		"@47ng/cloak": "1.2.0",
 		"@auth0/auth0-spa-js": "2.24.1",
-		"@aws-sdk/client-ses": "3.1130.0",
+		"@aws-sdk/client-ses": "3.1131.0",
 		"@foleyjs/core": "2.8.1",
 		"@fontsource-variable/figtree": "5.3.0",
 		"@fontsource/poppins": "5.3.0",
-		"@lucide/svelte": "1.44.0",
+		"@lucide/svelte": "1.45.0",
 		"@prisma/adapter-pg": "7.10.0",
 		"@prisma/client": "7.10.0",
 		"@sentry/sveltekit": "10.74.0",
