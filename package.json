@@ -34,7 +34,7 @@
 		"@types/node": "26.5.1",
 		"@typescript-eslint/eslint-plugin": "8.70.0",
 		"@typescript-eslint/parser": "8.70.0",
-		"@vitest/coverage-v8": "5.0.0",
+		"@vitest/coverage-v8": "5.0.1",
 		"dotenv": "17.4.2",
 		"eslint": "10.10.0",
 		"eslint-config-prettier": "10.1.8",
@@ -44,7 +44,7 @@
 		"lint-staged": "17.5.1",
 		"postcss": "8.5.28",
 		"postcss-html": "2.0.0",
-		"prettier": "3.9.6",
+		"prettier": "3.9.7",
 		"prettier-plugin-svelte": "4.1.1",
 		"prettier-plugin-tailwindcss": "0.8.1",
 		"prisma": "7.9.0",
@@ -63,15 +63,15 @@
 	"type": "module",
 	"dependencies": {
 		"@47ng/cloak": "1.2.0",
-		"@auth0/auth0-spa-js": "2.24.1",
-		"@aws-sdk/client-ses": "3.1130.0",
-		"@foleyjs/core": "2.8.1",
+		"@auth0/auth0-spa-js": "2.26.0",
+		"@aws-sdk/client-ses": "3.1134.0",
+		"@foleyjs/core": "2.9.0",
 		"@fontsource-variable/figtree": "5.3.0",
 		"@fontsource/poppins": "5.3.0",
-		"@lucide/svelte": "1.44.0",
+		"@lucide/svelte": "1.46.0",
 		"@prisma/adapter-pg": "7.10.0",
 		"@prisma/client": "7.10.0",
-		"@sentry/sveltekit": "10.74.0",
+		"@sentry/sveltekit": "10.75.0",
 		"@tiptap/core": "3.31.3",
 		"@tiptap/extension-hard-break": "3.31.3",
 		"@tiptap/extension-list": "3.31.3",
@@ -85,7 +85,7 @@
 		"neverthrow": "8.2.0",
 		"pg": "8.23.0",
 		"svelte-sonner": "1.2.1",
-		"zod": "4.6.2"
+		"zod": "4.6.5"
 	},
 	"lint-staged": {
 		"*": [
@@ -106,5 +106,5 @@
 			"onFail": "warn"
 		}
 	},
-	"packageManager": "pnpm@12.4.1"
+	"packageManager": "pnpm@12.4.2"
 }
