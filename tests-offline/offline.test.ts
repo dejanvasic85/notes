@@ -206,8 +206,11 @@ test('renders the authenticated board while offline', async ({ page, context }) 
 	await expect(createButton).toBeVisible();
 
 	expect(findCache(await readCacheKeys(page), pageCachePrefix)).toContain(boardPath);
+	// The board snapshot write has been observed to occasionally take longer than
+	// the default 5s poll window under CI load; the other assertions in this file
+	// don't race a write immediately after reload, so only this one needs slack.
 	await expect
-		.poll(() => readSnapshotKeys(page))
+		.poll(() => readSnapshotKeys(page), { timeout: 15_000 })
 		.toEqual(expect.arrayContaining([boardKeyMatcher]));
 
 	const notes = page.getByRole('button', { name: /^Edit note/ });
