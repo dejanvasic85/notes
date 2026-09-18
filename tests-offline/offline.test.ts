@@ -258,8 +258,10 @@ test('shows and clears the header offline indicator as connectivity changes', as
 
 // Strip the board: prefix to get the real signed-in user's id.
 async function getSignedInUserId(page: Page): Promise<string> {
+	// Same board-snapshot write race as the poll in "renders the authenticated
+	// board while offline" (see that test), so it needs the same slack.
 	await expect
-		.poll(() => readSnapshotKeys(page))
+		.poll(() => readSnapshotKeys(page), { timeout: 15_000 })
 		.toEqual(expect.arrayContaining([boardKeyMatcher]));
 	const keys = await readSnapshotKeys(page);
 	const boardSnapshotKey = keys.find((key) => key.startsWith('board:'))!;
