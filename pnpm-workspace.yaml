@@ -16,4 +16,4 @@ allowBuilds:
 # Nothing dedupes this on its own; the versions are only a patch apart and both
 # satisfy every range asking for them.
 overrides:
-  prosemirror-model: 1.25.11
+  prosemirror-model: 1.25.12
