@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm and Node
-        uses: pnpm/setup@v2
+        uses: pnpm/setup@v3
         with:
           install: false
       - name: Install dependencies
@@ -57,7 +57,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm and Node
-        uses: pnpm/setup@v2
+        uses: pnpm/setup@v3
         with:
           install: false
       - name: Install dependencies
@@ -99,7 +99,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm and Node
-        uses: pnpm/setup@v2
+        uses: pnpm/setup@v3
         with:
           install: false
       - name: Install dependencies
