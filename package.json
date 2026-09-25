@@ -71,7 +71,7 @@
 		"@lucide/svelte": "1.48.0",
 		"@prisma/adapter-pg": "7.10.0",
 		"@prisma/client": "7.10.0",
-		"@sentry/sveltekit": "10.75.3",
+		"@sentry/sveltekit": "11.0.0",
 		"@tiptap/core": "3.31.3",
 		"@tiptap/extension-hard-break": "3.31.3",
 		"@tiptap/extension-list": "3.31.3",
