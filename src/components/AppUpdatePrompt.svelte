@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { dev } from '$app/environment';
+	import { dev } from '$app/env';
 	import { afterNavigate } from '$app/navigation';
 
 	import { applyAppUpdate, checkForAppUpdate, watchForAppUpdate } from '$lib/appUpdate';

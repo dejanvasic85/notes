@@ -7,7 +7,7 @@
 	import Input from './Input.svelte';
 	import Button from './Button.svelte';
 
-	let search = $derived(new URL(page.url).searchParams);
+	let search = $derived(new URL(page.url.href).searchParams);
 	let searchQuery = $derived(search.get('q'));
 	let searchValue: string | null = $state(null);
 	let showClearIcon = $derived(!!searchValue);

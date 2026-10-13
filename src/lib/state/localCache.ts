@@ -1,5 +1,5 @@
 import { get, set } from 'idb-keyval';
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 
 import { boardKey, friendsKey } from './localCacheKeys';
 import type { NoteOrdered, Friend, UserInvite, UserInviteWithUserProps } from '$lib/types';
