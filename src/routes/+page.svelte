@@ -70,7 +70,7 @@
 		boardState.reorderNotes(fromIndex, toIndex);
 	}
 
-	let search = $derived(new URL(page.url).searchParams);
+	let search = $derived(new URL(page.url.href).searchParams);
 	let selectedId = $derived(search.get('id'));
 	let selectedNote = $derived(boardState.notes.find((n) => n.id === selectedId));
 </script>

@@ -1,7 +1,7 @@
 import { get, set } from 'idb-keyval';
 import { onDestroy } from 'svelte';
 import { SvelteSet } from 'svelte/reactivity';
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 
 import { tryFetch, NetworkUnavailableError } from '$lib/browserFetch';
 import type { Board, Note } from '$lib/types';

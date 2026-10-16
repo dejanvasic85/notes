@@ -1,4 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
+import adapter from '@sveltejs/adapter-vercel';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { sentrySvelteKit } from '@sentry/sveltekit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
@@ -20,7 +22,17 @@ export default defineConfig({
 				deploy: vercelEnvironment ? { env: vercelEnvironment, url: vercelDeployUrl } : false
 			}
 		}),
-		sveltekit()
+		sveltekit({
+			preprocess: vitePreprocess(),
+			adapter: adapter({
+				runtime: 'nodejs22.x'
+			}),
+			alias: {
+				'$lib/*': 'src/lib/*',
+				'$components/*': 'src/components/*',
+				'$test-utils/*': 'src/test-utils/*'
+			}
+		})
 	],
 	build: {
 		// Keep self-hosted fonts as separate cacheable files. Vite's 4KB default

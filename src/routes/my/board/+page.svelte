@@ -25,7 +25,7 @@
 	onDestroy(() => boardActions.flushPendingDeletes());
 
 	let loading = $derived(boardState.loading);
-	let search = $derived(new URL(page.url).searchParams);
+	let search = $derived(new URL(page.url.href).searchParams);
 	let selectedNote = $derived(boardState.getNoteById(page.state.selectedNoteId));
 	let filtered = $derived(boardState.filter(search.get('q')));
 	let emptyMessage = $derived(

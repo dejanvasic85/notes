@@ -1,5 +1,5 @@
 import { getContext, onDestroy, setContext } from 'svelte';
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 
 export class ConnectivityState {
 	#online = $state(true);
